@@ -45,12 +45,9 @@ namespace System.Data.NuoDB
 		internal const int PROTOCOL_VERSION7 = 7; // 5/11/2012    Fix issues with generated key result set and last commit info
 		internal const int PROTOCOL_VERSION8 = 8; // 8/10/2012    Support for async result set close and prepared query sans column names
 		internal const int PROTOCOL_VERSION9 = 9; // 8/30/2012    New Date/Time/Timestamp encodings
-		 internal const int PROTOCOL_VERSION10 = 10; // 10/18/2012    Transact and ConnectionId
-
+        internal const int PROTOCOL_VERSION10 = 10; // 1/13/2012   Normalization of Date
 		internal const int PROTOCOL_VERSION = PROTOCOL_VERSION10;
 		// When updating the PROTOCOL_VERSION, be sure to update Remote/ProtocolVersion.h
-
-		internal const int PROTOCOL_VERSION_TRANSACT = PROTOCOL_VERSION10; // No expected integration for some time
 
 		internal const int Failure = 0;
 		internal const int Success = 1;
@@ -155,7 +152,6 @@ namespace System.Data.NuoDB
 		internal const int SupportsTransactionIsolation = 100; // Connection
 		internal const int GetCatalog = 101; // Connection
 		internal const int GetCurrentSchema = 102; // Connection
-		internal const int Transact = 103; // Connection
 
 		// updates to this list must be make in MsgType.h
 		// Database Metadata Items

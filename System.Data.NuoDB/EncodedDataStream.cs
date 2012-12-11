@@ -53,6 +53,7 @@ namespace System.Data.NuoDB
 		protected internal byte[] buffer; // used for decode()
 		protected internal int offset; // used for decode()
 		protected internal int priorCode; // for debugging
+        private int protocolVersion;
 
 		internal const int defaultSegmentSize = 512;
 		internal const int lengthLength = 4;
@@ -325,7 +326,12 @@ namespace System.Data.NuoDB
 		public EncodedDataStream()
 		{
 			//firstSegment = currentSegment = new Segment(0);
+            protocolVersion = Protocol.PROTOCOL_VERSION;
 		}
+        public EncodedDataStream(int protocolVersion)
+        {
+            this.protocolVersion = protocolVersion;
+        }
 
 		public virtual void startMessage(int messageType)
 		{
@@ -1485,6 +1491,21 @@ namespace System.Data.NuoDB
 
             TimeSpan span = date - (new DateTime(1970, 1, 1, 0, 0, 0));
             long value = (long)span.TotalMilliseconds;
+/*
+            if (protocolVersion >= Protocol.PROTOCOL_VERSION10)
+            {
+                Calendar cLocal = LOCAL_CALENDAR.get();
+                cLocal.setTime(date);
+
+                Calendar cUTC = UTC_CALENDAR.get();
+                cUTC.clear();
+                cUTC.set(cLocal.get(Calendar.YEAR), cLocal.get(Calendar.MONTH), cLocal.get(Calendar.DATE));
+
+                value = cUTC.getTimeInMillis();
+            }
+            else
+                value = date.getTime();
+*/
             int count = byteCount(value);
 			write(edsScaledDateLen1 + count - 1);
 			write(MILLISECONDS_SCALE);
@@ -1617,5 +1638,12 @@ namespace System.Data.NuoDB
 
 			return ret;
 		}
+
+        protected internal int ProtocolVersion
+        {
+            get { return protocolVersion; }
+            set { protocolVersion = value; }
+        }
+
     }
 }

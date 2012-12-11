@@ -51,6 +51,7 @@ namespace System.Data.NuoDB
         internal DbTransaction transaction;
         internal const int PORT = 48004;
         internal const string LAST_INFO_SEPARATOR = ";";
+        internal const string DEFAULT_CIPHER = "RC4";
 
         private string connectionString;
         private StringDictionary properties;
@@ -521,6 +522,7 @@ namespace System.Data.NuoDB
                 tag.addAttribute("Database", databaseName);
                 string userName = null;
                 string password = null;
+                string cipher = DEFAULT_CIPHER;
 
                 foreach (DictionaryEntry property in properties)
                 {
@@ -540,11 +542,22 @@ namespace System.Data.NuoDB
                     {
                         tag.addAttribute("Schema", value);
                     }
+                    else if (name.Equals("cipher"))
+                    {
+                        cipher = value;
+                    }
                     else
                     {
                         tag.addAttribute(name, value);
                     }
                 }
+                // see comment below ... for now these are the only two types that
+                // we can support in the client code
+
+                if ((!cipher.Equals("RC4")) && (!cipher.Equals("None")))
+                    throw new SQLException("Unknown cipher: " + cipher);
+
+                tag.addAttribute("Cipher", cipher);
 
                 state = ConnectionState.Connecting;
                 string xml = tag.ToString();
@@ -592,6 +605,27 @@ namespace System.Data.NuoDB
                 getProcessConnection(databaseName);
                 string dbUUId = processConnection.DatabaseUUId.ToString();
 
+                // see if the app set the TimeZone. If so, it will be sent to the server
+                // so set the local TZ to be the same. If not, send the current default
+                // TZ  to the server. (Of course, this affects this connection only)
+/*
+                String timeZone = properties.getProperty(TIMEZONE_NAME);
+
+                if (timeZone == null)
+                {
+                    // Save the default at the time the connection was opened
+                    TimeZone tz = TimeZone.getDefault();
+                    sqlContext.setTimeZone(tz);
+                    sqlContext.setTimeZoneId(tz.getID());
+                    properties.setProperty(TIMEZONE_NAME, tz.getID());
+                }
+                else
+                {
+                    TimeZone tz = TimeZone.getTimeZone(timeZone);
+                    sqlContext.setTimeZone(tz);
+                    sqlContext.setTimeZoneId(tz.getID());
+                }
+*/
                 int count = properties.Count + ((dbUUId == null) ? 1 : 2); // Add LastCommitInfo
 
                 if (password != null)
@@ -636,19 +670,21 @@ namespace System.Data.NuoDB
                 protocolVersion = dataStream.Int;
                 string serverKey = dataStream.String;
                 string salt = dataStream.String;
+                dataStream.ProtocolVersion = protocolVersion;
 
                 if (protocolVersion >= Protocol.PROTOCOL_VERSION5)
                 {
                     processConnection.DatabaseUUId = dataStream.UUId;
                 }
 
-                if (protocolVersion >= Protocol.PROTOCOL_VERSION_TRANSACT)
-                {
-                    connectionId = dataStream.Int;
-                }
-
                 upperUserName = userName.ToUpper();
                 byte[] key = remotePassword.computeSessionKey(upperUserName, password, salt, serverKey);
+
+                // NOTE: unlike the C++ implementation we only support RC4 in .NET
+                // and it's a hard-coded class (instead of the factory interface
+                // on the C++ CryptoSocket) so there's no checking to see which
+                // cipher was requested here
+
                 inputStream.encrypt(new CipherRC4(key));
                 outputStream.encrypt(new CipherRC4(key));
 
@@ -656,6 +692,15 @@ namespace System.Data.NuoDB
                 dataStream.encodeString("Success!");
                 authenticating = true;
                 sendAndReceive(dataStream);
+
+                // if the caller requested a cipher of None and we got here then the
+                // server accpeted it and expects us to disable crypto now
+
+                if (cipher.Equals("None"))
+                {
+                    inputStream.encrypt(null);
+                    outputStream.encrypt(null);
+                }
 
                 state = ConnectionState.Open;
             }
