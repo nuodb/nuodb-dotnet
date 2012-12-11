@@ -23,7 +23,7 @@ namespace TestProject
         private TestContext testContextInstance;
         private const string host = "localhost:48004";
         private const string user = "dba";
-        private const string password = "admin";
+        private const string password = "goalie";
         private const string database = "test";
         private const string schema = "hockey";
         private string connectionString = "Server=  "+host+"; Database=\""+database+"\"; User = "+user+" ;Password   = '"+password+"';Schema=\""+schema+"\";Something Else";
