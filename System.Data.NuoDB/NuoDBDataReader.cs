@@ -27,6 +27,7 @@
 ****************************************************************************/
 
 using System.Data.Common;
+using System.Collections.Generic;
 
 namespace System.Data.NuoDB
 {
@@ -114,18 +115,21 @@ namespace System.Data.NuoDB
             metadata = new DataTable("schema");
 
             metadata.Columns.Add("ColumnOrdinal", typeof(int));
-            metadata.Columns.Add("BaseCatalogName", typeof(string));
-            metadata.Columns.Add("BaseSchemaName", typeof(string));
-            metadata.Columns.Add("BaseTableName", typeof(string));
             metadata.Columns.Add("ColumnName", typeof(string));
-            metadata.Columns.Add("DataTypeName", typeof(string));
-            metadata.Columns.Add("DataType", typeof(string));
-            metadata.Columns.Add("ProviderType", typeof(int));
             metadata.Columns.Add("ColumnSize", typeof(int));
             metadata.Columns.Add("NumericPrecision", typeof(int));
             metadata.Columns.Add("NumericScale", typeof(int));
+            metadata.Columns.Add("BaseCatalogName", typeof(string));
+            metadata.Columns.Add("BaseSchemaName", typeof(string));
+            metadata.Columns.Add("BaseTableName", typeof(string));
+            metadata.Columns.Add("BaseColumnName", typeof(string));
+            metadata.Columns.Add("DataTypeName", typeof(string));
+            metadata.Columns.Add("DataType", typeof(string));
+            metadata.Columns.Add("ProviderType", typeof(int));
             metadata.Columns.Add("IsAutoIncrement", typeof(bool));
             metadata.Columns.Add("IsReadOnly", typeof(bool));
+            metadata.Columns.Add("IsIdentity", typeof(bool));
+            metadata.Columns.Add("IsUnique", typeof(bool));
             metadata.Columns.Add("AllowDBNull", typeof(bool));
 
             System.Diagnostics.Trace.WriteLine("Retrieving metadata");
@@ -138,7 +142,7 @@ namespace System.Data.NuoDB
                 row["BaseCatalogName"] = dataStream.String;
                 row["BaseSchemaName"] = dataStream.String;
                 row["BaseTableName"] = dataStream.String;
-                row["ColumnName"] = dataStream.String;
+                row["BaseColumnName"] = row["ColumnName"] = dataStream.String;
                 string columnLabel = dataStream.String;
                 string collationSequence = dataStream.String;
                 string dataType = dataStream.String;
@@ -161,11 +165,30 @@ namespace System.Data.NuoDB
                 row["IsAutoIncrement"] = (flags & rsmdAutoIncrement) != 0;
                 row["IsReadOnly"] = (flags & rsmdReadOnly) != 0;
                 row["AllowDBNull"] = (flags & rsmdNullable) != 0;
+                // for the moment, set the column to be a normal one; later we will look for primary indexes
+                row["IsUnique"] = row["IsIdentity"] = false;
 
                 System.Diagnostics.Trace.WriteLine("-> " + row["ColumnName"] + ", " + row["DataTypeName"] + ", " + row["ProviderType"]);
                 metadata.Rows.Add(row);
 			}
             metadata.EndLoadData();
+            // fill in the IsPrimary column
+            Dictionary<string, DataTable> schemas = new Dictionary<string, DataTable>();
+            foreach(DataRow row in metadata.Rows)
+            {
+                string key = row["BaseSchemaName"] + "|" + row["BaseTableName"];
+                DataTable indexInfo = null;
+                if (!schemas.ContainsKey(key))
+                {
+                    indexInfo = connection.GetSchema("IndexColumns", new string[] { null, (string)row["BaseSchemaName"], (string)row["BaseTableName"] });
+                    schemas.Add(key, indexInfo);
+                }
+                else
+                    indexInfo = schemas[key];
+                DataRow[] rows = indexInfo.Select(String.Format("INDEXCOLUMN_NAME = '{0}' AND INDEXCOLUMN_ISPRIMARY = true", row["BaseColumnName"]));
+                if (rows != null && rows.Length > 0)
+                    row["IsUnique"] = row["IsIdentity"] = true;
+            }
             return metadata;
         }
 
