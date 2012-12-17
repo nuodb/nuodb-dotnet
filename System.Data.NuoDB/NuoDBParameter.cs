@@ -35,8 +35,12 @@ namespace System.Data.NuoDB
         private string name;
         private object value;
         private ParameterDirection direction;
-        private Data.DbType dbType;
+        private DbType dbType;
         private int size;
+        private string sourceColumn;
+        private bool sourceColumnNullMapping;
+        private bool isNullable;
+        private DataRowVersion sourceVersion = DataRowVersion.Default;
 
         public override DbType DbType
         {
@@ -66,11 +70,11 @@ namespace System.Data.NuoDB
         {
             get
             {
-                throw new NotImplementedException();
+                return isNullable;
             }
             set
             {
-                throw new NotImplementedException();
+                isNullable = value;
             }
         }
 
@@ -88,7 +92,7 @@ namespace System.Data.NuoDB
 
         public override void ResetDbType()
         {
-            throw new NotImplementedException();
+            dbType = DbType.Object;
         }
 
         public override int Size
@@ -107,11 +111,11 @@ namespace System.Data.NuoDB
         {
             get
             {
-                throw new NotImplementedException();
+                return sourceColumn;
             }
             set
             {
-                throw new NotImplementedException();
+                sourceColumn = value;
             }
         }
 
@@ -119,11 +123,11 @@ namespace System.Data.NuoDB
         {
             get
             {
-                throw new NotImplementedException();
+                return sourceColumnNullMapping;
             }
             set
             {
-                throw new NotImplementedException();
+                sourceColumnNullMapping = value;
             }
         }
 
@@ -131,11 +135,11 @@ namespace System.Data.NuoDB
         {
             get
             {
-                throw new NotImplementedException();
+                return sourceVersion;
             }
             set
             {
-                throw new NotImplementedException();
+                sourceVersion = value;
             }
         }
 
