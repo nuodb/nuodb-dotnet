@@ -40,84 +40,46 @@ namespace System.Data.NuoDB
     [System.ComponentModel.DesignerCategory("")]
     class NuoDBCommandBuilder : DbCommandBuilder
     {
-        new public DbCommand GetDeleteCommand()
-        {
-            return base.GetDeleteCommand();
-        }
-
-        new public DbCommand GetDeleteCommand(bool useColumnsForParameterNames)
-        {
-            return base.GetDeleteCommand(useColumnsForParameterNames);
-        }
-
-        new public DbCommand GetInsertCommand()
-        {
-            return base.GetInsertCommand();
-        }
-
-        new public DbCommand GetInsertCommand(bool useColumnsForParameterNames)
-        {
-            return base.GetInsertCommand(useColumnsForParameterNames);
-        }
-
-        protected override DataTable GetSchemaTable(DbCommand sourceCommand)
-        {
-            return base.GetSchemaTable(sourceCommand);
-        }
-
-        new public DbCommand GetUpdateCommand()
-        {
-            return base.GetUpdateCommand();
-        }
-
-        new public DbCommand GetUpdateCommand(bool useColumnsForParameterNames)
-        {
-            return base.GetUpdateCommand(useColumnsForParameterNames);
-        }
-
-        protected override DbCommand InitializeCommand(DbCommand command)
-        {
-            return base.InitializeCommand(command);
-        }
-
         public override string QuoteIdentifier(string unquotedIdentifier)
         {
-            return unquotedIdentifier;
-        }
-
-        public override void RefreshSchema()
-        {
-            base.RefreshSchema();
-        }
-
-        new protected void RowUpdatingHandler(RowUpdatingEventArgs rowUpdatingEvent)
-        {
-            base.RowUpdatingHandler(rowUpdatingEvent);
+			if (unquotedIdentifier == null)
+				throw new ArgumentNullException("unquotedIdentifier");
+            return String.Format("{0}{1}{2}", this.QuotePrefix, unquotedIdentifier, this.QuoteSuffix);
         }
 
         public override string UnquoteIdentifier(string quotedIdentifier)
         {
-            return quotedIdentifier;
+            if (quotedIdentifier == null)
+                throw new ArgumentNullException("quotedIdentifier");
+
+            string unquotedIdentifier = quotedIdentifier.Trim();
+            if (unquotedIdentifier.StartsWith(this.QuotePrefix))
+                unquotedIdentifier = unquotedIdentifier.Remove(0, 1);
+            if (unquotedIdentifier.EndsWith(this.QuoteSuffix))
+                unquotedIdentifier = unquotedIdentifier.Remove(unquotedIdentifier.Length - 1, 1);
+
+            return unquotedIdentifier;
         }
 
         protected override void ApplyParameterInfo(DbParameter parameter, DataRow row, StatementType statementType, bool whereClause)
         {
-            throw new NotImplementedException();
+            parameter.DbType = (DbType)row["ProviderType"];
+            parameter.Size = (int)row["ColumnSize"];
         }
 
         protected override string GetParameterName(string parameterName)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         protected override string GetParameterName(int parameterOrdinal)
         {
-            throw new NotImplementedException();
+            return "?";
         }
 
         protected override string GetParameterPlaceholder(int parameterOrdinal)
         {
-            throw new NotImplementedException();
+            return "?";
         }
 
         protected override void SetRowUpdatingHandler(DbDataAdapter adapter)
