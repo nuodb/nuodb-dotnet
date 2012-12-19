@@ -37,8 +37,8 @@ namespace System.Data.NuoDB
     // this declaration prevents VS2010 from trying to edit this class with the designer.
     // it would try to do that because the parent class derives from Component, but it's abstract
     // and it cannot be instanciated
-    [System.ComponentModel.DesignerCategory("")]
-    public class NuoDBDataAdapter : DbDataAdapter
+    [System.ComponentModel.DesignerCategory("Code")]
+    public class NuoDBDataAdapter : DbDataAdapter, ICloneable
     {
         private static readonly object EventRowUpdated = new object();
         private static readonly object EventRowUpdating = new object();
@@ -103,6 +103,15 @@ namespace System.Data.NuoDB
 		{
 			this.SelectCommand = selectCommand;
 		}
+
+        public NuoDBDataAdapter(NuoDBDataAdapter other)
+            : base()
+        {
+            this.SelectCommand = other.SelectCommand;
+            this.InsertCommand = other.InsertCommand;
+            this.DeleteCommand = other.DeleteCommand;
+            this.UpdateCommand = other.UpdateCommand;
+        }
 
         protected override int Fill(DataTable[] dataTables, int startRecord, int maxRecords, IDbCommand command, CommandBehavior behavior)
         {
@@ -190,6 +199,11 @@ namespace System.Data.NuoDB
         protected override int Update(DataRow[] dataRows, DataTableMapping tableMapping)
         {
             return 0;
+        }
+
+        public object Clone()
+        {
+            return new NuoDBDataAdapter(this);
         }
     }
 }
