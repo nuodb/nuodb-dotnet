@@ -103,36 +103,77 @@ namespace System.Data.NuoDB
 
         public override DataTable GetSchemaTable()
         {
-            if(metadata != null)
+            if (metadata != null)
                 return metadata;
 
+            System.Diagnostics.Trace.WriteLine("NuoDBDataReader.GetSchemaTable(" + statement.CommandText + ")");
             EncodedDataStream dataStream = new EncodedDataStream();
             dataStream.startMessage(Protocol.GetMetaData);
             dataStream.encodeInt(handle);
             connection.sendAndReceive(dataStream);
             int numberColumns = dataStream.Int;
 
-            metadata = new DataTable("schema");
+            metadata = new DataTable("SchemaTable");
 
+            // Info on the schema of this table is at http://msdn.microsoft.com/en-us/library/system.data.odbc.odbcdatareader.getschematable.aspx
+            // The zero-based ordinal of the column. This column cannot contain a null value.
             metadata.Columns.Add("ColumnOrdinal", typeof(int));
+            // The name of the column; this might not be unique. If the column name cannot be determined, a null value is returned. 
+            // This name always reflects the most recent naming of the column in the current view or command text. 
             metadata.Columns.Add("ColumnName", typeof(string));
+            // The maximum possible length of a value in the column. For columns that use a fixed-length data type, this is the size of the data type. 
             metadata.Columns.Add("ColumnSize", typeof(int));
+            // If DbType is a numeric data type, this is the maximum precision of the column. The precision depends on the 
+            // definition of the column. If DbType is not a numeric data type, do not use the data in this column.
+            // If the underlying ODBC driver returns a precision value for a non-numeric data type, this value is used in the schema table. 
             metadata.Columns.Add("NumericPrecision", typeof(int));
+            // If DbType is Decimal, the number of digits to the right of the decimal point. Otherwise, this is a null value. 
+            // If the underlying ODBC driver returns a precision value for a non-numeric data type, this value is used in the schema table. 
             metadata.Columns.Add("NumericScale", typeof(int));
+            // The name of the catalog in the data store that contains the column. NULL if the base catalog name cannot be determined.
+            // The default for this column is a null value. 
             metadata.Columns.Add("BaseCatalogName", typeof(string));
+            // The name of the schema in the data source that contains the column. NULL if the base catalog name cannot be determined. 
+            // The default for this column is a null value. 
             metadata.Columns.Add("BaseSchemaName", typeof(string));
+            // The name of the table or view in the data store that contains the column. A null value if the base table name cannot be determined.
+            // The default of this column is a null value. 
             metadata.Columns.Add("BaseTableName", typeof(string));
+            // The name of the column in the data store. This might be different from the column name returned in the ColumnName column if an alias was used. 
+            // A null value if the base column name cannot be determined or if the rowset column is derived, but not identical to, a column in the data store. 
+            // The default for this column is a null value. 
             metadata.Columns.Add("BaseColumnName", typeof(string));
-            metadata.Columns.Add("DataTypeName", typeof(string));
-            metadata.Columns.Add("DataType", typeof(string));
+            // Maps to the common language runtime type of DbType. 
+            metadata.Columns.Add("DataType", typeof(Type));
+            // The underlying driver type. 
             metadata.Columns.Add("ProviderType", typeof(int));
+            // true if the column contains a Binary Long Object (BLOB) that contains very long data. The definition of very long data is driver-specific. 
+            metadata.Columns.Add("IsLong", typeof(bool));
+            // true if the column assigns values to new rows in fixed increments; otherwise false. The default for this column is false. 
             metadata.Columns.Add("IsAutoIncrement", typeof(bool));
+            // true if the column cannot be modified; otherwise false. 
             metadata.Columns.Add("IsReadOnly", typeof(bool));
-            metadata.Columns.Add("IsIdentity", typeof(bool));
+            // true: No two rows in the base table (the table returned in BaseTableName) can have the same value in this column. 
+            // IsUnique is guaranteed to be true if the column represents a key by itself or if there is a constraint of type UNIQUE that applies only to this column.
+            // false: The column can contain duplicate values in the base table. The default for this column is false. 
             metadata.Columns.Add("IsUnique", typeof(bool));
+            // true: The column is one of a set of columns in the rowset that, taken together, uniquely identify the row. 
+            // The set of columns with IsKey set to true must uniquely identify a row in the rowset. There is no requirement that this set of columns is a minimal set of columns. This set of columns may be generated from a base table primary key, a unique constraint, or a unique index.
+            // false: The column is not required to uniquely identify the row. 
+            metadata.Columns.Add("IsKey", typeof(bool));
+            // Set if the column contains a persistent row identifier that cannot be written to, and has no meaningful value except to identity the row. 
+            metadata.Columns.Add("IsRowVersion", typeof(bool));
+            // true if the consumer can set the column to a null value or if the driver cannot determine whether the consumer can set the column to a null value. 
+            // Otherwise, false. A column may contain null values, even if it cannot be set to a null value. 
             metadata.Columns.Add("AllowDBNull", typeof(bool));
 
-            System.Diagnostics.Trace.WriteLine("Retrieving metadata");
+            // The SQLDataReader also returns these columns:
+            // Returns a string representing the data type of the specified column.
+            metadata.Columns.Add("DataTypeName", typeof(string));
+            // true: The column is an identity column.
+            // false: The column is not an identity column.
+            metadata.Columns.Add("IsIdentity", typeof(bool));
+
             metadata.BeginLoadData();
 			for (int n = 0; n < numberColumns; ++n)
 			{
@@ -142,12 +183,12 @@ namespace System.Data.NuoDB
                 row["BaseCatalogName"] = dataStream.String;
                 row["BaseSchemaName"] = dataStream.String;
                 row["BaseTableName"] = dataStream.String;
-                row["BaseColumnName"] = row["ColumnName"] = dataStream.String;
-                string columnLabel = dataStream.String;
+                row["BaseColumnName"] = dataStream.String;
+                row["ColumnName"] = dataStream.String;
                 string collationSequence = dataStream.String;
                 string dataType = dataStream.String;
                 row["DataTypeName"] = dataType;
-                row["DataType"] = NuoDBConnection.mapNuoDbToNetType(dataType);
+                row["DataType"] = Type.GetType(NuoDBConnection.mapNuoDbToNetType(dataType));
                 row["ProviderType"] = NuoDBConnection.mapJavaSqlToDbType(dataStream.Int);
                 row["ColumnSize"] = dataStream.Int;
                 row["NumericPrecision"] = dataStream.Int;
@@ -166,7 +207,8 @@ namespace System.Data.NuoDB
                 row["IsReadOnly"] = (flags & rsmdReadOnly) != 0;
                 row["AllowDBNull"] = (flags & rsmdNullable) != 0;
                 // for the moment, set the column to be a normal one; later we will look for primary indexes
-                row["IsUnique"] = row["IsIdentity"] = false;
+                row["IsKey"] = row["IsIdentity"] = row["IsUnique"] = false;
+                row["IsLong"] = row["IsRowVersion"] = false;
 
                 System.Diagnostics.Trace.WriteLine("-> " + row["ColumnName"] + ", " + row["DataTypeName"] + ", " + row["ProviderType"]);
                 metadata.Rows.Add(row);
@@ -187,7 +229,11 @@ namespace System.Data.NuoDB
                     indexInfo = schemas[key];
                 DataRow[] rows = indexInfo.Select(String.Format("INDEXCOLUMN_NAME = '{0}' AND INDEXCOLUMN_ISPRIMARY = true", row["BaseColumnName"]));
                 if (rows != null && rows.Length > 0)
-                    row["IsUnique"] = row["IsIdentity"] = true;
+                {
+                    row.BeginEdit();
+                    row["IsKey"] = row["IsIdentity"] = true;
+                    row.EndEdit();
+                }
             }
             return metadata;
         }
