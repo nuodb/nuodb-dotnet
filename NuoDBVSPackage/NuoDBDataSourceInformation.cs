@@ -14,23 +14,25 @@ namespace NuoDB.VisualStudio.DataTools
         {
             base.AddProperty(AdoDotNetDataSourceInformation.CatalogSupported, false);
             base.AddProperty(AdoDotNetDataSourceInformation.CatalogSupportedInDml, false);
-            base.AddProperty(AdoDotNetDataSourceInformation.DefaultSchema);
             base.AddProperty(AdoDotNetDataSourceInformation.DefaultCatalog, null);
-            base.AddProperty(AdoDotNetDataSourceInformation.DefaultSchema, null);
+            NuoDBDataConnectionProperties helper = new NuoDBDataConnectionProperties();
+            helper.ConnectionStringBuilder.ConnectionString = dataConnection.DisplayConnectionString;
+            object defaultSchema = null;
+            helper.ConnectionStringBuilder.TryGetValue("Schema", out defaultSchema);
+            base.AddProperty(AdoDotNetDataSourceInformation.DefaultSchema, defaultSchema);
             base.AddProperty(AdoDotNetDataSourceInformation.IdentifierOpenQuote, "\"");
             base.AddProperty(AdoDotNetDataSourceInformation.IdentifierCloseQuote, "\"");
             base.AddProperty(AdoDotNetDataSourceInformation.IdentifierPartsCaseSensitive, false);
             base.AddProperty(AdoDotNetDataSourceInformation.ParameterPrefix, "");
             base.AddProperty(AdoDotNetDataSourceInformation.ParameterPrefixInName, false);
             base.AddProperty(AdoDotNetDataSourceInformation.ProcedureSupported, false);
-            base.AddProperty(AdoDotNetDataSourceInformation.QuotedIdentifierPartsCaseSensitive, true);
-            base.AddProperty(AdoDotNetDataSourceInformation.SchemaSupported, false);
-            base.AddProperty(AdoDotNetDataSourceInformation.SchemaSupportedInDml, false);
+            base.AddProperty(AdoDotNetDataSourceInformation.QuotedIdentifierPartsCaseSensitive, false);
+            base.AddProperty(AdoDotNetDataSourceInformation.SchemaSupported, true);
+            base.AddProperty(AdoDotNetDataSourceInformation.SchemaSupportedInDml, true);
             base.AddProperty(AdoDotNetDataSourceInformation.ServerSeparator, ".");
             base.AddProperty(AdoDotNetDataSourceInformation.SupportsAnsi92Sql, true);
-            base.AddProperty(AdoDotNetDataSourceInformation.SupportsQuotedIdentifierParts, true);
+            base.AddProperty(AdoDotNetDataSourceInformation.SupportsQuotedIdentifierParts, false);
             base.AddProperty(AdoDotNetDataSourceInformation.SupportsCommandTimeout, false);
-            base.AddProperty(AdoDotNetDataSourceInformation.SupportsQuotedIdentifierParts, true);
         }
 
         protected override object RetrieveValue(string propertyName)
