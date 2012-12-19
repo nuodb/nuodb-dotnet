@@ -67,13 +67,12 @@ namespace System.Data.NuoDB
 		private bool authenticating = false;
         private string serverAddress;
         private int serverPort;
-        private string upperUserName;
-        private int connectionId;
         private ConnectionState state = ConnectionState.Closed;
         private string lastBroker;
 
         private Dictionary<int, string> mapSQLTypes = null;
         private List<int> listResultSets = new List<int>();
+        private List<int> listCommands = new List<int>();
 
         public NuoDBConnection()
         {
@@ -118,7 +117,6 @@ namespace System.Data.NuoDB
         [MethodImpl(MethodImplOptions.Synchronized)]
         internal void sendAndReceive(EncodedDataStream stream)
         {
-            System.Diagnostics.Trace.WriteLine("NuoDBConnection::sendAndReceive()");
             try
 			{
                 lock (this)
@@ -393,6 +391,26 @@ namespace System.Data.NuoDB
             properties["database"] = databaseName;
         }
 
+        internal void RegisterCommand(int handle)
+        {
+            listCommands.Add(handle);
+        }
+
+        internal void CloseCommand(int handle)
+        {
+            if (socket == null || !socket.Connected)
+            {
+                return;
+            }
+            EncodedDataStream dataStream = new EncodedDataStream();
+            dataStream.startMessage(Protocol.CloseStatement);
+            dataStream.encodeInt(handle);
+            sendAsync(dataStream);
+
+            if (listCommands.Contains(handle))
+                listCommands.Remove(handle);
+        }
+
         internal void RegisterResultSet(int handle)
         {
             listResultSets.Add(handle);
@@ -400,6 +418,10 @@ namespace System.Data.NuoDB
 
         internal void CloseResultSet(int handle)
         {
+            if (socket == null || !socket.Connected)
+            {
+                return;
+            }
             EncodedDataStream dataStream = new EncodedDataStream();
             dataStream.startMessage(Protocol.CloseResultSet);
             dataStream.encodeInt(handle);
@@ -424,6 +446,14 @@ namespace System.Data.NuoDB
             foreach (Int32 r in tmpResultSet)
             {
                 CloseResultSet(r);
+            }
+
+            List<int> tmpCommand = new List<int>(listCommands);
+            listCommands.Clear();
+
+            foreach (Int32 r in tmpResultSet)
+            {
+                CloseCommand(r);
             }
 
             dataStream.startMessage(Protocol.CloseConnection);
@@ -677,7 +707,7 @@ namespace System.Data.NuoDB
                     processConnection.DatabaseUUId = dataStream.UUId;
                 }
 
-                upperUserName = userName.ToUpper();
+                string upperUserName = userName.ToUpper();
                 byte[] key = remotePassword.computeSessionKey(upperUserName, password, salt, serverKey);
 
                 // NOTE: unlike the C++ implementation we only support RC4 in .NET
@@ -846,14 +876,15 @@ namespace System.Data.NuoDB
                 table.Columns.Add("ParameterMarkerPattern", typeof(string));
                 table.Columns.Add("ParameterNameMaxLength", typeof(int));
                 table.Columns.Add("ParameterNamePattern", typeof(string));
-                table.Columns.Add("QuotedIdentifierPattern", typeof(string));
-                table.Columns.Add("QuotedIdentifierCase", typeof(string));  // Regex
+                table.Columns.Add("QuotedIdentifierPattern", typeof(string));  // Regex
+                table.Columns.Add("QuotedIdentifierCase", typeof(int));
                 table.Columns.Add("StatementSeparatorPattern", typeof(string));
                 table.Columns.Add("StringLiteralPattern", typeof(string));  // Regex
                 table.Columns.Add("SupportedJoinOperators", typeof(int));    // see SupportedJoinOperators 
 
                 table.BeginLoadData();
                 DataRow row = table.NewRow();
+                int databaseMajorVersion = 0, databaseMinorVersion = 0;
                 try
                 {
                     dataStream.startMessage(Protocol.GetDatabaseMetaData);
@@ -871,11 +902,11 @@ namespace System.Data.NuoDB
                                 break;
 
                             case Protocol.DbmbDatabaseMinorVersion:
-                                int databaseMinorVersion = dataStream.Int;
+                                databaseMinorVersion = dataStream.Int;
                                 break;
 
                             case Protocol.DbmbDatabaseMajorVersion:
-                                int databaseMajorVersion = dataStream.Int;
+                                databaseMajorVersion = dataStream.Int;
                                 break;
 
                             case Protocol.DbmbDefaultTransactionIsolation:
@@ -892,7 +923,45 @@ namespace System.Data.NuoDB
                 {
                 }
 
-                row["ParameterNameMaxLength"] = 0;  // parameter names are not supported, use ?
+                // The regular expression to match the composite separators in a composite identifier. 
+                // For example, "\." (for SQL Server) or "@|\." (for Oracle).
+                // A composite identifier is typically what is used for a database object name, 
+                // for example: pubs.dbo.authors or pubs@dbo.authors.
+                row["CompositeIdentifierSeparatorPattern"] = "\\.";
+                // A normalized version for the data source, such that it can be compared with String.Compare(). 
+                // The format of this is consistent for all versions of the provider to prevent version 10 from sorting between version 1 and version 2.
+                //row["DataSourceProductVersionNormalized"] = ??
+                // Specifies the relationship between the columns in a GROUP BY clause and the non-aggregated columns in the select list.
+                row["GroupByBehavior"] = GroupByBehavior.Unknown;
+                // A regular expression that matches an identifier and has a match value of the identifier. For example "[A-Za-z0-9_#$]".
+                row["IdentifierPattern"] = "(^\\[\\p{Lo}\\p{Lu}\\p{Ll}_@#][\\p{Lo}\\p{Lu}\\p{Ll}\\p{Nd}@$#_]*$)|(^\"[^\"\\0]|\"\"+\"$)";
+                // Indicates whether non-quoted identifiers are treated as case sensitive or not.
+                row["IdentifierCase"] = IdentifierCase.Insensitive;
+                // Specifies whether columns in an ORDER BY clause must be in the select list. 
+                // A value of true indicates that they are required to be in the select list, 
+                // a value of false indicates that they are not required to be in the select list.
+                row["OrderByColumnsInSelect"] = false;
+                // For data sources that do not expect named parameters and expect the use of the ‘?’ character, the format string
+                // can be specified as simply ‘?’, which would ignore the parameter name.
+                row["ParameterMarkerFormat"] = "?";
+                // if the data source doesn’t support named parameters, this would simply be "?".
+                row["ParameterMarkerPattern"] = "?";
+                // If the data source does not support named parameters, this property returns zero.
+                row["ParameterNameMaxLength"] = 0;
+                // A regular expression that matches the valid parameter names
+                row["ParameterNamePattern"] = "";
+                // A regular expression that matches a quoted identifier and has a match value of the identifier itself without the quotes. 
+                // For example, if the data source used double-quotes to identify quoted identifiers, this would be: "(([^\"]|\"\")*)".
+                row["QuotedIdentifierPattern"] = "\"([^\"]*)\"";
+                // Indicates whether quoted identifiers are treated as case sensitive or not.
+                row["QuotedIdentifierCase"] = IdentifierCase.Sensitive;
+                // A regular expression that matches the statement separator.
+                row["StatementSeparatorPattern"] = ";";
+                // A regular expression that matches a string literal and has a match value of the literal itself. 
+                // For example, if the data source used single-quotes to identify strings, this would be: "('([^']|'')*')"'
+                row["StringLiteralPattern"] = "'([^']*)'";
+                // Specifies what types of SQL join statements are supported by the data source.
+                row["SupportedJoinOperators"] = SupportedJoinOperators.None;
                 table.Rows.Add(row);
                 table.EndLoadData();
             }
@@ -901,6 +970,61 @@ namespace System.Data.NuoDB
                 table.Columns.Add("ReservedWord", typeof(string));
                 table.Columns.Add("MaximumVersion", typeof(string));
                 table.Columns.Add("MinimumVersion", typeof(string));
+
+                string[] words = { "select", "Add field", "Drop field", "Alter table", "Alter field",
+                                   "Alter user", "And", "Or", "Not", "Create Index", "Upgrade", "Unique",
+                                   "Table key", "Table unique key", "Primary Key", "Create Table",
+                                   "Upgrade Table", "Rename Table", "Create View", "Upgrade View",
+                                   "Drop View", "Create Schema", "Drop Schema", "Integer", "Smallint",
+                                   "Bigint", "Tinyint", "float", "double", "Blob", "bytes", "boolean",
+                                   "binary", "varbinary", "string", "char", "text", "date", "timestamp",
+                                   "time", "varchar", "numeric", "Decimal Number", "Enum", "Delete", "Repair",
+                                   "Field", "Not Null", "Default Value", "searchable", "not searchable",
+                                   "collation", "character_set", "Foreign Key", "Identifier", "record number",
+                                   "Insert", "Replace", "Name", "Number", "Order", "Descending", "limit",
+                                   "Quoted String", "Select Clause", "Distinct", "Gtr", "Geq", "Eql",
+                                   "Leq", "Lss", "Neq", "in list", "in select", "exists", "Between", "Like",
+                                   "starts with", "Containing", "Matching", "Regular expression", "Null",
+                                   "True", "False", "Execute", "Parameter", "Count", "sum", "min", "max",
+                                   "avg", "Drop Index", "Drop primary key", "Drop foreign key", "Drop Table",
+                                   "If Exists", "Describe", "Statement", "for_select", "for_insert", "while",
+                                   "if then else", "variable", "declaration", "throw", "assignment",
+                                   "Start transaction", "read only", "read write", "read committed", "write committed",
+                                   "read uncommitted", "repeatableread", "serializable", "Commit", "Rollback",
+                                   "Savepoint", "Rollack Savepoint", "Release Savepoint", "Table", "Derived Table",
+                                   "Assign", "Update", "list", "Constant", "Function", "Grant", "Grant role", "Alter",
+                                   "Read", "Identity", "Check", "Constraint", "value constraint", "auto increment",
+                                   "generated", "always", "Domain", "is null", "is active_role", "start with", "reindex",
+                                   "cursor", "alias", "push_namespace", "pop_namespace", "set_namespace", "coalesce",
+                                   "nod_nullif", "case", "case_search", "add", "subtract", "multiply", "divide", "modulus",
+                                   "negate", "plus", "cast", "concatenation", "create user", "drop user", "create role",
+                                   "upgrade role", "drop role", "revoke", "revoke role", "assume", "revert", "negate",
+                                   "priv insert", "priv delete", "priv execute", "priv select", "priv update", "priv grant",
+                                   "priv all", "characters", "octets", "role", "view", "procedure", "user", "zone", "admin",
+                                   "default role", "create sequence", "upgrade sequence", "drop sequence", "next value",
+                                   "create trigger", "upgrade trigger", "alter trigger", "drop trigger", "create procedure",
+                                   "upgrade procedure", "alter procedure", "drop procedure", "pre-insert", "post-insert",
+                                   "pre-update", "post-update", "pre-delete", "post-delete", "pre-commit", "post-commit",
+                                   "active", "inactive", "position", "select-expr", "create filterset", "upgrade filterset",
+                                   "drop filterset", "enable filterset", "disable filterset", "table filter", "left outer",
+                                   "right outer", "full outer", "inner", "join", "join_term", "trigger class", "enable trigger class",
+                                   "disable trigger class", "create zone", "upgrade zone", "drop zone", "range", "ip address",
+                                   "node_name", "wildcard", "create domain", "upgrade domain", "alter domain", "upgrade schema",
+                                   "delete cascade", "index segment", "for update", "write committed", "read committed", 
+                                   "consistent read", "set dialect", "set names", "restrict", "cascade", "characters", "octets",
+                                   "create event", "collate", "truncate", "restart", "nameless constraint", "drop constraint",
+                                   "drop unique constraint", "drop domain", "with check option", "not real", "lower", "upper",
+                                   "substr", "substring index", "charlength", "default keyword", "sqrt", "power", "Scientific Notation Number",
+                                   "Explain", "msleep", "KillStatement", "now" };
+                table.BeginLoadData();
+                foreach (string keyword in words)
+                {
+                    DataRow row = table.NewRow();
+                    row["ReservedWord"] = keyword;
+                    table.Rows.Add(row);
+                }
+                table.EndLoadData();
+
             }
             else if (collectionName == DbMetaDataCollectionNames.DataTypes)
             {
@@ -970,7 +1094,7 @@ namespace System.Data.NuoDB
                             table.Rows.Add(row);
                         }
                         table.EndLoadData();
-                }
+                    }
                 }
             }
             else if (collectionName == "Tables")
@@ -1035,6 +1159,8 @@ namespace System.Data.NuoDB
                 table.Columns.Add("COLUMN_LENGTH", typeof(int));
                 table.Columns.Add("COLUMN_PRECISION", typeof(int));
                 table.Columns.Add("COLUMN_NULLABLE", typeof(bool));
+                table.Columns.Add("COLUMN_IDENTITY", typeof(bool));
+                table.Columns.Add("COLUMN_DEFAULT", typeof(string));
 
                 dataStream.startMessage(Protocol.GetColumns);
                 dataStream.encodeNull(); // catalog is always null
@@ -1066,6 +1192,9 @@ namespace System.Data.NuoDB
                             row["COLUMN_PRECISION"] = reader["DECIMAL_DIGITS"];
                             if (!reader.IsDBNull(reader.GetOrdinal("IS_NULLABLE")))
                                 row["COLUMN_NULLABLE"] = reader["IS_NULLABLE"].Equals("YES");
+                            if (!reader.IsDBNull(reader.GetOrdinal("IS_AUTOINCREMENT")))
+                                row["COLUMN_IDENTITY"] = reader["IS_AUTOINCREMENT"].Equals("YES");
+                            row["COLUMN_DEFAULT"] = reader["COLUMN_DEF"];
                             table.Rows.Add(row);
                         }
                         table.EndLoadData();
@@ -1082,35 +1211,211 @@ namespace System.Data.NuoDB
                 table.Columns.Add("INDEX_UNIQUE", typeof(bool));
                 table.Columns.Add("INDEX_PRIMARY", typeof(bool));
 
-                dataStream.startMessage(Protocol.GetIndexInfo);
-                dataStream.encodeNull(); // catalog is always null
-                for (int i = 1; i < 3; i++)
-                    if (restrictionValues.Length > i)
-                        dataStream.encodeString(restrictionValues[i]);
-                    else
-                        dataStream.encodeNull();
-                dataStream.encodeBoolean(false);    // unique
-                dataStream.encodeBoolean(false);    // approximate
-                sendAndReceive(dataStream);
-                int handle = dataStream.Int;
+                List<KeyValuePair<string, string>> tables = new List<KeyValuePair<string, string>>();
 
-                if (handle != -1)
+                // the API for retrieving indexes works on a fully specified schema+table
+                // so, unless we have both values, we need to first retrieve the set of tables identified by the restrictions
+                if (restrictionValues.Length > 2 && restrictionValues[1] != null && restrictionValues[2] != null)
                 {
-                    using (NuoDBDataReader reader = new NuoDBDataReader(this, handle, dataStream, null, true))
+                    tables.Add(new KeyValuePair<string, string>(restrictionValues[1], restrictionValues[2]));
+                }
+                else
+                {
+                    dataStream.startMessage(Protocol.GetTables);
+                    dataStream.encodeNull(); // catalog is always null
+                    for (int i = 1; i < 3; i++)
+                        if (restrictionValues.Length > i)
+                            dataStream.encodeString(restrictionValues[i]);
+                        else
+                            dataStream.encodeNull();
+                    dataStream.encodeInt(0);
+
+                    sendAndReceive(dataStream);
+                    int handle = dataStream.Int;
+
+                    if (handle != -1)
                     {
-                        table.BeginLoadData();
-                        while (reader.Read())
+                        using (NuoDBDataReader reader = new NuoDBDataReader(this, handle, dataStream, null, true))
                         {
-                            DataRow row = table.NewRow();
-                            row["INDEX_SCHEMA"] = reader["TABLE_SCHEM"];
-                            row["INDEX_TABLE"] = reader["TABLE_NAME"];
-                            row["INDEX_NAME"] = reader["INDEX_NAME"];
-                            row["INDEX_TYPE"] = reader["TYPE"];
-                            row["INDEX_UNIQUE"] = reader["NON_UNIQUE"];
-                            row["INDEX_PRIMARY"] = reader["NON_UNIQUE"];
-                            table.Rows.Add(row);
+                            while (reader.Read())
+                                tables.Add(new KeyValuePair<string, string>((string)reader["TABLE_SCHEM"], (string)reader["TABLE_NAME"]));
                         }
-                        table.EndLoadData();
+                    }
+                }
+
+                foreach (KeyValuePair<string, string> t in tables)
+                {
+                    dataStream.startMessage(Protocol.GetIndexInfo);
+                    dataStream.encodeNull(); // catalog is always null
+                    dataStream.encodeString(t.Key);
+                    dataStream.encodeString(t.Value);
+                    dataStream.encodeBoolean(false);    // unique
+                    dataStream.encodeBoolean(false);    // approximate
+                    sendAndReceive(dataStream);
+                    int handle = dataStream.Int;
+
+                    // to avoid to insert the same index more than once
+                    HashSet<string> unique = new HashSet<string>();
+                    if (handle != -1)
+                    {
+                        using (NuoDBDataReader reader = new NuoDBDataReader(this, handle, dataStream, null, true))
+                        {
+                            table.BeginLoadData();
+                            while (reader.Read())
+                            {
+                                if (!unique.Add((string)reader["INDEX_NAME"]))
+                                    continue;
+                                DataRow row = table.NewRow();
+                                row["INDEX_SCHEMA"] = reader["TABLE_SCHEM"];
+                                row["INDEX_TABLE"] = reader["TABLE_NAME"];
+                                row["INDEX_NAME"] = reader["INDEX_NAME"];
+                                row["INDEX_TYPE"] = reader["TYPE"];
+                                row["INDEX_UNIQUE"] = reader["NON_UNIQUE"];
+                                row["INDEX_PRIMARY"] = reader["NON_UNIQUE"];
+                                table.Rows.Add(row);
+                            }
+                            table.EndLoadData();
+                        }
+                    }
+
+                    dataStream.startMessage(Protocol.GetPrimaryKeys);
+                    dataStream.encodeNull(); // catalog is always null
+                    dataStream.encodeString(t.Key);
+                    dataStream.encodeString(t.Value);
+                    sendAndReceive(dataStream);
+                    handle = dataStream.Int;
+
+                    if (handle != -1)
+                    {
+                        using (NuoDBDataReader reader = new NuoDBDataReader(this, handle, dataStream, null, true))
+                        {
+                            table.BeginLoadData();
+                            while (reader.Read())
+                            {
+                                if (!unique.Add((string)reader["INDEX_NAME"]))
+                                    continue;
+                                DataRow row = table.NewRow();
+                                row["INDEX_SCHEMA"] = reader["TABLE_SCHEM"];
+                                row["INDEX_TABLE"] = reader["TABLE_NAME"];
+                                row["INDEX_NAME"] = reader["INDEX_NAME"];
+                                row["INDEX_TYPE"] = "Primary";
+                                row["INDEX_UNIQUE"] = true;
+                                row["INDEX_PRIMARY"] = true;
+                                table.Rows.Add(row);
+                            }
+                            table.EndLoadData();
+                        }
+                    }
+                }
+            }
+            else if (collectionName == "IndexColumns")
+            {
+                table.Columns.Add("INDEXCOLUMN_CATALOG", typeof(string));
+                table.Columns.Add("INDEXCOLUMN_SCHEMA", typeof(string));
+                table.Columns.Add("INDEXCOLUMN_TABLE", typeof(string));
+                table.Columns.Add("INDEXCOLUMN_INDEX", typeof(string));
+                table.Columns.Add("INDEXCOLUMN_NAME", typeof(string));
+                table.Columns.Add("INDEXCOLUMN_POSITION", typeof(int));
+                table.Columns.Add("INDEXCOLUMN_ISPRIMARY", typeof(bool));
+
+                List<KeyValuePair<string, string>> tables = new List<KeyValuePair<string, string>>();
+
+                // the API for retrieving indexes works on a fully specified schema+table
+                // so, unless we have both values, we need to first retrieve the set of tables identified by the restrictions
+                if (restrictionValues.Length > 2 && restrictionValues[1] != null && restrictionValues[2] != null)
+                {
+                    tables.Add(new KeyValuePair<string, string>(restrictionValues[1], restrictionValues[2]));
+                }
+                else
+                {
+                    dataStream.startMessage(Protocol.GetTables);
+                    dataStream.encodeNull(); // catalog is always null
+                    for (int i = 1; i < 3; i++)
+                        if (restrictionValues.Length > i)
+                            dataStream.encodeString(restrictionValues[i]);
+                        else
+                            dataStream.encodeNull();
+                    dataStream.encodeInt(0);
+
+                    sendAndReceive(dataStream);
+                    int handle = dataStream.Int;
+
+                    if (handle != -1)
+                    {
+                        using (NuoDBDataReader reader = new NuoDBDataReader(this, handle, dataStream, null, true))
+                        {
+                            while (reader.Read())
+                                tables.Add(new KeyValuePair<string, string>((string)reader["TABLE_SCHEM"], (string)reader["TABLE_NAME"]));
+                        }
+                    }
+                }
+
+                foreach (KeyValuePair<string, string> t in tables)
+                {
+                    dataStream.startMessage(Protocol.GetIndexInfo);
+                    dataStream.encodeNull(); // catalog is always null
+                    dataStream.encodeString(t.Key);
+                    dataStream.encodeString(t.Value);
+                    dataStream.encodeBoolean(false);    // unique
+                    dataStream.encodeBoolean(false);    // approximate
+                    sendAndReceive(dataStream);
+                    int handle = dataStream.Int;
+
+                    if (handle != -1)
+                    {
+                        using (NuoDBDataReader reader = new NuoDBDataReader(this, handle, dataStream, null, true))
+                        {
+                            table.BeginLoadData();
+                            while (reader.Read())
+                            {
+                                // enforce the restriction on the index name
+                                if (restrictionValues.Length > 3 && restrictionValues[3] != null &&
+                                    !restrictionValues[3].Equals(reader["INDEX_NAME"]))
+                                    continue;
+                                System.Diagnostics.Trace.WriteLine("-> " + reader["TABLE_NAME"] + "." + reader["TABLE_NAME"] + "=" + reader["COLUMN_NAME"]);
+                                DataRow row = table.NewRow();
+                                row["INDEXCOLUMN_SCHEMA"] = reader["TABLE_SCHEM"];
+                                row["INDEXCOLUMN_TABLE"] = reader["TABLE_NAME"];
+                                row["INDEXCOLUMN_INDEX"] = reader["INDEX_NAME"];
+                                row["INDEXCOLUMN_NAME"] = reader["COLUMN_NAME"];
+                                row["INDEXCOLUMN_POSITION"] = reader["ORDINAL_POSITION"];
+                                row["INDEXCOLUMN_ISPRIMARY"] = false;
+                                table.Rows.Add(row);
+                            }
+                            table.EndLoadData();
+                        }
+                    }
+
+                    dataStream.startMessage(Protocol.GetPrimaryKeys);
+                    dataStream.encodeNull(); // catalog is always null
+                    dataStream.encodeString(t.Key);
+                    dataStream.encodeString(t.Value);
+                    sendAndReceive(dataStream);
+                    handle = dataStream.Int;
+
+                    if (handle != -1)
+                    {
+                        using (NuoDBDataReader reader = new NuoDBDataReader(this, handle, dataStream, null, true))
+                        {
+                            table.BeginLoadData();
+                            while (reader.Read())
+                            {
+                                // enforce the restriction on the index name
+                                if (restrictionValues.Length > 3 && restrictionValues[3] != null &&
+                                    !restrictionValues[3].Equals(reader["INDEX_NAME"]))
+                                    continue;
+                                System.Diagnostics.Trace.WriteLine("-> " + reader["TABLE_NAME"] + "." + reader["TABLE_NAME"] + " (Primary) =" + reader["COLUMN_NAME"]);
+                                DataRow row = table.NewRow();
+                                row["INDEXCOLUMN_SCHEMA"] = reader["TABLE_SCHEM"];
+                                row["INDEXCOLUMN_TABLE"] = reader["TABLE_NAME"];
+                                row["INDEXCOLUMN_INDEX"] = reader["INDEX_NAME"];
+                                row["INDEXCOLUMN_NAME"] = reader["COLUMN_NAME"];
+                                row["INDEXCOLUMN_POSITION"] = reader["ORDINAL_POSITION"];
+                                row["INDEXCOLUMN_ISPRIMARY"] = true;
+                                table.Rows.Add(row);
+                            }
+                            table.EndLoadData();
+                        }
                     }
                 }
             }
