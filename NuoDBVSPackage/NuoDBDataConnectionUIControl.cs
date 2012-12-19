@@ -23,6 +23,8 @@ namespace NuoDB.VisualStudio.DataTools
         {
             System.Diagnostics.Trace.WriteLine("NuoDBDataConnectionUIControl()");
             InitializeComponent();
+            // ensure we have a valid properties object
+            Initialize(new NuoDBDataConnectionProperties());
         }
 
         public override void LoadProperties()
