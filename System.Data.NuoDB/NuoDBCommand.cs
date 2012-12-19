@@ -65,6 +65,24 @@ namespace System.Data.NuoDB
         {
         }
 
+        protected override void Dispose(bool disposing)
+        {
+            Close();
+            base.Dispose(disposing);
+        }
+
+        public void Close()
+        {
+            if (handle == -1 || connection == null || (connection as IDbConnection).State == ConnectionState.Closed)
+            {
+                return;
+            }
+            System.Diagnostics.Trace.WriteLine("NuoDBCommand::Close()");
+
+            connection.CloseCommand(handle);
+            handle = -1;
+        }
+
         private void checkConnection()
         {
             if (connection == null || (connection as IDbConnection).State == ConnectionState.Closed)
@@ -190,6 +208,8 @@ namespace System.Data.NuoDB
             }
             set
             {
+                System.Diagnostics.Trace.WriteLine("NuoDBCommand.CommandText = " + value);
+                Close();
                 sqlText = value;
                 isPrepared = false;
                 parameters = new NuoDBDataParameterCollection();
@@ -275,19 +295,33 @@ namespace System.Data.NuoDB
             }
         }
 
+        private void EnsureStatement()
+        {
+            if (handle == -1)
+            {
+                if (parameters.Count > 0)
+                {
+                    Prepare();
+                }
+                else
+                {
+                    EncodedDataStream dataStream = new RemEncodedStream(connection.protocolVersion);
+                    dataStream.startMessage(Protocol.CreateStatement);
+                    connection.sendAndReceive(dataStream);
+                    handle = dataStream.Int;
+                    connection.RegisterCommand(handle);
+                }
+            }
+        }
+
         protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior)
         {
+            System.Diagnostics.Trace.WriteLine("NuoDBCommand.ExecuteDbDataReader(" + CommandText + ", " + behavior + ")");
             checkConnection();
+            EnsureStatement();
 
             bool readColumnNames = true;
             EncodedDataStream dataStream = new RemEncodedStream(connection.protocolVersion);
-            if (handle == -1)
-            {
-                dataStream.startMessage(Protocol.CreateStatement);
-                connection.sendAndReceive(dataStream);
-                handle = dataStream.Int;
-            }
-
             if (isPrepared)
             {
                 dataStream.startMessage(Protocol.ExecutePreparedQuery);
@@ -321,20 +355,15 @@ namespace System.Data.NuoDB
 
         public override int ExecuteNonQuery()
         {
+            System.Diagnostics.Trace.WriteLine("NuoDBCommand.ExecuteNonQuery(" + CommandText + ")");
             checkConnection();
-            EncodedDataStream dataStream = new RemEncodedStream(connection.protocolVersion);
+            EnsureStatement();
 
-            if (handle == -1)
-            {
-                dataStream.startMessage(Protocol.CreateStatement);
-                connection.sendAndReceive(dataStream);
-                handle = dataStream.Int;
-            }
             bool generatingKeys = false;
-
+            EncodedDataStream dataStream = new RemEncodedStream(connection.protocolVersion);
             if (isPrepared)
             {
-                dataStream.startMessage(Protocol.ExecutePreparedStatement);
+                dataStream.startMessage(Protocol.ExecutePreparedUpdate);
                 dataStream.encodeInt(handle);
                 putParameters(dataStream);
             }
@@ -369,16 +398,19 @@ namespace System.Data.NuoDB
         public override void Prepare()
         {
             checkConnection();
+            Close();
 
             EncodedDataStream dataStream = new RemEncodedStream(connection.protocolVersion);
             dataStream.startMessage(Protocol.PrepareStatement);
             dataStream.encodeString(sqlText);
             connection.sendAndReceive(dataStream);
             handle = dataStream.Int;
+            connection.RegisterCommand(handle);
             int numberParameters = dataStream.Int;
-            parameters = new NuoDBDataParameterCollection();
-            for (int i = 0; i < numberParameters; i++)
+            for (int i = parameters.Count; i < numberParameters; i++)
                 parameters.Add(CreateParameter());
+            for (int i = parameters.Count; i > numberParameters; i--)
+                parameters.RemoveAt(i-1);
             isPrepared = true;
         }
 
