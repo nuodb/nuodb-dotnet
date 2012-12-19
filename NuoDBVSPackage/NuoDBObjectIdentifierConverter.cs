@@ -15,20 +15,24 @@ namespace NuoDB.VisualStudio.DataTools
 
         protected override string FormatPart(string typeName, object identifierPart, bool withQuotes)
         {
-            string s = base.FormatPart(typeName, identifierPart, withQuotes);
-            return s;
+            if (identifierPart is string)
+            {
+                if (withQuotes)
+                    return String.Format("\"{0}\"", identifierPart);
+                else
+                    return (string)identifierPart;
+            }
+            return null;
         }
 
         protected override string[] SplitIntoParts(string typeName, string identifier)
         {
-            string[] s = base.SplitIntoParts(typeName, identifier);
-            return s;
+            return identifier.Split(new char[] { '.' });
         }
 
         protected override object UnformatPart(string typeName, string identifierPart)
         {
-            object s = base.UnformatPart(typeName, identifierPart);
-            return s;
+            return identifierPart;
         }
     }
 }
