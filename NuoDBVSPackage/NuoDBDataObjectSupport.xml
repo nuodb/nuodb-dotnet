@@ -17,7 +17,7 @@
         <Concept name="Table" restrictions="{Catalog},{Schema},{Name},TABLE"/>
       </Concepts>
       <Identifier>
-        <Part name="Catalog" itemName="TABLE_CATALOG">
+        <Part name="Catalog">
           <Concepts>
             <Concept name="Identifier0"/>
           </Concepts>
@@ -40,6 +40,7 @@
         <Restriction name="Type"/>
       </Restrictions>
       <Properties>
+        <Property name="Catalog" type="System.String" itemName="TABLE_CATALOG"/>
         <Property name="Schema" type="System.String" itemName="TABLE_SCHEMA">
           <Concepts>
             <Concept name="Schema"/>
@@ -80,6 +81,10 @@
             <Parameter/>
             <!-- custom properties -->
             <Parameter>
+              <!-- GUID_DSRefProperty_Qualifier -->
+              <Parameter value="4656BAEA-F397-11ce-BFE1-00AA0057B34E">
+                <Parameter value="{0}"/>
+              </Parameter>
               <!-- GUID_DSRefProperty_PreciseType -->
               <Parameter value="39A5A7E7-513F-44a4-B79D-7652CD8962D9">
                 <Parameter value="101" type="System.Int32"/>
@@ -166,6 +171,11 @@
             <Concept name="Nullable"/>
           </Concepts>
         </Property>
+        <Property name="Default" type="System.String" itemName="COLUMN_DEFAULT">
+          <Concepts>
+            <Concept name="Default"/>
+          </Concepts>
+        </Property>
       </Properties>
       <Actions>
         <Action name="Enumerate"
@@ -187,6 +197,10 @@
             <Parameter/>
             <!-- custom properties -->
             <Parameter>
+              <!-- GUID_DSRefProperty_Qualifier -->
+              <Parameter value="4656BAEA-F397-11ce-BFE1-00AA0057B34E">
+                <Parameter value="{0}"/>
+              </Parameter>
               <!-- GUID_DSRefProperty_PreciseType -->
               <Parameter value="39A5A7E7-513F-44a4-B79D-7652CD8962D9">
                 <Parameter value="101" type="System.Int32"/>
@@ -220,7 +234,8 @@
     </Type>
     <Type name="Index" defaultSort="Schema, Table, Name">
       <Concepts>
-        <Concept name="Index" restrictions="{Catalog},{Schema},{Table},{Name}"/>
+        <Concept name="TableIndex" restrictions="{Catalog},{Schema},{Table},{Name}"/>
+        <Concept name="TableUniqueKey" restrictions="{Catalog},{Schema},{Table},{Name}" filter="Unique = true"/>
       </Concepts>
       <Identifier>
         <Part name="Catalog">
@@ -283,6 +298,10 @@
             <Parameter/>
             <!-- custom properties -->
             <Parameter>
+              <!-- GUID_DSRefProperty_Qualifier -->
+              <Parameter value="4656BAEA-F397-11ce-BFE1-00AA0057B34E">
+                <Parameter value="{0}"/>
+              </Parameter>
               <!-- GUID_DSRefProperty_PreciseType -->
               <Parameter value="39A5A7E7-513F-44a4-B79D-7652CD8962D9">
                 <Parameter value="101" type="System.Int32"/>
@@ -298,15 +317,26 @@
                 <Parameter/>
                 <!-- node type (Table, Field, Trigger, ViewTrigger, ViewIndex, StoredProcedure, View, Synonym, Function, Index, or UserDefinedType)-->
                 <Parameter value="Index"/>
+                <!-- extended type -->
+                <Parameter/>
+                <!-- custom properties -->
+                <Parameter>
+                  <!-- GUID_DSRefProperty_PreciseType -->
+                  <Parameter value="39A5A7E7-513F-44a4-B79D-7652CD8962D9">
+                    <Parameter value="104" type="System.Int32"/>
+                    <!-- Index -->
+                  </Parameter>
+                </Parameter>
               </Parameter>
             </Parameter>
           </Parameter>
         </Action>
       </Actions>
     </Type>
-    <Type name="IndexColumn" defaultSort="Schema, Table, Name">
+    <Type name="IndexColumn" defaultSort="Schema, Table, Ordinal">
       <Concepts>
-        <Concept name="IndexColumn" restrictions="{Catalog},{Schema},{Table},{Index},{Name}"/>
+        <Concept name="TableIndexColumn" restrictions ="{Catalog},{Schema},{Table},{TableIndex},{Name}"/>
+        <Concept name="TableUniqueKeyColumn" restrictions="{Catalog},{Schema},{Table},{TableUniqueKey},{Name}"/>
       </Concepts>
       <Identifier>
         <Part name="Catalog">
@@ -343,9 +373,10 @@
         <Restriction name="Name"/>
       </Restrictions>
       <Properties>
-        <Property name="Schema" type="System.String" itemName="INDEX_SCHEMA"/>
-        <Property name="Table" type="System.String" itemName="INDEX_TABLE"/>
-        <Property name="Index" type="System.String" itemName="INDEX_NAME"/>
+        <Property name="Catalog" type="System.String" itemName="INDEXCOLUMN_CATALOG"/>
+        <Property name="Schema" type="System.String" itemName="INDEXCOLUMN_SCHEMA"/>
+        <Property name="Table" type="System.String" itemName="INDEXCOLUMN_TABLE"/>
+        <Property name="Index" type="System.String" itemName="INDEXCOLUMN_INDEX"/>
         <Property name="Name" type="System.String" itemName="INDEXCOLUMN_NAME"/>
         <Property name="Ordinal" type="System.Int32" itemName="INDEXCOLUMN_POSITION">
           <Concepts>
@@ -373,6 +404,10 @@
             <Parameter/>
             <!-- custom properties -->
             <Parameter>
+              <!-- GUID_DSRefProperty_Qualifier -->
+              <Parameter value="4656BAEA-F397-11ce-BFE1-00AA0057B34E">
+                <Parameter value="{0}"/>
+              </Parameter>
               <!-- GUID_DSRefProperty_PreciseType -->
               <Parameter value="39A5A7E7-513F-44a4-B79D-7652CD8962D9">
                 <Parameter value="101" type="System.Int32"/>
@@ -391,7 +426,13 @@
                 <!-- extended type -->
                 <Parameter/>
                 <!-- custom properties -->
-                <Parameter/>
+                <Parameter>
+                  <!-- GUID_DSRefProperty_PreciseType -->
+                  <Parameter value="39A5A7E7-513F-44a4-B79D-7652CD8962D9">
+                    <Parameter value="104" type="System.Int32"/>
+                    <!-- Index -->
+                  </Parameter>
+                </Parameter>
                 <!-- children -->
                 <Parameter>
                   <Parameter>
@@ -401,6 +442,16 @@
                     <Parameter/>
                     <!-- node type (Table, Field, Trigger, ViewTrigger, ViewIndex, StoredProcedure, View, Synonym, Function, Index, or UserDefinedType)-->
                     <Parameter value="Field"/>
+                    <!-- extended type -->
+                    <Parameter/>
+                    <!-- custom properties -->
+                    <Parameter>
+                      <!-- GUID_DSRefProperty_PreciseType -->
+                      <Parameter value="39A5A7E7-513F-44a4-B79D-7652CD8962D9">
+                        <Parameter value="105" type="System.Int32"/>
+                        <!-- Field -->
+                      </Parameter>
+                    </Parameter>
                   </Parameter>
                 </Parameter>
               </Parameter>
@@ -408,7 +459,91 @@
           </Parameter>
         </Action>
       </Actions>
-    </Type>    
+    </Type>
+
+    <Type name="View" defaultSort="Schema, Name">
+      <Concepts>
+        <Concept name="View" restrictions="{Catalog},{Schema},{Name},VIEW"/>
+      </Concepts>
+      <Identifier>
+        <Part name="Catalog">
+          <Concepts>
+            <Concept name="Identifier0"/>
+          </Concepts>
+        </Part>
+        <Part name="Schema">
+          <Concepts>
+            <Concept name="Identifier1"/>
+          </Concepts>
+        </Part>
+        <Part name="Name">
+          <Concepts>
+            <Concept name="Identifier2"/>
+          </Concepts>
+        </Part>
+      </Identifier>
+      <Restrictions>
+        <Restriction name="Catalog"/>
+        <Restriction name="Schema"/>
+        <Restriction name="Name"/>
+        <Restriction name="Type"/>
+      </Restrictions>
+      <Properties>
+        <Property name="Catalog" type="System.String" itemName="TABLE_CATALOG"/>
+        <Property name="Schema" type="System.String" itemName="TABLE_SCHEMA">
+          <Concepts>
+            <Concept name="Schema"/>
+          </Concepts>
+        </Property>
+        <Property name="Name" type="System.String" itemName="TABLE_NAME">
+          <Concepts>
+            <Concept name="Name"/>
+          </Concepts>
+        </Property>
+        <Property name="Type" type="System.String" itemName="TABLE_TYPE">
+          <Concepts>
+            <Concept name="Type">
+              <Conversion>
+                <Calculate expr="IIF({0}='VIEW','USER','SYSTEM')" type="System.String"/>
+              </Conversion>
+            </Concept>
+          </Concepts>
+        </Property>
+      </Properties>
+      <Actions>
+        <Action name="Enumerate"
+           guid="61CC0372-384D-42e5-9707-6D7C8DC5287A"
+           handler="Microsoft.VisualStudio.Data.AdoDotNet.AdoDotNetObjectEnumerator">
+          <Parameter value="Views"/>
+        </Action>
+        <Action name="BuildDSRef"
+           guid="7C030900-E8DD-471b-8F18-D83DA7036144"
+           handler="Microsoft.VisualStudio.Data.DSRefBuilder">
+          <Parameter>
+            <!-- name -->
+            <Parameter value="{2}"/>
+            <!-- owner -->
+            <Parameter value="{1}"/>
+            <!-- node type (Table, Field, Trigger, ViewTrigger, ViewIndex, StoredProcedure, View, Synonym, Function, Index, or UserDefinedType)-->
+            <Parameter value="View"/>
+            <!-- extended type -->
+            <Parameter/>
+            <!-- custom properties -->
+            <Parameter>
+              <!-- GUID_DSRefProperty_Qualifier -->
+              <Parameter value="4656BAEA-F397-11ce-BFE1-00AA0057B34E">
+                <Parameter value="{0}"/>
+              </Parameter>
+              <!-- GUID_DSRefProperty_PreciseType -->
+              <Parameter value="39A5A7E7-513F-44a4-B79D-7652CD8962D9">
+                <Parameter value="301" type="System.Int32"/>
+                <!-- View -->
+              </Parameter>
+            </Parameter>
+          </Parameter>
+        </Action>
+      </Actions>
+    </Type>
   </Types>
 
 </VSDataObjectSupport>

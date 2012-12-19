@@ -157,11 +157,37 @@
           <DisplayName resource="DataView_Property_Nullable"/>
           <Description resource="DataView_Description_Nullable"/>
         </Property>
-<!--        <Property name="Default">
+        <Property name="Default">
           <DisplayName resource="DataView_Property_Default"/>
           <Description resource="DataView_Description_Default"/>
         </Property>
-        -->
+      </Properties>
+    </TypeExtension>
+
+    <TypeExtension name="IndexColumn">
+      <DisplayName resource="DataView_Type_TableColumn"/>
+      <Identifier>
+        <Part name="Schema">
+          <DisplayName resource="DataView_Property_Schema"/>
+          <Category resource="DataView_Category_Identifier"/>
+          <Description resource="DataView_Description_Schema"/>
+        </Part>
+        <Part name="Table">
+          <DisplayName resource="DataView_Property_Table"/>
+          <Category resource="DataView_Category_Identifier"/>
+          <Description resource="DataView_Description_Table"/>
+        </Part>
+        <Part name="Name">
+          <DisplayName resource="DataView_Property_Name"/>
+          <Category resource="DataView_Category_Identifier"/>
+          <Description resource="DataView_Description_Name"/>
+        </Part>
+      </Identifier>
+      <Properties>
+        <Property name="Ordinal">
+          <DisplayName resource="DataView_Property_Ordinal"/>
+          <Description resource="DataView_Description_Ordinal"/>
+        </Property>
       </Properties>
     </TypeExtension>
   </TypeExtensions>
