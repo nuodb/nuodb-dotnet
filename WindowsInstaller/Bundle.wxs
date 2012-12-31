@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+	<Bundle Name="NuoDB .NET Driver" Version="1.0.0.0" Manufacturer="NuoDB Inc." 
+          UpgradeCode="dd6fff8d-fe8a-4356-9e30-4167974ac022">
+		<BootstrapperApplicationRef Id="WixStandardBootstrapperApplication.RtfLicense" />
+
+		<Chain>
+      <PackageGroupRef Id="NetFx40ClientRedist"/>
+      <MsiPackage SourceFile="bin\$(var.Configuration)\NuoDB_DotNet_Driver.msi"/>
+    </Chain>
+	</Bundle>
+</Wix>
