@@ -868,9 +868,9 @@ namespace System.Data.NuoDB
                 table.Columns.Add("DataSourceProductName", typeof(string));
                 table.Columns.Add("DataSourceProductVersion", typeof(string));
                 table.Columns.Add("DataSourceProductVersionNormalized", typeof(string));
-                table.Columns.Add("GroupByBehavior", typeof(int)); // see GroupByBehavior
+                table.Columns.Add("GroupByBehavior", typeof(GroupByBehavior));
                 table.Columns.Add("IdentifierPattern", typeof(string));
-                table.Columns.Add("IdentifierCase", typeof(int));    // see IdentifierCase 
+                table.Columns.Add("IdentifierCase", typeof(IdentifierCase));
                 table.Columns.Add("OrderByColumnsInSelect", typeof(bool));
                 table.Columns.Add("ParameterMarkerFormat", typeof(string));
                 table.Columns.Add("ParameterMarkerPattern", typeof(string));
@@ -880,7 +880,7 @@ namespace System.Data.NuoDB
                 table.Columns.Add("QuotedIdentifierCase", typeof(int));
                 table.Columns.Add("StatementSeparatorPattern", typeof(string));
                 table.Columns.Add("StringLiteralPattern", typeof(string));  // Regex
-                table.Columns.Add("SupportedJoinOperators", typeof(int));    // see SupportedJoinOperators 
+                table.Columns.Add("SupportedJoinOperators", typeof(SupportedJoinOperators));
 
                 table.BeginLoadData();
                 DataRow row = table.NewRow();
