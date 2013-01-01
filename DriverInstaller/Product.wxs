@@ -4,8 +4,28 @@
 	<Product Id="*" Name="ADO.NET Driver for NuoDB" Language="1033" Version="1.0.0.0" Manufacturer="NuoDB Inc." 
            UpgradeCode="01d136dd-8f3c-4e8a-8343-d76b584caec2">
 		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
-    <PropertyRef Id="NETFRAMEWORK40CLIENTINSTALLROOTDIR"/>
     <PropertyRef Id="NETFRAMEWORK20INSTALLROOTDIR"/>
+    <PropertyRef Id="NETFRAMEWORK40CLIENTINSTALLROOTDIR"/>
+    <Property Id="ARPPRODUCTICON" Value="Package.ico" />
+    <Icon Id="Package.ico" SourceFile="../NuoDBVSPackage/Resources/Package.ico" />
+    
+    <Property Id="EXTENSION_DIR_VS2010">
+      <RegistrySearch Id="VS2010_Extension"
+                      Root="HKCU"
+                      Key="Software\Microsoft\VisualStudio\10.0_Config\Initialization"
+                      Name="ApplicationExtensionsFolder"
+                      Type="raw" />
+    </Property>
+    <SetProperty Id="NUODB_EXTENSION_DIR_VS2010" Value="[EXTENSION_DIR_VS2010]\NuoDB" After="AppSearch">EXTENSION_DIR_VS2010</SetProperty>
+
+    <Property Id="EXTENSION_DIR_VS2012">
+      <RegistrySearch Id="VS2012_Extension"
+                      Root="HKCU"
+                      Key="Software\Microsoft\VisualStudio\12.0_Config\Initialization"
+                      Name="ApplicationExtensionsFolder"
+                      Type="raw" />
+    </Property>
+    <SetProperty Id="NUODB_EXTENSION_DIR_VS2012" Value="[EXTENSION_DIR_VS2012]\NuoDB" After="AppSearch">EXTENSION_DIR_VS2012</SetProperty>
 
     <Media Id="1" Cabinet="media1.cab" EmbedCab="yes" CompressionLevel="high" />
 
@@ -15,27 +35,39 @@
 			<ComponentRef Id="Install_DotNetDriver" />
       <ComponentRef Id="Register_DotNetDriver" />
     </Feature>
+
     <Feature Id="VS2010Feature" Title="Installing VS2010 plugin" Level="1">
       <ComponentRef Id="Install_DDEXPlugin" />
+      <Condition Level="1">NUODB_EXTENSION_DIR_VS2010</Condition>
     </Feature>
 
   </Product>
 
 	<Fragment>
 		<Directory Id="TARGETDIR" Name="SourceDir">
-			<Directory Id="ProgramFilesFolder">
-				<Directory Id="INSTALLFOLDER" Name="ADO.NET Driver for NuoDB">
-
-			    <Component Id="Install_DotNetDriver">
-            <File Id="System.Data.NuoDB.dll" 
-                  Name="System.Data.NuoDB.dll" 
+      <Directory Id="ProgramFilesFolder">
+        <Directory Id="INSTALLFOLDER" Name="ADO.NET Driver for NuoDB">
+          <Component Id="Install_DotNetDriver" Guid="A04B6218-AD90-40E5-8001-918CF0D3EAF2">
+            <File Id="System.Data.NuoDB.dll"
+                  KeyPath="yes"
                   Source="../System.Data.NuoDB/bin/$(var.Configuration)/System.Data.NuoDB.dll"/>
           </Component>
-      
-          <Component Id="Install_DDEXPlugin">
+          <Component Id="Install_DDEXPlugin" Guid="A04B6218-AD90-40E5-8001-918CF0D3EAF3">
             <File Id="NuoDB.VisualStudio.DataTools.dll"
-                  Name="NuoDB.VisualStudio.DataTools.dll"
-                  Source="../NuoDBVSPackage/bin/$(var.Configuration)/NuoDB.VisualStudio.DataTools.dll"/>
+                  Source="../NuoDBVSPackage/bin/$(var.Configuration)/NuoDB.VisualStudio.DataTools.dll">
+              <CopyFile Id="NuoDB.VisualStudio.DataTools.dll_VS2010" DestinationProperty="NUODB_EXTENSION_DIR_VS2010"/>
+              <CopyFile Id="NuoDB.VisualStudio.DataTools.dll_VS2012" DestinationProperty="NUODB_EXTENSION_DIR_VS2012"/>
+            </File>
+            <File Id="NuoDB.VisualStudio.DataTools.pkgdef"
+                  Source="../NuoDBVSPackage/bin/$(var.Configuration)/NuoDB.VisualStudio.DataTools.pkgdef">
+              <CopyFile Id="NuoDB.VisualStudio.DataTools.pkgdef_VS2010" DestinationProperty="NUODB_EXTENSION_DIR_VS2010"/>
+              <CopyFile Id="NuoDB.VisualStudio.DataTools.pkgdef_VS2012" DestinationProperty="NUODB_EXTENSION_DIR_VS2012"/>
+            </File>
+            <File Id="extension.vsixmanifest"
+                  Source="../NuoDBVSPackage/bin/$(var.Configuration)/extension.vsixmanifest">
+              <CopyFile Id="extension.vsixmanifest_VS2010" DestinationProperty="NUODB_EXTENSION_DIR_VS2010"/>
+              <CopyFile Id="extension.vsixmanifest_VS2012" DestinationProperty="NUODB_EXTENSION_DIR_VS2012"/>
+            </File>
           </Component>
         </Directory>
       </Directory>
@@ -136,8 +168,6 @@
                     ElementPath="//configuration/system.data/DbProviderFactories"
                     Sequence="1" />
       </Component>
-<!--      <Component Id="Register_DDEXPlugin" Guid="*">
-      </Component> -->
     </Directory>
   </Fragment>
 </Wix>
