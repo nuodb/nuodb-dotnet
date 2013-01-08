@@ -451,7 +451,7 @@ namespace System.Data.NuoDB
             List<int> tmpCommand = new List<int>(listCommands);
             listCommands.Clear();
 
-            foreach (Int32 r in tmpResultSet)
+            foreach (Int32 r in tmpCommand)
             {
                 CloseCommand(r);
             }
