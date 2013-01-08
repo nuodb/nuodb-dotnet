@@ -56,8 +56,7 @@ namespace System.Data.NuoDB
 			}
 		}
 
-
-/*		public override void encodeTime(Time time)
+		public override void encodeTime(DateTime time)
 		{
 			if (protocolVersion >= Protocol.PROTOCOL_VERSION9)
 			{
@@ -69,7 +68,19 @@ namespace System.Data.NuoDB
 			}
 		}
 
-		public override void encodeTimestamp(Timestamp timestamp)
+        public override void encodeTime(TimeSpan time)
+        {
+            if (protocolVersion >= Protocol.PROTOCOL_VERSION9)
+            {
+                base.encodeScaledTime(time);
+            }
+            else
+            {
+                base.encodeTime(time);
+            }
+        }
+        
+        public override void encodeTimestamp(DateTime timestamp)
 		{
 			if (protocolVersion >= Protocol.PROTOCOL_VERSION9)
 			{
@@ -80,7 +91,7 @@ namespace System.Data.NuoDB
 				base.encodeTimestamp(timestamp);
 			}
 		}
- * */
+ 
 	}
 
 }

@@ -320,8 +320,10 @@ namespace System.Data.NuoDB
 		internal static readonly long SECONDS_PER_HOUR = (SECONDS_PER_MINUTE * 60);
 		internal static readonly long SECONDS_PER_DAY = (SECONDS_PER_HOUR * 24);
 		internal static readonly long MILLISECONDS_PER_DAY = (SECONDS_PER_DAY * 1000);
-		internal const int MILLISECONDS_SCALE = 3;
+        internal const int SECONDS_SCALE = 0;
+        internal const int MILLISECONDS_SCALE = 3;
 		internal const int NANOSECONDS_SCALE = 9;
+        internal DateTime baseDate = new DateTime(1970, 1, 1, 0, 0, 0);
 
 		public EncodedDataStream()
 		{
@@ -604,8 +606,7 @@ namespace System.Data.NuoDB
 				return;
 			}
 
-            DateTime reference = new DateTime(1970, 1, 1, 0, 0, 0);
-            TimeSpan delta = val - reference;  
+            TimeSpan delta = val - baseDate;
 
 			long value = (long)((delta.TotalMilliseconds * 1000) * 1000000000); // convert to nanoseconds
 			int count = byteCount(value);
@@ -625,7 +626,7 @@ namespace System.Data.NuoDB
 			}
 		}
 
-		public virtual void encodeScaledTimestamp(DateTime val)
+        public virtual void encodeScaledTimestamp(DateTime val)
 		{
 			if (val == null)
 			{
@@ -639,8 +640,7 @@ namespace System.Data.NuoDB
 			// is always 000. But when you call getTime(), it applies the ms from the nanos. Which means
 			// you can't simply  getTime() + getNanos() to get an int64 value
 
-            DateTime reference = new DateTime(1970, 1, 1, 0, 0, 0);
-            TimeSpan delta = val - reference;
+            TimeSpan delta = val - baseDate;
             int nanos = (int)((delta.TotalMilliseconds - Math.Truncate(delta.TotalMilliseconds)) * 1000);
 
 			// Find the scale factor
@@ -1359,11 +1359,28 @@ namespace System.Data.NuoDB
 					case edsTypeUtf8:
 						return new ValueString(@string);
     
-/*					case edsTypeOpaque:
+					case edsTypeOpaque:
 						return new ValueBytes(bytes);
-  */  
-					case edsTypeScaled:
-						return new ValueLong(integer64, scale);
+
+                    case edsTypeScaled:
+                    {
+                        decimal d = new Decimal(integer64);
+                        if (scale > 0)
+                        {
+                            for (int n = 0; n < scale; ++n)
+                            {
+                                d /= 10;
+                            }
+                        }
+                        else if (scale < 0)
+                        {
+                            for (int n = 0; n > scale; --n)
+                            {
+                                d *= 10;
+                            }
+                        }
+                        return new ValueNumber(d);
+                    }
     
 					case edsTypeInt32:
 						return new ValueInt(integer32, 0);
@@ -1377,55 +1394,46 @@ namespace System.Data.NuoDB
 					case edsTypeDouble:
 						return new ValueDouble(dbl);
     
-/*					case edsTypeScaledTime:
+					case edsTypeScaledTime:
 					{
-						// Java SQL only supports ms.
+						// .NET DateTime only supports ms.
     
 						long inMillis = Value.reScale(integer64, scale, MILLISECONDS_SCALE);
     
-						return new ValueTime(new Time(inMillis));
+						return new ValueTime(new DateTime(inMillis * TimeSpan.TicksPerMillisecond, DateTimeKind.Utc).ToLocalTime());
 					}
-    
-					case edsTypeTime:
-						return new ValueTime(new Time(integer64));
-  */  
-					case edsTypeScaledDate:
-					{
-						// Java SQL only supports ms.
-    
-						long inMillis = Value.reScale(integer64, scale, MILLISECONDS_SCALE);
 
-                        return new ValueDate((new DateTime(1970, 1, 1, 0, 0, 0)) + (new TimeSpan(inMillis * 10000)));
+                    case edsTypeTime:
+                        return new ValueTime(new DateTime(integer64, DateTimeKind.Utc).ToLocalTime());
+                    
+                    case edsTypeScaledDate:
+					{
+                        // .NET DateTime only supports ms.
+
+                        long inMillis = Value.reScale(integer64, scale, MILLISECONDS_SCALE);
+                        return new ValueDate(new DateTime(baseDate.Ticks + inMillis * TimeSpan.TicksPerMillisecond, DateTimeKind.Utc).ToLocalTime());
 					}
-    
-    
-					case edsTypeMilliseconds:
-						return new ValueDate((new DateTime(1970,1,1,0,0,0)) + (new TimeSpan(integer64 * 10000)));
-    
-/*					case edsTypeScaledTimestamp:
+
+                    case edsTypeMilliseconds:
+                        return new ValueTime(new DateTime(baseDate.Ticks + integer64 * TimeSpan.TicksPerMillisecond, DateTimeKind.Utc).ToLocalTime());
+
+					case edsTypeScaledTimestamp:
 					{
 						long inMillis = Value.reScale(integer64, scale, MILLISECONDS_SCALE);
 						int nanos = getNanos(integer64, scale);
-						java.sql.Timestamp timestamp = new java.sql.Timestamp(inMillis);
-						timestamp.Nanos = Math.Abs(nanos);
-    
-						return new ValueTimestamp(timestamp);
-					}
-    
-					case edsTypeNanoseconds:
-					{
-						java.sql.Timestamp timestamp = new java.sql.Timestamp(integer64 / 1000000);
-						timestamp.Nanos = Math.Abs((int)(integer64 % 1000000000));
-    
-						return new ValueTimestamp(timestamp);
-					}
- */   
+
+                        return new ValueTimestamp(new DateTime(baseDate.Ticks + inMillis * TimeSpan.TicksPerMillisecond, DateTimeKind.Utc).ToLocalTime());
+                    }
+
+                    case edsTypeNanoseconds:
+                        return new ValueTime(new DateTime(baseDate.Ticks + integer64, DateTimeKind.Utc).ToLocalTime());
+                    
 					case edsTypeBigInt:
 						return new ValueNumber(bigDecimal);
-    
+
 				}
     
-				throw new SQLException("On message type " + currentMessageType + ":NuoDB jdbc decode value type not yet implemented");
+				throw new SQLException("On message type " + currentMessageType + ":NuoDB jdbc decode value type " + type + " not yet implemented");
 			}
 		}
 
@@ -1435,7 +1443,7 @@ namespace System.Data.NuoDB
 
 			for (int n = 0; n < scale; ++n)
 			{
-					modulo *= 10;
+				modulo *= 10;
 			}
 
 			int temp = (int)(number % modulo);
@@ -1467,8 +1475,8 @@ namespace System.Data.NuoDB
 				return;
 			}
 
-            TimeSpan span = date - (new DateTime(1970, 1, 1, 0, 0, 0));
-            long value = (long)(span.TotalMilliseconds * 1000000);
+            TimeSpan span = (protocolVersion >= Protocol.PROTOCOL_VERSION10 ? date.ToUniversalTime() : date) - baseDate;
+            long value = (long)(span.TotalMilliseconds);
             int count = byteCount(value);
 			write(edsMilliSecLen0 + count);
 
@@ -1487,28 +1495,13 @@ namespace System.Data.NuoDB
 				return;
 			}
 
-			// java.sql.Date only supports ms unlike timestamp which supports nanos
+            TimeSpan span = (protocolVersion >= Protocol.PROTOCOL_VERSION10 ? date.ToUniversalTime():date) - baseDate;
+            // always send seconds. ms in date is useless
+            long value = (long)span.TotalMilliseconds / 1000;
 
-            TimeSpan span = date - (new DateTime(1970, 1, 1, 0, 0, 0));
-            long value = (long)span.TotalMilliseconds;
-/*
-            if (protocolVersion >= Protocol.PROTOCOL_VERSION10)
-            {
-                Calendar cLocal = LOCAL_CALENDAR.get();
-                cLocal.setTime(date);
-
-                Calendar cUTC = UTC_CALENDAR.get();
-                cUTC.clear();
-                cUTC.set(cLocal.get(Calendar.YEAR), cLocal.get(Calendar.MONTH), cLocal.get(Calendar.DATE));
-
-                value = cUTC.getTimeInMillis();
-            }
-            else
-                value = date.getTime();
-*/
             int count = byteCount(value);
 			write(edsScaledDateLen1 + count - 1);
-			write(MILLISECONDS_SCALE);
+            write(SECONDS_SCALE);
 
 			for (int shift = (count - 1) * 8; shift >= 0; shift -= 8)
 			{
@@ -1558,7 +1551,32 @@ namespace System.Data.NuoDB
 			write(byteArray);
 		}
         */
-		public virtual void encodeTime(DateTime time)
+
+        public virtual void encodeScaledTime(TimeSpan time)
+        {
+            if (time == null)
+            {
+                write(edsNull);
+
+                return;
+            }
+
+            encodeScaledTime(baseDate + time);
+        }
+
+        public virtual void encodeTime(TimeSpan time)
+        {
+            if (time == null)
+            {
+                write(edsNull);
+
+                return;
+            }
+
+            encodeTime(baseDate + time);
+        }
+
+        public virtual void encodeTime(DateTime time)
 		{
 			if (time == null)
 			{
@@ -1567,7 +1585,7 @@ namespace System.Data.NuoDB
 				return;
 			}
 
-			long milliSecondsSinceMidnight = (long)time.TimeOfDay.TotalMilliseconds;
+            long milliSecondsSinceMidnight = (long)((protocolVersion >= Protocol.PROTOCOL_VERSION10 ? time.ToUniversalTime() : time).TimeOfDay.TotalMilliseconds);
 
 			TimeZone tz = TimeZone.CurrentTimeZone;
 			if (tz.IsDaylightSavingTime(time))
@@ -1601,10 +1619,8 @@ namespace System.Data.NuoDB
 				return;
 			}
 
-			// java.sql.Time only supports ms unlike timestamp which supports nanos
-
-            TimeSpan span = time - (new DateTime(1970, 1, 1, 0, 0, 0));
-			long value = (long)span.TotalMilliseconds;
+            TimeSpan span = (protocolVersion >= Protocol.PROTOCOL_VERSION10 ? time.ToUniversalTime() : time) - baseDate;
+            long value = (long)span.TotalMilliseconds;
 			int count = byteCount(value);
 			write(edsScaledTimeLen1 + count - 1);
 			write(MILLISECONDS_SCALE);

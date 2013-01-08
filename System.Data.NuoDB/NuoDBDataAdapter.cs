@@ -98,6 +98,12 @@ namespace System.Data.NuoDB
 		{
 		}
 
+        public NuoDBDataAdapter(string selectStatement, NuoDBConnection connection)
+            : base()
+        {
+            this.SelectCommand = new NuoDBCommand(selectStatement, connection);
+        }
+
         public NuoDBDataAdapter(NuoDBCommand selectCommand)
 			: base()
 		{

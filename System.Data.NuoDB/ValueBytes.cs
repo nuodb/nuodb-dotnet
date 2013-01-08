@@ -8,37 +8,23 @@ namespace System.Data.NuoDB
 	//
 	public class ValueBytes : Value
 	{
-		internal sbyte[] value;
+		internal byte[] value;
 
 		public ValueBytes()
 		{
 		}
 
-		public ValueBytes(sbyte[] val)
+		public ValueBytes(byte[] val)
 		{
 			value = val;
 		}
 
 		public ValueBytes(object x)
 		{
-			value = ((sbyte[])x);
+			value = ((byte[])x);
 		}
 
-//JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in .NET:
-//ORIGINAL LINE: public ValueBytes(Blob blob) throws java.sql.SQLException
-		public ValueBytes(Blob blob)
-		{
-			value = blob.Bytes;
-		}
-
-//JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in .NET:
-//ORIGINAL LINE: public ValueBytes(java.sql.Blob blob) throws java.sql.SQLException
-		public ValueBytes(java.sql.Blob blob)
-		{
-			value = blob.getBytes(0, (int) blob.length());
-		}
-
-		internal override int Type
+		public override int Type
 		{
 			get
 			{
@@ -46,14 +32,12 @@ namespace System.Data.NuoDB
 			}
 		}
 
-//JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in .NET:
-//ORIGINAL LINE: void encodeValue(EncodedDataStream dataStream) throws java.sql.SQLException
 		internal override void encodeValue(EncodedDataStream dataStream)
 		{
 			dataStream.encodeBytes(value);
 		}
 
-		internal override object Object
+        public override object Object
 		{
 			get
 			{
@@ -61,7 +45,7 @@ namespace System.Data.NuoDB
 			}
 		}
 
-		internal override sbyte [] Bytes
+        public override byte[] Bytes
 		{
 			get
 			{
@@ -69,25 +53,26 @@ namespace System.Data.NuoDB
 			}
 		}
 
-		internal override string String
+        public override string String
 		{
 			get
 			{
-				return new string(value);
+                char[] buff = new char[value.Length];
+                for (int i = 0; i < value.Length; i++)
+                    buff[i] = (char)value[i];
+				return new string(buff);
 			}
 		}
 
-		public override sbyte[] AsBytes
+/*        public override byte[] AsBytes
 		{
 			get
 			{
 				return value;
 			}
 		}
-
-//JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in .NET:
-//ORIGINAL LINE: byte getByte() throws java.sql.SQLException
-		internal override sbyte Byte
+*/
+        public override byte Byte
 		{
 			get
 			{
@@ -96,9 +81,7 @@ namespace System.Data.NuoDB
 			}
 		}
 
-//JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in .NET:
-//ORIGINAL LINE: short getShort() throws java.sql.SQLException
-		internal override short Short
+        public override short Short
 		{
 			get
 			{
@@ -107,9 +90,7 @@ namespace System.Data.NuoDB
 			}
 		}
 
-//JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in .NET:
-//ORIGINAL LINE: int getInt() throws java.sql.SQLException
-		internal override int Int
+        public override int Int
 		{
 			get
 			{
@@ -118,9 +99,7 @@ namespace System.Data.NuoDB
 			}
 		}
 
-//JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in .NET:
-//ORIGINAL LINE: long getLong() throws java.sql.SQLException
-		internal override long Long
+        public override long Long
 		{
 			get
 			{
@@ -129,9 +108,7 @@ namespace System.Data.NuoDB
 			}
 		}
 
-//JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in .NET:
-//ORIGINAL LINE: double getDouble() throws java.sql.SQLException
-		internal override double Double
+        public override double Double
 		{
 			get
 			{
@@ -140,9 +117,7 @@ namespace System.Data.NuoDB
 			}
 		}
 
-//JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in .NET:
-//ORIGINAL LINE: float getFloat() throws java.sql.SQLException
-		internal override float Float
+        public override float Float
 		{
 			get
 			{

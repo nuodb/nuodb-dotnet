@@ -82,7 +82,7 @@ namespace System.Data.NuoDB
 		{
 			get
 			{
-				return value;
+				return value.TimeOfDay;
 			}
 		}
 

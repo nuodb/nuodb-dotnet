@@ -149,6 +149,10 @@ namespace System.Data.NuoDB
                 {
                     dataStream.encodeString((string)param);
                 }
+                else if (param is char)
+                {
+                    dataStream.encodeString(new string((char)param, 1));
+                }
                 else if (param is int)
                 {
                     dataStream.encodeInt((int)param);
@@ -159,7 +163,14 @@ namespace System.Data.NuoDB
                 }
                 else if (param is decimal)
                 {
-                    //dataStream.encode???((long)param);
+                    decimal d = (decimal)param;
+                    int scale = 0;
+                    while((d % 1) != 0)
+                    {
+                        scale++;
+                        d *= 10;
+                    }
+                    dataStream.encodeLong((long)d, scale);
                 }
                 else if (param is bool)
                 {
@@ -188,6 +199,10 @@ namespace System.Data.NuoDB
                 else if (param is DateTime)
                 {
                     dataStream.encodeDate((DateTime)param);
+                }
+                else if (param is TimeSpan)
+                {
+                    dataStream.encodeTime((TimeSpan)param);
                 }
                 else
                 {

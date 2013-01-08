@@ -4,6 +4,7 @@ using System.Data.NuoDB;
 using System.Data.Common;
 using System.Data;
 using System.Collections.Specialized;
+using System.Collections;
 
 namespace TestProject
 {
@@ -202,28 +203,169 @@ namespace TestProject
             }
         }
 
-
-        /*
-                [TestMethod]
-                public void TestDisconnected()
+        [TestMethod]
+        public void TestDisconnected()
+        {
+            using (NuoDBConnection connection = new NuoDBConnection(connectionString))
+            {
+                DataAdapter da = new NuoDBDataAdapter("select * from hockey", connection);
+                DataSet ds = new DataSet();
+                da.Fill(ds);
+                foreach (DataRow r in ds.Tables[0].Rows)
                 {
-                    using (NuoDBConnection connection = new NuoDBConnection(connectionString))
+                    for (int i = 0; i < r.ItemArray.Length; i++)
                     {
-                        DataAdapter da = new NuoDBDataAdapter("select * from hockey", conn);
-                        DataSet ds = new DataSet();
-                        da.Fill(ds);
-                        foreach (DataRow r in ds.Tables[0].Rows)
-                        {
-                            for (int i = 0; i < r.ItemArray.Length; i++)
-                            {
-                                if (i > 0)
-                                    Console.Out.Write(", ");
-                                Console.Out.Write(r.ItemArray[i]);
-                            } // for
-                            Console.Out.WriteLine();
-                        } // foreach 
-                    }
+                        if (i > 0)
+                            Console.Out.Write(", ");
+                        Console.Out.Write(r.ItemArray[i]);
+                    } // for
+                    Console.Out.WriteLine();
+                } // foreach 
+            }
+        }
+
+        public void TestDataType(string sqlType, object value)
+        {
+            TestDataType(sqlType, value, value);
+        }
+
+        public void TestDataType(string sqlType, object value, object expected)
+        {
+            using (NuoDBConnection connection = new NuoDBConnection(connectionString))
+            {
+                connection.Open();
+                //DbTransaction transaction = connection.BeginTransaction();
+
+                try
+                {
+                    DbCommand dropCommand = new NuoDBCommand("drop table temp", connection);
+                    dropCommand.ExecuteNonQuery();
                 }
-        */
+                catch (Exception)
+                {
+                    // table is allowed to be missing
+                }
+
+                DbCommand createCommand = new NuoDBCommand("create table temp (col "+sqlType+")", connection);
+                int result = createCommand.ExecuteNonQuery();
+
+                DbCommand insertCommand = new NuoDBCommand("insert into temp (col) values (?)", connection);
+                insertCommand.Parameters.Add(value);
+                int inserted = insertCommand.ExecuteNonQuery();
+
+                DbCommand command = new NuoDBCommand("select col from temp", connection);
+                object val = command.ExecuteScalar();
+                // compare dates using the string representation
+                if(val is DateTime)
+                    Assert.AreEqual(DateTime.Parse(expected.ToString()), val);
+                else if (val is TimeSpan)
+                    Assert.AreEqual(TimeSpan.Parse(expected.ToString()), val);
+                else if (expected is ICollection)
+                    CollectionAssert.AreEqual((ICollection)expected, (ICollection)val);
+                else
+                    Assert.AreEqual(expected, val);
+
+                //transaction.Rollback();
+            }
+        }
+
+        [TestMethod]
+        public void TestDataTypeString()
+        {
+            TestDataType("string", "dummy");
+            TestDataType("varchar(255)", "dummy");
+            //TestDataType("longvarchar", "dummy");
+            TestDataType("clob", "dummy");
+        }
+
+        [TestMethod]
+        public void TestDataTypeBoolean()
+        {
+            TestDataType("boolean", false);
+        }
+
+        [TestMethod]
+        public void TestDataTypeByte()
+        {
+            //TestDataType("tinyint", 45);
+        }
+
+        [TestMethod]
+        public void TestDataTypeInt16()
+        {
+            TestDataType("smallint", 45);
+        }
+
+        [TestMethod]
+        public void TestDataTypeInt32()
+        {
+            TestDataType("integer", 45);
+            TestDataType("int", 45);
+        }
+
+        [TestMethod]
+        public void TestDataTypeInt64()
+        {
+            TestDataType("bigint", 45000000000);
+        }
+
+        [TestMethod]
+        public void TestDataTypeFloat()
+        {
+            TestDataType("real", 45.3);
+            TestDataType("float", 45.3);
+        }
+
+        [TestMethod]
+        public void TestDataTypeDouble()
+        {
+            TestDataType("double", 45.3987654321);
+        }
+
+        [TestMethod]
+        public void TestDataTypeDecimal()
+        {
+            TestDataType("numeric", 45.3987654321, 45);
+            TestDataType("numeric(18,12)", 45.3987654321M);
+            TestDataType("numeric(18,3)", 45.3987654321, 45.399M);
+            TestDataType("decimal(18,12)", 45.3987654321M);
+            TestDataType("dec(18,12)", 45.3987654321M);
+        }
+
+        [TestMethod]
+        public void TestDataTypeChar()
+        {
+            TestDataType("char", 'A', "A");
+        }
+
+        [TestMethod]
+        public void TestDataTypeDate()
+        {
+            DateTime now = DateTime.Now;
+            TestDataType("date", now);
+            TestDataType("date", "1999-01-31");
+            TestDataType("dateonly", "1999-01-31");
+        }
+
+        [TestMethod]
+        public void TestDataTypeTime()
+        {
+            TestDataType("time", new TimeSpan(10, 30, 22));
+            TestDataType("time", "10:30:22");
+            TestDataType("timeonly", "10:30:22");
+        }
+
+        [TestMethod]
+        public void TestDataTypeTimestamp()
+        {
+            TestDataType("timestamp", "1999-01-31 10:30:00.100");
+            TestDataType("datetime", "1999-01-31 10:30:00.100");
+        }
+
+        [TestMethod]
+        public void TestDataTypeBlob()
+        {
+            TestDataType("blob", "xxx", new byte[] { (byte)'x', (byte)'x', (byte)'x' });
+        }
     }
 }

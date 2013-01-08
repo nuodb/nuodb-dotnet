@@ -63,6 +63,7 @@
     <Compile Include="SQLCode.cs" />
     <Compile Include="Util\Op.cs" />
     <Compile Include="Util\StringUtils.cs" />
+    <Compile Include="ValueBytes.cs" />
     <Compile Include="Xml\Attribute.cs" />
     <Compile Include="NuoDBCommand.cs" />
     <Compile Include="NuoDBConnection.cs" />

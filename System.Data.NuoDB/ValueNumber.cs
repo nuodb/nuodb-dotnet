@@ -61,25 +61,14 @@ namespace System.Data.NuoDB
 
 		internal override void encodeValue(EncodedDataStream dataStream)
 		{
-
-/*			if (value != null)
-			{
-				System.Numerics.BigInteger bi = value.unscaledValue();
-				if (value.scale() == 0 && bi.bitLength() < 32)
-				{
-					dataStream.encodeLong(value.longValueExact());
-					return;
-				}
-				else
-				{
-					dataStream.encodeBigDecimal(value);
-					return;
-				}
-			}
-*/
-			// we fell though so convert to a string...to send across the network
-			dataStream.encodeString(value == null ? null : value.ToString());
-
+            decimal d = value;
+            int scale = 0;
+            while ((d % 1) != 0)
+            {
+                scale++;
+                d *= 10;
+            }
+            dataStream.encodeLong((long)d, scale);
 		}
 
         public override string String

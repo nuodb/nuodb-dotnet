@@ -178,38 +178,26 @@ namespace System.Data.NuoDB
 				return Decimal.Zero;
 			}
 		}
-        /*
-                public virtual byte [] Bytes
-                {
-                    get
-                    {
-                        string @string = String;
-    
-                        if (@string == null)
-                        {
-                            return null;
-                        }
-    
-                        return @string.Bytes;
-                    }
-                }
 
-                public virtual Blob Blob
+        public virtual byte [] Bytes
+        {
+            get
+            {
+                string @string = String;
+    
+                if (@string == null)
                 {
-                    get
-                    {
-                        return (Bytes == null ? null : new Blob(Bytes));
-                    }
+                    return null;
                 }
+    
+                char[] bytes = @string.ToCharArray();
+                byte[] value = new byte[bytes.Length];
+                for (int i = 0; i < bytes.Length; i++)
+                    value[i] = (byte)bytes[i];
+                return value;
+            }
+        }
 
-                public virtual Clob Clob
-                {
-                    get
-                    {
-                        return (String == null ? null : new Clob(String));
-                    }
-                }
-        */
         public virtual bool Boolean
 		{
 			get
@@ -261,24 +249,15 @@ namespace System.Data.NuoDB
 			}
 		}
 
-        /*		public virtual java.sql.Timestamp Timestamp
-                {
-                    get
-                    {
-                        throwConversionNotImplemented("timestamp");
-                        return null;
-                    }
-                }
+        public virtual TimeSpan TimeSpan
+        {
+            get
+            {
+                throwConversionNotImplemented("TimeSpan");
+                return new TimeSpan();
+            }
+        }
 
-                public virtual java.sql.Time Time
-                {
-                    get
-                    {
-                        throwConversionNotImplemented("object");
-                        return null;
-                    }
-                }
-        */
         public virtual object Object
 		{
 			get
