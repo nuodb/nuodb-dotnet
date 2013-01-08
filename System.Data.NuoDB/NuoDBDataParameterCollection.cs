@@ -37,9 +37,19 @@ namespace System.Data.NuoDB
 
         public override int Add(object value)
         {
-            if (!(value is NuoDBParameter))
-                throw new ArgumentException("Parameter is not a NuoDB parameter", "value");
-            collection.Add((NuoDBParameter)value);
+            if (value is DbParameter)
+            {
+                if (!(value is NuoDBParameter))
+                    throw new ArgumentException("Parameter is not a NuoDB parameter", "value");
+
+                collection.Add((NuoDBParameter)value);
+            }
+            else
+            {
+                NuoDBParameter param = new NuoDBParameter();
+                param.Value = value;
+                collection.Add(param);
+            }
             return collection.Count - 1;
         }
 
@@ -47,9 +57,7 @@ namespace System.Data.NuoDB
         {
             foreach (object value in values)
             {
-                if (!(value is NuoDBParameter))
-                    throw new ArgumentException("Parameter is not a NuoDB parameter", "value");
-                collection.Add((NuoDBParameter)value);
+                Add(value);
             }
         }
 
