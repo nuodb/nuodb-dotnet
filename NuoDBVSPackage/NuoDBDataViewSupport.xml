@@ -73,12 +73,12 @@
                         </Children>
                       </SelectionNode>
                     </Selection>
-<!--                    <Selection type="ForeignKey" restrictions="null,{Table.Name}">
+                    <Selection type="ForeignKey" restrictions="null,null,{Table.Name}">
                       <SelectionNode nid="ForeignKey">
                         <DisplayName>{ForeignKey.Name}</DisplayName>
                         <Icon name="ForeignKey"/>
                         <Children>
-                          <Selection type="ForeignKeyColumn" restrictions="null,{ForeignKey.Table},{ForeignKey.Name}">
+                          <Selection type="ForeignKeyColumn" restrictions="null,null,{ForeignKey.Table},{ForeignKey.Name}">
                             <SelectionNode>
                               <Icon name="Column"/>
                             </SelectionNode>
@@ -86,7 +86,6 @@
                         </Children>
                       </SelectionNode>
                     </Selection>
-                  -->
                   </Children>
                 </SelectionNode>
               </Selection>

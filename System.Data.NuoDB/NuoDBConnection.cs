@@ -1211,37 +1211,7 @@ namespace System.Data.NuoDB
                 table.Columns.Add("INDEX_UNIQUE", typeof(bool));
                 table.Columns.Add("INDEX_PRIMARY", typeof(bool));
 
-                List<KeyValuePair<string, string>> tables = new List<KeyValuePair<string, string>>();
-
-                // the API for retrieving indexes works on a fully specified schema+table
-                // so, unless we have both values, we need to first retrieve the set of tables identified by the restrictions
-                if (restrictionValues.Length > 2 && restrictionValues[1] != null && restrictionValues[2] != null)
-                {
-                    tables.Add(new KeyValuePair<string, string>(restrictionValues[1], restrictionValues[2]));
-                }
-                else
-                {
-                    dataStream.startMessage(Protocol.GetTables);
-                    dataStream.encodeNull(); // catalog is always null
-                    for (int i = 1; i < 3; i++)
-                        if (restrictionValues.Length > i)
-                            dataStream.encodeString(restrictionValues[i]);
-                        else
-                            dataStream.encodeNull();
-                    dataStream.encodeInt(0);
-
-                    sendAndReceive(dataStream);
-                    int handle = dataStream.Int;
-
-                    if (handle != -1)
-                    {
-                        using (NuoDBDataReader reader = new NuoDBDataReader(this, handle, dataStream, null, true))
-                        {
-                            while (reader.Read())
-                                tables.Add(new KeyValuePair<string, string>((string)reader["TABLE_SCHEM"], (string)reader["TABLE_NAME"]));
-                        }
-                    }
-                }
+                List<KeyValuePair<string, string>> tables = RetrieveMatchingTables(getItemAtIndex(restrictionValues, 1), getItemAtIndex(restrictionValues, 2));
 
                 foreach (KeyValuePair<string, string> t in tables)
                 {
@@ -1263,6 +1233,10 @@ namespace System.Data.NuoDB
                             table.BeginLoadData();
                             while (reader.Read())
                             {
+                                // enforce the restriction on the index name
+                                if (restrictionValues.Length > 3 && restrictionValues[3] != null &&
+                                    !restrictionValues[3].Equals(reader["INDEX_NAME"]))
+                                    continue;
                                 if (!unique.Add((string)reader["INDEX_NAME"]))
                                     continue;
                                 DataRow row = table.NewRow();
@@ -1292,6 +1266,10 @@ namespace System.Data.NuoDB
                             table.BeginLoadData();
                             while (reader.Read())
                             {
+                                // enforce the restriction on the index name
+                                if (restrictionValues.Length > 3 && restrictionValues[3] != null &&
+                                    !restrictionValues[3].Equals(reader["INDEX_NAME"]))
+                                    continue;
                                 if (!unique.Add((string)reader["INDEX_NAME"]))
                                     continue;
                                 DataRow row = table.NewRow();
@@ -1318,37 +1296,7 @@ namespace System.Data.NuoDB
                 table.Columns.Add("INDEXCOLUMN_POSITION", typeof(int));
                 table.Columns.Add("INDEXCOLUMN_ISPRIMARY", typeof(bool));
 
-                List<KeyValuePair<string, string>> tables = new List<KeyValuePair<string, string>>();
-
-                // the API for retrieving indexes works on a fully specified schema+table
-                // so, unless we have both values, we need to first retrieve the set of tables identified by the restrictions
-                if (restrictionValues.Length > 2 && restrictionValues[1] != null && restrictionValues[2] != null)
-                {
-                    tables.Add(new KeyValuePair<string, string>(restrictionValues[1], restrictionValues[2]));
-                }
-                else
-                {
-                    dataStream.startMessage(Protocol.GetTables);
-                    dataStream.encodeNull(); // catalog is always null
-                    for (int i = 1; i < 3; i++)
-                        if (restrictionValues.Length > i)
-                            dataStream.encodeString(restrictionValues[i]);
-                        else
-                            dataStream.encodeNull();
-                    dataStream.encodeInt(0);
-
-                    sendAndReceive(dataStream);
-                    int handle = dataStream.Int;
-
-                    if (handle != -1)
-                    {
-                        using (NuoDBDataReader reader = new NuoDBDataReader(this, handle, dataStream, null, true))
-                        {
-                            while (reader.Read())
-                                tables.Add(new KeyValuePair<string, string>((string)reader["TABLE_SCHEM"], (string)reader["TABLE_NAME"]));
-                        }
-                    }
-                }
+                List<KeyValuePair<string, string>> tables = RetrieveMatchingTables(getItemAtIndex(restrictionValues, 1), getItemAtIndex(restrictionValues, 2));
 
                 foreach (KeyValuePair<string, string> t in tables)
                 {
@@ -1372,7 +1320,7 @@ namespace System.Data.NuoDB
                                 if (restrictionValues.Length > 3 && restrictionValues[3] != null &&
                                     !restrictionValues[3].Equals(reader["INDEX_NAME"]))
                                     continue;
-                                System.Diagnostics.Trace.WriteLine("-> " + reader["TABLE_NAME"] + "." + reader["TABLE_NAME"] + "=" + reader["COLUMN_NAME"]);
+                                System.Diagnostics.Trace.WriteLine("-> " + reader["TABLE_SCHEM"] + "." + reader["TABLE_NAME"] + "=" + reader["COLUMN_NAME"]);
                                 DataRow row = table.NewRow();
                                 row["INDEXCOLUMN_SCHEMA"] = reader["TABLE_SCHEM"];
                                 row["INDEXCOLUMN_TABLE"] = reader["TABLE_NAME"];
@@ -1404,7 +1352,7 @@ namespace System.Data.NuoDB
                                 if (restrictionValues.Length > 3 && restrictionValues[3] != null &&
                                     !restrictionValues[3].Equals(reader["INDEX_NAME"]))
                                     continue;
-                                System.Diagnostics.Trace.WriteLine("-> " + reader["TABLE_NAME"] + "." + reader["TABLE_NAME"] + " (Primary) =" + reader["COLUMN_NAME"]);
+                                System.Diagnostics.Trace.WriteLine("-> " + reader["TABLE_SCHEM"] + "." + reader["TABLE_NAME"] + " (Primary) =" + reader["COLUMN_NAME"]);
                                 DataRow row = table.NewRow();
                                 row["INDEXCOLUMN_SCHEMA"] = reader["TABLE_SCHEM"];
                                 row["INDEXCOLUMN_TABLE"] = reader["TABLE_NAME"];
@@ -1419,7 +1367,145 @@ namespace System.Data.NuoDB
                     }
                 }
             }
+            else if (collectionName == "ForeignKeys")
+            {
+                table.Columns.Add("FOREIGNKEY_CATALOG", typeof(string));
+                table.Columns.Add("FOREIGNKEY_SCHEMA", typeof(string));
+                table.Columns.Add("FOREIGNKEY_TABLE", typeof(string));
+                table.Columns.Add("FOREIGNKEY_NAME", typeof(string));
+                table.Columns.Add("FOREIGNKEY_OTHER_CATALOG", typeof(string));
+                table.Columns.Add("FOREIGNKEY_OTHER_SCHEMA", typeof(string));
+                table.Columns.Add("FOREIGNKEY_OTHER_TABLE", typeof(string));
+
+                List<KeyValuePair<string, string>> tables = RetrieveMatchingTables(getItemAtIndex(restrictionValues, 1), getItemAtIndex(restrictionValues, 2));
+
+                foreach (KeyValuePair<string, string> t in tables)
+                {
+                    dataStream.startMessage(Protocol.GetImportedKeys);
+                    dataStream.encodeNull(); // catalog is always null
+                    dataStream.encodeString(t.Key);
+                    dataStream.encodeString(t.Value);
+                    sendAndReceive(dataStream);
+                    int handle = dataStream.Int;
+
+                    if (handle != -1)
+                    {
+                        using (NuoDBDataReader reader = new NuoDBDataReader(this, handle, dataStream, null, true))
+                        {
+                            table.BeginLoadData();
+                            while (reader.Read())
+                            {
+                                // enforce the restriction on the index name
+                                string name = "[" + reader["FKTABLE_SCHEM"] + "]" + reader["FKTABLE_NAME"] + "." + reader["FKCOLUMN_NAME"] + "->" +
+                                              "[" + reader["PKTABLE_SCHEM"] + "]" + reader["PKTABLE_NAME"] + "." + reader["PKCOLUMN_NAME"];
+                                // enforce the restriction on the index name
+                                if (restrictionValues.Length > 3 && restrictionValues[3] != null &&
+                                    !restrictionValues[3].Equals(name))
+                                    continue;
+                                DataRow row = table.NewRow();
+                                row["FOREIGNKEY_SCHEMA"] = reader["FKTABLE_SCHEM"];
+                                row["FOREIGNKEY_TABLE"] = reader["FKTABLE_NAME"];
+                                row["FOREIGNKEY_NAME"] = name;
+                                row["FOREIGNKEY_OTHER_SCHEMA"] = reader["PKTABLE_SCHEM"];
+                                row["FOREIGNKEY_OTHER_TABLE"] = reader["PKTABLE_NAME"];
+                                table.Rows.Add(row);
+                            }
+                            table.EndLoadData();
+                        }
+                    }
+                }
+            }
+            else if (collectionName == "ForeignKeyColumns")
+            {
+                table.Columns.Add("FOREIGNKEYCOLUMN_CATALOG", typeof(string));
+                table.Columns.Add("FOREIGNKEYCOLUMN_SCHEMA", typeof(string));
+                table.Columns.Add("FOREIGNKEYCOLUMN_TABLE", typeof(string));
+                table.Columns.Add("FOREIGNKEYCOLUMN_KEY", typeof(string));
+                table.Columns.Add("FOREIGNKEYCOLUMN_NAME", typeof(string));
+                table.Columns.Add("FOREIGNKEYCOLUMN_ORDINAL", typeof(int));
+                table.Columns.Add("FOREIGNKEYCOLUMN_OTHER_COLUMN_NAME", typeof(string));
+
+                List<KeyValuePair<string, string>> tables = RetrieveMatchingTables(getItemAtIndex(restrictionValues, 1), getItemAtIndex(restrictionValues, 2));
+
+                foreach (KeyValuePair<string, string> t in tables)
+                {
+                    dataStream.startMessage(Protocol.GetImportedKeys);
+                    dataStream.encodeNull(); // catalog is always null
+                    dataStream.encodeString(t.Key);
+                    dataStream.encodeString(t.Value);
+                    sendAndReceive(dataStream);
+                    int handle = dataStream.Int;
+
+                    if (handle != -1)
+                    {
+                        using (NuoDBDataReader reader = new NuoDBDataReader(this, handle, dataStream, null, true))
+                        {
+                            table.BeginLoadData();
+                            while (reader.Read())
+                            {
+                                // enforce the restriction on the index name
+                                string name = "[" + reader["FKTABLE_SCHEM"] + "]" + reader["FKTABLE_NAME"] + "." + reader["FKCOLUMN_NAME"] + "->" +
+                                              "[" + reader["PKTABLE_SCHEM"] + "]" + reader["PKTABLE_NAME"] + "." + reader["PKCOLUMN_NAME"];
+                                // enforce the restriction on the index name
+                                if (restrictionValues.Length > 3 && restrictionValues[3] != null &&
+                                    !restrictionValues[3].Equals(name))
+                                    continue;
+                                System.Diagnostics.Trace.WriteLine("-> " + reader["FKTABLE_SCHEM"] + "." + reader["FKTABLE_NAME"] + "=" + reader["FKCOLUMN_NAME"]);
+                                DataRow row = table.NewRow();
+                                row["FOREIGNKEYCOLUMN_SCHEMA"] = reader["FKTABLE_SCHEM"];
+                                row["FOREIGNKEYCOLUMN_TABLE"] = reader["FKTABLE_NAME"];
+                                row["FOREIGNKEYCOLUMN_KEY"] = name;
+                                row["FOREIGNKEYCOLUMN_NAME"] = reader["FKCOLUMN_NAME"];
+                                row["FOREIGNKEYCOLUMN_ORDINAL"] = reader["KEY_SEQ"];
+                                row["FOREIGNKEYCOLUMN_OTHER_COLUMN_NAME"] = reader["PKCOLUMN_NAME"];
+                                table.Rows.Add(row);
+                            }
+                            table.EndLoadData();
+                        }
+                    }
+                }
+            }
             return table;
+        }
+
+        private string getItemAtIndex(string[] values, int index)
+        {
+            if (values.Length > index)
+                return values[index];
+            return null;
+        }
+
+        private List<KeyValuePair<string, string>> RetrieveMatchingTables(string schema, string table)
+        {
+            List<KeyValuePair<string, string>> tables = new List<KeyValuePair<string, string>>();
+
+            // the API for retrieving indexes works on a fully specified schema+table
+            // so, unless we have both values, we need to first retrieve the set of tables identified by the restrictions
+            if (schema != null && table != null)
+            {
+                tables.Add(new KeyValuePair<string, string>(schema, table));
+            }
+            else
+            {
+                dataStream.startMessage(Protocol.GetTables);
+                dataStream.encodeNull(); // catalog is always null
+                dataStream.encodeString(schema);
+                dataStream.encodeString(table);
+                dataStream.encodeInt(0);
+
+                sendAndReceive(dataStream);
+                int handle = dataStream.Int;
+
+                if (handle != -1)
+                {
+                    using (NuoDBDataReader reader = new NuoDBDataReader(this, handle, dataStream, null, true))
+                    {
+                        while (reader.Read())
+                            tables.Add(new KeyValuePair<string, string>((string)reader["TABLE_SCHEM"], (string)reader["TABLE_NAME"]));
+                    }
+                }
+            }
+            return tables;
         }
 
         internal static string mapDbTypeToNetType(int dbType)
