@@ -1,0 +1,62 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+    <Fragment>
+        <DirectoryRef Id="INSTALLFOLDER">
+            <Directory Id="dir0FBAA63D90D3836352633300369A0E34" Name="WindowsFormsSample">
+              <Directory Id="dirC5252FB19EDCB6158160CF5B556491D3" Name="Properties" />
+            </Directory>
+        </DirectoryRef>    
+    </Fragment>
+    <Fragment>
+        <ComponentGroup Id="SampleProject">
+            <Component Id="cmp2D6BE37F6C8AAF6FB87660420F7B4224" Directory="dir0FBAA63D90D3836352633300369A0E34" Guid="*">
+                <File KeyPath="yes" Source="..\WindowsFormsSample\app.config" />
+            </Component>
+            <Component Id="cmpB7F6E2EA9876870DE085EC278D23660D" Directory="dir0FBAA63D90D3836352633300369A0E34" Guid="*">
+                <File KeyPath="yes" Source="..\WindowsFormsSample\Form1.cs" />
+            </Component>
+            <Component Id="cmp352951BA6E2605D246B8F033B217D3A5" Directory="dir0FBAA63D90D3836352633300369A0E34" Guid="*">
+                <File KeyPath="yes" Source="..\WindowsFormsSample\Form1.Designer.cs" />
+            </Component>
+            <Component Id="cmpE391E014E95C684F326CFE8B94A2ACE4" Directory="dir0FBAA63D90D3836352633300369A0E34" Guid="*">
+                <File KeyPath="yes" Source="..\WindowsFormsSample\Form1.resx" />
+            </Component>
+            <Component Id="cmpFFDB60B2EDC6FAEFC6F40BDAF8BC2CBD" Directory="dir0FBAA63D90D3836352633300369A0E34" Guid="*">
+                <File KeyPath="yes" Source="..\WindowsFormsSample\Program.cs" />
+            </Component>
+            <Component Id="cmp5EF0E7161B00D86F69CEA518974C5A50" Directory="dir0FBAA63D90D3836352633300369A0E34" Guid="*">
+                <File KeyPath="yes" Source="..\WindowsFormsSample\testDataSet.Designer.cs" />
+            </Component>
+            <Component Id="cmpA5670222F6713C24BB2064251FD8D33F" Directory="dir0FBAA63D90D3836352633300369A0E34" Guid="*">
+                <File KeyPath="yes" Source="..\WindowsFormsSample\testDataSet.xsc" />
+            </Component>
+            <Component Id="cmpDE0F394CC3FDED727E9D7BCC07EEC901" Directory="dir0FBAA63D90D3836352633300369A0E34" Guid="*">
+                <File KeyPath="yes" Source="..\WindowsFormsSample\testDataSet.xsd" />
+            </Component>
+            <Component Id="cmpB198C51A6321C36C1C5A0DDB033BF994" Directory="dir0FBAA63D90D3836352633300369A0E34" Guid="*">
+                <File KeyPath="yes" Source="..\WindowsFormsSample\testDataSet.xss" />
+            </Component>
+            <Component Id="cmp78A300235494DB69186DB18C1ADA11D8" Directory="dir0FBAA63D90D3836352633300369A0E34" Guid="*">
+                <File KeyPath="yes" Source="..\WindowsFormsSample\WindowsFormsSample.csproj" />
+            </Component>
+            <Component Id="cmp1993BB917324B046D7838A9765FB10D0" Directory="dir0FBAA63D90D3836352633300369A0E34" Guid="*">
+                <File KeyPath="yes" Source="..\WindowsFormsSample\WindowsFormsSample.sln" />
+            </Component>
+            <Component Id="cmp90E14ADF5B535A3B4946F60C67588528" Directory="dirC5252FB19EDCB6158160CF5B556491D3" Guid="*">
+                <File KeyPath="yes" Source="..\WindowsFormsSample\Properties\AssemblyInfo.cs" />
+            </Component>
+            <Component Id="cmpB97FD7B784DF4F1839D0E35DFB90CBCA" Directory="dirC5252FB19EDCB6158160CF5B556491D3" Guid="*">
+                <File KeyPath="yes" Source="..\WindowsFormsSample\Properties\Resources.Designer.cs" />
+            </Component>
+            <Component Id="cmp37915908B57E2A0315B6E6577125823C" Directory="dirC5252FB19EDCB6158160CF5B556491D3" Guid="*">
+                <File KeyPath="yes" Source="..\WindowsFormsSample\Properties\Resources.resx" />
+            </Component>
+            <Component Id="cmp5C95A6A2D678480FDFA0ADD8360708D3" Directory="dirC5252FB19EDCB6158160CF5B556491D3" Guid="*">
+                <File KeyPath="yes" Source="..\WindowsFormsSample\Properties\Settings.Designer.cs" />
+            </Component>
+            <Component Id="cmp05BA705FD49512DAF306C2CC9FC342D7" Directory="dirC5252FB19EDCB6158160CF5B556491D3" Guid="*">
+                <File KeyPath="yes" Source="..\WindowsFormsSample\Properties\Settings.settings" />
+            </Component>
+        </ComponentGroup>
+    </Fragment>
+</Wix>

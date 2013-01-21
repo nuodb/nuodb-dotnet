@@ -38,7 +38,11 @@
 
     <Feature Id="VS2010Feature" Title="Installing VS2010 plugin" Level="1">
       <ComponentRef Id="Install_DDEXPlugin" />
-      <Condition Level="1">NUODB_EXTENSION_DIR_VS2010</Condition>
+      <Condition Level="1">NUODB_EXTENSION_DIR_VS2010 OR NUODB_EXTENSION_DIR_VS2012</Condition>
+    </Feature>
+
+    <Feature Id="SamplesFeature" Title="Installing sample projects" Level="1">
+      <ComponentGroupRef Id="SampleProject" />
     </Feature>
 
   </Product>
