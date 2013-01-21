@@ -221,6 +221,22 @@ namespace TestProject
                     } // for
                     Console.Out.WriteLine();
                 } // foreach 
+
+                DataTable hockey = ds.Tables[0];
+                var query = from player in hockey.AsEnumerable()
+                            where player.Field<string>("Position") == "Fan"
+                            select new
+                            {
+                                Name = player.Field<string>("Name")
+                            };
+                int count = 0;
+                foreach (var item in query)
+                {
+                    Console.Out.Write(item.Name);
+                    count++;
+                }
+                Assert.AreEqual(1, count);
+
             }
         }
 
