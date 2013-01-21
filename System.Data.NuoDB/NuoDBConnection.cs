@@ -396,6 +396,11 @@ namespace System.Data.NuoDB
             listCommands.Add(handle);
         }
 
+        internal bool IsCommandRegistered(int handle)
+        {
+            return listCommands.Contains(handle);
+        }
+
         internal void CloseCommand(int handle)
         {
             if (socket == null || !socket.Connected)

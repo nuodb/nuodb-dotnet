@@ -312,7 +312,9 @@ namespace System.Data.NuoDB
 
         private void EnsureStatement()
         {
-            if (handle == -1)
+            // if the connection has been closed and reopened, the statement identified by this handle 
+            // has been closed on the server, and we must re-create it
+            if (handle == -1 || !connection.IsCommandRegistered(handle))
             {
                 if (parameters.Count > 0)
                 {
