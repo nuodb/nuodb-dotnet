@@ -35,7 +35,7 @@ namespace System.Data.NuoDB
     // it would try to do that because the parent class derives from Component, but it's abstract
     // and it cannot be instanciated
     [System.ComponentModel.DesignerCategory("")]
-    public sealed class NuoDBCommand : DbCommand
+    public sealed class NuoDBCommand : DbCommand, ICloneable
     {
         private NuoDBConnection connection;
         private string sqlText = "";
@@ -269,7 +269,7 @@ namespace System.Data.NuoDB
             }
             set
             {
-                if (!(value is NuoDBConnection))
+                if (value != null && !(value is NuoDBConnection))
                     throw new ArgumentException("Connection is not a NuoDB connection", "conn");
                 connection = (NuoDBConnection)value;
             }
@@ -284,6 +284,8 @@ namespace System.Data.NuoDB
         {
             get
             {
+                if (connection == null)
+                    return null;
                 return connection.transaction;
             }
             set
@@ -442,5 +444,28 @@ namespace System.Data.NuoDB
                 this.updatedRowSource = value;
             }
         }
+
+        #region ICloneable Members
+
+        public object Clone()
+        {
+            NuoDBCommand command = new NuoDBCommand();
+
+            command.CommandText = this.CommandText;
+            command.Connection = this.Connection;
+            command.Transaction = this.Transaction;
+            command.CommandType = this.CommandType;
+            command.CommandTimeout = this.CommandTimeout;
+            command.UpdatedRowSource = this.UpdatedRowSource;
+
+            foreach (NuoDBParameter p in this.Parameters)
+            {
+                command.Parameters.Add(((ICloneable)p).Clone());
+            }
+
+            return command;
+        }
+
+        #endregion
     }
 }

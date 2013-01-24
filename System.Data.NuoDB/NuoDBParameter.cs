@@ -30,7 +30,7 @@ using System.Data.Common;
 
 namespace System.Data.NuoDB
 {
-    class NuoDBParameter : DbParameter
+    class NuoDBParameter : DbParameter, ICloneable
     {
         private string name;
         private object value;
@@ -154,5 +154,26 @@ namespace System.Data.NuoDB
                 this.value = value;
             }
         }
+
+        #region ICloneable Members
+
+        public object Clone()
+        {
+            NuoDBParameter param = new NuoDBParameter();
+
+            param.DbType = this.DbType;
+            param.Direction = this.Direction;
+            param.IsNullable = this.IsNullable;
+            param.ParameterName = this.ParameterName;
+            param.Size = this.Size;
+            param.SourceColumn = this.SourceColumn;
+            param.SourceColumnNullMapping = this.SourceColumnNullMapping;
+            param.SourceVersion = this.SourceVersion;
+            param.Value = this.Value;
+
+            return param;
+        }
+
+        #endregion
     }
 }
