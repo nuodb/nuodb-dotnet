@@ -57,7 +57,7 @@ namespace System.Data.NuoDB
 
             this.connection.RegisterResultSet(this.handle);
 
-            this.numberColumns = dataStream.Int;
+            this.numberColumns = dataStream.readInt();
             this.values = new Value[numberColumns];
 
             if (readColumnNames)
@@ -65,7 +65,7 @@ namespace System.Data.NuoDB
                 this.columnNames = new string[numberColumns];
                 for (int n = 0; n < numberColumns; ++n)
                 {
-                    columnNames[n] = dataStream.String;
+                    columnNames[n] = dataStream.readString();
                 }
             }
             else
@@ -111,7 +111,7 @@ namespace System.Data.NuoDB
             dataStream.startMessage(Protocol.GetMetaData);
             dataStream.encodeInt(handle);
             connection.sendAndReceive(dataStream);
-            int numberColumns = dataStream.Int;
+            int numberColumns = dataStream.readInt();
 
             metadata = new DataTable("SchemaTable");
 
@@ -180,20 +180,20 @@ namespace System.Data.NuoDB
                 DataRow row = metadata.NewRow();
                 row["ColumnOrdinal"] = n;
                 // data fields must be read in this exact order!
-                row["BaseCatalogName"] = dataStream.String;
-                row["BaseSchemaName"] = dataStream.String;
-                row["BaseTableName"] = dataStream.String;
-                row["BaseColumnName"] = dataStream.String;
-                row["ColumnName"] = dataStream.String;
-                string collationSequence = dataStream.String;
-                string dataType = dataStream.String;
+                row["BaseCatalogName"] = dataStream.readString();
+                row["BaseSchemaName"] = dataStream.readString();
+                row["BaseTableName"] = dataStream.readString();
+                row["BaseColumnName"] = dataStream.readString();
+                row["ColumnName"] = dataStream.readString();
+                string collationSequence = dataStream.readString();
+                string dataType = dataStream.readString();
                 row["DataTypeName"] = dataType;
                 row["DataType"] = Type.GetType(NuoDBConnection.mapNuoDbToNetType(dataType));
-                row["ProviderType"] = NuoDBConnection.mapJavaSqlToDbType(dataStream.Int);
-                row["ColumnSize"] = dataStream.Int;
-                row["NumericPrecision"] = dataStream.Int;
-                row["NumericScale"] = dataStream.Int;
-                int flags = dataStream.Int;
+                row["ProviderType"] = NuoDBConnection.mapJavaSqlToDbType(dataStream.readInt());
+                row["ColumnSize"] = dataStream.readInt();
+                row["NumericPrecision"] = dataStream.readInt();
+                row["NumericScale"] = dataStream.readInt();
+                int flags = dataStream.readInt();
 		        const int rsmdSearchable = (1 << 1);
 		        const int rsmdAutoIncrement = (1 << 2);
 		        const int rsmdCaseSensitive = (1 << 3);
@@ -264,7 +264,7 @@ namespace System.Data.NuoDB
 
                 if (!pendingRows.EndOfMessage)
                 {
-                    int result = pendingRows.Int;
+                    int result = pendingRows.readInt();
 
                     if (result == 0)
                     {
@@ -278,7 +278,7 @@ namespace System.Data.NuoDB
 
                     for (int n = 0; n < numberColumns; ++n)
                     {
-                        values[n] = pendingRows.Value;
+                        values[n] = pendingRows.readValue();
                     }
 
                     //clearWarnings();

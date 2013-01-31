@@ -85,7 +85,7 @@ namespace System.Data.NuoDB
 
         protected override void Dispose(bool disposing)
         {
-            System.Diagnostics.Trace.WriteLine("NuoDBConnection::Dispose()");
+            System.Diagnostics.Trace.WriteLine("NuoDBConnection::Dispose() [state = "+state+"]");
             if (state == ConnectionState.Open)
                 Close();
             base.Dispose(disposing);
@@ -123,16 +123,16 @@ namespace System.Data.NuoDB
                 {
                     stream.send(outputStream);
                     stream.getMessage(inputStream);
-                    int status = stream.Int;
+                    int status = stream.readInt();
 
                     if (status != 0)
                     {
-                        string message = stream.String;
+                        string message = stream.readString();
                         string sqlState = "";
 
                         if (protocolVersion >= Protocol.PROTOCOL_VERSION2)
                         {
-                            sqlState = stream.String;
+                            sqlState = stream.readString();
                         }
 
                         // If empty string, use the state from SQLCode
@@ -702,14 +702,14 @@ namespace System.Data.NuoDB
                 dataStream.encodeString(userKey);
                 sendAndReceive(dataStream);
 
-                protocolVersion = dataStream.Int;
-                string serverKey = dataStream.String;
-                string salt = dataStream.String;
+                protocolVersion = dataStream.readInt();
+                string serverKey = dataStream.readString();
+                string salt = dataStream.readString();
                 dataStream.ProtocolVersion = protocolVersion;
 
                 if (protocolVersion >= Protocol.PROTOCOL_VERSION5)
                 {
-                    processConnection.DatabaseUUId = dataStream.UUId;
+                    processConnection.DatabaseUUId = dataStream.readUUId();
                 }
 
                 string upperUserName = userName.ToUpper();
@@ -859,9 +859,14 @@ namespace System.Data.NuoDB
                     System.Diagnostics.Trace.Write(restrictionValues[i] == null ? "null" : restrictionValues[i]);
                 }
             System.Diagnostics.Trace.WriteLine("})");
+            // the support for Entity Framework must retrieve the internal product version, but the connection it has
+            // received is closed; so we have to open, but afterwards we have to close it again, as VS2010 expects that
+            // it is still in the closed state
+            bool closeConnection = false;
             if (state != ConnectionState.Open)
             {
-                System.Diagnostics.Trace.WriteLine("NuoDBConnection::GetSchema() called on a closed connection");
+                Open();
+                closeConnection = true;
             }
 
             DataTable table = new DataTable(collectionName);
@@ -873,6 +878,7 @@ namespace System.Data.NuoDB
                 table.Columns.Add("DataSourceProductName", typeof(string));
                 table.Columns.Add("DataSourceProductVersion", typeof(string));
                 table.Columns.Add("DataSourceProductVersionNormalized", typeof(string));
+                table.Columns.Add("DataSourceInternalProductVersion", typeof(string));
                 table.Columns.Add("GroupByBehavior", typeof(GroupByBehavior));
                 table.Columns.Add("IdentifierPattern", typeof(string));
                 table.Columns.Add("IdentifierCase", typeof(IdentifierCase));
@@ -894,28 +900,28 @@ namespace System.Data.NuoDB
                 {
                     dataStream.startMessage(Protocol.GetDatabaseMetaData);
                     sendAndReceive(dataStream);
-                    for (int item; (item = dataStream.Int) != Protocol.DbmbFini; )
+                    for (int item; (item = dataStream.readInt()) != Protocol.DbmbFini; )
                     {
                         switch (item)
                         {
                             case Protocol.DbmbProductName:
-                                row["DataSourceProductName"] = dataStream.String;
+                                row["DataSourceProductName"] = dataStream.readString();
                                 break;
 
                             case Protocol.DbmbProductVersion:
-                                row["DataSourceProductVersion"] = dataStream.String;
+                                row["DataSourceProductVersion"] = dataStream.readString();
                                 break;
 
                             case Protocol.DbmbDatabaseMinorVersion:
-                                databaseMinorVersion = dataStream.Int;
+                                databaseMinorVersion = dataStream.readInt();
                                 break;
 
                             case Protocol.DbmbDatabaseMajorVersion:
-                                databaseMajorVersion = dataStream.Int;
+                                databaseMajorVersion = dataStream.readInt();
                                 break;
 
                             case Protocol.DbmbDefaultTransactionIsolation:
-                                int defaultTransactionIsolation = dataStream.Int;
+                                int defaultTransactionIsolation = dataStream.readInt();
                                 break;
 
                             default:
@@ -928,6 +934,7 @@ namespace System.Data.NuoDB
                 {
                 }
 
+                row["DataSourceInternalProductVersion"] = String.Format("{0:D3}.{1:D3}", databaseMajorVersion, databaseMinorVersion);
                 // The regular expression to match the composite separators in a composite identifier. 
                 // For example, "\." (for SQL Server) or "@|\." (for Oracle).
                 // A composite identifier is typically what is used for a database object name, 
@@ -1060,7 +1067,7 @@ namespace System.Data.NuoDB
 
                 dataStream.startMessage(Protocol.GetTypeInfo);
                 sendAndReceive(dataStream);
-                int handle = dataStream.Int;
+                int handle = dataStream.readInt();
 
                 if (handle != -1)
                 {
@@ -1127,7 +1134,7 @@ namespace System.Data.NuoDB
                 }
 
                 sendAndReceive(dataStream);
-                int handle = dataStream.Int;
+                int handle = dataStream.readInt();
 
                 if (handle != -1)
                 {
@@ -1176,7 +1183,7 @@ namespace System.Data.NuoDB
                         dataStream.encodeNull();
 
                 sendAndReceive(dataStream);
-                int handle = dataStream.Int;
+                int handle = dataStream.readInt();
 
                 if (handle != -1)
                 {
@@ -1227,7 +1234,7 @@ namespace System.Data.NuoDB
                     dataStream.encodeBoolean(false);    // unique
                     dataStream.encodeBoolean(false);    // approximate
                     sendAndReceive(dataStream);
-                    int handle = dataStream.Int;
+                    int handle = dataStream.readInt();
 
                     // to avoid to insert the same index more than once
                     HashSet<string> unique = new HashSet<string>();
@@ -1262,7 +1269,7 @@ namespace System.Data.NuoDB
                     dataStream.encodeString(t.Key);
                     dataStream.encodeString(t.Value);
                     sendAndReceive(dataStream);
-                    handle = dataStream.Int;
+                    handle = dataStream.readInt();
 
                     if (handle != -1)
                     {
@@ -1312,7 +1319,7 @@ namespace System.Data.NuoDB
                     dataStream.encodeBoolean(false);    // unique
                     dataStream.encodeBoolean(false);    // approximate
                     sendAndReceive(dataStream);
-                    int handle = dataStream.Int;
+                    int handle = dataStream.readInt();
 
                     if (handle != -1)
                     {
@@ -1344,7 +1351,7 @@ namespace System.Data.NuoDB
                     dataStream.encodeString(t.Key);
                     dataStream.encodeString(t.Value);
                     sendAndReceive(dataStream);
-                    handle = dataStream.Int;
+                    handle = dataStream.readInt();
 
                     if (handle != -1)
                     {
@@ -1391,7 +1398,7 @@ namespace System.Data.NuoDB
                     dataStream.encodeString(t.Key);
                     dataStream.encodeString(t.Value);
                     sendAndReceive(dataStream);
-                    int handle = dataStream.Int;
+                    int handle = dataStream.readInt();
 
                     if (handle != -1)
                     {
@@ -1439,7 +1446,7 @@ namespace System.Data.NuoDB
                     dataStream.encodeString(t.Key);
                     dataStream.encodeString(t.Value);
                     sendAndReceive(dataStream);
-                    int handle = dataStream.Int;
+                    int handle = dataStream.readInt();
 
                     if (handle != -1)
                     {
@@ -1470,6 +1477,10 @@ namespace System.Data.NuoDB
                     }
                 }
             }
+
+            if (closeConnection)
+                Close();
+
             return table;
         }
 
@@ -1499,7 +1510,7 @@ namespace System.Data.NuoDB
                 dataStream.encodeInt(0);
 
                 sendAndReceive(dataStream);
-                int handle = dataStream.Int;
+                int handle = dataStream.readInt();
 
                 if (handle != -1)
                 {
@@ -1645,14 +1656,14 @@ namespace System.Data.NuoDB
 
             // Both protocol V2 and V3 are sending a txn here
 
-            long transactionId = dataStream.Long;
+            long transactionId = dataStream.readLong();
 
             // But only V3 sends the node id and commit sequence
 
             if (protocolVersion >= Protocol.PROTOCOL_VERSION3)
             {
-                int nodeId = dataStream.Int;
-                long commitSequence = dataStream.Long;
+                int nodeId = dataStream.readInt();
+                long commitSequence = dataStream.readLong();
                 processConnection.setLast(transactionId, nodeId, commitSequence);
             }
 

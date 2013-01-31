@@ -1201,143 +1201,117 @@ namespace System.Data.NuoDB
 			return offset;
 		}
 
-		public virtual string String
+		public virtual string readString()
 		{
-			get
+			decode();
+    
+			switch (type)
 			{
-				decode();
+				case edsTypeNull:
+					return null;
     
-				switch (type)
-				{
-					case edsTypeNull:
-						return null;
+				case edsTypeUtf8:
+					return @string;
     
-					case edsTypeUtf8:
-						return @string;
-    
-					default:
-						throw new SQLException("On message type " + currentMessageType + ":NuoDB jdbc expected string, got type: " + type);
-				}
-    
+				default:
+					throw new SQLException("On message type " + currentMessageType + ":NuoDB jdbc expected string, got type: " + type);
 			}
 		}
 
-		public virtual Guid UUId
+		public virtual Guid readUUId()
 		{
-			get
+			decode();
+    
+			switch (type)
 			{
-				decode();
+				case edsTypeUUID:
+					return uuid;
     
-				switch (type)
-				{
-					case edsTypeUUID:
-						return uuid;
-    
-					default:
-						throw new SQLException("On message type " + currentMessageType + ":NuoDB jdbc expected UUID, got type: " + type);
-				}
-    
+				default:
+					throw new SQLException("On message type " + currentMessageType + ":NuoDB jdbc expected UUID, got type: " + type);
 			}
 		}
 
-		internal virtual int Int
+		public virtual int readInt()
 		{
-			get
+			decode();
+    
+			if (type == edsTypeInt32)
 			{
-				decode();
-    
-				if (type == edsTypeInt32)
-				{
-					return integer32;
-				}
-    
-				if (type == edsTypeInt64)
-				{
-					return (int) integer64;
-				}
-    
-				throw new SQLException("On message type " + currentMessageType + ":NuoDB jdbc expected int32, got type: " + type);
+				return integer32;
 			}
+    
+			if (type == edsTypeInt64)
+			{
+				return (int) integer64;
+			}
+    
+			throw new SQLException("On message type " + currentMessageType + ":NuoDB jdbc expected int32, got type: " + type);
 		}
 
-		internal virtual long Long
+		public virtual long readLong()
 		{
-			get
+			decode();
+    
+			if (type == edsTypeInt32)
 			{
-				decode();
-    
-				if (type == edsTypeInt32)
-				{
-					return integer32;
-				}
-    
-				if (type == edsTypeInt64)
-				{
-					return integer64;
-				}
-    
-				throw new SQLException("On message type " + currentMessageType + ":NuoDB jdbc expected int64 got type: " + type);
+				return integer32;
 			}
+    
+			if (type == edsTypeInt64)
+			{
+				return integer64;
+			}
+    
+			throw new SQLException("On message type " + currentMessageType + ":NuoDB jdbc expected int64 got type: " + type);
 		}
 
-		internal virtual double Double
+		public virtual double readDouble()
 		{
-			get
+			decode();
+    
+			if (type == edsTypeDouble)
 			{
-				decode();
-    
-				if (type == edsTypeDouble)
-				{
-					return dbl;
-				}
-    
-				throw new SQLException("On message type " + currentMessageType + ":NuoDB jdbc expected double got type: " + type);
+				return dbl;
 			}
+    
+			throw new SQLException("On message type " + currentMessageType + ":NuoDB jdbc expected double got type: " + type);
 		}
 
-		internal virtual decimal BigDecimal
+		public virtual decimal readBigDecimal()
 		{
-			get
+			decode();
+    
+			if (type == edsTypeBigInt)
 			{
-				decode();
-    
-				if (type == edsTypeBigInt)
-				{
-					return bigDecimal;
-				}
-    
-				throw new SQLException("On message type " + currentMessageType + ":NuoDB jdbc expected BigDecimal got type: " + type);
+				return bigDecimal;
 			}
+    
+			throw new SQLException("On message type " + currentMessageType + ":NuoDB jdbc expected BigDecimal got type: " + type);
 		}
 
-	   public virtual bool Boolean
+	   public virtual bool readBoolean()
 	   {
-		   get
-		   {
-				decode();
+			decode();
     
-				if (type == edsTypeBoolean)
-				{
-					return @bool;
-				}
+			if (type == edsTypeBoolean)
+			{
+				return @bool;
+			}
     
-				throw new SQLException("On message type " + currentMessageType + ":NuoDB jdbc expected boolean, got type: " + type);
-		   }
+			throw new SQLException("On message type " + currentMessageType + ":NuoDB jdbc expected boolean, got type: " + type);
 	   }
 
-		public virtual byte[] Bytes
+		public virtual byte[] readBytes()
 		{
-			get
+			decode();
+    
+			if (type == edsTypeOpaque)
 			{
-				decode();
-    
-				if (type == edsTypeOpaque)
-				{
-					return bytes;
-				}
-    
-				throw new SQLException("On message type " + currentMessageType + ":NuoDB jdbc expected bytes, got type: " + type);
+				return bytes;
 			}
+    
+			throw new SQLException("On message type " + currentMessageType + ":NuoDB jdbc expected bytes, got type: " + type);
 		}
 
 		public virtual void encodeNull()
@@ -1345,96 +1319,93 @@ namespace System.Data.NuoDB
 			write(edsNull);
 		}
 
-		internal virtual Value Value
+		internal virtual Value readValue()
 		{
-			get
+			decode();
+    
+			switch (type)
 			{
-				decode();
+				case edsTypeNull:
+					return new ValueNull();
     
-				switch (type)
-				{
-					case edsTypeNull:
-						return new ValueNull();
+				case edsTypeUtf8:
+					return new ValueString(@string);
     
-					case edsTypeUtf8:
-						return new ValueString(@string);
-    
-					case edsTypeOpaque:
-						return new ValueBytes(bytes);
+				case edsTypeOpaque:
+					return new ValueBytes(bytes);
 
-                    case edsTypeScaled:
+                case edsTypeScaled:
+                {
+                    decimal d = new Decimal(integer64);
+                    if (scale > 0)
                     {
-                        decimal d = new Decimal(integer64);
-                        if (scale > 0)
+                        for (int n = 0; n < scale; ++n)
                         {
-                            for (int n = 0; n < scale; ++n)
-                            {
-                                d /= 10;
-                            }
+                            d /= 10;
                         }
-                        else if (scale < 0)
+                    }
+                    else if (scale < 0)
+                    {
+                        for (int n = 0; n > scale; --n)
                         {
-                            for (int n = 0; n > scale; --n)
-                            {
-                                d *= 10;
-                            }
+                            d *= 10;
                         }
-                        return new ValueNumber(d);
                     }
+                    return new ValueNumber(d);
+                }
     
-					case edsTypeInt32:
-						return new ValueInt(integer32, 0);
+				case edsTypeInt32:
+					return new ValueInt(integer32, 0);
     
-					case edsTypeInt64:
-						return new ValueLong(integer64, 0);
+				case edsTypeInt64:
+					return new ValueLong(integer64, 0);
     
-					case edsTypeBoolean:
-						return new ValueBoolean(@bool);
+				case edsTypeBoolean:
+					return new ValueBoolean(@bool);
     
-					case edsTypeDouble:
-						return new ValueDouble(dbl);
+				case edsTypeDouble:
+					return new ValueDouble(dbl);
     
-					case edsTypeScaledTime:
-					{
-						// .NET DateTime only supports ms.
+				case edsTypeScaledTime:
+				{
+					// .NET DateTime only supports ms.
     
-						long inMillis = Value.reScale(integer64, scale, MILLISECONDS_SCALE);
+					long inMillis = Value.reScale(integer64, scale, MILLISECONDS_SCALE);
     
-						return new ValueTime(new DateTime(inMillis * TimeSpan.TicksPerMillisecond, DateTimeKind.Utc).ToLocalTime());
-					}
-
-                    case edsTypeTime:
-                        return new ValueTime(new DateTime(integer64, DateTimeKind.Utc).ToLocalTime());
-                    
-                    case edsTypeScaledDate:
-					{
-                        // .NET DateTime only supports ms.
-
-                        long inMillis = Value.reScale(integer64, scale, MILLISECONDS_SCALE);
-                        return new ValueDate(new DateTime(baseDate.Ticks + inMillis * TimeSpan.TicksPerMillisecond, DateTimeKind.Utc).ToLocalTime());
-					}
-
-                    case edsTypeMilliseconds:
-                        return new ValueTime(new DateTime(baseDate.Ticks + integer64 * TimeSpan.TicksPerMillisecond, DateTimeKind.Utc).ToLocalTime());
-
-					case edsTypeScaledTimestamp:
-					{
-						long inMillis = Value.reScale(integer64, scale, MILLISECONDS_SCALE);
-						int nanos = getNanos(integer64, scale);
-
-                        return new ValueTimestamp(new DateTime(baseDate.Ticks + inMillis * TimeSpan.TicksPerMillisecond, DateTimeKind.Utc).ToLocalTime());
-                    }
-
-                    case edsTypeNanoseconds:
-                        return new ValueTime(new DateTime(baseDate.Ticks + integer64, DateTimeKind.Utc).ToLocalTime());
-                    
-					case edsTypeBigInt:
-						return new ValueNumber(bigDecimal);
-
+					return new ValueTime(new DateTime(inMillis * TimeSpan.TicksPerMillisecond, DateTimeKind.Utc).ToLocalTime());
 				}
-    
-				throw new SQLException("On message type " + currentMessageType + ":NuoDB jdbc decode value type " + type + " not yet implemented");
+
+                case edsTypeTime:
+                    return new ValueTime(new DateTime(integer64, DateTimeKind.Utc).ToLocalTime());
+                    
+                case edsTypeScaledDate:
+				{
+                    // .NET DateTime only supports ms.
+
+                    long inMillis = Value.reScale(integer64, scale, MILLISECONDS_SCALE);
+                    return new ValueDate(new DateTime(baseDate.Ticks + inMillis * TimeSpan.TicksPerMillisecond, DateTimeKind.Utc).ToLocalTime());
+				}
+
+                case edsTypeMilliseconds:
+                    return new ValueTime(new DateTime(baseDate.Ticks + integer64 * TimeSpan.TicksPerMillisecond, DateTimeKind.Utc).ToLocalTime());
+
+				case edsTypeScaledTimestamp:
+				{
+					long inMillis = Value.reScale(integer64, scale, MILLISECONDS_SCALE);
+					int nanos = getNanos(integer64, scale);
+
+                    return new ValueTimestamp(new DateTime(baseDate.Ticks + inMillis * TimeSpan.TicksPerMillisecond, DateTimeKind.Utc).ToLocalTime());
+                }
+
+                case edsTypeNanoseconds:
+                    return new ValueTime(new DateTime(baseDate.Ticks + integer64, DateTimeKind.Utc).ToLocalTime());
+                    
+				case edsTypeBigInt:
+					return new ValueNumber(bigDecimal);
+
 			}
+    
+			throw new SQLException("On message type " + currentMessageType + ":NuoDB jdbc decode value type " + type + " not yet implemented");
 		}
 
 		internal virtual int getNanos(long number, int scale)
