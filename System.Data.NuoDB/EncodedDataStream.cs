@@ -1201,7 +1201,7 @@ namespace System.Data.NuoDB
 			return offset;
 		}
 
-		public virtual string readString()
+		public virtual string getString()
 		{
 			decode();
     
@@ -1218,7 +1218,7 @@ namespace System.Data.NuoDB
 			}
 		}
 
-		public virtual Guid readUUId()
+		public virtual Guid getUUId()
 		{
 			decode();
     
@@ -1232,7 +1232,7 @@ namespace System.Data.NuoDB
 			}
 		}
 
-		public virtual int readInt()
+		public virtual int getInt()
 		{
 			decode();
     
@@ -1249,7 +1249,7 @@ namespace System.Data.NuoDB
 			throw new SQLException("On message type " + currentMessageType + ":NuoDB jdbc expected int32, got type: " + type);
 		}
 
-		public virtual long readLong()
+		public virtual long getLong()
 		{
 			decode();
     
@@ -1266,7 +1266,7 @@ namespace System.Data.NuoDB
 			throw new SQLException("On message type " + currentMessageType + ":NuoDB jdbc expected int64 got type: " + type);
 		}
 
-		public virtual double readDouble()
+		public virtual double getDouble()
 		{
 			decode();
     
@@ -1278,7 +1278,7 @@ namespace System.Data.NuoDB
 			throw new SQLException("On message type " + currentMessageType + ":NuoDB jdbc expected double got type: " + type);
 		}
 
-		public virtual decimal readBigDecimal()
+		public virtual decimal getBigDecimal()
 		{
 			decode();
     
@@ -1290,7 +1290,7 @@ namespace System.Data.NuoDB
 			throw new SQLException("On message type " + currentMessageType + ":NuoDB jdbc expected BigDecimal got type: " + type);
 		}
 
-	   public virtual bool readBoolean()
+	   public virtual bool getBoolean()
 	   {
 			decode();
     
@@ -1302,7 +1302,7 @@ namespace System.Data.NuoDB
 			throw new SQLException("On message type " + currentMessageType + ":NuoDB jdbc expected boolean, got type: " + type);
 	   }
 
-		public virtual byte[] readBytes()
+		public virtual byte[] getBytes()
 		{
 			decode();
     
@@ -1319,7 +1319,7 @@ namespace System.Data.NuoDB
 			write(edsNull);
 		}
 
-		internal virtual Value readValue()
+		internal virtual Value getValue()
 		{
 			decode();
     

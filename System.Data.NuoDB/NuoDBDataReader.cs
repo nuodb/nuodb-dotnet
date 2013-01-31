@@ -57,7 +57,7 @@ namespace System.Data.NuoDB
 
             this.connection.RegisterResultSet(this.handle);
 
-            this.numberColumns = dataStream.readInt();
+            this.numberColumns = dataStream.getInt();
             this.values = new Value[numberColumns];
 
             if (readColumnNames)
@@ -65,7 +65,7 @@ namespace System.Data.NuoDB
                 this.columnNames = new string[numberColumns];
                 for (int n = 0; n < numberColumns; ++n)
                 {
-                    columnNames[n] = dataStream.readString();
+                    columnNames[n] = dataStream.getString();
                 }
             }
             else
@@ -111,7 +111,7 @@ namespace System.Data.NuoDB
             dataStream.startMessage(Protocol.GetMetaData);
             dataStream.encodeInt(handle);
             connection.sendAndReceive(dataStream);
-            int numberColumns = dataStream.readInt();
+            int numberColumns = dataStream.getInt();
 
             metadata = new DataTable("SchemaTable");
 
@@ -180,20 +180,20 @@ namespace System.Data.NuoDB
                 DataRow row = metadata.NewRow();
                 row["ColumnOrdinal"] = n;
                 // data fields must be read in this exact order!
-                row["BaseCatalogName"] = dataStream.readString();
-                row["BaseSchemaName"] = dataStream.readString();
-                row["BaseTableName"] = dataStream.readString();
-                row["BaseColumnName"] = dataStream.readString();
-                row["ColumnName"] = dataStream.readString();
-                string collationSequence = dataStream.readString();
-                string dataType = dataStream.readString();
+                row["BaseCatalogName"] = dataStream.getString();
+                row["BaseSchemaName"] = dataStream.getString();
+                row["BaseTableName"] = dataStream.getString();
+                row["BaseColumnName"] = dataStream.getString();
+                row["ColumnName"] = dataStream.getString();
+                string collationSequence = dataStream.getString();
+                string dataType = dataStream.getString();
                 row["DataTypeName"] = dataType;
                 row["DataType"] = Type.GetType(NuoDBConnection.mapNuoDbToNetType(dataType));
-                row["ProviderType"] = NuoDBConnection.mapJavaSqlToDbType(dataStream.readInt());
-                row["ColumnSize"] = dataStream.readInt();
-                row["NumericPrecision"] = dataStream.readInt();
-                row["NumericScale"] = dataStream.readInt();
-                int flags = dataStream.readInt();
+                row["ProviderType"] = NuoDBConnection.mapJavaSqlToDbType(dataStream.getInt());
+                row["ColumnSize"] = dataStream.getInt();
+                row["NumericPrecision"] = dataStream.getInt();
+                row["NumericScale"] = dataStream.getInt();
+                int flags = dataStream.getInt();
 		        const int rsmdSearchable = (1 << 1);
 		        const int rsmdAutoIncrement = (1 << 2);
 		        const int rsmdCaseSensitive = (1 << 3);
@@ -264,7 +264,7 @@ namespace System.Data.NuoDB
 
                 if (!pendingRows.EndOfMessage)
                 {
-                    int result = pendingRows.readInt();
+                    int result = pendingRows.getInt();
 
                     if (result == 0)
                     {
@@ -278,7 +278,7 @@ namespace System.Data.NuoDB
 
                     for (int n = 0; n < numberColumns; ++n)
                     {
-                        values[n] = pendingRows.readValue();
+                        values[n] = pendingRows.getValue();
                     }
 
                     //clearWarnings();

@@ -123,16 +123,16 @@ namespace System.Data.NuoDB
                 {
                     stream.send(outputStream);
                     stream.getMessage(inputStream);
-                    int status = stream.readInt();
+                    int status = stream.getInt();
 
                     if (status != 0)
                     {
-                        string message = stream.readString();
+                        string message = stream.getString();
                         string sqlState = "";
 
                         if (protocolVersion >= Protocol.PROTOCOL_VERSION2)
                         {
-                            sqlState = stream.readString();
+                            sqlState = stream.getString();
                         }
 
                         // If empty string, use the state from SQLCode
@@ -702,14 +702,14 @@ namespace System.Data.NuoDB
                 dataStream.encodeString(userKey);
                 sendAndReceive(dataStream);
 
-                protocolVersion = dataStream.readInt();
-                string serverKey = dataStream.readString();
-                string salt = dataStream.readString();
+                protocolVersion = dataStream.getInt();
+                string serverKey = dataStream.getString();
+                string salt = dataStream.getString();
                 dataStream.ProtocolVersion = protocolVersion;
 
                 if (protocolVersion >= Protocol.PROTOCOL_VERSION5)
                 {
-                    processConnection.DatabaseUUId = dataStream.readUUId();
+                    processConnection.DatabaseUUId = dataStream.getUUId();
                 }
 
                 string upperUserName = userName.ToUpper();
@@ -900,28 +900,28 @@ namespace System.Data.NuoDB
                 {
                     dataStream.startMessage(Protocol.GetDatabaseMetaData);
                     sendAndReceive(dataStream);
-                    for (int item; (item = dataStream.readInt()) != Protocol.DbmbFini; )
+                    for (int item; (item = dataStream.getInt()) != Protocol.DbmbFini; )
                     {
                         switch (item)
                         {
                             case Protocol.DbmbProductName:
-                                row["DataSourceProductName"] = dataStream.readString();
+                                row["DataSourceProductName"] = dataStream.getString();
                                 break;
 
                             case Protocol.DbmbProductVersion:
-                                row["DataSourceProductVersion"] = dataStream.readString();
+                                row["DataSourceProductVersion"] = dataStream.getString();
                                 break;
 
                             case Protocol.DbmbDatabaseMinorVersion:
-                                databaseMinorVersion = dataStream.readInt();
+                                databaseMinorVersion = dataStream.getInt();
                                 break;
 
                             case Protocol.DbmbDatabaseMajorVersion:
-                                databaseMajorVersion = dataStream.readInt();
+                                databaseMajorVersion = dataStream.getInt();
                                 break;
 
                             case Protocol.DbmbDefaultTransactionIsolation:
-                                int defaultTransactionIsolation = dataStream.readInt();
+                                int defaultTransactionIsolation = dataStream.getInt();
                                 break;
 
                             default:
@@ -1067,7 +1067,7 @@ namespace System.Data.NuoDB
 
                 dataStream.startMessage(Protocol.GetTypeInfo);
                 sendAndReceive(dataStream);
-                int handle = dataStream.readInt();
+                int handle = dataStream.getInt();
 
                 if (handle != -1)
                 {
@@ -1134,7 +1134,7 @@ namespace System.Data.NuoDB
                 }
 
                 sendAndReceive(dataStream);
-                int handle = dataStream.readInt();
+                int handle = dataStream.getInt();
 
                 if (handle != -1)
                 {
@@ -1183,7 +1183,7 @@ namespace System.Data.NuoDB
                         dataStream.encodeNull();
 
                 sendAndReceive(dataStream);
-                int handle = dataStream.readInt();
+                int handle = dataStream.getInt();
 
                 if (handle != -1)
                 {
@@ -1234,7 +1234,7 @@ namespace System.Data.NuoDB
                     dataStream.encodeBoolean(false);    // unique
                     dataStream.encodeBoolean(false);    // approximate
                     sendAndReceive(dataStream);
-                    int handle = dataStream.readInt();
+                    int handle = dataStream.getInt();
 
                     // to avoid to insert the same index more than once
                     HashSet<string> unique = new HashSet<string>();
@@ -1269,7 +1269,7 @@ namespace System.Data.NuoDB
                     dataStream.encodeString(t.Key);
                     dataStream.encodeString(t.Value);
                     sendAndReceive(dataStream);
-                    handle = dataStream.readInt();
+                    handle = dataStream.getInt();
 
                     if (handle != -1)
                     {
@@ -1319,7 +1319,7 @@ namespace System.Data.NuoDB
                     dataStream.encodeBoolean(false);    // unique
                     dataStream.encodeBoolean(false);    // approximate
                     sendAndReceive(dataStream);
-                    int handle = dataStream.readInt();
+                    int handle = dataStream.getInt();
 
                     if (handle != -1)
                     {
@@ -1351,7 +1351,7 @@ namespace System.Data.NuoDB
                     dataStream.encodeString(t.Key);
                     dataStream.encodeString(t.Value);
                     sendAndReceive(dataStream);
-                    handle = dataStream.readInt();
+                    handle = dataStream.getInt();
 
                     if (handle != -1)
                     {
@@ -1398,7 +1398,7 @@ namespace System.Data.NuoDB
                     dataStream.encodeString(t.Key);
                     dataStream.encodeString(t.Value);
                     sendAndReceive(dataStream);
-                    int handle = dataStream.readInt();
+                    int handle = dataStream.getInt();
 
                     if (handle != -1)
                     {
@@ -1446,7 +1446,7 @@ namespace System.Data.NuoDB
                     dataStream.encodeString(t.Key);
                     dataStream.encodeString(t.Value);
                     sendAndReceive(dataStream);
-                    int handle = dataStream.readInt();
+                    int handle = dataStream.getInt();
 
                     if (handle != -1)
                     {
@@ -1510,7 +1510,7 @@ namespace System.Data.NuoDB
                 dataStream.encodeInt(0);
 
                 sendAndReceive(dataStream);
-                int handle = dataStream.readInt();
+                int handle = dataStream.getInt();
 
                 if (handle != -1)
                 {
@@ -1656,14 +1656,14 @@ namespace System.Data.NuoDB
 
             // Both protocol V2 and V3 are sending a txn here
 
-            long transactionId = dataStream.readLong();
+            long transactionId = dataStream.getLong();
 
             // But only V3 sends the node id and commit sequence
 
             if (protocolVersion >= Protocol.PROTOCOL_VERSION3)
             {
-                int nodeId = dataStream.readInt();
-                long commitSequence = dataStream.readLong();
+                int nodeId = dataStream.getInt();
+                long commitSequence = dataStream.getLong();
                 processConnection.setLast(transactionId, nodeId, commitSequence);
             }
 

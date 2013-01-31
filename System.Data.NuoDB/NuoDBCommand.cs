@@ -92,7 +92,7 @@ namespace System.Data.NuoDB
         }
         private void updateRecordsUpdated(EncodedDataStream dataStream)
         {
-            int count = dataStream.readInt();
+            int count = dataStream.getInt();
             updateCount = (count >= -1) ? count : 0;
         }
         private void updateLastCommitInfo(EncodedDataStream dataStream, bool generatingKeys)
@@ -108,9 +108,9 @@ namespace System.Data.NuoDB
             // from v3 -v6, last commit info was not being sent if there was a gen key result set
             if ((connection.protocolVersion >= Protocol.PROTOCOL_VERSION3 && !generatingKeys) || connection.protocolVersion >= Protocol.PROTOCOL_VERSION7)
             {
-                long transactionId = dataStream.readLong();
-                int nodeId = dataStream.readInt();
-                long commitSequence = dataStream.readLong();
+                long transactionId = dataStream.getLong();
+                int nodeId = dataStream.getInt();
+                long commitSequence = dataStream.getLong();
                 connection.setLastTransaction(transactionId, nodeId, commitSequence);
             }
 
@@ -124,7 +124,7 @@ namespace System.Data.NuoDB
 
         private NuoDBDataReader createResultSet(EncodedDataStream dataStream, bool readColumnNames)
         {
-            int handle = dataStream.readInt();
+            int handle = dataStream.getInt();
 
             if (handle == -1)
             {
@@ -327,7 +327,7 @@ namespace System.Data.NuoDB
                     EncodedDataStream dataStream = new RemEncodedStream(connection.protocolVersion);
                     dataStream.startMessage(Protocol.CreateStatement);
                     connection.sendAndReceive(dataStream);
-                    handle = dataStream.readInt();
+                    handle = dataStream.getInt();
                     connection.RegisterCommand(handle);
                 }
             }
@@ -398,7 +398,7 @@ namespace System.Data.NuoDB
             // V2 txn ID obsolete as of V3 and no longer sending as of V7
             if (connection.protocolVersion >= Protocol.PROTOCOL_VERSION2 && connection.protocolVersion < Protocol.PROTOCOL_VERSION7)
             {
-                long txId = dataStream.readLong();
+                long txId = dataStream.getLong();
             }
 
             updateLastCommitInfo(dataStream, generatingKeys);
@@ -423,9 +423,9 @@ namespace System.Data.NuoDB
             dataStream.startMessage(Protocol.PrepareStatement);
             dataStream.encodeString(sqlText);
             connection.sendAndReceive(dataStream);
-            handle = dataStream.readInt();
+            handle = dataStream.getInt();
             connection.RegisterCommand(handle);
-            int numberParameters = dataStream.readInt();
+            int numberParameters = dataStream.getInt();
             for (int i = parameters.Count; i < numberParameters; i++)
                 parameters.Add(CreateParameter());
             for (int i = parameters.Count; i > numberParameters; i--)
