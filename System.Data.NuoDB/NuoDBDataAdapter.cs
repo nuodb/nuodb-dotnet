@@ -99,71 +99,23 @@ namespace System.Data.NuoDB
 		}
 
         public NuoDBDataAdapter(string selectStatement, NuoDBConnection connection)
-            : base()
+            : this(new NuoDBCommand(selectStatement, connection))
         {
-            this.SelectCommand = new NuoDBCommand(selectStatement, connection);
         }
 
         public NuoDBDataAdapter(NuoDBCommand selectCommand)
 			: base()
-		{
-			this.SelectCommand = selectCommand;
-		}
+        {
+            this.SelectCommand = selectCommand;
+        }
 
         public NuoDBDataAdapter(NuoDBDataAdapter other)
             : base()
         {
-            this.SelectCommand = other.SelectCommand;
-            this.InsertCommand = other.InsertCommand;
-            this.DeleteCommand = other.DeleteCommand;
-            this.UpdateCommand = other.UpdateCommand;
-        }
-
-        protected override int Fill(DataTable[] dataTables, int startRecord, int maxRecords, IDbCommand command, CommandBehavior behavior)
-        {
-            return base.Fill(dataTables, startRecord, maxRecords, command, behavior);
-        }
-
-        protected override int Fill(DataSet dataSet, int startRecord, int maxRecords, string srcTable, IDbCommand command, CommandBehavior behavior)
-        {
-            return base.Fill(dataSet, startRecord, maxRecords, srcTable, command, behavior);
-        }
-
-        public override DataTable[] FillSchema(DataSet dataSet, SchemaType schemaType)
-        {
-            return base.FillSchema(dataSet, schemaType);
-        }
-
-        public new DataTable FillSchema(DataTable dataTable, SchemaType schemaType)
-        {
-            return base.FillSchema(dataTable, schemaType);
-        }
-
-        public new DataTable[] FillSchema(DataSet dataSet, SchemaType schemaType, string srcTable)
-        {
-            return base.FillSchema(dataSet, schemaType, srcTable);
-        }
-
-        protected override DataTable FillSchema(DataTable dataTable, SchemaType schemaType, IDbCommand command, CommandBehavior behavior)
-        {
-            return base.FillSchema(dataTable, schemaType, command, behavior);
-        }
-
-        protected override DataTable[] FillSchema(DataSet dataSet, SchemaType schemaType, IDbCommand command, string srcTable, CommandBehavior behavior)
-        {
-            return base.FillSchema(dataSet, schemaType, command, srcTable, behavior);
-        }
-
-        protected override IDataParameter GetBatchedParameter(int commandIdentifier, int parameterIndex)
-        {
-            return base.GetBatchedParameter(commandIdentifier, parameterIndex);
-        }
-
-        protected override bool GetBatchedRecordsAffected(int commandIdentifier, out int recordsAffected, out Exception error)
-        {
-            recordsAffected = 0;
-            error = null;
-            return false;
+            this.SelectCommand = other.SelectCommand is ICloneable ? (NuoDBCommand)other.SelectCommand.Clone() : null;
+            this.InsertCommand = other.InsertCommand is ICloneable ? (NuoDBCommand)other.InsertCommand.Clone() : null;
+            this.DeleteCommand = other.DeleteCommand is ICloneable ? (NuoDBCommand)other.DeleteCommand.Clone() : null;
+            this.UpdateCommand = other.UpdateCommand is ICloneable ? (NuoDBCommand)other.UpdateCommand.Clone() : null;
         }
 
         protected override RowUpdatingEventArgs CreateRowUpdatingEvent(
@@ -200,11 +152,6 @@ namespace System.Data.NuoDB
             {
                 handler(this, value);
             }
-        }
-
-        protected override int Update(DataRow[] dataRows, DataTableMapping tableMapping)
-        {
-            return 0;
         }
 
         public object Clone()
