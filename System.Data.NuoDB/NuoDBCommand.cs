@@ -227,7 +227,6 @@ namespace System.Data.NuoDB
                 Close();
                 sqlText = value;
                 isPrepared = false;
-                parameters = new NuoDBDataParameterCollection();
             }
         }
 
