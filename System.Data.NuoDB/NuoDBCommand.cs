@@ -141,7 +141,8 @@ namespace System.Data.NuoDB
             for (int n = 0; n < parameters.Count; ++n)
             {
                 object param = ((NuoDBParameter)parameters[n]).Value;
-                if (param == null)
+                System.Diagnostics.Trace.WriteLine("param " + n + "="+param);
+                if (param == null || System.DBNull.Value.Equals(param))
                 {
                     dataStream.encodeNull();
                 }
