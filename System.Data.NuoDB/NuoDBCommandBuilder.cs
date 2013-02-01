@@ -38,7 +38,7 @@ namespace System.Data.NuoDB
     // it would try to do that because the parent class derives from Component, but it's abstract
     // and it cannot be instanciated
     [System.ComponentModel.DesignerCategory("")]
-    class NuoDBCommandBuilder : DbCommandBuilder
+    public class NuoDBCommandBuilder : DbCommandBuilder
     {
         public override string QuoteIdentifier(string unquotedIdentifier)
         {
