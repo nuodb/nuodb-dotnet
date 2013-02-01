@@ -240,6 +240,51 @@ namespace TestProject
             }
         }
 
+        [TestMethod]
+        public void TestDisconnectedUpdate()
+        {
+            using (NuoDBConnection connection = new NuoDBConnection(connectionString))
+            {
+                DbDataAdapter da = new NuoDBDataAdapter("select id, number, name, position, team from hockey", connection);
+                NuoDBCommandBuilder builder = new NuoDBCommandBuilder();
+                builder.DataAdapter = da;
+                DataTable dt = new DataTable();
+                da.Fill(dt);
+
+                DataRow row = dt.NewRow();
+                row["NAME"] = "John Doe";
+                row["POSITION"] = "Developer";
+                row["TEAM"] = "NuoDB";
+                row["NUMBER"] = 100;
+                dt.Rows.Add(row);
+
+                int changed = da.Update(dt);
+                Assert.AreEqual(1, changed);
+
+                // TODO: http://msdn.microsoft.com/en-us/library/ks9f57t0%28v=vs.80%29.aspx describes a few options
+                // to retrieve the AutoNumber column. For the moment, I reload the entire table
+                dt = new DataTable();
+                da.Fill(dt);
+
+                DataRow[] rows = dt.Select("NUMBER = 100");
+                Assert.IsNotNull(rows);
+                Assert.AreEqual(1, rows.Length);
+                foreach (DataRow r in rows)
+                    r["NUMBER"] = 0;
+                changed = da.Update(dt);
+                Assert.AreEqual(1, changed);
+
+                rows = dt.Select("NUMBER = 0");
+                Assert.IsNotNull(rows);
+                Assert.AreEqual(1, rows.Length);
+                foreach (DataRow r in rows)
+                    r.Delete();
+                changed = da.Update(dt);
+                Assert.AreEqual(1, changed);
+
+            }
+        }
+        
         public void TestDataType(string sqlType, object value)
         {
             TestDataType(sqlType, value, value);
