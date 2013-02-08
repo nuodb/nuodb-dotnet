@@ -421,6 +421,11 @@ namespace System.Data.NuoDB
             listResultSets.Add(handle);
         }
 
+        internal bool IsResultSetRegistered(int handle)
+        {
+            return listResultSets.Contains(handle);
+        }
+
         internal void CloseResultSet(int handle)
         {
             if (socket == null || !socket.Connected)

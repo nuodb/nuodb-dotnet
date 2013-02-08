@@ -85,7 +85,8 @@ namespace System.Data.NuoDB
 
         public override void Close()
         {
-            if (closed)
+            if (closed || handle == -1 || connection == null || (connection as IDbConnection).State == ConnectionState.Closed ||
+                !connection.IsResultSetRegistered(handle))
             {
                 return;
             }

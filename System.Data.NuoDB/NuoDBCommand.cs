@@ -73,7 +73,8 @@ namespace System.Data.NuoDB
 
         public void Close()
         {
-            if (handle == -1 || connection == null || (connection as IDbConnection).State == ConnectionState.Closed)
+            if (handle == -1 || connection == null || (connection as IDbConnection).State == ConnectionState.Closed ||
+                !connection.IsCommandRegistered(handle))
             {
                 return;
             }
