@@ -39,12 +39,28 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.Entity" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EntityFramework\NuoDBProviderManifest.cs" />
+    <Compile Include="EntityFramework\NuoDBProviderServices.cs" />
+    <Compile Include="EntityFramework\SqlGen\DmlSqlGenerator.cs" />
+    <Compile Include="EntityFramework\SqlGen\ExpressionTranslator.cs" />
+    <Compile Include="EntityFramework\SqlGen\FirstClause.cs" />
+    <Compile Include="EntityFramework\SqlGen\ISqlFragment.cs" />
+    <Compile Include="EntityFramework\SqlGen\JoinSymbol.cs" />
+    <Compile Include="EntityFramework\SqlGen\MetaDataHelpers.cs" />
+    <Compile Include="EntityFramework\SqlGen\SkipClause.cs" />
+    <Compile Include="EntityFramework\SqlGen\SqlBuilder.cs" />
+    <Compile Include="EntityFramework\SqlGen\SqlGenerator.cs" />
+    <Compile Include="EntityFramework\SqlGen\SqlSelectStatement.cs" />
+    <Compile Include="EntityFramework\SqlGen\SqlWriter.cs" />
+    <Compile Include="EntityFramework\SqlGen\Symbol.cs" />
+    <Compile Include="EntityFramework\SqlGen\SymbolPair.cs" />
+    <Compile Include="EntityFramework\SqlGen\SymbolTable.cs" />
     <Compile Include="Net\SocketListener.cs" />
     <Compile Include="NuoDBCommandBuilder.cs" />
     <Compile Include="NuoDBConnectionStringBuilder.cs" />
@@ -94,7 +110,14 @@
     <Compile Include="ValueTimestamp.cs" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="EntityFramework\StoreSchemaDefinition.ssdl">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="EntityFramework\StoreSchemaMapping.msl" />
     <None Include="Key.snk" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="EntityFramework\ProviderManifest.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

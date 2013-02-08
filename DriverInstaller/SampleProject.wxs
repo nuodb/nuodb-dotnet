@@ -3,7 +3,9 @@
     <Fragment>
         <DirectoryRef Id="INSTALLFOLDER">
             <Directory Id="dir0FBAA63D90D3836352633300369A0E34" Name="WindowsFormsSample">
-              <Directory Id="dirC5252FB19EDCB6158160CF5B556491D3" Name="Properties" />
+              <Directory Id="dirC5252FB19EDCB6158160CF5B556491D3" Name="Properties" >
+                <Directory Id="dirC5252FB19EDCB6158160CF5B556491D5" Name="DataSources" />
+              </Directory>
             </Directory>
         </DirectoryRef>    
     </Fragment>
@@ -42,6 +44,12 @@
             <Component Id="cmp1993BB917324B046D7838A9765FB10D0" Directory="dir0FBAA63D90D3836352633300369A0E34" Guid="*">
                 <File KeyPath="yes" Source="..\WindowsFormsSample\WindowsFormsSample.sln" />
             </Component>
+            <Component Id="cmp78A300235494DB69186DB18C1ADA11D9" Directory="dir0FBAA63D90D3836352633300369A0E34" Guid="*">
+              <File KeyPath="yes" Source="..\WindowsFormsSample\HockeyPlayer.Designer.cs" />
+            </Component>
+            <Component Id="cmp1993BB917324B046D7838A9765FB10D1" Directory="dir0FBAA63D90D3836352633300369A0E34" Guid="*">
+              <File KeyPath="yes" Source="..\WindowsFormsSample\HockeyPlayer.edmx" />
+            </Component>
             <Component Id="cmp90E14ADF5B535A3B4946F60C67588528" Directory="dirC5252FB19EDCB6158160CF5B556491D3" Guid="*">
                 <File KeyPath="yes" Source="..\WindowsFormsSample\Properties\AssemblyInfo.cs" />
             </Component>
@@ -56,6 +64,9 @@
             </Component>
             <Component Id="cmp05BA705FD49512DAF306C2CC9FC342D7" Directory="dirC5252FB19EDCB6158160CF5B556491D3" Guid="*">
                 <File KeyPath="yes" Source="..\WindowsFormsSample\Properties\Settings.settings" />
+            </Component>
+            <Component Id="cmp5C95A6A2D678480FDFA0ADD8360708D4" Directory="dirC5252FB19EDCB6158160CF5B556491D5" Guid="*">
+              <File KeyPath="yes" Source="..\WindowsFormsSample\Properties\DataSources\testEntities.datasource" />
             </Component>
         </ComponentGroup>
     </Fragment>

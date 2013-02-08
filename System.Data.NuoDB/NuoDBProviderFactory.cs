@@ -29,10 +29,11 @@
 using System.Data.Common;
 using System.Security;
 using System.Security.Permissions;
+using System.Data.NuoDB.EntityFramework;
 
 namespace System.Data.NuoDB
 {
-    public class NuoDBProviderFactory : DbProviderFactory
+    public class NuoDBProviderFactory : DbProviderFactory, IServiceProvider
     {
         public static readonly NuoDBProviderFactory Instance = new NuoDBProviderFactory();
 
@@ -81,5 +82,19 @@ namespace System.Data.NuoDB
             return null;
         }
 
+
+        #region IServiceProvider Members
+
+        public object GetService(Type serviceType)
+        {
+            System.Diagnostics.Trace.WriteLine(String.Format("NuoDBProviderFactory::GetService({0})", serviceType));
+            if (serviceType == typeof(DbProviderServices))
+            {
+                return NuoDBProviderServices.Instance;
+            }
+            return null;
+        }
+
+        #endregion
     }
 }

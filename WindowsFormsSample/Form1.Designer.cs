@@ -30,19 +30,19 @@
         {
             this.components = new System.ComponentModel.Container();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
-            this.testDataSet = new WindowsFormsSample.testDataSet();
-            this.hOCKEYBindingSource = new System.Windows.Forms.BindingSource(this.components);
-            this.hOCKEYTableAdapter = new WindowsFormsSample.testDataSetTableAdapters.HOCKEYTableAdapter();
             this.iDDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.nUMBERDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.nAMEDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.pOSITIONDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tEAMDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.hOCKEYBindingSource = new System.Windows.Forms.BindingSource(this.components);
+            this.testDataSet = new WindowsFormsSample.testDataSet();
+            this.hOCKEYTableAdapter = new WindowsFormsSample.testDataSetTableAdapters.HOCKEYTableAdapter();
             this.label1 = new System.Windows.Forms.Label();
             this.bestFan = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.testDataSet)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.hOCKEYBindingSource)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.testDataSet)).BeginInit();
             this.SuspendLayout();
             // 
             // dataGridView1
@@ -60,20 +60,6 @@
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.Size = new System.Drawing.Size(552, 133);
             this.dataGridView1.TabIndex = 0;
-            // 
-            // testDataSet
-            // 
-            this.testDataSet.DataSetName = "testDataSet";
-            this.testDataSet.SchemaSerializationMode = System.Data.SchemaSerializationMode.IncludeSchema;
-            // 
-            // hOCKEYBindingSource
-            // 
-            this.hOCKEYBindingSource.DataMember = "HOCKEY";
-            this.hOCKEYBindingSource.DataSource = this.testDataSet;
-            // 
-            // hOCKEYTableAdapter
-            // 
-            this.hOCKEYTableAdapter.ClearBeforeFill = true;
             // 
             // iDDataGridViewTextBoxColumn
             // 
@@ -105,6 +91,20 @@
             this.tEAMDataGridViewTextBoxColumn.HeaderText = "TEAM";
             this.tEAMDataGridViewTextBoxColumn.Name = "tEAMDataGridViewTextBoxColumn";
             // 
+            // hOCKEYBindingSource
+            // 
+            this.hOCKEYBindingSource.DataMember = "HOCKEY";
+            this.hOCKEYBindingSource.DataSource = this.testDataSet;
+            // 
+            // testDataSet
+            // 
+            this.testDataSet.DataSetName = "testDataSet";
+            this.testDataSet.SchemaSerializationMode = System.Data.SchemaSerializationMode.IncludeSchema;
+            // 
+            // hOCKEYTableAdapter
+            // 
+            this.hOCKEYTableAdapter.ClearBeforeFill = true;
+            // 
             // label1
             // 
             this.label1.AutoSize = true;
@@ -126,7 +126,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(577, 224);
+            this.ClientSize = new System.Drawing.Size(577, 223);
             this.Controls.Add(this.bestFan);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.dataGridView1);
@@ -134,8 +134,8 @@
             this.Text = "Form1";
             this.Load += new System.EventHandler(this.Form1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.testDataSet)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.hOCKEYBindingSource)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.testDataSet)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
