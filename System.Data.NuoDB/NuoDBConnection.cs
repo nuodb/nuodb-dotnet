@@ -1126,11 +1126,11 @@ namespace System.Data.NuoDB
                 dataStream.startMessage(Protocol.GetTables);
                 dataStream.encodeNull(); // catalog is always null
                 for (int i = 1; i < 3; i++)
-                    if (restrictionValues.Length > i)
+                    if (restrictionValues!= null && restrictionValues.Length > i)
                         dataStream.encodeString(restrictionValues[i]);
                     else
                         dataStream.encodeNull();
-                if (restrictionValues.Length < 4 || restrictionValues[3] == null)
+                if (restrictionValues == null || restrictionValues.Length < 4 || restrictionValues[3] == null)
                     dataStream.encodeInt(0);
                 else
                 {
@@ -1182,7 +1182,7 @@ namespace System.Data.NuoDB
                 dataStream.startMessage(Protocol.GetColumns);
                 dataStream.encodeNull(); // catalog is always null
                 for (int i = 1; i < 4; i++)
-                    if (restrictionValues.Length > i)
+                    if (restrictionValues != null && restrictionValues.Length > i)
                         dataStream.encodeString(restrictionValues[i]);
                     else
                         dataStream.encodeNull();
@@ -1251,7 +1251,7 @@ namespace System.Data.NuoDB
                             while (reader.Read())
                             {
                                 // enforce the restriction on the index name
-                                if (restrictionValues.Length > 3 && restrictionValues[3] != null &&
+                                if (restrictionValues != null && restrictionValues.Length > 3 && restrictionValues[3] != null &&
                                     !restrictionValues[3].Equals(reader["INDEX_NAME"]))
                                     continue;
                                 if (!unique.Add((string)reader["INDEX_NAME"]))
@@ -1284,7 +1284,7 @@ namespace System.Data.NuoDB
                             while (reader.Read())
                             {
                                 // enforce the restriction on the index name
-                                if (restrictionValues.Length > 3 && restrictionValues[3] != null &&
+                                if (restrictionValues != null && restrictionValues.Length > 3 && restrictionValues[3] != null &&
                                     !restrictionValues[3].Equals(reader["INDEX_NAME"]))
                                     continue;
                                 if (!unique.Add((string)reader["INDEX_NAME"]))
@@ -1334,7 +1334,7 @@ namespace System.Data.NuoDB
                             while (reader.Read())
                             {
                                 // enforce the restriction on the index name
-                                if (restrictionValues.Length > 3 && restrictionValues[3] != null &&
+                                if (restrictionValues != null && restrictionValues.Length > 3 && restrictionValues[3] != null &&
                                     !restrictionValues[3].Equals(reader["INDEX_NAME"]))
                                     continue;
                                 System.Diagnostics.Trace.WriteLine("-> " + reader["TABLE_SCHEM"] + "." + reader["TABLE_NAME"] + "=" + reader["COLUMN_NAME"]);
@@ -1366,7 +1366,7 @@ namespace System.Data.NuoDB
                             while (reader.Read())
                             {
                                 // enforce the restriction on the index name
-                                if (restrictionValues.Length > 3 && restrictionValues[3] != null &&
+                                if (restrictionValues != null && restrictionValues.Length > 3 && restrictionValues[3] != null &&
                                     !restrictionValues[3].Equals(reader["INDEX_NAME"]))
                                     continue;
                                 System.Diagnostics.Trace.WriteLine("-> " + reader["TABLE_SCHEM"] + "." + reader["TABLE_NAME"] + " (Primary) =" + reader["COLUMN_NAME"]);
@@ -1416,7 +1416,7 @@ namespace System.Data.NuoDB
                                 string name = "[" + reader["FKTABLE_SCHEM"] + "]" + reader["FKTABLE_NAME"] + "." + reader["FKCOLUMN_NAME"] + "->" +
                                               "[" + reader["PKTABLE_SCHEM"] + "]" + reader["PKTABLE_NAME"] + "." + reader["PKCOLUMN_NAME"];
                                 // enforce the restriction on the index name
-                                if (restrictionValues.Length > 3 && restrictionValues[3] != null &&
+                                if (restrictionValues != null && restrictionValues.Length > 3 && restrictionValues[3] != null &&
                                     !restrictionValues[3].Equals(name))
                                     continue;
                                 DataRow row = table.NewRow();
@@ -1464,7 +1464,7 @@ namespace System.Data.NuoDB
                                 string name = "[" + reader["FKTABLE_SCHEM"] + "]" + reader["FKTABLE_NAME"] + "." + reader["FKCOLUMN_NAME"] + "->" +
                                               "[" + reader["PKTABLE_SCHEM"] + "]" + reader["PKTABLE_NAME"] + "." + reader["PKCOLUMN_NAME"];
                                 // enforce the restriction on the index name
-                                if (restrictionValues.Length > 3 && restrictionValues[3] != null &&
+                                if (restrictionValues != null && restrictionValues.Length > 3 && restrictionValues[3] != null &&
                                     !restrictionValues[3].Equals(name))
                                     continue;
                                 System.Diagnostics.Trace.WriteLine("-> " + reader["FKTABLE_SCHEM"] + "." + reader["FKTABLE_NAME"] + "=" + reader["FKCOLUMN_NAME"]);
@@ -1491,7 +1491,7 @@ namespace System.Data.NuoDB
 
         private string getItemAtIndex(string[] values, int index)
         {
-            if (values.Length > index)
+            if (values != null && values.Length > index)
                 return values[index];
             return null;
         }

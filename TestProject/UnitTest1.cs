@@ -428,5 +428,23 @@ namespace TestProject
         {
             TestDataType("blob", "xxx", new byte[] { (byte)'x', (byte)'x', (byte)'x' });
         }
+
+        [TestMethod]
+        public void TestSchema()
+        {
+            using (NuoDBConnection connection = new NuoDBConnection(connectionString))
+            {
+                DataTable tables = connection.GetSchema("Tables");
+
+                Boolean found = false;
+                foreach (DataRow row in tables.Rows)
+                {
+                    if (row.Field<string>(2).Equals("HOCKEY"))
+                        found = true;
+                }
+                Assert.IsTrue(found, "Table HOCKEY was not found in the list of tables");
+            }
+        }
+
     }
 }
