@@ -4,6 +4,12 @@
 	<Product Id="*" Name="ADO.NET Driver for NuoDB" Language="1033" Version="1.0.0.0" Manufacturer="NuoDB Inc." 
            UpgradeCode="01d136dd-8f3c-4e8a-8343-d76b584caec2">
 		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
+    <UIRef Id="WixUI_InstallDir" />
+    <WixVariable Id="WixUILicenseRtf" Value="License.rtf" />
+    <WixVariable Id="WixUIDialogBmp" Value="nuo_bird_win_install_welcome.bmp" />
+    <WixVariable Id="WixUIBannerBmp" Value="nuo_bird_win_install_header.bmp" />
+    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+    
     <PropertyRef Id="NETFRAMEWORK20INSTALLROOTDIR"/>
     <PropertyRef Id="NETFRAMEWORK40CLIENTINSTALLROOTDIR"/>
     <Property Id="ARPPRODUCTICON" Value="Package.ico" />
