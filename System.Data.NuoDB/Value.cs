@@ -269,7 +269,7 @@ namespace System.Data.NuoDB
 
 		internal virtual void throwConversionNotImplemented(string type)
 		{
-			throw new SQLException("conversion to " + type + " is not implemented");
+			throw new NuoDbSqlException("conversion to " + type + " is not implemented");
 		}
 
 		public static string getString(long value, int scale)

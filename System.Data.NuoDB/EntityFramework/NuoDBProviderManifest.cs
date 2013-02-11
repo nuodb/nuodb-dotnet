@@ -32,15 +32,15 @@ using System.Data.Metadata.Edm;
 
 namespace System.Data.NuoDB.EntityFramework
 {
-    class NuoDBProviderManifest : DbXmlEnabledProviderManifest
+    class NuoDbProviderManifest : DbXmlEnabledProviderManifest
     {
         internal const int BinaryMaxSize = Int32.MaxValue;
         internal const int VarcharMaxSize = 32765;
         internal const int NVarcharMaxSize = VarcharMaxSize;
         internal const char LikeEscapeCharacter = '\\';
 
-        public NuoDBProviderManifest()
-            : base(XmlReader.Create(typeof(NuoDBProviderManifest).Assembly.GetManifestResourceStream("System.Data.NuoDB.EntityFramework.ProviderManifest.xml")))
+        public NuoDbProviderManifest()
+            : base(XmlReader.Create(typeof(NuoDbProviderManifest).Assembly.GetManifestResourceStream("System.Data.NuoDB.EntityFramework.ProviderManifest.xml")))
         {
         }
 
@@ -48,11 +48,11 @@ namespace System.Data.NuoDB.EntityFramework
         {
             if (informationType == DbProviderManifest.StoreSchemaDefinition)
             {
-                return XmlReader.Create(typeof(NuoDBProviderManifest).Assembly.GetManifestResourceStream("System.Data.NuoDB.EntityFramework.StoreSchemaDefinition.ssdl"));
+                return XmlReader.Create(typeof(NuoDbProviderManifest).Assembly.GetManifestResourceStream("System.Data.NuoDB.EntityFramework.StoreSchemaDefinition.ssdl"));
             }
             else if (informationType == DbProviderManifest.StoreSchemaMapping)
             {
-                return XmlReader.Create(typeof(NuoDBProviderManifest).Assembly.GetManifestResourceStream("System.Data.NuoDB.EntityFramework.StoreSchemaMapping.msl"));
+                return XmlReader.Create(typeof(NuoDbProviderManifest).Assembly.GetManifestResourceStream("System.Data.NuoDB.EntityFramework.StoreSchemaMapping.msl"));
             }
             throw new NotImplementedException();
         }

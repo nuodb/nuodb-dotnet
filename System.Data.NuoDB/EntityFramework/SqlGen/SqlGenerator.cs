@@ -3398,9 +3398,9 @@ namespace System.Data.NuoDB.EntityFramework.SqlGen
                     {
                         // try to get maximum length, if not enough, server will return error
                         if (isUnicode)
-                            length = NuoDBProviderManifest.NVarcharMaxSize.ToString(CultureInfo.InvariantCulture);
+                            length = NuoDbProviderManifest.NVarcharMaxSize.ToString(CultureInfo.InvariantCulture);
                         else
-                            length = NuoDBProviderManifest.VarcharMaxSize.ToString(CultureInfo.InvariantCulture);
+                            length = NuoDbProviderManifest.VarcharMaxSize.ToString(CultureInfo.InvariantCulture);
                     }
                     else
                     {
@@ -3414,7 +3414,7 @@ namespace System.Data.NuoDB.EntityFramework.SqlGen
                     }
                     else
                     {
-                        if (int.Parse(length) > (isUnicode ? NuoDBProviderManifest.NVarcharMaxSize : NuoDBProviderManifest.VarcharMaxSize))
+                        if (int.Parse(length) > (isUnicode ? NuoDbProviderManifest.NVarcharMaxSize : NuoDbProviderManifest.VarcharMaxSize))
                         {
                             typeName = "BLOB SUB_TYPE TEXT";
                         }

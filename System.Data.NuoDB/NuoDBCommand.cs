@@ -35,20 +35,20 @@ namespace System.Data.NuoDB
     // it would try to do that because the parent class derives from Component, but it's abstract
     // and it cannot be instanciated
     [System.ComponentModel.DesignerCategory("")]
-    public sealed class NuoDBCommand : DbCommand, ICloneable
+    public sealed class NuoDbCommand : DbCommand, ICloneable
     {
         private NuoDBConnection connection;
         private string sqlText = "";
         private int timeout;
         private int handle = -1;
         internal int updateCount;
-        internal NuoDBDataReader generatedKeys;
-        private NuoDBDataParameterCollection parameters = new NuoDBDataParameterCollection();
+        internal NuoDbDataReader generatedKeys;
+        private NuoDbDataParameterCollection parameters = new NuoDbDataParameterCollection();
         private bool isPrepared = false;
         private bool isDesignTimeVisible = false;
         private UpdateRowSource updatedRowSource = UpdateRowSource.Both;
 
-        public NuoDBCommand(string query, DbConnection conn)
+        public NuoDbCommand(string query, DbConnection conn)
         {
             if (!(conn is NuoDBConnection))
                 throw new ArgumentException("Connection is not a NuoDB connection", "conn");
@@ -56,12 +56,12 @@ namespace System.Data.NuoDB
             connection = (NuoDBConnection)conn;
         }
 
-        public NuoDBCommand(DbConnection conn)
+        public NuoDbCommand(DbConnection conn)
             : this("", conn)
         {
         }
 
-        public NuoDBCommand()
+        public NuoDbCommand()
         {
         }
 
@@ -78,7 +78,7 @@ namespace System.Data.NuoDB
             {
                 return;
             }
-            System.Diagnostics.Trace.WriteLine("NuoDBCommand::Close()");
+            System.Diagnostics.Trace.WriteLine("NuoDbCommand::Close()");
 
             connection.CloseCommand(handle);
             handle = -1;
@@ -88,7 +88,7 @@ namespace System.Data.NuoDB
         {
             if (connection == null || (connection as IDbConnection).State == ConnectionState.Closed)
             {
-                throw new SQLException("connection is not open");
+                throw new NuoDbSqlException("connection is not open");
             }
         }
         private void updateRecordsUpdated(EncodedDataStream dataStream)
@@ -123,7 +123,7 @@ namespace System.Data.NuoDB
 
         }
 
-        private NuoDBDataReader createResultSet(EncodedDataStream dataStream, bool readColumnNames)
+        private NuoDbDataReader createResultSet(EncodedDataStream dataStream, bool readColumnNames)
         {
             int handle = dataStream.getInt();
 
@@ -132,7 +132,7 @@ namespace System.Data.NuoDB
                 return null;
             }
 
-            return new NuoDBDataReader(connection, handle, dataStream, this, readColumnNames);
+            return new NuoDbDataReader(connection, handle, dataStream, this, readColumnNames);
         }
 
         private void putParameters(EncodedDataStream dataStream)
@@ -141,7 +141,7 @@ namespace System.Data.NuoDB
 
             for (int n = 0; n < parameters.Count; ++n)
             {
-                object param = ((NuoDBParameter)parameters[n]).Value;
+                object param = ((NuoDbParameter)parameters[n]).Value;
                 System.Diagnostics.Trace.WriteLine("param " + n + "="+param);
                 if (param == null || System.DBNull.Value.Equals(param))
                 {
@@ -225,7 +225,7 @@ namespace System.Data.NuoDB
             }
             set
             {
-                System.Diagnostics.Trace.WriteLine("NuoDBCommand.CommandText = " + value);
+                System.Diagnostics.Trace.WriteLine("NuoDbCommand.CommandText = " + value);
                 Close();
                 sqlText = value;
                 isPrepared = false;
@@ -259,7 +259,7 @@ namespace System.Data.NuoDB
 
         protected override DbParameter CreateDbParameter()
         {
-            return new NuoDBParameter();
+            return new NuoDbParameter();
         }
 
         protected override DbConnection DbConnection
@@ -294,7 +294,7 @@ namespace System.Data.NuoDB
                 if (value != null)
                 {
                     // setting this command to work inside a specific transaction means using its connection
-                    if (!(value is NuoDBTransaction))
+                    if (!(value is NuoDbTransaction))
                         throw new ArgumentException("Transaction is not a NuoDB transaction object");
                     connection = (NuoDBConnection)value.Connection;
                 }
@@ -336,7 +336,7 @@ namespace System.Data.NuoDB
 
         protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior)
         {
-            System.Diagnostics.Trace.WriteLine("NuoDBCommand.ExecuteDbDataReader(" + CommandText + ", " + behavior + ")");
+            System.Diagnostics.Trace.WriteLine("NuoDbCommand.ExecuteDbDataReader(" + CommandText + ", " + behavior + ")");
             checkConnection();
             EnsureStatement();
 
@@ -375,7 +375,7 @@ namespace System.Data.NuoDB
 
         public override int ExecuteNonQuery()
         {
-            System.Diagnostics.Trace.WriteLine("NuoDBCommand.ExecuteNonQuery(" + CommandText + ")");
+            System.Diagnostics.Trace.WriteLine("NuoDbCommand.ExecuteNonQuery(" + CommandText + ")");
             checkConnection();
             EnsureStatement();
 
@@ -450,7 +450,7 @@ namespace System.Data.NuoDB
 
         public object Clone()
         {
-            NuoDBCommand command = new NuoDBCommand();
+            NuoDbCommand command = new NuoDbCommand();
 
             command.CommandText = this.CommandText;
             command.Connection = this.Connection;
@@ -459,7 +459,7 @@ namespace System.Data.NuoDB
             command.CommandTimeout = this.CommandTimeout;
             command.UpdatedRowSource = this.UpdatedRowSource;
 
-            foreach (NuoDBParameter p in this.Parameters)
+            foreach (NuoDbParameter p in this.Parameters)
             {
                 command.Parameters.Add(((ICloneable)p).Clone());
             }

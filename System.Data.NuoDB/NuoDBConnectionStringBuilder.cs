@@ -30,7 +30,7 @@ using System.Data.Common;
 
 namespace System.Data.NuoDB
 {
-    public class NuoDBConnectionStringBuilder : DbConnectionStringBuilder
+    public class NuoDbConnectionStringBuilder : DbConnectionStringBuilder
     {
         public string User
         {
@@ -62,11 +62,11 @@ namespace System.Data.NuoDB
             set { this.SetValue("Schema", value); }
         }
 
-        public NuoDBConnectionStringBuilder()
+        public NuoDbConnectionStringBuilder()
 		{
 		}
 
-        public NuoDBConnectionStringBuilder(string connectionString)
+        public NuoDbConnectionStringBuilder(string connectionString)
 		{
 			this.ConnectionString = connectionString;
 		}

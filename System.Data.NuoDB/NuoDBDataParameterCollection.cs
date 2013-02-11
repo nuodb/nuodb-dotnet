@@ -31,22 +31,22 @@ using System.Collections.Generic;
 
 namespace System.Data.NuoDB
 {
-    class NuoDBDataParameterCollection : DbParameterCollection
+    class NuoDbDataParameterCollection : DbParameterCollection
     {
-        private List<NuoDBParameter> collection = new List<NuoDBParameter>();
+        private List<NuoDbParameter> collection = new List<NuoDbParameter>();
 
         public override int Add(object value)
         {
             if (value is DbParameter)
             {
-                if (!(value is NuoDBParameter))
+                if (!(value is NuoDbParameter))
                     throw new ArgumentException("Parameter is not a NuoDB parameter", "value");
 
-                collection.Add((NuoDBParameter)value);
+                collection.Add((NuoDbParameter)value);
             }
             else
             {
-                NuoDBParameter param = new NuoDBParameter();
+                NuoDbParameter param = new NuoDbParameter();
                 param.Value = value;
                 collection.Add(param);
             }
@@ -68,7 +68,7 @@ namespace System.Data.NuoDB
 
         public override bool Contains(string value)
         {
-            foreach (NuoDBParameter p in collection)
+            foreach (NuoDbParameter p in collection)
                 if (p.ParameterName == value)
                     return true;
             return false;
@@ -76,7 +76,7 @@ namespace System.Data.NuoDB
 
         public override bool Contains(object value)
         {
-            return collection.Contains((NuoDBParameter)value);
+            return collection.Contains((NuoDbParameter)value);
         }
 
         public override void CopyTo(Array array, int index)
@@ -97,7 +97,7 @@ namespace System.Data.NuoDB
 
         protected override DbParameter GetParameter(string parameterName)
         {
-            foreach (NuoDBParameter p in collection)
+            foreach (NuoDbParameter p in collection)
                 if (p.ParameterName == parameterName)
                     return p;
             return null;
@@ -126,9 +126,9 @@ namespace System.Data.NuoDB
 
         public override void Insert(int index, object value)
         {
-            if (!(value is NuoDBParameter))
+            if (!(value is NuoDbParameter))
                 throw new ArgumentException("Parameter is not a NuoDB parameter", "value");
-            collection.Insert(index, (NuoDBParameter)value);
+            collection.Insert(index, (NuoDbParameter)value);
         }
 
         public override bool IsFixedSize
@@ -168,22 +168,22 @@ namespace System.Data.NuoDB
 
         protected override void SetParameter(string parameterName, DbParameter value)
         {
-            if (!(value is NuoDBParameter))
+            if (!(value is NuoDbParameter))
                 throw new ArgumentException("Parameter is not a NuoDB parameter", "value");
             int index = IndexOf(parameterName);
             if (index == -1)
-                collection.Add((NuoDBParameter)value);
+                collection.Add((NuoDbParameter)value);
             else
-                collection[index] = (NuoDBParameter)value;
+                collection[index] = (NuoDbParameter)value;
         }
 
         protected override void SetParameter(int index, DbParameter value)
         {
-            if (!(value is NuoDBParameter))
+            if (!(value is NuoDbParameter))
                 throw new ArgumentException("Parameter is not a NuoDB parameter", "value");
             if (index < 0 || index > collection.Count)
                 throw new IndexOutOfRangeException();
-            collection[index] = (NuoDBParameter)value;
+            collection[index] = (NuoDbParameter)value;
         }
 
         public override object SyncRoot

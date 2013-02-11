@@ -31,61 +31,59 @@ namespace System.Data.NuoDB
 
 	/// <summary>
 	/// Maps Nuodb vendor error codes to default SQLState values.
-	/// 
-	/// These should be consistent with SQLException.h
 	/// </summary>
-	public class SQLCode
+	public class NuoDbSqlCode
 	{
 		// modifications to this list must also update C++'s SQLException.h
-		public static SQLCode[] values = {
-                                             new SQLCode("SYNTAX_ERROR", -1, "42000"),
-                                             new SQLCode("FEATURE_NOT_YET_IMPLEMENTED", -2, "0A000"),
-                                             new SQLCode("BUG_CHECK", -3, "58000"),
-                                             new SQLCode("COMPILE_ERROR", -4, "42000"),
-                                             new SQLCode("RUNTIME_ERROR", -5, "58000"),
-                                             new SQLCode("IO_ERROR", -6, "08000"),
-                                             new SQLCode("NETWORK_ERROR", -7, "08000"),
-                                             new SQLCode("CONVERSION_ERROR", -8, "22000"),
-                                             new SQLCode("TRUNCATION_ERROR", -9, "22000"),
-                                             new SQLCode("CONNECTION_ERROR", -10, "08000"),
-                                             new SQLCode("DDL_ERROR", -11, "42000"),
-                                             new SQLCode("APPLICATION_ERROR", -12, "58000"),
-                                             new SQLCode("SECURITY_ERROR", -13, "58000"),
-                                             new SQLCode("DATABASE_CORRUPTION", -14, "58000"),
-                                             new SQLCode("VERSION_ERROR", -15, "58000"),
-                                             new SQLCode("LICENSE_ERROR", -16, "58000"),
-                                             new SQLCode("INTERNAL_ERROR", -17, "58000"),
-                                             new SQLCode("DEBUG_ERROR", -18, "58000"),
-                                             new SQLCode("LOST_BLOB", -19, "22000"),
-                                             new SQLCode("INCONSISTENT_BLOB", -20, "22000"),
-                                             new SQLCode("DELETED_BLOB", -21, "22000"),
-                                             new SQLCode("LOG_ERROR", -22, "58000"),
-                                             new SQLCode("DATABASE_DAMAGED", -23, "58000"),
-                                             new SQLCode("UPDATE_CONFLICT", -24, "40002"),
-                                             new SQLCode("NO_SUCH_TABLE", -25, "42000"),
-                                             new SQLCode("INDEX_OVERFLOW", -26, "58000"),
-                                             new SQLCode("UNIQUE_DUPLICATE", -27, "23000"),
-                                             new SQLCode("UNCOMMITTED_UPDATES", -28, "58000"),
-                                             new SQLCode("DEADLOCK", -29, "40001"),
-                                             new SQLCode("OUT_OF_MEMORY_ERROR", -30, "58000"),
-                                             new SQLCode("OUT_OF_RECORD_MEMORY_ERROR", -31, "58000"),
-                                             new SQLCode("LOCK_TIMEOUT", -32, "58000"),
-                                             new SQLCode("PLATFORM_ERROR", -36, "58000"),
-                                             new SQLCode("NO_SCHEMA", -37, "58000"),
-                                             new SQLCode("CONFIGURATION_ERROR", -38, "58000"),
-                                             new SQLCode("READ_ONLY_ERROR", -39, "58000"),
-                                             new SQLCode("NO_GENERATED_KEYS", -40, "58000"),
-                                             new SQLCode("THROWN_EXCEPTION", -41, "58000"),
-                                             new SQLCode("INVALID_TRANSACTION_ISOLATION", -42,"01000"),
-                                             new SQLCode("UNSUPPORTED_TRANSACTION_ISOLATION", -43, "0A000"),
-                                             new SQLCode("INVALID_UTF8", -44,"58000"),
-                                             new SQLCode("CONSTRAINT_ERROR", -45,"23001"), // Must start with "23" for Hibernate
-                                             new SQLCode("UPDATE_ERROR", -46, "58000"), // update error catch all
-                                             new SQLCode("I18N_ERROR", -47, "58000"),
-                                             new SQLCode("OPERATION_KILLED", -48, "HY008"),
-                                             new SQLCode("INVALID_STATEMENT", -49, "58000"),
-                                             new SQLCode("TRANSACT_ERROR", -50, "58000"),
-                                             new SQLCode("JAVA_ERROR", -51,"58000")
+		public static NuoDbSqlCode[] values = {
+                                             new NuoDbSqlCode("SYNTAX_ERROR", -1, "42000"),
+                                             new NuoDbSqlCode("FEATURE_NOT_YET_IMPLEMENTED", -2, "0A000"),
+                                             new NuoDbSqlCode("BUG_CHECK", -3, "58000"),
+                                             new NuoDbSqlCode("COMPILE_ERROR", -4, "42000"),
+                                             new NuoDbSqlCode("RUNTIME_ERROR", -5, "58000"),
+                                             new NuoDbSqlCode("IO_ERROR", -6, "08000"),
+                                             new NuoDbSqlCode("NETWORK_ERROR", -7, "08000"),
+                                             new NuoDbSqlCode("CONVERSION_ERROR", -8, "22000"),
+                                             new NuoDbSqlCode("TRUNCATION_ERROR", -9, "22000"),
+                                             new NuoDbSqlCode("CONNECTION_ERROR", -10, "08000"),
+                                             new NuoDbSqlCode("DDL_ERROR", -11, "42000"),
+                                             new NuoDbSqlCode("APPLICATION_ERROR", -12, "58000"),
+                                             new NuoDbSqlCode("SECURITY_ERROR", -13, "58000"),
+                                             new NuoDbSqlCode("DATABASE_CORRUPTION", -14, "58000"),
+                                             new NuoDbSqlCode("VERSION_ERROR", -15, "58000"),
+                                             new NuoDbSqlCode("LICENSE_ERROR", -16, "58000"),
+                                             new NuoDbSqlCode("INTERNAL_ERROR", -17, "58000"),
+                                             new NuoDbSqlCode("DEBUG_ERROR", -18, "58000"),
+                                             new NuoDbSqlCode("LOST_BLOB", -19, "22000"),
+                                             new NuoDbSqlCode("INCONSISTENT_BLOB", -20, "22000"),
+                                             new NuoDbSqlCode("DELETED_BLOB", -21, "22000"),
+                                             new NuoDbSqlCode("LOG_ERROR", -22, "58000"),
+                                             new NuoDbSqlCode("DATABASE_DAMAGED", -23, "58000"),
+                                             new NuoDbSqlCode("UPDATE_CONFLICT", -24, "40002"),
+                                             new NuoDbSqlCode("NO_SUCH_TABLE", -25, "42000"),
+                                             new NuoDbSqlCode("INDEX_OVERFLOW", -26, "58000"),
+                                             new NuoDbSqlCode("UNIQUE_DUPLICATE", -27, "23000"),
+                                             new NuoDbSqlCode("UNCOMMITTED_UPDATES", -28, "58000"),
+                                             new NuoDbSqlCode("DEADLOCK", -29, "40001"),
+                                             new NuoDbSqlCode("OUT_OF_MEMORY_ERROR", -30, "58000"),
+                                             new NuoDbSqlCode("OUT_OF_RECORD_MEMORY_ERROR", -31, "58000"),
+                                             new NuoDbSqlCode("LOCK_TIMEOUT", -32, "58000"),
+                                             new NuoDbSqlCode("PLATFORM_ERROR", -36, "58000"),
+                                             new NuoDbSqlCode("NO_SCHEMA", -37, "58000"),
+                                             new NuoDbSqlCode("CONFIGURATION_ERROR", -38, "58000"),
+                                             new NuoDbSqlCode("READ_ONLY_ERROR", -39, "58000"),
+                                             new NuoDbSqlCode("NO_GENERATED_KEYS", -40, "58000"),
+                                             new NuoDbSqlCode("THROWN_EXCEPTION", -41, "58000"),
+                                             new NuoDbSqlCode("INVALID_TRANSACTION_ISOLATION", -42,"01000"),
+                                             new NuoDbSqlCode("UNSUPPORTED_TRANSACTION_ISOLATION", -43, "0A000"),
+                                             new NuoDbSqlCode("INVALID_UTF8", -44,"58000"),
+                                             new NuoDbSqlCode("CONSTRAINT_ERROR", -45,"23001"), // Must start with "23" for Hibernate
+                                             new NuoDbSqlCode("UPDATE_ERROR", -46, "58000"), // update error catch all
+                                             new NuoDbSqlCode("I18N_ERROR", -47, "58000"),
+                                             new NuoDbSqlCode("OPERATION_KILLED", -48, "HY008"),
+                                             new NuoDbSqlCode("INVALID_STATEMENT", -49, "58000"),
+                                             new NuoDbSqlCode("TRANSACT_ERROR", -50, "58000"),
+                                             new NuoDbSqlCode("JAVA_ERROR", -51,"58000")
                                          };
 		// modifications to this list must also update C++'s SQLException.h
 
@@ -93,14 +91,14 @@ namespace System.Data.NuoDB
 		private int code;
 		private String sqlState;
 
-		private SQLCode(string name, int code, String sqlState)
+		private NuoDbSqlCode(string name, int code, String sqlState)
 		{
             this.name = name;
 			this.code = code;
 			this.sqlState = sqlState;
 		}
 
-		public static SQLCode FindCode(int code)
+		public static NuoDbSqlCode FindCode(int code)
 		{
             for (int i = 0; i < values.Length; i++ )
             {
@@ -113,7 +111,7 @@ namespace System.Data.NuoDB
 
 		public static String FindSQLState(int code)
 		{
-			SQLCode theCode = FindCode(code);
+			NuoDbSqlCode theCode = FindCode(code);
 			if(theCode == null)
 				return null;
 			else

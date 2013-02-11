@@ -33,9 +33,9 @@ using System.Data.NuoDB.EntityFramework;
 
 namespace System.Data.NuoDB
 {
-    public class NuoDBProviderFactory : DbProviderFactory, IServiceProvider
+    public class NuoDbProviderFactory : DbProviderFactory, IServiceProvider
     {
-        public static readonly NuoDBProviderFactory Instance = new NuoDBProviderFactory();
+        public static readonly NuoDbProviderFactory Instance = new NuoDbProviderFactory();
 
         public override bool CanCreateDataSourceEnumerator
         {
@@ -44,12 +44,12 @@ namespace System.Data.NuoDB
 
         public override DbCommand CreateCommand()
         {
-            return new NuoDBCommand();
+            return new NuoDbCommand();
         }
         
         public override DbCommandBuilder CreateCommandBuilder()
         {
-            return new NuoDBCommandBuilder();
+            return new NuoDbCommandBuilder();
         }
         
         public override DbConnection CreateConnection()
@@ -59,12 +59,12 @@ namespace System.Data.NuoDB
 
         public override DbConnectionStringBuilder CreateConnectionStringBuilder()
         {
-            return new NuoDBConnectionStringBuilder();
+            return new NuoDbConnectionStringBuilder();
         }
         
         public override DbDataAdapter CreateDataAdapter()
         {
-            return new NuoDBDataAdapter();
+            return new NuoDbDataAdapter();
         }
 
         public override DbDataSourceEnumerator CreateDataSourceEnumerator()
@@ -74,7 +74,7 @@ namespace System.Data.NuoDB
 
         public override DbParameter CreateParameter()
         {
-            return new NuoDBParameter();
+            return new NuoDbParameter();
         }
 
         public override CodeAccessPermission CreatePermission(PermissionState state)
@@ -87,10 +87,10 @@ namespace System.Data.NuoDB
 
         public object GetService(Type serviceType)
         {
-            System.Diagnostics.Trace.WriteLine(String.Format("NuoDBProviderFactory::GetService({0})", serviceType));
+            System.Diagnostics.Trace.WriteLine(String.Format("NuoDbProviderFactory::GetService({0})", serviceType));
             if (serviceType == typeof(DbProviderServices))
             {
-                return NuoDBProviderServices.Instance;
+                return NuoDbProviderServices.Instance;
             }
             return null;
         }

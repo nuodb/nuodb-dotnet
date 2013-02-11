@@ -31,7 +31,7 @@ using System.Collections.Generic;
 
 namespace System.Data.NuoDB
 {
-    class NuoDBDataReader : DbDataReader
+    class NuoDbDataReader : DbDataReader
     {
         internal readonly NuoDBConnection connection;
         private int handle;
@@ -41,14 +41,14 @@ namespace System.Data.NuoDB
         private Value[] values;
         private bool lastValueNull;
         private DataTable metadata;
-        private NuoDBCommand statement;
+        private NuoDbCommand statement;
         private EncodedDataStream pendingRows;
         //private SQLWarning warnings;
         private volatile bool closed = false;
         private volatile int currentRow = 0;
         private volatile bool afterLast_Renamed = false;
 
-        public NuoDBDataReader(NuoDBConnection connection, int handle, EncodedDataStream dataStream, NuoDBCommand statement, bool readColumnNames)
+        public NuoDbDataReader(NuoDBConnection connection, int handle, EncodedDataStream dataStream, NuoDbCommand statement, bool readColumnNames)
         {
             this.connection = connection;
             this.handle = handle;
@@ -78,7 +78,7 @@ namespace System.Data.NuoDB
 
         protected override void Dispose(bool disposing)
         {
-            System.Diagnostics.Trace.WriteLine("NuoDBDataReader::Dispose()");
+            System.Diagnostics.Trace.WriteLine("NuoDbDataReader::Dispose()");
             Close();
             base.Dispose(disposing);
         }
@@ -107,7 +107,7 @@ namespace System.Data.NuoDB
             if (metadata != null)
                 return metadata;
 
-            System.Diagnostics.Trace.WriteLine("NuoDBDataReader.GetSchemaTable(" + statement.CommandText + ")");
+            System.Diagnostics.Trace.WriteLine("NuoDbDataReader.GetSchemaTable(" + statement.CommandText + ")");
             EncodedDataStream dataStream = new EncodedDataStream();
             dataStream.startMessage(Protocol.GetMetaData);
             dataStream.encodeInt(handle);
@@ -312,7 +312,7 @@ namespace System.Data.NuoDB
         {
             if (closed)
             {
-                throw new SQLException("ResultSet is closed");
+                throw new NuoDbSqlException("ResultSet is closed");
             }
         }
 
@@ -328,7 +328,7 @@ namespace System.Data.NuoDB
                 }
             }
 
-            throw new SQLException("Column not found: " + columnLabel);
+            throw new NuoDbSqlException("Column not found: " + columnLabel);
         }
 
         private string findColumn(int columnIndex)
@@ -337,7 +337,7 @@ namespace System.Data.NuoDB
 
             if (columnIndex < 0 || columnIndex > (numberColumns - 1))
             {
-                throw new SQLException(String.Format("ResultSet column index of {0}, out of bounds.  Valid range 0-{1}", columnIndex, numberColumns));
+                throw new NuoDbSqlException(String.Format("ResultSet column index of {0}, out of bounds.  Valid range 0-{1}", columnIndex, numberColumns));
             }
 
             return columnNames[columnIndex];
@@ -349,12 +349,12 @@ namespace System.Data.NuoDB
 
             if (currentRow == 0)
             {
-                throw new SQLException("Before start of result set");
+                throw new NuoDbSqlException("Before start of result set");
             }
 
             if (afterLast_Renamed)
             {
-                throw new SQLException("After end of result set");
+                throw new NuoDbSqlException("After end of result set");
             }
         }
 
@@ -364,7 +364,7 @@ namespace System.Data.NuoDB
 
             if (columnIndex < 0 || columnIndex > (numberColumns - 1))
             {
-                throw new SQLException(String.Format("ResultSet column index of {0}, out of bounds.  Valid range 0-{1}", columnIndex, numberColumns));
+                throw new NuoDbSqlException(String.Format("ResultSet column index of {0}, out of bounds.  Valid range 0-{1}", columnIndex, numberColumns));
             }
 
             Value value = values[columnIndex];

@@ -265,7 +265,7 @@ namespace System.Data.NuoDB.EntityFramework.SqlGen
 
 		public override void Visit(DbConstantExpression expression)
 		{
-			NuoDBParameter parameter = CreateParameter(expression.Value, expression.ResultType);
+			NuoDbParameter parameter = CreateParameter(expression.Value, expression.ResultType);
 			commandText.Append(parameter.ParameterName);
 		}
 
@@ -331,12 +331,12 @@ namespace System.Data.NuoDB.EntityFramework.SqlGen
 		}
 
 		// generate parameter (name based on parameter ordinal)
-		internal NuoDBParameter CreateParameter(object value, TypeUsage type)
+		internal NuoDbParameter CreateParameter(object value, TypeUsage type)
 		{
 			string parameterName = string.Concat("@p", parameterNameCount.ToString(CultureInfo.InvariantCulture));
 			parameterNameCount++;
 
-            NuoDBParameter parameter = new NuoDBParameter();
+            NuoDbParameter parameter = new NuoDbParameter();
             parameter.ParameterName = parameterName;
             //parameter.DbType = type;
             parameter.Direction = ParameterDirection.Input;

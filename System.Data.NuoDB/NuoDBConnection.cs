@@ -110,7 +110,7 @@ namespace System.Data.NuoDB
             }
             catch (IOException exception)
             {
-                throw new SQLException(exception);
+                throw new NuoDbSqlException(exception);
             }
         }
 
@@ -135,20 +135,20 @@ namespace System.Data.NuoDB
                             sqlState = stream.getString();
                         }
 
-                        // If empty string, use the state from SQLCode
+                        // If empty string, use the state from NuoDbSqlCode
 
                         if (StringUtils.size(sqlState) == 0)
                         {
-                            sqlState = SQLCode.FindSQLState(status);
+                            sqlState = NuoDbSqlCode.FindSQLState(status);
                         }
 
-                        throw new SQLException(message, sqlState, status);
+                        throw new NuoDbSqlException(message, sqlState, status);
                     }
                 }
 			}
 			catch (IOException exception)
 			{
-				throw new SQLException(exception);
+				throw new NuoDbSqlException(exception);
 			}
         }
 
@@ -379,7 +379,7 @@ namespace System.Data.NuoDB
                 sendAndReceive(dataStream);
             }
 
-            transaction = new NuoDBTransaction(this, isolationLevel);
+            transaction = new NuoDbTransaction(this, isolationLevel);
             return transaction;
         }
 
@@ -475,7 +475,7 @@ namespace System.Data.NuoDB
             }
             catch (IOException e)
             {
-                throw new SQLException(e.Message);
+                throw new NuoDbSqlException(e.Message);
             }
             finally
             {
@@ -521,7 +521,7 @@ namespace System.Data.NuoDB
 
         protected override DbCommand CreateDbCommand()
         {
-            return new NuoDBCommand(this);
+            return new NuoDbCommand(this);
         }
 
         public override string DataSource
@@ -595,7 +595,7 @@ namespace System.Data.NuoDB
                 // we can support in the client code
 
                 if ((!cipher.Equals("RC4")) && (!cipher.Equals("None")))
-                    throw new SQLException("Unknown cipher: " + cipher);
+                    throw new NuoDbSqlException("Unknown cipher: " + cipher);
 
                 tag.addAttribute("Cipher", cipher);
 
@@ -616,7 +616,7 @@ namespace System.Data.NuoDB
 
                 if (responseTag.Name.Equals("Error"))
                 {
-                    throw new SQLException(responseTag.getAttribute("text", "error text not found"));
+                    throw new NuoDbSqlException(responseTag.getAttribute("text", "error text not found"));
                 }
 
                 serverAddress = responseTag.getAttribute("Address", null);
@@ -624,7 +624,7 @@ namespace System.Data.NuoDB
 
                 if (serverAddress == null || serverPort == 0)
                 {
-                    throw new SQLException("no NuoDB nodes are available for database \"" + databaseName + "\"");
+                    throw new NuoDbSqlException("no NuoDB nodes are available for database \"" + databaseName + "\"");
                 }
 
                 socket = new CryptoSocket(serverAddress, serverPort);
@@ -744,13 +744,13 @@ namespace System.Data.NuoDB
 
                 state = ConnectionState.Open;
             }
-            catch (SQLException e)
+            catch (NuoDbSqlException e)
             {
                 System.Diagnostics.Trace.WriteLine("NuoDBConnection::Open(): exception " + e.ToString());
                 state = ConnectionState.Closed;
                 if (authenticating)
                 {
-                    throw new SQLException("Authentication failed for database \"" + databaseName + "\"", e);
+                    throw new NuoDbSqlException("Authentication failed for database \"" + databaseName + "\"", e);
                 }
 
                 throw e;
@@ -772,7 +772,7 @@ namespace System.Data.NuoDB
                 }
                 state = ConnectionState.Closed;
 
-                throw new SQLException(exception.ToString());
+                throw new NuoDbSqlException(exception.ToString());
             }
             catch (XmlException exception)
             {
@@ -791,7 +791,7 @@ namespace System.Data.NuoDB
                 }
                 state = ConnectionState.Closed;
 
-                throw new SQLException(exception.ToString());
+                throw new NuoDbSqlException(exception.ToString());
             }
         }
 
@@ -806,7 +806,7 @@ namespace System.Data.NuoDB
             if (!properties.ContainsKey("database"))
                 throw new ArgumentException("The connection string doesn't include the name of the database", "ConnectionString");
 
-            SQLException firstException = null;
+            NuoDbSqlException firstException = null;
             if (lastBroker != null)
             {
                 try
@@ -814,7 +814,7 @@ namespace System.Data.NuoDB
                     doOpen(lastBroker);
                     return;
                 }
-                catch (SQLException e)
+                catch (NuoDbSqlException e)
                 {
                     if (firstException == null)
                         firstException = e;
@@ -832,7 +832,7 @@ namespace System.Data.NuoDB
                     lastBroker = trimmed;
                     return;
                 }
-                catch (SQLException e)
+                catch (NuoDbSqlException e)
                 {
                     if (firstException == null)
                         firstException = e;
@@ -1079,7 +1079,7 @@ namespace System.Data.NuoDB
                     if (mapSQLTypes == null)
                         mapSQLTypes = new Dictionary<int, string>();
 
-                    using (NuoDBDataReader reader = new NuoDBDataReader(this, handle, dataStream, null, true))
+                    using (NuoDbDataReader reader = new NuoDbDataReader(this, handle, dataStream, null, true))
                     {
                         table.BeginLoadData();
                         while (reader.Read())
@@ -1143,7 +1143,7 @@ namespace System.Data.NuoDB
 
                 if (handle != -1)
                 {
-                    using (NuoDBDataReader reader = new NuoDBDataReader(this, handle, dataStream, null, true))
+                    using (NuoDbDataReader reader = new NuoDbDataReader(this, handle, dataStream, null, true))
                     {
                         table.BeginLoadData();
                         while (reader.Read())
@@ -1192,7 +1192,7 @@ namespace System.Data.NuoDB
 
                 if (handle != -1)
                 {
-                    using (NuoDBDataReader reader = new NuoDBDataReader(this, handle, dataStream, null, true))
+                    using (NuoDbDataReader reader = new NuoDbDataReader(this, handle, dataStream, null, true))
                     {
                         table.BeginLoadData();
                         while (reader.Read())
@@ -1245,7 +1245,7 @@ namespace System.Data.NuoDB
                     HashSet<string> unique = new HashSet<string>();
                     if (handle != -1)
                     {
-                        using (NuoDBDataReader reader = new NuoDBDataReader(this, handle, dataStream, null, true))
+                        using (NuoDbDataReader reader = new NuoDbDataReader(this, handle, dataStream, null, true))
                         {
                             table.BeginLoadData();
                             while (reader.Read())
@@ -1278,7 +1278,7 @@ namespace System.Data.NuoDB
 
                     if (handle != -1)
                     {
-                        using (NuoDBDataReader reader = new NuoDBDataReader(this, handle, dataStream, null, true))
+                        using (NuoDbDataReader reader = new NuoDbDataReader(this, handle, dataStream, null, true))
                         {
                             table.BeginLoadData();
                             while (reader.Read())
@@ -1328,7 +1328,7 @@ namespace System.Data.NuoDB
 
                     if (handle != -1)
                     {
-                        using (NuoDBDataReader reader = new NuoDBDataReader(this, handle, dataStream, null, true))
+                        using (NuoDbDataReader reader = new NuoDbDataReader(this, handle, dataStream, null, true))
                         {
                             table.BeginLoadData();
                             while (reader.Read())
@@ -1360,7 +1360,7 @@ namespace System.Data.NuoDB
 
                     if (handle != -1)
                     {
-                        using (NuoDBDataReader reader = new NuoDBDataReader(this, handle, dataStream, null, true))
+                        using (NuoDbDataReader reader = new NuoDbDataReader(this, handle, dataStream, null, true))
                         {
                             table.BeginLoadData();
                             while (reader.Read())
@@ -1407,7 +1407,7 @@ namespace System.Data.NuoDB
 
                     if (handle != -1)
                     {
-                        using (NuoDBDataReader reader = new NuoDBDataReader(this, handle, dataStream, null, true))
+                        using (NuoDbDataReader reader = new NuoDbDataReader(this, handle, dataStream, null, true))
                         {
                             table.BeginLoadData();
                             while (reader.Read())
@@ -1455,7 +1455,7 @@ namespace System.Data.NuoDB
 
                     if (handle != -1)
                     {
-                        using (NuoDBDataReader reader = new NuoDBDataReader(this, handle, dataStream, null, true))
+                        using (NuoDbDataReader reader = new NuoDbDataReader(this, handle, dataStream, null, true))
                         {
                             table.BeginLoadData();
                             while (reader.Read())
@@ -1519,7 +1519,7 @@ namespace System.Data.NuoDB
 
                 if (handle != -1)
                 {
-                    using (NuoDBDataReader reader = new NuoDBDataReader(this, handle, dataStream, null, true))
+                    using (NuoDbDataReader reader = new NuoDbDataReader(this, handle, dataStream, null, true))
                     {
                         while (reader.Read())
                             tables.Add(new KeyValuePair<string, string>((string)reader["TABLE_SCHEM"], (string)reader["TABLE_NAME"]));
@@ -1685,7 +1685,7 @@ namespace System.Data.NuoDB
 
         protected override DbProviderFactory DbProviderFactory
         {
-            get { return NuoDBProviderFactory.Instance; }
+            get { return NuoDbProviderFactory.Instance; }
         }
     }
 }

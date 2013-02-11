@@ -34,9 +34,9 @@ using System.Data.Common.CommandTrees;
 
 namespace System.Data.NuoDB.EntityFramework
 {
-    class NuoDBProviderServices : DbProviderServices
+    class NuoDbProviderServices : DbProviderServices
     {
-        internal static object Instance = new NuoDBProviderServices();
+        internal static object Instance = new NuoDbProviderServices();
 
         protected override DbCommandDefinition CreateDbCommandDefinition(DbProviderManifest providerManifest, Common.CommandTrees.DbCommandTree commandTree)
         {
@@ -46,7 +46,7 @@ namespace System.Data.NuoDB.EntityFramework
             if (commandTree == null)
                 throw new ArgumentNullException("commandTree");
 
-            NuoDBCommand command = new NuoDBCommand();
+            NuoDbCommand command = new NuoDbCommand();
 
             List<DbParameter> parameters;
             CommandType commandType;
@@ -62,7 +62,7 @@ namespace System.Data.NuoDB.EntityFramework
 
             foreach (KeyValuePair<string, TypeUsage> queryParameter in commandTree.Parameters)
             {
-                NuoDBParameter parameter;
+                NuoDbParameter parameter;
 
                 // Use the corresponding function parameter TypeUsage where available (currently, the SSDL facets and 
                 // type trump user-defined facets and type in the EntityCommand).
@@ -99,9 +99,9 @@ namespace System.Data.NuoDB.EntityFramework
             return CreateCommandDefinition(command);
         }
 
-        private NuoDBParameter CreateSqlParameter(string name, TypeUsage type, ParameterMode mode, object value)
+        private NuoDbParameter CreateSqlParameter(string name, TypeUsage type, ParameterMode mode, object value)
         {
-            NuoDBParameter result = new NuoDBParameter();
+            NuoDbParameter result = new NuoDbParameter();
             result.ParameterName = name;
             result.Value = value;
 
@@ -144,7 +144,7 @@ namespace System.Data.NuoDB.EntityFramework
 
         protected override DbProviderManifest GetDbProviderManifest(string manifestToken)
         {
-            return new NuoDBProviderManifest();
+            return new NuoDbProviderManifest();
         }
 
         protected override string GetDbProviderManifestToken(DbConnection connection)

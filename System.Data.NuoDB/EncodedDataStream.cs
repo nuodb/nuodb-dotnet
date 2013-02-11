@@ -680,7 +680,7 @@ namespace System.Data.NuoDB
 		{
 			if (offset >= totalLength)
 			{
-				throw new SQLException("buffer overrun runing message decode");
+				throw new NuoDbSqlException("buffer overrun runing message decode");
 			}
 
 			offset = decode(buffer, offset);
@@ -1214,7 +1214,7 @@ namespace System.Data.NuoDB
 					return @string;
     
 				default:
-					throw new SQLException("On message type " + currentMessageType + ":NuoDB jdbc expected string, got type: " + type);
+					throw new NuoDbSqlException("On message type " + currentMessageType + ":NuoDB jdbc expected string, got type: " + type);
 			}
 		}
 
@@ -1228,7 +1228,7 @@ namespace System.Data.NuoDB
 					return uuid;
     
 				default:
-					throw new SQLException("On message type " + currentMessageType + ":NuoDB jdbc expected UUID, got type: " + type);
+					throw new NuoDbSqlException("On message type " + currentMessageType + ":NuoDB jdbc expected UUID, got type: " + type);
 			}
 		}
 
@@ -1246,7 +1246,7 @@ namespace System.Data.NuoDB
 				return (int) integer64;
 			}
     
-			throw new SQLException("On message type " + currentMessageType + ":NuoDB jdbc expected int32, got type: " + type);
+			throw new NuoDbSqlException("On message type " + currentMessageType + ":NuoDB jdbc expected int32, got type: " + type);
 		}
 
 		public virtual long getLong()
@@ -1263,7 +1263,7 @@ namespace System.Data.NuoDB
 				return integer64;
 			}
     
-			throw new SQLException("On message type " + currentMessageType + ":NuoDB jdbc expected int64 got type: " + type);
+			throw new NuoDbSqlException("On message type " + currentMessageType + ":NuoDB jdbc expected int64 got type: " + type);
 		}
 
 		public virtual double getDouble()
@@ -1275,7 +1275,7 @@ namespace System.Data.NuoDB
 				return dbl;
 			}
     
-			throw new SQLException("On message type " + currentMessageType + ":NuoDB jdbc expected double got type: " + type);
+			throw new NuoDbSqlException("On message type " + currentMessageType + ":NuoDB jdbc expected double got type: " + type);
 		}
 
 		public virtual decimal getBigDecimal()
@@ -1287,7 +1287,7 @@ namespace System.Data.NuoDB
 				return bigDecimal;
 			}
     
-			throw new SQLException("On message type " + currentMessageType + ":NuoDB jdbc expected BigDecimal got type: " + type);
+			throw new NuoDbSqlException("On message type " + currentMessageType + ":NuoDB jdbc expected BigDecimal got type: " + type);
 		}
 
 	   public virtual bool getBoolean()
@@ -1299,7 +1299,7 @@ namespace System.Data.NuoDB
 				return @bool;
 			}
     
-			throw new SQLException("On message type " + currentMessageType + ":NuoDB jdbc expected boolean, got type: " + type);
+			throw new NuoDbSqlException("On message type " + currentMessageType + ":NuoDB jdbc expected boolean, got type: " + type);
 	   }
 
 		public virtual byte[] getBytes()
@@ -1311,7 +1311,7 @@ namespace System.Data.NuoDB
 				return bytes;
 			}
     
-			throw new SQLException("On message type " + currentMessageType + ":NuoDB jdbc expected bytes, got type: " + type);
+			throw new NuoDbSqlException("On message type " + currentMessageType + ":NuoDB jdbc expected bytes, got type: " + type);
 		}
 
 		public virtual void encodeNull()
@@ -1405,7 +1405,7 @@ namespace System.Data.NuoDB
 
 			}
     
-			throw new SQLException("On message type " + currentMessageType + ":NuoDB jdbc decode value type " + type + " not yet implemented");
+			throw new NuoDbSqlException("On message type " + currentMessageType + ":NuoDB jdbc decode value type " + type + " not yet implemented");
 		}
 
 		internal virtual int getNanos(long number, int scale)
@@ -1570,7 +1570,7 @@ namespace System.Data.NuoDB
 			// unlike other int types which have 8 bytes we only have 4 bytes to encode time
 			if (count > (edsTimeLen4 - edsTimeLen0))
 			{
-				throw new SQLException(String.Format("Unable to encode \"{0}\".  Need {1} bytes to encode but only have {2} bytes.", time, count, edsTimeLen4 - edsTimeLen0));
+				throw new NuoDbSqlException(String.Format("Unable to encode \"{0}\".  Need {1} bytes to encode but only have {2} bytes.", time, count, edsTimeLen4 - edsTimeLen0));
 			}
 
 			write(edsTimeLen0 + count);

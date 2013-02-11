@@ -111,7 +111,7 @@ namespace System.Data.NuoDB
 			{
 				if ((Long > sbyte.MaxValue) || (Long < sbyte.MinValue))
 				{
-					throw new SQLException(String.Format("Overflow for type byte: {0} ", Long));
+					throw new NuoDbSqlException(String.Format("Overflow for type byte: {0} ", Long));
 				}
 				return (byte) Long;
 			}

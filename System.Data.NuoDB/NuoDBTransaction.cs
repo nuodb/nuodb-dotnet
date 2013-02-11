@@ -34,12 +34,12 @@ using System.Data.Common;
 
 namespace System.Data.NuoDB
 {
-    class NuoDBTransaction : DbTransaction
+    public class NuoDbTransaction : DbTransaction
     {
         private NuoDBConnection connection;
         private IsolationLevel isolationLevel;
 
-        public NuoDBTransaction(NuoDBConnection nuoDBConnection, IsolationLevel isolationLevel)
+        public NuoDbTransaction(NuoDBConnection nuoDBConnection, IsolationLevel isolationLevel)
         {
             this.connection = nuoDBConnection;
             this.isolationLevel = isolationLevel;

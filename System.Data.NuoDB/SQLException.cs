@@ -33,28 +33,28 @@ using System.Text;
 
 namespace System.Data.NuoDB
 {
-    public class SQLException : Exception
+    public class NuoDbSqlException : Exception
     {
-        private SQLCode code;
+        private NuoDbSqlCode code;
 
-        public SQLCode Code
+        public NuoDbSqlCode Code
         {
             get { return code; }
         }
 
-        public SQLException(string message) : base(message)
+        public NuoDbSqlException(string message) : base(message)
         {
         }
-        public SQLException(string message, string status, int code)
+        public NuoDbSqlException(string message, string status, int code)
             : base(message)
         {
-            this.code = SQLCode.FindCode(code);
+            this.code = NuoDbSqlCode.FindCode(code);
         }
-        public SQLException(string message, Exception exception)
+        public NuoDbSqlException(string message, Exception exception)
             : base(message, exception)
         {
         }
-        public SQLException(Exception exception)
+        public NuoDbSqlException(Exception exception)
             : base("", exception)
         {
         }

@@ -30,7 +30,7 @@ using System.Data.Common;
 
 namespace System.Data.NuoDB
 {
-    class NuoDBParameter : DbParameter, ICloneable
+    public class NuoDbParameter : DbParameter, ICloneable
     {
         private string name;
         private object value;
@@ -159,7 +159,7 @@ namespace System.Data.NuoDB
 
         public object Clone()
         {
-            NuoDBParameter param = new NuoDBParameter();
+            NuoDbParameter param = new NuoDbParameter();
 
             param.DbType = this.DbType;
             param.Direction = this.Direction;

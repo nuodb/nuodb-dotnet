@@ -93,7 +93,7 @@ namespace System.Data.NuoDB
 				}
 				catch (FormatException e)
 				{
-					throw new SQLException("Unable to convert string: " + value, e);
+					throw new NuoDbSqlException("Unable to convert string: " + value, e);
 				}
 			}
 		}
@@ -108,7 +108,7 @@ namespace System.Data.NuoDB
 				}
 				catch (FormatException e)
 				{
-					throw new SQLException("Unable to convert string: " + value, e);
+					throw new NuoDbSqlException("Unable to convert string: " + value, e);
 				}
 			}
 		}
@@ -124,7 +124,7 @@ namespace System.Data.NuoDB
 				}
 				catch (FormatException e)
 				{
-					throw new SQLException("Unable to convert string: " + value, e);
+					throw new NuoDbSqlException("Unable to convert string: " + value, e);
 				}
 			}
 		}
@@ -139,7 +139,7 @@ namespace System.Data.NuoDB
 				}
 				catch (FormatException e)
 				{
-					throw new SQLException("Unable to convert string: " + value, e);
+					throw new NuoDbSqlException("Unable to convert string: " + value, e);
 				}
 			}
 		}
@@ -154,7 +154,7 @@ namespace System.Data.NuoDB
 				}
 				catch (FormatException e)
 				{
-					throw new SQLException("Unable to convert string: " + value, e);
+					throw new NuoDbSqlException("Unable to convert string: " + value, e);
 				}
 			}
 		}
@@ -169,7 +169,7 @@ namespace System.Data.NuoDB
 				}
 				catch (FormatException e)
 				{
-					throw new SQLException("Unable to convert string: " + value, e);
+					throw new NuoDbSqlException("Unable to convert string: " + value, e);
 				}
 			}
 		}
@@ -200,7 +200,7 @@ namespace System.Data.NuoDB
 				}
 				catch (FormatException e)
 				{
-					throw new SQLException(String.Format("Unable to parse \"{0}\" into a Date", value), e);
+					throw new NuoDbSqlException(String.Format("Unable to parse \"{0}\" into a Date", value), e);
 				}
 			}
 		}
@@ -215,7 +215,7 @@ namespace System.Data.NuoDB
                         }
                         catch (ParseException e)
                         {
-                            throw new SQLException(MessageFormat.format("Unable to parse \"{0}\" into a Timestamp", value), e);
+                            throw new NuoDbSqlException(MessageFormat.format("Unable to parse \"{0}\" into a Timestamp", value), e);
                         }
     
                     }
@@ -231,7 +231,7 @@ namespace System.Data.NuoDB
                         }
                         catch (ParseException e)
                         {
-                            throw new SQLException(MessageFormat.format("Unable to parse \"{0}\" into a Time", value), e);
+                            throw new NuoDbSqlException(MessageFormat.format("Unable to parse \"{0}\" into a Time", value), e);
                         }
                     }
                 }

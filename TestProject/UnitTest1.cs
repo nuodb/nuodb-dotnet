@@ -72,7 +72,7 @@ namespace TestProject
         {
             using (NuoDBConnection connection = new NuoDBConnection(connectionString.Replace("Server=","Server=localhost:8,")))
             {
-                DbCommand command = new NuoDBCommand("select * from hockey", connection);
+                DbCommand command = new NuoDbCommand("select * from hockey", connection);
 
                 connection.Open();
                 DbDataReader reader = command.ExecuteReader();
@@ -89,7 +89,7 @@ namespace TestProject
         {
             using (NuoDBConnection connection = new NuoDBConnection(connectionString))
             {
-                DbCommand command = new NuoDBCommand("select * from hockey", connection);
+                DbCommand command = new NuoDbCommand("select * from hockey", connection);
 
                 connection.Open();
                 DbDataReader reader = command.ExecuteReader();
@@ -176,7 +176,7 @@ namespace TestProject
         [TestMethod]
         public void TestDbProvider()
         {
-            DbProviderFactory factory = new NuoDBProviderFactory();
+            DbProviderFactory factory = new NuoDbProviderFactory();
             using (DbConnection cn = factory.CreateConnection())
             {
                 DbConnectionStringBuilder conStrBuilder = factory.CreateConnectionStringBuilder();
@@ -208,7 +208,7 @@ namespace TestProject
         {
             using (NuoDBConnection connection = new NuoDBConnection(connectionString))
             {
-                DataAdapter da = new NuoDBDataAdapter("select * from hockey", connection);
+                DataAdapter da = new NuoDbDataAdapter("select * from hockey", connection);
                 DataSet ds = new DataSet();
                 da.Fill(ds);
                 foreach (DataRow r in ds.Tables[0].Rows)
@@ -245,8 +245,8 @@ namespace TestProject
         {
             using (NuoDBConnection connection = new NuoDBConnection(connectionString))
             {
-                DbDataAdapter da = new NuoDBDataAdapter("select id, number, name, position, team from hockey", connection);
-                NuoDBCommandBuilder builder = new NuoDBCommandBuilder();
+                DbDataAdapter da = new NuoDbDataAdapter("select id, number, name, position, team from hockey", connection);
+                NuoDbCommandBuilder builder = new NuoDbCommandBuilder();
                 builder.DataAdapter = da;
                 DataTable dt = new DataTable();
                 da.Fill(dt);
@@ -299,7 +299,7 @@ namespace TestProject
 
                 try
                 {
-                    DbCommand dropCommand = new NuoDBCommand("drop table temp", connection);
+                    DbCommand dropCommand = new NuoDbCommand("drop table temp", connection);
                     dropCommand.ExecuteNonQuery();
                 }
                 catch (Exception)
@@ -307,14 +307,14 @@ namespace TestProject
                     // table is allowed to be missing
                 }
 
-                DbCommand createCommand = new NuoDBCommand("create table temp (col "+sqlType+")", connection);
+                DbCommand createCommand = new NuoDbCommand("create table temp (col "+sqlType+")", connection);
                 int result = createCommand.ExecuteNonQuery();
 
-                DbCommand insertCommand = new NuoDBCommand("insert into temp (col) values (?)", connection);
+                DbCommand insertCommand = new NuoDbCommand("insert into temp (col) values (?)", connection);
                 insertCommand.Parameters.Add(value);
                 int inserted = insertCommand.ExecuteNonQuery();
 
-                DbCommand command = new NuoDBCommand("select col from temp", connection);
+                DbCommand command = new NuoDbCommand("select col from temp", connection);
                 object val = command.ExecuteScalar();
                 // compare dates using the string representation
                 if(val is DateTime)

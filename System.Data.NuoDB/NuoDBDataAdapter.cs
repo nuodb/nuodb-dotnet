@@ -38,12 +38,12 @@ namespace System.Data.NuoDB
     // it would try to do that because the parent class derives from Component, but it's abstract
     // and it cannot be instanciated
     [System.ComponentModel.DesignerCategory("Code")]
-    public class NuoDBDataAdapter : DbDataAdapter, ICloneable
+    public class NuoDbDataAdapter : DbDataAdapter, ICloneable
     {
         private static readonly object EventRowUpdated = new object();
         private static readonly object EventRowUpdating = new object();
 
-        public event NuoDBRowUpdatedEventHandler RowUpdated
+        public event NuoDbRowUpdatedEventHandler RowUpdated
         {
             add
             {
@@ -56,7 +56,7 @@ namespace System.Data.NuoDB
             }
         }
 
-        public event NuoDBRowUpdatingEventHandler RowUpdating
+        public event NuoDbRowUpdatingEventHandler RowUpdating
         {
             add
             {
@@ -69,53 +69,53 @@ namespace System.Data.NuoDB
             }
         }
 
-        public new NuoDBCommand SelectCommand
+        public new NuoDbCommand SelectCommand
         {
-            get { return (NuoDBCommand)base.SelectCommand; }
+            get { return (NuoDbCommand)base.SelectCommand; }
             set { base.SelectCommand = value; }
         }
 
-        public new NuoDBCommand InsertCommand
+        public new NuoDbCommand InsertCommand
         {
-            get { return (NuoDBCommand)base.InsertCommand; }
+            get { return (NuoDbCommand)base.InsertCommand; }
             set { base.InsertCommand = value; }
         }
 
-        public new NuoDBCommand UpdateCommand
+        public new NuoDbCommand UpdateCommand
         {
-            get { return (NuoDBCommand)base.UpdateCommand; }
+            get { return (NuoDbCommand)base.UpdateCommand; }
             set { base.UpdateCommand = value; }
         }
 
-        public new NuoDBCommand DeleteCommand
+        public new NuoDbCommand DeleteCommand
         {
-            get { return (NuoDBCommand)base.DeleteCommand; }
+            get { return (NuoDbCommand)base.DeleteCommand; }
             set { base.DeleteCommand = value; }
         }
 
-        public NuoDBDataAdapter()
+        public NuoDbDataAdapter()
 			: base()
 		{
 		}
 
-        public NuoDBDataAdapter(string selectStatement, NuoDBConnection connection)
-            : this(new NuoDBCommand(selectStatement, connection))
+        public NuoDbDataAdapter(string selectStatement, NuoDBConnection connection)
+            : this(new NuoDbCommand(selectStatement, connection))
         {
         }
 
-        public NuoDBDataAdapter(NuoDBCommand selectCommand)
+        public NuoDbDataAdapter(NuoDbCommand selectCommand)
 			: base()
         {
             this.SelectCommand = selectCommand;
         }
 
-        public NuoDBDataAdapter(NuoDBDataAdapter other)
+        public NuoDbDataAdapter(NuoDbDataAdapter other)
             : base()
         {
-            this.SelectCommand = other.SelectCommand is ICloneable ? (NuoDBCommand)other.SelectCommand.Clone() : null;
-            this.InsertCommand = other.InsertCommand is ICloneable ? (NuoDBCommand)other.InsertCommand.Clone() : null;
-            this.DeleteCommand = other.DeleteCommand is ICloneable ? (NuoDBCommand)other.DeleteCommand.Clone() : null;
-            this.UpdateCommand = other.UpdateCommand is ICloneable ? (NuoDBCommand)other.UpdateCommand.Clone() : null;
+            this.SelectCommand = other.SelectCommand is ICloneable ? (NuoDbCommand)other.SelectCommand.Clone() : null;
+            this.InsertCommand = other.InsertCommand is ICloneable ? (NuoDbCommand)other.InsertCommand.Clone() : null;
+            this.DeleteCommand = other.DeleteCommand is ICloneable ? (NuoDbCommand)other.DeleteCommand.Clone() : null;
+            this.UpdateCommand = other.UpdateCommand is ICloneable ? (NuoDbCommand)other.UpdateCommand.Clone() : null;
         }
 
         protected override RowUpdatingEventArgs CreateRowUpdatingEvent(
@@ -138,7 +138,7 @@ namespace System.Data.NuoDB
 
         protected override void OnRowUpdating(RowUpdatingEventArgs value)
         {
-            NuoDBRowUpdatingEventHandler handler = (NuoDBRowUpdatingEventHandler)base.Events[EventRowUpdating];
+            NuoDbRowUpdatingEventHandler handler = (NuoDbRowUpdatingEventHandler)base.Events[EventRowUpdating];
             if (handler != null && value != null)
             {
                 handler(this, value);
@@ -147,7 +147,7 @@ namespace System.Data.NuoDB
 
         protected override void OnRowUpdated(RowUpdatedEventArgs value)
         {
-            NuoDBRowUpdatedEventHandler handler = (NuoDBRowUpdatedEventHandler)base.Events[EventRowUpdated];
+            NuoDbRowUpdatedEventHandler handler = (NuoDbRowUpdatedEventHandler)base.Events[EventRowUpdated];
             if (handler != null && value != null)
             {
                 handler(this, value);
@@ -156,7 +156,7 @@ namespace System.Data.NuoDB
 
         public object Clone()
         {
-            return new NuoDBDataAdapter(this);
+            return new NuoDbDataAdapter(this);
         }
     }
 }

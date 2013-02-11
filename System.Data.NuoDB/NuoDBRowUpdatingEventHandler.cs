@@ -34,5 +34,5 @@ using System.Data.Common;
 
 namespace System.Data.NuoDB
 {
-    public delegate void NuoDBRowUpdatingEventHandler(object sender, RowUpdatingEventArgs e);
+    public delegate void NuoDbRowUpdatingEventHandler(object sender, RowUpdatingEventArgs e);
 }

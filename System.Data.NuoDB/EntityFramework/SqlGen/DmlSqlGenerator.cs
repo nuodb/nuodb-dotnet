@@ -246,7 +246,7 @@ namespace System.Data.NuoDB.EntityFramework.SqlGen
 
             startBlock.AppendLine("EXECUTE BLOCK (");
             separator = string.Empty;
-            foreach (NuoDBParameter param in translator.Parameters)
+            foreach (NuoDbParameter param in translator.Parameters)
             {
                 startBlock.Append(separator);
                 startBlock.Append(param.ParameterName.Replace("@", string.Empty));

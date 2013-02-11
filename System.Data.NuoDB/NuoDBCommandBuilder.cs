@@ -38,7 +38,7 @@ namespace System.Data.NuoDB
     // it would try to do that because the parent class derives from Component, but it's abstract
     // and it cannot be instanciated
     [System.ComponentModel.DesignerCategory("")]
-    public class NuoDBCommandBuilder : DbCommandBuilder
+    public class NuoDbCommandBuilder : DbCommandBuilder
     {
         public override string QuoteIdentifier(string unquotedIdentifier)
         {
@@ -84,10 +84,10 @@ namespace System.Data.NuoDB
 
         protected override void SetRowUpdatingHandler(DbDataAdapter adapter)
         {
-            if (!(adapter is NuoDBDataAdapter))
-                throw new InvalidOperationException("adapter needs to be a NuoDBDataAdapter");
+            if (!(adapter is NuoDbDataAdapter))
+                throw new InvalidOperationException("adapter needs to be a NuoDbDataAdapter");
 
-            ((NuoDBDataAdapter)adapter).RowUpdating += new NuoDBRowUpdatingEventHandler(this.RowUpdatingHandlerHelper);
+            ((NuoDbDataAdapter)adapter).RowUpdating += new NuoDbRowUpdatingEventHandler(this.RowUpdatingHandlerHelper);
         }
 
         private void RowUpdatingHandlerHelper(object sender, RowUpdatingEventArgs e)
