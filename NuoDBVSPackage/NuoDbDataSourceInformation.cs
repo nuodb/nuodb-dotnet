@@ -63,10 +63,5 @@ namespace NuoDb.VisualStudio.DataTools
             base.AddProperty(AdoDotNetDataSourceInformation.SupportsCommandTimeout, false);
         }
 
-        protected override object RetrieveValue(string propertyName)
-        {
-            System.Diagnostics.Trace.WriteLine(String.Format("NuoDbDataSourceInformation::RetrieveValue({0})", propertyName));
-            return base.RetrieveValue(propertyName);
-        }
     }
 }

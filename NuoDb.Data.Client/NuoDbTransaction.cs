@@ -37,10 +37,10 @@ namespace NuoDb.Data.Client
 {
     public class NuoDbTransaction : DbTransaction
     {
-        private NuoDBConnection connection;
+        private NuoDbConnection connection;
         private IsolationLevel isolationLevel;
 
-        public NuoDbTransaction(NuoDBConnection nuoDBConnection, IsolationLevel isolationLevel)
+        public NuoDbTransaction(NuoDbConnection nuoDBConnection, IsolationLevel isolationLevel)
         {
             this.connection = nuoDBConnection;
             this.isolationLevel = isolationLevel;

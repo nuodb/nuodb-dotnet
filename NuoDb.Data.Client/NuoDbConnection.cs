@@ -48,7 +48,7 @@ namespace NuoDb.Data.Client
     // it would try to do that because the parent class derives from Component, but it's abstract
     // and it cannot be instanciated
     [System.ComponentModel.DesignerCategory("")]
-    public sealed class NuoDBConnection : DbConnection
+    public sealed class NuoDbConnection : DbConnection
     {
         internal DbTransaction transaction;
         internal const int PORT = 48004;
@@ -76,18 +76,20 @@ namespace NuoDb.Data.Client
         private List<int> listResultSets = new List<int>();
         private List<int> listCommands = new List<int>();
 
-        public NuoDBConnection()
+        public NuoDbConnection()
         {
         }
 
-        public NuoDBConnection(string connectionString)
+        public NuoDbConnection(string connectionString)
         {
             ConnectionString = connectionString;
         }
 
         protected override void Dispose(bool disposing)
         {
+#if DEBUG
             System.Diagnostics.Trace.WriteLine("NuoDBConnection::Dispose() [state = "+state+"]");
+#endif
             if (state == ConnectionState.Open)
                 Close();
             base.Dispose(disposing);
@@ -387,7 +389,9 @@ namespace NuoDb.Data.Client
 
         public override void ChangeDatabase(string databaseName)
         {
+#if DEBUG
             System.Diagnostics.Trace.WriteLine("NuoDBConnection::ChangeDatabase("+databaseName+")");
+#endif
             if (state == ConnectionState.Open)
                 Close();
             properties["database"] = databaseName;
@@ -450,7 +454,9 @@ namespace NuoDb.Data.Client
                 return;
             }
             state = ConnectionState.Closed;
+#if DEBUG
             System.Diagnostics.Trace.WriteLine("NuoDBConnection::Close()");
+#endif
 
             List<int> tmpResultSet = new List<int>(listResultSets);
             listResultSets.Clear();
@@ -748,7 +754,9 @@ namespace NuoDb.Data.Client
             }
             catch (NuoDbSqlException e)
             {
+#if DEBUG
                 System.Diagnostics.Trace.WriteLine("NuoDBConnection::Open(): exception " + e.ToString());
+#endif
                 state = ConnectionState.Closed;
                 if (authenticating)
                 {
@@ -759,7 +767,9 @@ namespace NuoDb.Data.Client
             }
             catch (IOException exception)
             {
+#if DEBUG
                 System.Diagnostics.Trace.WriteLine("NuoDBConnection::Open(): exception " + exception.ToString());
+#endif
                 if (socket != null && socket.Connected)
                 {
                     try
@@ -778,7 +788,9 @@ namespace NuoDb.Data.Client
             }
             catch (XmlException exception)
             {
+#if DEBUG
                 System.Diagnostics.Trace.WriteLine("NuoDBConnection::Open(): exception "+exception.ToString());
+#endif
                 if (socket != null && socket.Connected)
                 {
                     try
@@ -857,6 +869,7 @@ namespace NuoDb.Data.Client
 
         public override DataTable GetSchema(string collectionName, string[] restrictionValues)
         {
+#if DEBUG
             System.Diagnostics.Trace.Write("NuoDBConnection::GetSchema(\""+collectionName+"\", {");
             if (restrictionValues != null)
                 for (int i = 0; i < restrictionValues.Length; i++)
@@ -866,6 +879,7 @@ namespace NuoDb.Data.Client
                     System.Diagnostics.Trace.Write(restrictionValues[i] == null ? "null" : restrictionValues[i]);
                 }
             System.Diagnostics.Trace.WriteLine("})");
+#endif
             // the support for Entity Framework must retrieve the internal product version, but the connection it has
             // received is closed; so we have to open, but afterwards we have to close it again, as VS2010 expects that
             // it is still in the closed state
@@ -1086,7 +1100,9 @@ namespace NuoDb.Data.Client
                         table.BeginLoadData();
                         while (reader.Read())
                         {
+#if DEBUG
                             System.Diagnostics.Trace.WriteLine("-> " + reader["TYPE_NAME"] + "/" + reader["LOCAL_TYPE_NAME"] + "/" + reader["DATA_TYPE"] + "/" + reader["SQL_DATA_TYPE"]);
+#endif
                             mapSQLTypes[(int)reader["DATA_TYPE"]] = reader["TYPE_NAME"].ToString().ToLower();
                             DataRow row = table.NewRow();
                             object s1 = reader["LOCAL_TYPE_NAME"];
@@ -1150,7 +1166,9 @@ namespace NuoDb.Data.Client
                         table.BeginLoadData();
                         while (reader.Read())
                         {
+#if DEBUG
                             System.Diagnostics.Trace.WriteLine("-> " + reader["TABLE_NAME"] + ", " + reader["TABLE_TYPE"]);
+#endif
                             DataRow row = table.NewRow();
                             row["TABLE_SCHEMA"] = reader["TABLE_SCHEM"];
                             row["TABLE_NAME"] = reader["TABLE_NAME"];
@@ -1199,7 +1217,9 @@ namespace NuoDb.Data.Client
                         table.BeginLoadData();
                         while (reader.Read())
                         {
+#if DEBUG
                             System.Diagnostics.Trace.WriteLine("-> " + reader["COLUMN_NAME"]);
+#endif
                             DataRow row = table.NewRow();
                             row["COLUMN_SCHEMA"] = reader["TABLE_SCHEM"];
                             row["COLUMN_TABLE"] = reader["TABLE_NAME"];
@@ -1339,7 +1359,9 @@ namespace NuoDb.Data.Client
                                 if (restrictionValues != null && restrictionValues.Length > 3 && restrictionValues[3] != null &&
                                     !restrictionValues[3].Equals(reader["INDEX_NAME"]))
                                     continue;
+#if DEBUG
                                 System.Diagnostics.Trace.WriteLine("-> " + reader["TABLE_SCHEM"] + "." + reader["TABLE_NAME"] + "=" + reader["COLUMN_NAME"]);
+#endif
                                 DataRow row = table.NewRow();
                                 row["INDEXCOLUMN_SCHEMA"] = reader["TABLE_SCHEM"];
                                 row["INDEXCOLUMN_TABLE"] = reader["TABLE_NAME"];
@@ -1371,7 +1393,9 @@ namespace NuoDb.Data.Client
                                 if (restrictionValues != null && restrictionValues.Length > 3 && restrictionValues[3] != null &&
                                     !restrictionValues[3].Equals(reader["INDEX_NAME"]))
                                     continue;
+#if DEBUG
                                 System.Diagnostics.Trace.WriteLine("-> " + reader["TABLE_SCHEM"] + "." + reader["TABLE_NAME"] + " (Primary) =" + reader["COLUMN_NAME"]);
+#endif
                                 DataRow row = table.NewRow();
                                 row["INDEXCOLUMN_SCHEMA"] = reader["TABLE_SCHEM"];
                                 row["INDEXCOLUMN_TABLE"] = reader["TABLE_NAME"];
@@ -1469,7 +1493,9 @@ namespace NuoDb.Data.Client
                                 if (restrictionValues != null && restrictionValues.Length > 3 && restrictionValues[3] != null &&
                                     !restrictionValues[3].Equals(name))
                                     continue;
+#if DEBUG
                                 System.Diagnostics.Trace.WriteLine("-> " + reader["FKTABLE_SCHEM"] + "." + reader["FKTABLE_NAME"] + "=" + reader["FKCOLUMN_NAME"]);
+#endif
                                 DataRow row = table.NewRow();
                                 row["FOREIGNKEYCOLUMN_SCHEMA"] = reader["FKTABLE_SCHEM"];
                                 row["FOREIGNKEYCOLUMN_TABLE"] = reader["FKTABLE_NAME"];

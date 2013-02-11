@@ -55,7 +55,7 @@ namespace NuoDb.Data.Client
         
         public override DbConnection CreateConnection()
         {
-            return new NuoDBConnection();
+            return new NuoDbConnection();
         }
 
         public override DbConnectionStringBuilder CreateConnectionStringBuilder()
@@ -88,7 +88,9 @@ namespace NuoDb.Data.Client
 
         public object GetService(Type serviceType)
         {
+#if DEBUG
             System.Diagnostics.Trace.WriteLine(String.Format("NuoDbProviderFactory::GetService({0})", serviceType));
+#endif
             if (serviceType == typeof(DbProviderServices))
             {
                 return NuoDbProviderServices.Instance;

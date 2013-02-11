@@ -80,7 +80,6 @@ namespace NuoDb.VisualStudio.DataTools
         /// </summary>
         public NuoDbVSPackagePackage()
         {
-            Trace.WriteLine(string.Format(CultureInfo.CurrentCulture, "Entering constructor for: {0}", this.ToString()));
         }
 
 
@@ -104,7 +103,9 @@ namespace NuoDb.VisualStudio.DataTools
 
         private object CreateService(IServiceContainer container, Type serviceType)
         {
+#if DEBUG
             System.Diagnostics.Trace.WriteLine(String.Format("DataPackage::CreateService({0})", serviceType.FullName));
+#endif
 
             if (serviceType == typeof(NuoDbDataProviderObjectFactory))
             {

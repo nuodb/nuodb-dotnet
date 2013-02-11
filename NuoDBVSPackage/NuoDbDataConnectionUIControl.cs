@@ -49,7 +49,6 @@ namespace NuoDb.VisualStudio.DataTools
 
         public NuoDbDataConnectionUIControl()
         {
-            System.Diagnostics.Trace.WriteLine("NuoDbDataConnectionUIControl()");
             InitializeComponent();
             // ensure we have a valid properties object
             Initialize(new NuoDbDataConnectionProperties());
@@ -57,8 +56,6 @@ namespace NuoDb.VisualStudio.DataTools
 
         public override void LoadProperties()
         {
-            System.Diagnostics.Trace.WriteLine("NuoDbDataConnectionUIControl::LoadProperties()");
-
             try
             {
                 object obj = ConnectionProperties["Server"];

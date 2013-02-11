@@ -39,7 +39,7 @@ namespace NuoDb.Data.Client
     [System.ComponentModel.DesignerCategory("")]
     public sealed class NuoDbCommand : DbCommand, ICloneable
     {
-        private NuoDBConnection connection;
+        private NuoDbConnection connection;
         private string sqlText = "";
         private int timeout;
         private int handle = -1;
@@ -52,10 +52,10 @@ namespace NuoDb.Data.Client
 
         public NuoDbCommand(string query, DbConnection conn)
         {
-            if (!(conn is NuoDBConnection))
+            if (!(conn is NuoDbConnection))
                 throw new ArgumentException("Connection is not a NuoDB connection", "conn");
             sqlText = query;
-            connection = (NuoDBConnection)conn;
+            connection = (NuoDbConnection)conn;
         }
 
         public NuoDbCommand(DbConnection conn)
@@ -80,8 +80,9 @@ namespace NuoDb.Data.Client
             {
                 return;
             }
+#if DEBUG
             System.Diagnostics.Trace.WriteLine("NuoDbCommand::Close()");
-
+#endif
             connection.CloseCommand(handle);
             handle = -1;
         }
@@ -144,7 +145,9 @@ namespace NuoDb.Data.Client
             for (int n = 0; n < parameters.Count; ++n)
             {
                 object param = ((NuoDbParameter)parameters[n]).Value;
+#if DEBUG
                 System.Diagnostics.Trace.WriteLine("param " + n + "="+param);
+#endif
                 if (param == null || System.DBNull.Value.Equals(param))
                 {
                     dataStream.encodeNull();
@@ -227,7 +230,9 @@ namespace NuoDb.Data.Client
             }
             set
             {
+#if DEBUG
                 System.Diagnostics.Trace.WriteLine("NuoDbCommand.CommandText = " + value);
+#endif
                 Close();
                 sqlText = value;
                 isPrepared = false;
@@ -272,9 +277,9 @@ namespace NuoDb.Data.Client
             }
             set
             {
-                if (value != null && !(value is NuoDBConnection))
+                if (value != null && !(value is NuoDbConnection))
                     throw new ArgumentException("Connection is not a NuoDB connection", "conn");
-                connection = (NuoDBConnection)value;
+                connection = (NuoDbConnection)value;
             }
         }
 
@@ -298,7 +303,7 @@ namespace NuoDb.Data.Client
                     // setting this command to work inside a specific transaction means using its connection
                     if (!(value is NuoDbTransaction))
                         throw new ArgumentException("Transaction is not a NuoDB transaction object");
-                    connection = (NuoDBConnection)value.Connection;
+                    connection = (NuoDbConnection)value.Connection;
                 }
             }
         }
@@ -338,7 +343,9 @@ namespace NuoDb.Data.Client
 
         protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior)
         {
+#if DEBUG
             System.Diagnostics.Trace.WriteLine("NuoDbCommand.ExecuteDbDataReader(" + CommandText + ", " + behavior + ")");
+#endif
             checkConnection();
             EnsureStatement();
 
@@ -377,7 +384,9 @@ namespace NuoDb.Data.Client
 
         public override int ExecuteNonQuery()
         {
+#if DEBUG
             System.Diagnostics.Trace.WriteLine("NuoDbCommand.ExecuteNonQuery(" + CommandText + ")");
+#endif
             checkConnection();
             EnsureStatement();
 

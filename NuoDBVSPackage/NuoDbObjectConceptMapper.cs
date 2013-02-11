@@ -39,12 +39,12 @@ namespace NuoDb.VisualStudio.DataTools
     {
         protected override DbType GetDbTypeFromNativeType(string nativeType)
         {
+#if DEBUG
             System.Diagnostics.Trace.WriteLine(String.Format("NuoDbObjectConceptMapper::GetDbTypeFromNativeType({0})", nativeType));
-
             foreach(DataRow row in this.DataTypes.Rows)
                 foreach(object o in row.ItemArray)
                     System.Diagnostics.Trace.WriteLine(o);
-
+#endif
             DataRow[] rows = this.DataTypes.Select(String.Format("TypeName = '{0}'", nativeType));
 
             if (rows != null && rows.Length > 0)
@@ -57,7 +57,9 @@ namespace NuoDb.VisualStudio.DataTools
 
         protected override int GetProviderTypeFromNativeType(string nativeType)
         {
+#if DEBUG
             System.Diagnostics.Trace.WriteLine(String.Format("NuoDbObjectConceptMapper::GetProviderTypeFromNativeType({0})", nativeType));
+#endif
             DataRow[] rows = this.DataTypes.Select(String.Format("TypeName = '{0}'", nativeType));
 
             if (rows != null && rows.Length > 0)
@@ -70,7 +72,9 @@ namespace NuoDb.VisualStudio.DataTools
 
         protected override Type GetFrameworkTypeFromNativeType(string nativeType)
         {
+#if DEBUG
             System.Diagnostics.Trace.WriteLine(String.Format("NuoDbObjectConceptMapper::GetFrameworkTypeFromNativeType({0})", nativeType));
+#endif
             DataRow[] rows = this.DataTypes.Select(String.Format("TypeName = '{0}'", nativeType));
 
             if (rows != null && rows.Length > 0)

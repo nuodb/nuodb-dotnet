@@ -35,7 +35,7 @@ namespace NuoDb.Data.Client
 {
     class NuoDbDataReader : DbDataReader
     {
-        internal readonly NuoDBConnection connection;
+        internal readonly NuoDbConnection connection;
         private int handle;
         private int numberColumns;
         private int numberRecords;
@@ -50,7 +50,7 @@ namespace NuoDb.Data.Client
         private volatile int currentRow = 0;
         private volatile bool afterLast_Renamed = false;
 
-        public NuoDbDataReader(NuoDBConnection connection, int handle, EncodedDataStream dataStream, NuoDbCommand statement, bool readColumnNames)
+        public NuoDbDataReader(NuoDbConnection connection, int handle, EncodedDataStream dataStream, NuoDbCommand statement, bool readColumnNames)
         {
             this.connection = connection;
             this.handle = handle;
@@ -80,7 +80,9 @@ namespace NuoDb.Data.Client
 
         protected override void Dispose(bool disposing)
         {
+#if DEBUG
             System.Diagnostics.Trace.WriteLine("NuoDbDataReader::Dispose()");
+#endif
             Close();
             base.Dispose(disposing);
         }
@@ -109,7 +111,9 @@ namespace NuoDb.Data.Client
             if (metadata != null)
                 return metadata;
 
+#if DEBUG
             System.Diagnostics.Trace.WriteLine("NuoDbDataReader.GetSchemaTable(" + statement.CommandText + ")");
+#endif
             EncodedDataStream dataStream = new EncodedDataStream();
             dataStream.startMessage(Protocol.GetMetaData);
             dataStream.encodeInt(handle);
@@ -191,8 +195,8 @@ namespace NuoDb.Data.Client
                 string collationSequence = dataStream.getString();
                 string dataType = dataStream.getString();
                 row["DataTypeName"] = dataType;
-                row["DataType"] = Type.GetType(NuoDBConnection.mapNuoDbToNetType(dataType));
-                row["ProviderType"] = NuoDBConnection.mapJavaSqlToDbType(dataStream.getInt());
+                row["DataType"] = Type.GetType(NuoDbConnection.mapNuoDbToNetType(dataType));
+                row["ProviderType"] = NuoDbConnection.mapJavaSqlToDbType(dataStream.getInt());
                 row["ColumnSize"] = dataStream.getInt();
                 row["NumericPrecision"] = dataStream.getInt();
                 row["NumericScale"] = dataStream.getInt();
@@ -212,9 +216,11 @@ namespace NuoDb.Data.Client
                 // for the moment, set the column to be a normal one; later we will look for primary indexes
                 row["IsKey"] = row["IsIdentity"] = row["IsUnique"] = false;
                 row["IsLong"] = row["IsRowVersion"] = false;
-
-                System.Diagnostics.Trace.WriteLine("-> " + row["ColumnName"] + ", " + row["DataTypeName"] + ", " + row["ProviderType"]);
                 metadata.Rows.Add(row);
+
+#if DEBUG
+                System.Diagnostics.Trace.WriteLine("-> " + row["ColumnName"] + ", " + row["DataTypeName"] + ", " + row["ProviderType"]);
+#endif
 			}
             metadata.EndLoadData();
             // fill in the IsPrimary column
@@ -430,7 +436,7 @@ namespace NuoDb.Data.Client
             DataRow[] rows = GetSchemaTable().Select(String.Format("ColumnOrdinal = {0}", i));
             if (rows != null && rows.Length > 0)
             {
-                return Type.GetType(NuoDBConnection.mapDbTypeToNetType((int)rows[0]["ProviderType"]));
+                return Type.GetType(NuoDbConnection.mapDbTypeToNetType((int)rows[0]["ProviderType"]));
             }
             throw new ArgumentOutOfRangeException("columnOrdinal", "Cannot find the requested column in the table metadata");
         }

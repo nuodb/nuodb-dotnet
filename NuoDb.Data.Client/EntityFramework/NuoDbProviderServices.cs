@@ -154,10 +154,10 @@ namespace NuoDb.Data.Client.EntityFramework
             if (connection == null)
                 throw new ArgumentNullException("connection");
 
-            if (!(connection is NuoDBConnection))
-                throw new ArgumentException("Connection is not a valid NuoDBConnection");
+            if (!(connection is NuoDbConnection))
+                throw new ArgumentException("Connection is not a valid NuoDbConnection");
 
-            NuoDBConnection conn = (NuoDBConnection)connection;
+            NuoDbConnection conn = (NuoDbConnection)connection;
             DataTable dsInfo = conn.GetSchema(DbMetaDataCollectionNames.DataSourceInformation);
             if (dsInfo.Rows.Count == 0)
                 return "0";

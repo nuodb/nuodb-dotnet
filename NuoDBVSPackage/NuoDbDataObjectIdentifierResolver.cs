@@ -40,23 +40,11 @@ namespace NuoDb.VisualStudio.DataTools
 
         public NuoDbDataObjectIdentifierResolver()
         {
-            System.Diagnostics.Trace.WriteLine("NuoDbDataObjectIdentifierResolver()");
         }
 
         public NuoDbDataObjectIdentifierResolver(DataConnection dataConnection)
         {
             this.dataConnection = dataConnection;
-        }
-
-        public override object[] ContractIdentifier(string typeName, object[] fullIdentifier, bool refresh)
-        {
-            System.Diagnostics.Trace.WriteLine(String.Format("NuoDbDataObjectIdentifierResolver::ContractIdentifier({0})", typeName));
-            return base.ContractIdentifier(typeName, fullIdentifier, refresh);
-        }
-        public override object[] ExpandIdentifier(string typeName, object[] partialIdentifier, bool refresh)
-        {
-            System.Diagnostics.Trace.WriteLine(String.Format("NuoDbDataObjectIdentifierResolver::ExpandIdentifier({0})", typeName));
-            return base.ExpandIdentifier(typeName, partialIdentifier, refresh);
         }
 
     }

@@ -40,13 +40,13 @@ namespace NuoDb.VisualStudio.DataTools
     {
         public NuoDbDataProviderObjectFactory() : base()
         {
-            System.Diagnostics.Trace.WriteLine("NuoDbDataProviderObjectFactory()");
         }
 
         public override object CreateObject(Type objType)
         {
+#if DEBUG
             System.Diagnostics.Trace.WriteLine(String.Format("NuoDbDataProviderObjectFactory::CreateObject({0})", objType.FullName));
-
+#endif
             if (objType == typeof(DataConnectionSupport))
             {
                 return new NuoDbDataConnectionSupport();

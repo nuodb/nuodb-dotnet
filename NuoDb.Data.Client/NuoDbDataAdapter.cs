@@ -99,7 +99,7 @@ namespace NuoDb.Data.Client
 		{
 		}
 
-        public NuoDbDataAdapter(string selectStatement, NuoDBConnection connection)
+        public NuoDbDataAdapter(string selectStatement, NuoDbConnection connection)
             : this(new NuoDbCommand(selectStatement, connection))
         {
         }

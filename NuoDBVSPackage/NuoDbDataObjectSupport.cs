@@ -39,7 +39,6 @@ namespace NuoDb.VisualStudio.DataTools
         public NuoDbDataObjectSupport()
             : base("NuoDb.VisualStudio.DataTools.NuoDbDataObjectSupport", typeof(NuoDbDataObjectSupport).Assembly)
 		{
-            System.Diagnostics.Trace.WriteLine("NuoDbDataObjectSupport()");
 		}
     }
 }
