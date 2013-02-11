@@ -100,7 +100,7 @@ namespace System.Data.NuoDB
 			this.sqlState = sqlState;
 		}
 
-		public static SQLCode findCode(int code)
+		public static SQLCode FindCode(int code)
 		{
             for (int i = 0; i < values.Length; i++ )
             {
@@ -111,9 +111,9 @@ namespace System.Data.NuoDB
 			return null;
 		}
 
-		public static String findSQLState(int code)
+		public static String FindSQLState(int code)
 		{
-			SQLCode theCode = findCode(code);
+			SQLCode theCode = FindCode(code);
 			if(theCode == null)
 				return null;
 			else

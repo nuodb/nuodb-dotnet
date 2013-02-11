@@ -35,12 +35,20 @@ namespace System.Data.NuoDB
 {
     public class SQLException : Exception
     {
+        private SQLCode code;
+
+        public SQLCode Code
+        {
+            get { return code; }
+        }
+
         public SQLException(string message) : base(message)
         {
         }
         public SQLException(string message, string status, int code)
             : base(message)
         {
+            this.code = SQLCode.FindCode(code);
         }
         public SQLException(string message, Exception exception)
             : base(message, exception)

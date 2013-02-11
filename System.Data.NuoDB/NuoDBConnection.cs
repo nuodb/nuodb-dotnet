@@ -139,7 +139,7 @@ namespace System.Data.NuoDB
 
                         if (StringUtils.size(sqlState) == 0)
                         {
-                            sqlState = SQLCode.findSQLState(status);
+                            sqlState = SQLCode.FindSQLState(status);
                         }
 
                         throw new SQLException(message, sqlState, status);
