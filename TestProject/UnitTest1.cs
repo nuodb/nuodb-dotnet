@@ -70,7 +70,7 @@ namespace TestProject
         [TestMethod]
         public void TestHighAvailability()
         {
-            using (NuoDBConnection connection = new NuoDBConnection(connectionString.Replace("Server=","Server=localhost:8,")))
+            using (NuoDbConnection connection = new NuoDbConnection(connectionString.Replace("Server=","Server=localhost:8,")))
             {
                 DbCommand command = new NuoDbCommand("select * from hockey", connection);
 
@@ -87,7 +87,7 @@ namespace TestProject
         [TestMethod]
         public void TestCommand1()
         {
-            using (NuoDBConnection connection = new NuoDBConnection(connectionString))
+            using (NuoDbConnection connection = new NuoDbConnection(connectionString))
             {
                 DbCommand command = new NuoDbCommand("select * from hockey", connection);
 
@@ -104,7 +104,7 @@ namespace TestProject
         [TestMethod]
         public void TestCommand2()
         {
-            using (NuoDBConnection connection = new NuoDBConnection(connectionString))
+            using (NuoDbConnection connection = new NuoDbConnection(connectionString))
             {
                 DbCommand command = connection.CreateCommand();
                 command.CommandText = "select * from hockey";
@@ -128,7 +128,7 @@ namespace TestProject
         [TestMethod]
         public void TestParameter()
         {
-            using (NuoDBConnection connection = new NuoDBConnection(connectionString))
+            using (NuoDbConnection connection = new NuoDbConnection(connectionString))
             {
                 DbCommand command = connection.CreateCommand();
                 connection.Open();
@@ -149,7 +149,7 @@ namespace TestProject
         [TestMethod]
         public void TestTransactions()
         {
-            using (NuoDBConnection connection = new NuoDBConnection(connectionString))
+            using (NuoDbConnection connection = new NuoDbConnection(connectionString))
             {
                 connection.Open();
                 DbTransaction transaction = connection.BeginTransaction();
@@ -206,7 +206,7 @@ namespace TestProject
         [TestMethod]
         public void TestDisconnected()
         {
-            using (NuoDBConnection connection = new NuoDBConnection(connectionString))
+            using (NuoDbConnection connection = new NuoDbConnection(connectionString))
             {
                 DataAdapter da = new NuoDbDataAdapter("select * from hockey", connection);
                 DataSet ds = new DataSet();
@@ -243,7 +243,7 @@ namespace TestProject
         [TestMethod]
         public void TestDisconnectedUpdate()
         {
-            using (NuoDBConnection connection = new NuoDBConnection(connectionString))
+            using (NuoDbConnection connection = new NuoDbConnection(connectionString))
             {
                 DbDataAdapter da = new NuoDbDataAdapter("select id, number, name, position, team from hockey", connection);
                 NuoDbCommandBuilder builder = new NuoDbCommandBuilder();
@@ -292,7 +292,7 @@ namespace TestProject
 
         public void TestDataType(string sqlType, object value, object expected)
         {
-            using (NuoDBConnection connection = new NuoDBConnection(connectionString))
+            using (NuoDbConnection connection = new NuoDbConnection(connectionString))
             {
                 connection.Open();
                 //DbTransaction transaction = connection.BeginTransaction();
@@ -432,7 +432,7 @@ namespace TestProject
         [TestMethod]
         public void TestSchema()
         {
-            using (NuoDBConnection connection = new NuoDBConnection(connectionString))
+            using (NuoDbConnection connection = new NuoDbConnection(connectionString))
             {
                 DataTable tables = connection.GetSchema("Tables");
 
