@@ -2,3 +2,5 @@ TestResults
 bin
 obj
 *.suo
+
+WebApplicationSample/WebApplicationSample.csproj.user

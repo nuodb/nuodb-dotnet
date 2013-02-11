@@ -41,9 +41,6 @@
             <Component Id="cmp78A300235494DB69186DB18C1ADA11D8" Directory="dir0FBAA63D90D3836352633300369A0E34" Guid="*">
                 <File KeyPath="yes" Source="..\WindowsFormsSample\WindowsFormsSample.csproj" />
             </Component>
-            <Component Id="cmp1993BB917324B046D7838A9765FB10D0" Directory="dir0FBAA63D90D3836352633300369A0E34" Guid="*">
-                <File KeyPath="yes" Source="..\WindowsFormsSample\WindowsFormsSample.sln" />
-            </Component>
             <Component Id="cmp78A300235494DB69186DB18C1ADA11D9" Directory="dir0FBAA63D90D3836352633300369A0E34" Guid="*">
               <File KeyPath="yes" Source="..\WindowsFormsSample\HockeyPlayer.Designer.cs" />
             </Component>

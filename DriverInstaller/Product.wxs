@@ -48,7 +48,9 @@
     </Feature>
 
     <Feature Id="SamplesFeature" Title="Installing sample projects" Level="1">
+      <ComponentRef Id="SamplesSolution" />
       <ComponentGroupRef Id="SampleProject" />
+      <ComponentGroupRef Id="SampleWebProject" />
     </Feature>
 
   </Product>
@@ -78,6 +80,9 @@
               <CopyFile Id="extension.vsixmanifest_VS2010" DestinationProperty="NUODB_EXTENSION_DIR_VS2010"/>
               <CopyFile Id="extension.vsixmanifest_VS2012" DestinationProperty="NUODB_EXTENSION_DIR_VS2012"/>
             </File>
+          </Component>
+          <Component Id="SamplesSolution">
+            <File KeyPath="yes" Source="..\DotNetSamples.sln" />
           </Component>
         </Directory>
       </Directory>

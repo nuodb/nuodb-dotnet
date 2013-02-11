@@ -23,6 +23,7 @@
   <ItemGroup>
     <Compile Include="Product.wxs" />
     <Compile Include="SampleProject.wxs" />
+    <Compile Include="SampleWebProject.wxs" />
   </ItemGroup>
   <ItemGroup>
     <WixExtension Include="WixUIExtension">

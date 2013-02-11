@@ -37,6 +37,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Installers", "Installers", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuoDb.Data.Client", "NuoDb.Data.Client\NuoDb.Data.Client.csproj", "{0660AC83-4B1B-4DE0-9D8E-6049DE12E0CD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApplicationSample", "WebApplicationSample\WebApplicationSample.csproj", "{FDE45A07-57F4-4096-B262-97EFAD500BCC}"
+EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = ADO.NET.vsmdi
@@ -128,6 +130,16 @@ Global
 		{0660AC83-4B1B-4DE0-9D8E-6049DE12E0CD}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{0660AC83-4B1B-4DE0-9D8E-6049DE12E0CD}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{0660AC83-4B1B-4DE0-9D8E-6049DE12E0CD}.Release|x86.ActiveCfg = Release|Any CPU
+		{FDE45A07-57F4-4096-B262-97EFAD500BCC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FDE45A07-57F4-4096-B262-97EFAD500BCC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FDE45A07-57F4-4096-B262-97EFAD500BCC}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{FDE45A07-57F4-4096-B262-97EFAD500BCC}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{FDE45A07-57F4-4096-B262-97EFAD500BCC}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{FDE45A07-57F4-4096-B262-97EFAD500BCC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FDE45A07-57F4-4096-B262-97EFAD500BCC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FDE45A07-57F4-4096-B262-97EFAD500BCC}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{FDE45A07-57F4-4096-B262-97EFAD500BCC}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{FDE45A07-57F4-4096-B262-97EFAD500BCC}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
