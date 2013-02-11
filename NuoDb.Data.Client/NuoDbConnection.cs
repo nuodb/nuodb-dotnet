@@ -76,6 +76,8 @@ namespace NuoDb.Data.Client
         private List<int> listResultSets = new List<int>();
         private List<int> listCommands = new List<int>();
 
+        public override event StateChangeEventHandler StateChange;
+
         public NuoDbConnection()
         {
         }
@@ -453,7 +455,8 @@ namespace NuoDb.Data.Client
             {
                 return;
             }
-            state = ConnectionState.Closed;
+            this.OnStateChange(this.state, ConnectionState.Closed);
+
 #if DEBUG
             System.Diagnostics.Trace.WriteLine("NuoDBConnection::Close()");
 #endif
@@ -607,7 +610,8 @@ namespace NuoDb.Data.Client
 
                 tag.addAttribute("Cipher", cipher);
 
-                state = ConnectionState.Connecting;
+                this.OnStateChange(this.state, ConnectionState.Connecting);
+
                 string xml = tag.ToString();
                 CryptoSocket brokerSocket = new CryptoSocket(hostName, port);
                 inputStream = brokerSocket.InputStream;
@@ -750,14 +754,14 @@ namespace NuoDb.Data.Client
                     outputStream.encrypt(null);
                 }
 
-                state = ConnectionState.Open;
+                this.OnStateChange(this.state, ConnectionState.Open);
             }
             catch (NuoDbSqlException e)
             {
 #if DEBUG
                 System.Diagnostics.Trace.WriteLine("NuoDBConnection::Open(): exception " + e.ToString());
 #endif
-                state = ConnectionState.Closed;
+                this.OnStateChange(this.state, ConnectionState.Closed);
                 if (authenticating)
                 {
                     throw new NuoDbSqlException("Authentication failed for database \"" + databaseName + "\"", e);
@@ -782,7 +786,7 @@ namespace NuoDb.Data.Client
                         // just ignore
                     }
                 }
-                state = ConnectionState.Closed;
+                this.OnStateChange(this.state, ConnectionState.Closed);
 
                 throw new NuoDbSqlException(exception.ToString());
             }
@@ -803,7 +807,7 @@ namespace NuoDb.Data.Client
                         // just ignore
                     }
                 }
-                state = ConnectionState.Closed;
+                this.OnStateChange(this.state, ConnectionState.Closed);
 
                 throw new NuoDbSqlException(exception.ToString());
             }
@@ -855,6 +859,15 @@ namespace NuoDb.Data.Client
             if (firstException != null)
                 throw firstException;
 
+        }
+
+        private void OnStateChange(ConnectionState originalState, ConnectionState currentState)
+        {
+            this.state = currentState;
+            if (this.StateChange != null)
+            {
+                this.StateChange(this, new StateChangeEventArgs(originalState, currentState));
+            }
         }
 
         public override DataTable GetSchema()
