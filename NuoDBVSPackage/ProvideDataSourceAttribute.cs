@@ -97,11 +97,11 @@ namespace NuoDB.VisualStudio.DataTools
                 //packageProvider.SetValue("AssociatedSource", "{" + dataSourceGuid + "}");
                 //packageProvider.SetValue("PlatformVersion", "1.0");
 
-                packageProvider.CreateSubkey(@"SupportedObjects\DataConnectionProperties").SetValue("", "NuoDB.VisualStudio.DataTools.NuoDBDataConnectionProperties");
-                packageProvider.CreateSubkey(@"SupportedObjects\DataConnectionSupport").SetValue("", "NuoDB.VisualStudio.DataTools.NuoDBDataConnectionSupport");
-                packageProvider.CreateSubkey(@"SupportedObjects\DataConnectionUIControl").SetValue("", "NuoDB.VisualStudio.DataTools.NuoDBDataConnectionUIControl");
-                packageProvider.CreateSubkey(@"SupportedObjects\DataViewSupport").SetValue("", "NuoDB.VisualStudio.DataTools.NuoDBDataViewSupport");
-                packageProvider.CreateSubkey(@"SupportedObjects\DataObjectSupport").SetValue("", "NuoDB.VisualStudio.DataTools.NuoDBDataObjectSupport");
+                packageProvider.CreateSubkey(@"SupportedObjects\DataConnectionProperties").SetValue("", "NuoDB.VisualStudio.DataTools.NuoDbDataConnectionProperties");
+                packageProvider.CreateSubkey(@"SupportedObjects\DataConnectionSupport").SetValue("", "NuoDB.VisualStudio.DataTools.NuoDbDataConnectionSupport");
+                packageProvider.CreateSubkey(@"SupportedObjects\DataConnectionUIControl").SetValue("", "NuoDB.VisualStudio.DataTools.NuoDbDataConnectionUIControl");
+                packageProvider.CreateSubkey(@"SupportedObjects\DataViewSupport").SetValue("", "NuoDB.VisualStudio.DataTools.NuoDbDataViewSupport");
+                packageProvider.CreateSubkey(@"SupportedObjects\DataObjectSupport").SetValue("", "NuoDB.VisualStudio.DataTools.NuoDbDataObjectSupport");
                 packageProvider.CreateSubkey(@"SupportedObjects\DataConnectionPromptDialog");
                 packageProvider.CreateSubkey(@"SupportedObjects\DataSourceSpecializer");
                 packageProvider.CreateSubkey(@"SupportedObjects\Microsoft.VisualStudio.Data.Services.SupportEntities.IVsDataConnectionUIConnector");

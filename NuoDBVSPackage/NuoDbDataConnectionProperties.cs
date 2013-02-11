@@ -26,37 +26,37 @@
 * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using Microsoft.VisualStudio.Data.AdoDotNet;
 using Microsoft.VisualStudio.Data;
 
 namespace NuoDB.VisualStudio.DataTools
 {
-    public class NuoDBDataObjectIdentifierResolver : DataObjectIdentifierResolver
+    public class NuoDbDataConnectionProperties : AdoDotNetConnectionProperties
     {
-        private DataConnection dataConnection;
-
-        public NuoDBDataObjectIdentifierResolver()
+        public NuoDbDataConnectionProperties() 
+            : base("System.Data.NuoDB")
         {
-            System.Diagnostics.Trace.WriteLine("NuoDBDataObjectIdentifierResolver()");
+            System.Diagnostics.Trace.WriteLine("NuoDbDataConnectionProperties()");
         }
 
-        public NuoDBDataObjectIdentifierResolver(DataConnection dataConnection)
+        public override string[] GetBasicProperties()
         {
-            this.dataConnection = dataConnection;
+            System.Diagnostics.Trace.WriteLine("NuoDbDataConnectionProperties::GetBasicProperties()");
+
+            return new string[] { "Server", "User", "Password", "Database" };
         }
 
-        public override object[] ContractIdentifier(string typeName, object[] fullIdentifier, bool refresh)
+        protected override void InitializeProperties()
         {
-            System.Diagnostics.Trace.WriteLine(String.Format("NuoDBDataObjectIdentifierResolver::ContractIdentifier({0})", typeName));
-            return base.ContractIdentifier(typeName, fullIdentifier, refresh);
-        }
-        public override object[] ExpandIdentifier(string typeName, object[] partialIdentifier, bool refresh)
-        {
-            System.Diagnostics.Trace.WriteLine(String.Format("NuoDBDataObjectIdentifierResolver::ExpandIdentifier({0})", typeName));
-            return base.ExpandIdentifier(typeName, partialIdentifier, refresh);
+            System.Diagnostics.Trace.WriteLine("NuoDbDataConnectionProperties::InitializeProperties()");
+
+            base.InitializeProperties();
+
+            this.AddProperty("Server", typeof(System.String));
+            this.AddProperty("User", typeof(System.String));
+            this.AddProperty("Password", typeof(System.String));
+            this.AddProperty("Database", typeof(System.String));
+            this.AddProperty("Schema", typeof(System.String));
         }
 
     }

@@ -26,13 +26,13 @@ namespace NuoDBVSPackage_UnitTests
         [TestMethod()]
         public void CreateInstance()
         {
-            NuoDBVSPackagePackage package = new NuoDBVSPackagePackage();
+            NuoDbVSPackagePackage package = new NuoDbVSPackagePackage();
         }
 
         [TestMethod()]
         public void IsIVsPackage()
         {
-            NuoDBVSPackagePackage package = new NuoDBVSPackagePackage();
+            NuoDbVSPackagePackage package = new NuoDbVSPackagePackage();
             Assert.IsNotNull(package as IVsPackage, "The object does not implement IVsPackage");
         }
 
@@ -40,7 +40,7 @@ namespace NuoDBVSPackage_UnitTests
         public void SetSite()
         {
             // Create the package
-            IVsPackage package = new NuoDBVSPackagePackage() as IVsPackage;
+            IVsPackage package = new NuoDbVSPackagePackage() as IVsPackage;
             Assert.IsNotNull(package, "The object does not implement IVsPackage");
 
             // Create a basic service provider

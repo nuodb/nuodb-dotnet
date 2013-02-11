@@ -35,15 +35,15 @@ using System.Data;
 
 namespace NuoDB.VisualStudio.DataTools
 {
-    class NuoDBDataSourceInformation : AdoDotNetDataSourceInformation
+    class NuoDbDataSourceInformation : AdoDotNetDataSourceInformation
     {
-        public NuoDBDataSourceInformation(Microsoft.VisualStudio.Data.DataConnection dataConnection)
+        public NuoDbDataSourceInformation(Microsoft.VisualStudio.Data.DataConnection dataConnection)
             : base(dataConnection)
         {
             base.AddProperty(AdoDotNetDataSourceInformation.CatalogSupported, false);
             base.AddProperty(AdoDotNetDataSourceInformation.CatalogSupportedInDml, false);
             base.AddProperty(AdoDotNetDataSourceInformation.DefaultCatalog, null);
-            NuoDBDataConnectionProperties helper = new NuoDBDataConnectionProperties();
+            NuoDbDataConnectionProperties helper = new NuoDbDataConnectionProperties();
             helper.ConnectionStringBuilder.ConnectionString = dataConnection.DisplayConnectionString;
             object defaultSchema = null;
             helper.ConnectionStringBuilder.TryGetValue("Schema", out defaultSchema);
@@ -65,7 +65,7 @@ namespace NuoDB.VisualStudio.DataTools
 
         protected override object RetrieveValue(string propertyName)
         {
-            System.Diagnostics.Trace.WriteLine(String.Format("NuoDBDataSourceInformation::RetrieveValue({0})", propertyName));
+            System.Diagnostics.Trace.WriteLine(String.Format("NuoDbDataSourceInformation::RetrieveValue({0})", propertyName));
             return base.RetrieveValue(propertyName);
         }
     }

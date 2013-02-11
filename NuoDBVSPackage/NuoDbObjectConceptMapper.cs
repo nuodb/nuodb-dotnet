@@ -35,11 +35,11 @@ using System.Data;
 
 namespace NuoDB.VisualStudio.DataTools
 {
-    class NuoDBObjectConceptMapper : AdoDotNetObjectConceptMapper
+    class NuoDbObjectConceptMapper : AdoDotNetObjectConceptMapper
     {
         protected override DbType GetDbTypeFromNativeType(string nativeType)
         {
-            System.Diagnostics.Trace.WriteLine(String.Format("NuoDBObjectConceptMapper::GetDbTypeFromNativeType({0})", nativeType));
+            System.Diagnostics.Trace.WriteLine(String.Format("NuoDbObjectConceptMapper::GetDbTypeFromNativeType({0})", nativeType));
 
             foreach(DataRow row in this.DataTypes.Rows)
                 foreach(object o in row.ItemArray)
@@ -57,7 +57,7 @@ namespace NuoDB.VisualStudio.DataTools
 
         protected override int GetProviderTypeFromNativeType(string nativeType)
         {
-            System.Diagnostics.Trace.WriteLine(String.Format("NuoDBObjectConceptMapper::GetProviderTypeFromNativeType({0})", nativeType));
+            System.Diagnostics.Trace.WriteLine(String.Format("NuoDbObjectConceptMapper::GetProviderTypeFromNativeType({0})", nativeType));
             DataRow[] rows = this.DataTypes.Select(String.Format("TypeName = '{0}'", nativeType));
 
             if (rows != null && rows.Length > 0)
@@ -70,7 +70,7 @@ namespace NuoDB.VisualStudio.DataTools
 
         protected override Type GetFrameworkTypeFromNativeType(string nativeType)
         {
-            System.Diagnostics.Trace.WriteLine(String.Format("NuoDBObjectConceptMapper::GetFrameworkTypeFromNativeType({0})", nativeType));
+            System.Diagnostics.Trace.WriteLine(String.Format("NuoDbObjectConceptMapper::GetFrameworkTypeFromNativeType({0})", nativeType));
             DataRow[] rows = this.DataTypes.Select(String.Format("TypeName = '{0}'", nativeType));
 
             if (rows != null && rows.Length > 0)

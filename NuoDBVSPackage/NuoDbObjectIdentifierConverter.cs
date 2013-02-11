@@ -27,40 +27,40 @@
 ****************************************************************************/
 
 using System;
-using System.Runtime.InteropServices;
-using Microsoft.VisualStudio.Data;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using Microsoft.VisualStudio.Data.AdoDotNet;
-using System.Reflection;
-using Microsoft.VisualStudio.Data.Core;
 
 namespace NuoDB.VisualStudio.DataTools
 {
-    [Guid(GuidList.guidNuoDBObjectFactoryServiceString)]
-    public class NuoDBDataProviderObjectFactory : AdoDotNetProviderObjectFactory
+    class NuoDbObjectIdentifierConverter : AdoDotNetObjectIdentifierConverter
     {
-        public NuoDBDataProviderObjectFactory() : base()
+        public NuoDbObjectIdentifierConverter(Microsoft.VisualStudio.Data.DataConnection dataConnection)
+            : base(dataConnection)
         {
-            System.Diagnostics.Trace.WriteLine("NuoDBDataProviderObjectFactory()");
         }
 
-        public override object CreateObject(Type objType)
+        protected override string FormatPart(string typeName, object identifierPart, bool withQuotes)
         {
-            System.Diagnostics.Trace.WriteLine(String.Format("NuoDBDataProviderObjectFactory::CreateObject({0})", objType.FullName));
+            if (identifierPart is string)
+            {
+                if (withQuotes)
+                    return String.Format("\"{0}\"", identifierPart);
+                else
+                    return (string)identifierPart;
+            }
+            return null;
+        }
 
-            if (objType == typeof(DataConnectionSupport))
-            {
-                return new NuoDBDataConnectionSupport();
-            }
-            else if (objType == typeof(DataConnectionUIControl))
-            {
-                return new NuoDBDataConnectionUIControl();
-            }
-            else if (objType == typeof(DataConnectionProperties))
-            {
-                return new NuoDBDataConnectionProperties();
-            }
+        protected override string[] SplitIntoParts(string typeName, string identifier)
+        {
+            return identifier.Split(new char[] { '.' });
+        }
 
-            return base.CreateObject(objType);
+        protected override object UnformatPart(string typeName, string identifierPart)
+        {
+            return identifierPart;
         }
     }
 }

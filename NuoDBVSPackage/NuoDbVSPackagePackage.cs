@@ -63,13 +63,13 @@ namespace NuoDB.VisualStudio.DataTools
     // that can be loaded on any version (Standard, Professional) of Visual Studio 2008 and greater
     [ProvideLoadKey("Standard", "1.0", "DDEX Provider for NuoDB", "NuoDB", 111)]
     [Guid(GuidList.guidNuoDBVSPackagePkgString)]
-    [ProvideService(typeof(NuoDBDataProviderObjectFactory), ServiceName = "NuoDB Provider Object Factory")]
+    [ProvideService(typeof(NuoDbDataProviderObjectFactory), ServiceName = "NuoDB Provider Object Factory")]
     [ProvideDataSource(DataSourceGuid = GuidList.guidNuoDBDataSourceString, 
                        DataSourceName = "NuoDB Data Source", 
                        DataProviderGuid = GuidList.guidNuoDBDataProvider, 
                        DataProviderName = ".NET Framework Data Provider for NuoDB", 
                        FactoryGuid = GuidList.guidNuoDBObjectFactoryServiceString)]
-    public sealed class NuoDBVSPackagePackage : Package
+    public sealed class NuoDbVSPackagePackage : Package
     {
         /// <summary>
         /// Default constructor of the package.
@@ -78,7 +78,7 @@ namespace NuoDB.VisualStudio.DataTools
         /// not sited yet inside Visual Studio environment. The place to do all the other 
         /// initialization is the Initialize method.
         /// </summary>
-        public NuoDBVSPackagePackage()
+        public NuoDbVSPackagePackage()
         {
             Trace.WriteLine(string.Format(CultureInfo.CurrentCulture, "Entering constructor for: {0}", this.ToString()));
         }
@@ -96,7 +96,7 @@ namespace NuoDB.VisualStudio.DataTools
         protected override void Initialize()
         {
             Trace.WriteLine (string.Format(CultureInfo.CurrentCulture, "Entering Initialize() of: {0}", this.ToString()));
-            (this as IServiceContainer).AddService(typeof(NuoDBDataProviderObjectFactory), new ServiceCreatorCallback(this.CreateService), true);
+            (this as IServiceContainer).AddService(typeof(NuoDbDataProviderObjectFactory), new ServiceCreatorCallback(this.CreateService), true);
             base.Initialize();
 
         }
@@ -106,9 +106,9 @@ namespace NuoDB.VisualStudio.DataTools
         {
             System.Diagnostics.Trace.WriteLine(String.Format("DataPackage::CreateService({0})", serviceType.FullName));
 
-            if (serviceType == typeof(NuoDBDataProviderObjectFactory))
+            if (serviceType == typeof(NuoDbDataProviderObjectFactory))
             {
-                return new NuoDBDataProviderObjectFactory();
+                return new NuoDbDataProviderObjectFactory();
             }
 
             return null;

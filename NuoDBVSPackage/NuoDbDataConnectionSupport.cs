@@ -31,36 +31,48 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.VisualStudio.Data.AdoDotNet;
+using Microsoft.VisualStudio.Data;
 
 namespace NuoDB.VisualStudio.DataTools
 {
-    class NuoDBObjectIdentifierConverter : AdoDotNetObjectIdentifierConverter
+    public class NuoDbDataConnectionSupport : AdoDotNetConnectionSupport
     {
-        public NuoDBObjectIdentifierConverter(Microsoft.VisualStudio.Data.DataConnection dataConnection)
-            : base(dataConnection)
+        public NuoDbDataConnectionSupport()
+            : base("System.Data.NuoDB")
         {
+            System.Diagnostics.Trace.WriteLine("NuoDbDataConnectionSupport()");
+        }
+        
+        protected override DataSourceInformation CreateDataSourceInformation()
+        {
+            System.Diagnostics.Trace.WriteLine("NuoDbDataConnectionSupport::CreateDataSourceInformation()");
+
+            return new NuoDbDataSourceInformation(base.Site as DataConnection);
         }
 
-        protected override string FormatPart(string typeName, object identifierPart, bool withQuotes)
+        protected override object GetServiceImpl(Type serviceType)
         {
-            if (identifierPart is string)
+            System.Diagnostics.Trace.WriteLine(String.Format("NuoDbDataConnectionSupport::GetServiceImpl({0})", serviceType.FullName));
+
+            if (serviceType == typeof(DataViewSupport))
             {
-                if (withQuotes)
-                    return String.Format("\"{0}\"", identifierPart);
-                else
-                    return (string)identifierPart;
+                return new NuoDbDataViewSupport();
             }
-            return null;
+            else if (serviceType == typeof(DataObjectSupport))
+            {
+                return new NuoDbDataObjectSupport();
+            }
+            else if (serviceType == typeof(DataObjectIdentifierResolver))
+            {
+                return new NuoDbDataObjectIdentifierResolver(base.Site as DataConnection);
+            }
+            else if (serviceType == typeof(DataObjectIdentifierConverter))
+            {
+                return new NuoDbObjectIdentifierConverter(base.Site as DataConnection);
+            }
+
+            return base.GetServiceImpl(serviceType);
         }
 
-        protected override string[] SplitIntoParts(string typeName, string identifier)
-        {
-            return identifier.Split(new char[] { '.' });
-        }
-
-        protected override object UnformatPart(string typeName, string identifierPart)
-        {
-            return identifierPart;
-        }
     }
 }

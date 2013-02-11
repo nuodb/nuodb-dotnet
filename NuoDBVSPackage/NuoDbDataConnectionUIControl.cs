@@ -34,7 +34,7 @@ using Microsoft.VisualStudio.Data;
 
 namespace NuoDB.VisualStudio.DataTools
 {
-    class NuoDBDataConnectionUIControl : DataConnectionUIControl
+    class NuoDbDataConnectionUIControl : DataConnectionUIControl
     {
         private System.Windows.Forms.TextBox textBoxServer;
         private System.Windows.Forms.Label label2;
@@ -47,17 +47,17 @@ namespace NuoDB.VisualStudio.DataTools
         private System.Windows.Forms.TextBox textBoxSchema;
         private System.Windows.Forms.Label label1;
 
-        public NuoDBDataConnectionUIControl()
+        public NuoDbDataConnectionUIControl()
         {
-            System.Diagnostics.Trace.WriteLine("NuoDBDataConnectionUIControl()");
+            System.Diagnostics.Trace.WriteLine("NuoDbDataConnectionUIControl()");
             InitializeComponent();
             // ensure we have a valid properties object
-            Initialize(new NuoDBDataConnectionProperties());
+            Initialize(new NuoDbDataConnectionProperties());
         }
 
         public override void LoadProperties()
         {
-            System.Diagnostics.Trace.WriteLine("NuoDBDataConnectionUIControl::LoadProperties()");
+            System.Diagnostics.Trace.WriteLine("NuoDbDataConnectionUIControl::LoadProperties()");
 
             try
             {
@@ -207,7 +207,7 @@ namespace NuoDB.VisualStudio.DataTools
             this.textBoxSchema.TabIndex = 9;
             this.textBoxSchema.TextChanged += new System.EventHandler(this.SetProperty);
             // 
-            // NuoDBDataConnectionUIControl
+            // NuoDbDataConnectionUIControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -222,7 +222,7 @@ namespace NuoDB.VisualStudio.DataTools
             this.Controls.Add(this.label1);
             this.Controls.Add(this.textBoxServer);
             this.Margin = new System.Windows.Forms.Padding(0);
-            this.Name = "NuoDBDataConnectionUIControl";
+            this.Name = "NuoDbDataConnectionUIControl";
             this.Size = new System.Drawing.Size(300, 154);
             this.ResumeLayout(false);
             this.PerformLayout();

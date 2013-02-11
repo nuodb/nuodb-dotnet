@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -114,18 +114,18 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Guids.cs" />
-    <Compile Include="NuoDBDataConnectionProperties.cs" />
-    <Compile Include="NuoDBDataConnectionSupport.cs" />
-    <Compile Include="NuoDBDataConnectionUIControl.cs">
+    <Compile Include="NuoDbDataConnectionProperties.cs" />
+    <Compile Include="NuoDbDataConnectionSupport.cs" />
+    <Compile Include="NuoDbDataConnectionUIControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="NuoDBDataObjectIdentifierResolver.cs" />
-    <Compile Include="NuoDBDataObjectSupport.cs" />
-    <Compile Include="NuoDBDataProviderObjectFactory.cs" />
-    <Compile Include="NuoDBDataSourceInformation.cs" />
-    <Compile Include="NuoDBDataViewSupport.cs" />
-    <Compile Include="NuoDBObjectConceptMapper.cs" />
-    <Compile Include="NuoDBObjectIdentifierConverter.cs" />
+    <Compile Include="NuoDbDataObjectIdentifierResolver.cs" />
+    <Compile Include="NuoDbDataObjectSupport.cs" />
+    <Compile Include="NuoDbDataProviderObjectFactory.cs" />
+    <Compile Include="NuoDbDataSourceInformation.cs" />
+    <Compile Include="NuoDbDataViewSupport.cs" />
+    <Compile Include="NuoDbObjectConceptMapper.cs" />
+    <Compile Include="NuoDbObjectIdentifierConverter.cs" />
     <Compile Include="ProvideDataSourceAttribute.cs" />
     <Compile Include="Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -133,12 +133,12 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="GlobalSuppressions.cs" />
-    <Compile Include="NuoDBVSPackagePackage.cs" />
+    <Compile Include="NuoDbVSPackagePackage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="NuoDBDataConnectionUIControl.resx">
-      <DependentUpon>NuoDBDataConnectionUIControl.cs</DependentUpon>
+    <EmbeddedResource Include="NuoDbDataConnectionUIControl.resx">
+      <DependentUpon>NuoDbDataConnectionUIControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -160,8 +160,8 @@
     <None Include="Key.snk" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="NuoDBDataViewSupport.xml" />
-    <EmbeddedResource Include="NuoDBDataObjectSupport.xml" />
+    <EmbeddedResource Include="NuoDbDataViewSupport.xml" />
+    <EmbeddedResource Include="NuoDbDataObjectSupport.xml" />
     <Content Include="Resources\Package.ico" />
   </ItemGroup>
   <PropertyGroup>

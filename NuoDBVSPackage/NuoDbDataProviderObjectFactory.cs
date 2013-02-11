@@ -27,52 +27,40 @@
 ****************************************************************************/
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Microsoft.VisualStudio.Data.AdoDotNet;
+using System.Runtime.InteropServices;
 using Microsoft.VisualStudio.Data;
+using Microsoft.VisualStudio.Data.AdoDotNet;
+using System.Reflection;
+using Microsoft.VisualStudio.Data.Core;
 
 namespace NuoDB.VisualStudio.DataTools
 {
-    public class NuoDBDataConnectionSupport : AdoDotNetConnectionSupport
+    [Guid(GuidList.guidNuoDBObjectFactoryServiceString)]
+    public class NuoDbDataProviderObjectFactory : AdoDotNetProviderObjectFactory
     {
-        public NuoDBDataConnectionSupport()
-            : base("System.Data.NuoDB")
+        public NuoDbDataProviderObjectFactory() : base()
         {
-            System.Diagnostics.Trace.WriteLine("NuoDBDataConnectionSupport()");
-        }
-        
-        protected override DataSourceInformation CreateDataSourceInformation()
-        {
-            System.Diagnostics.Trace.WriteLine("NuoDBDataConnectionSupport::CreateDataSourceInformation()");
-
-            return new NuoDBDataSourceInformation(base.Site as DataConnection);
+            System.Diagnostics.Trace.WriteLine("NuoDbDataProviderObjectFactory()");
         }
 
-        protected override object GetServiceImpl(Type serviceType)
+        public override object CreateObject(Type objType)
         {
-            System.Diagnostics.Trace.WriteLine(String.Format("NuoDBDataConnectionSupport::GetServiceImpl({0})", serviceType.FullName));
+            System.Diagnostics.Trace.WriteLine(String.Format("NuoDbDataProviderObjectFactory::CreateObject({0})", objType.FullName));
 
-            if (serviceType == typeof(DataViewSupport))
+            if (objType == typeof(DataConnectionSupport))
             {
-                return new NuoDBDataViewSupport();
+                return new NuoDbDataConnectionSupport();
             }
-            else if (serviceType == typeof(DataObjectSupport))
+            else if (objType == typeof(DataConnectionUIControl))
             {
-                return new NuoDBDataObjectSupport();
+                return new NuoDbDataConnectionUIControl();
             }
-            else if (serviceType == typeof(DataObjectIdentifierResolver))
+            else if (objType == typeof(DataConnectionProperties))
             {
-                return new NuoDBDataObjectIdentifierResolver(base.Site as DataConnection);
-            }
-            else if (serviceType == typeof(DataObjectIdentifierConverter))
-            {
-                return new NuoDBObjectIdentifierConverter(base.Site as DataConnection);
+                return new NuoDbDataConnectionProperties();
             }
 
-            return base.GetServiceImpl(serviceType);
+            return base.CreateObject(objType);
         }
-
     }
 }
