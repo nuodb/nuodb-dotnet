@@ -33,7 +33,7 @@ using Microsoft.VisualStudio.Data.AdoDotNet;
 using System.Reflection;
 using Microsoft.VisualStudio.Data.Core;
 
-namespace NuoDB.VisualStudio.DataTools
+namespace NuoDb.VisualStudio.DataTools
 {
     [Guid(GuidList.guidNuoDBObjectFactoryServiceString)]
     public class NuoDbDataProviderObjectFactory : AdoDotNetProviderObjectFactory

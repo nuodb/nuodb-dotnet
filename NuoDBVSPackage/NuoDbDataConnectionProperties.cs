@@ -29,27 +29,22 @@
 using Microsoft.VisualStudio.Data.AdoDotNet;
 using Microsoft.VisualStudio.Data;
 
-namespace NuoDB.VisualStudio.DataTools
+namespace NuoDb.VisualStudio.DataTools
 {
     public class NuoDbDataConnectionProperties : AdoDotNetConnectionProperties
     {
         public NuoDbDataConnectionProperties() 
-            : base("System.Data.NuoDB")
+            : base("NuoDb.Data.Client")
         {
-            System.Diagnostics.Trace.WriteLine("NuoDbDataConnectionProperties()");
         }
 
         public override string[] GetBasicProperties()
         {
-            System.Diagnostics.Trace.WriteLine("NuoDbDataConnectionProperties::GetBasicProperties()");
-
             return new string[] { "Server", "User", "Password", "Database" };
         }
 
         protected override void InitializeProperties()
         {
-            System.Diagnostics.Trace.WriteLine("NuoDbDataConnectionProperties::InitializeProperties()");
-
             base.InitializeProperties();
 
             this.AddProperty("Server", typeof(System.String));

@@ -28,7 +28,7 @@
 
 using Microsoft.VisualStudio.Shell;
 
-namespace NuoDB.VisualStudio.DataTools
+namespace NuoDb.VisualStudio.DataTools
 {
     class ProvideDataSourceAttribute : RegistrationAttribute
     {
@@ -78,18 +78,18 @@ namespace NuoDB.VisualStudio.DataTools
                 packageKey.SetValue("DefaultProvider", @"{" + dataProviderGuid + @"}");
 
                 packageProviderRef = packageKey.CreateSubkey(@"SupportingProviders\{"+ dataProviderGuid + @"}");
-                packageProviderRef.SetValue("DisplayName", "Provider_Label, VSPackage, NuoDB.VisualStudio.DataTools, Version=1.0.0.0, Culture=neutral, PublicKeyToken=b856dd8cd87216c3");
-                packageProviderRef.SetValue("Description", "Provider_Help, VSPackage, NuoDB.VisualStudio.DataTools, Version=1.0.0.0, Culture=neutral, PublicKeyToken=b856dd8cd87216c3");
+                packageProviderRef.SetValue("DisplayName", "Provider_Label, VSPackage, NuoDb.VisualStudio.DataTools, Version=1.0.0.0, Culture=neutral, PublicKeyToken=b856dd8cd87216c3");
+                packageProviderRef.SetValue("Description", "Provider_Help, VSPackage, NuoDb.VisualStudio.DataTools, Version=1.0.0.0, Culture=neutral, PublicKeyToken=b856dd8cd87216c3");
 
                 packageProvider = context.CreateKey(@"DataProviders\{" + dataProviderGuid + @"}");
                 packageProvider.SetValue("", dataProviderName);
 
-                packageProvider.SetValue("Description", "Provider_Description, VSPackage, NuoDB.VisualStudio.DataTools, Version=1.0.0.0, Culture=neutral, PublicKeyToken=b856dd8cd87216c3");
-                packageProvider.SetValue("DisplayName", "Provider_DisplayName, VSPackage, NuoDB.VisualStudio.DataTools, Version=1.0.0.0, Culture=neutral, PublicKeyToken=b856dd8cd87216c3");
-                packageProvider.SetValue("ShortDisplayName", "Provider_ShortDisplayName, VSPackage, NuoDB.VisualStudio.DataTools, Version=1.0.0.0, Culture=neutral, PublicKeyToken=b856dd8cd87216c3");
+                packageProvider.SetValue("Description", "Provider_Description, VSPackage, NuoDb.VisualStudio.DataTools, Version=1.0.0.0, Culture=neutral, PublicKeyToken=b856dd8cd87216c3");
+                packageProvider.SetValue("DisplayName", "Provider_DisplayName, VSPackage, NuoDb.VisualStudio.DataTools, Version=1.0.0.0, Culture=neutral, PublicKeyToken=b856dd8cd87216c3");
+                packageProvider.SetValue("ShortDisplayName", "Provider_ShortDisplayName, VSPackage, NuoDb.VisualStudio.DataTools, Version=1.0.0.0, Culture=neutral, PublicKeyToken=b856dd8cd87216c3");
                 //packageProvider.SetValue("CodeBase", context.CodeBase);
 
-                packageProvider.SetValue("InvariantName", "System.Data.NuoDB");
+                packageProvider.SetValue("InvariantName", "NuoDb.Data.Client");
                 //packageProvider.SetValue("RuntimeInvariantName", "System.Data.SqlServerCe.3.5");
                 packageProvider.SetValue("Technology", "{77AB9A9D-78B9-4ba7-91AC-873F5338F1D2}");
 
@@ -97,11 +97,11 @@ namespace NuoDB.VisualStudio.DataTools
                 //packageProvider.SetValue("AssociatedSource", "{" + dataSourceGuid + "}");
                 //packageProvider.SetValue("PlatformVersion", "1.0");
 
-                packageProvider.CreateSubkey(@"SupportedObjects\DataConnectionProperties").SetValue("", "NuoDB.VisualStudio.DataTools.NuoDbDataConnectionProperties");
-                packageProvider.CreateSubkey(@"SupportedObjects\DataConnectionSupport").SetValue("", "NuoDB.VisualStudio.DataTools.NuoDbDataConnectionSupport");
-                packageProvider.CreateSubkey(@"SupportedObjects\DataConnectionUIControl").SetValue("", "NuoDB.VisualStudio.DataTools.NuoDbDataConnectionUIControl");
-                packageProvider.CreateSubkey(@"SupportedObjects\DataViewSupport").SetValue("", "NuoDB.VisualStudio.DataTools.NuoDbDataViewSupport");
-                packageProvider.CreateSubkey(@"SupportedObjects\DataObjectSupport").SetValue("", "NuoDB.VisualStudio.DataTools.NuoDbDataObjectSupport");
+                packageProvider.CreateSubkey(@"SupportedObjects\DataConnectionProperties").SetValue("", "NuoDb.VisualStudio.DataTools.NuoDbDataConnectionProperties");
+                packageProvider.CreateSubkey(@"SupportedObjects\DataConnectionSupport").SetValue("", "NuoDb.VisualStudio.DataTools.NuoDbDataConnectionSupport");
+                packageProvider.CreateSubkey(@"SupportedObjects\DataConnectionUIControl").SetValue("", "NuoDb.VisualStudio.DataTools.NuoDbDataConnectionUIControl");
+                packageProvider.CreateSubkey(@"SupportedObjects\DataViewSupport").SetValue("", "NuoDb.VisualStudio.DataTools.NuoDbDataViewSupport");
+                packageProvider.CreateSubkey(@"SupportedObjects\DataObjectSupport").SetValue("", "NuoDb.VisualStudio.DataTools.NuoDbDataObjectSupport");
                 packageProvider.CreateSubkey(@"SupportedObjects\DataConnectionPromptDialog");
                 packageProvider.CreateSubkey(@"SupportedObjects\DataSourceSpecializer");
                 packageProvider.CreateSubkey(@"SupportedObjects\Microsoft.VisualStudio.Data.Services.SupportEntities.IVsDataConnectionUIConnector");

@@ -33,27 +33,25 @@ using System.Text;
 using Microsoft.VisualStudio.Data.AdoDotNet;
 using Microsoft.VisualStudio.Data;
 
-namespace NuoDB.VisualStudio.DataTools
+namespace NuoDb.VisualStudio.DataTools
 {
     public class NuoDbDataConnectionSupport : AdoDotNetConnectionSupport
     {
         public NuoDbDataConnectionSupport()
-            : base("System.Data.NuoDB")
+            : base("NuoDb.Data.Client")
         {
-            System.Diagnostics.Trace.WriteLine("NuoDbDataConnectionSupport()");
         }
         
         protected override DataSourceInformation CreateDataSourceInformation()
         {
-            System.Diagnostics.Trace.WriteLine("NuoDbDataConnectionSupport::CreateDataSourceInformation()");
-
             return new NuoDbDataSourceInformation(base.Site as DataConnection);
         }
 
         protected override object GetServiceImpl(Type serviceType)
         {
+#if DEBUG
             System.Diagnostics.Trace.WriteLine(String.Format("NuoDbDataConnectionSupport::GetServiceImpl({0})", serviceType.FullName));
-
+#endif
             if (serviceType == typeof(DataViewSupport))
             {
                 return new NuoDbDataViewSupport();

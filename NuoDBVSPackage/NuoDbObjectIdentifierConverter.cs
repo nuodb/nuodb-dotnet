@@ -32,7 +32,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.VisualStudio.Data.AdoDotNet;
 
-namespace NuoDB.VisualStudio.DataTools
+namespace NuoDb.VisualStudio.DataTools
 {
     class NuoDbObjectIdentifierConverter : AdoDotNetObjectIdentifierConverter
     {

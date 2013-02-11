@@ -1,0 +1,626 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<!-- 
+ Copyright (c) 2012-2013, NuoDB, Inc.
+ All rights reserved.
+
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions are met:
+
+   * Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+   * Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
+   * Neither the name of NuoDB, Inc. nor the names of its contributors may
+     be used to endorse or promote products derived from this software
+     without specific prior written permission.
+
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ DISCLAIMED. IN NO EVENT SHALL NUODB, INC. BE LIABLE FOR ANY DIRECT, INDIRECT,
+ INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+ OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<Schema Namespace="NuoDB_EntityFramework" Provider="NuoDb.Data.Client" ProviderManifestToken="001" Alias="Self"
+        xmlns="http://schemas.microsoft.com/ado/2006/04/edm/ssdl">
+
+  <EntityContainer Name="Schema">
+    <EntitySet Name="STables" EntityType="Self.Table">
+      <DefiningQuery>
+        <![CDATA[
+        SELECT
+          schema || '.' || tableName AS Id,
+          '' AS CatalogName,
+          schema AS SchemaName,
+          tableName AS Name
+        FROM SYSTEM.TABLES
+        WHERE 
+          schema != 'SYSTEM' AND
+          type = 'TABLE'
+        ]]>
+      </DefiningQuery>
+    </EntitySet>
+    <EntitySet Name="STableColumns" EntityType="Self.TableColumn">
+      <DefiningQuery>
+        <![CDATA[
+        SELECT
+          schema || '.' || tableName || '.' || field AS Id,
+          schema || '.' || tableName AS ParentId,
+          field AS Name,
+          fieldId AS Ordinal,
+          case flags
+            when 0 then true
+            when 1 then false
+            when 2 then true
+            when 3 then false
+            when 4 then true
+            when 5 then false
+            when 6 then true
+            when 7 then false
+            when 8 then true
+            when 9 then false
+            when 10 then true
+            when 11 then false
+            when 12 then true
+            when 13 then false
+            when 14 then true
+            when 15 then false
+          end AS IsNullable,
+          case
+            when domainname is not null and domainname <> '' then schema || '.' || domainname
+            else system.datatypes.name
+          end AS TypeName,
+          length AS MaxLength,
+          precision AS Precision,
+          0 AS DateTimePrecision,
+          scale AS Scale,
+          '' AS CollationCatalog,
+          '' AS CollationSchema,
+          '' AS CollationName,
+          '' AS CharacterSetCatalog,
+          '' AS CharacterSetSchema,
+          '' AS CharacterSetName,
+          false AS IsMultiSet,
+          case
+            when generator_sequence is not null and generator_sequence like '%IDENTITY_SEQUENCE' then true
+            else false
+          end AS IsIdentity,
+          case 
+            when flags >= 8 then true
+            when flags < 8 then false
+          end AS IsStoreGenerated,
+          defaultvalue AS Default
+        FROM SYSTEM.FIELDS,SYSTEM.DATATYPES,SYSTEM.TABLES
+        WHERE
+          SYSTEM.FIELDS.schema != 'SYSTEM' AND
+          SYSTEM.FIELDS.datatype = SYSTEM.DATATYPES.id AND
+          SYSTEM.FIELDS.schema = SYSTEM.TABLES.schema AND
+          SYSTEM.FIELDS.tableName = SYSTEM.TABLES.tableName AND
+          SYSTEM.TABLES.type = 'TABLE'
+        ]]>
+        </DefiningQuery>
+    </EntitySet>
+    <EntitySet Name="SViews" EntityType="Self.View">
+      <DefiningQuery>
+        <![CDATA[
+        SELECT
+          schema || '.' || tableName AS Id,
+          '' AS CatalogName,
+          schema AS SchemaName,
+          tableName AS Name,
+          viewDefinition AS ViewDefinition,
+          1 as IsUpdatable
+        FROM SYSTEM.TABLES
+        WHERE
+          schema != 'SYSTEM' AND
+          type = 'VIEW'
+        ]]>
+      </DefiningQuery>
+    </EntitySet>
+    <EntitySet Name="SViewColumns" EntityType="Self.ViewColumn">
+      <DefiningQuery>
+        <![CDATA[
+        SELECT
+          schema || '.' || tableName || '.' || field AS Id,
+          schema || '.' || tableName AS ParentId,
+          field AS Name,
+          fieldId AS Ordinal,
+          case flags
+            when 0 then true
+            when 1 then false
+            when 2 then true
+            when 3 then false
+            when 4 then true
+            when 5 then false
+            when 6 then true
+            when 7 then false
+            when 8 then true
+            when 9 then false
+            when 10 then true
+            when 11 then false
+            when 12 then true
+            when 13 then false
+            when 14 then true
+            when 15 then false
+          end AS IsNullable,
+          case
+            when domainname is not null and domainname <> '' then schema || '.' || domainname
+            else system.datatypes.name
+          end AS TypeName,
+          length AS MaxLength,
+          precision AS Precision,
+          0 AS DateTimePrecision,
+          scale AS Scale,
+          '' AS CollationCatalog,
+          '' AS CollationSchema,
+          '' AS CollationName,
+          '' AS CharacterSetCatalog,
+          '' AS CharacterSetSchema,
+          '' AS CharacterSetName,
+          false AS IsMultiSet,
+          case
+            when generator_sequence is not null and generator_sequence like '%IDENTITY_SEQUENCE' then true
+            else false
+          end AS IsIdentity,
+          case 
+            when flags >= 8 then true
+            when flags < 8 then false
+          end AS IsStoreGenerated,
+          defaultvalue AS Default
+        FROM SYSTEM.FIELDS,SYSTEM.DATATYPES,SYSTEM.TABLES
+        WHERE
+          SYSTEM.FIELDS.schema != 'SYSTEM' AND
+          SYSTEM.FIELDS.datatype = SYSTEM.DATATYPES.id AND
+          SYSTEM.FIELDS.schema = SYSTEM.TABLES.schema AND
+          SYSTEM.FIELDS.tableName = SYSTEM.TABLES.tableName AND
+          SYSTEM.TABLES.type = 'VIEW'
+        ]]>
+      </DefiningQuery>
+    </EntitySet>
+    <EntitySet Name="SFunctions" EntityType="Self.Function">
+      <DefiningQuery>
+        <![CDATA[
+        SELECT
+          '' AS Id,
+          '' AS CatalogName,
+          '' AS SchemaName,
+          '' AS Name,
+          '' AS ReturnTypeName,
+          0 AS ReturnMaxLength,
+          0 AS ReturnPrecision,
+          0 AS ReturnDateTimePrecision,
+          0 AS ReturnScale,
+          '' AS ReturnCollationCatalog,
+          '' AS ReturnCollationSchema,
+          '' AS ReturnCollationName,
+          '' AS ReturnCharacterSetCatalog,
+          '' AS ReturnCharacterSetSchema,
+          '' AS ReturnCharacterSetName,
+          false AS ReturnIsMultiSet,
+          false AS IsAggregate,
+          false AS IsBuiltIn,
+          false AS IsNiladic
+        FROM
+          SYSTEM.TABLES
+        WHERE 
+          1 = 0
+        ]]>
+      </DefiningQuery>
+    </EntitySet>
+    <EntitySet Name="SFunctionParameters" EntityType="Self.Parameter">
+      <DefiningQuery>
+        <![CDATA[
+        SELECT
+          '' AS Id,
+          '' AS ParentId,
+          '' AS Name,
+          0 AS Ordinal,
+          '' AS TypeName,
+          0 AS MaxLength,
+          0 AS Precision,
+          0 AS DateTimePrecision,
+          0 AS Scale,
+          '' AS CollationCatalog,
+          '' AS CollationSchema,
+          '' AS CollationName,
+          '' AS CharacterSetCatalog,
+          '' AS CharacterSetSchema,
+          '' AS CharacterSetName,
+          false AS IsMultiSet,
+          '' AS Mode,
+          '' AS Default
+        FROM
+          SYSTEM.TABLES
+        WHERE 
+          1 = 0
+        ]]>
+      </DefiningQuery>
+    </EntitySet>
+
+    <EntitySet Name="SProcedures" EntityType="Self.Procedure">
+      <DefiningQuery>
+        <![CDATA[
+        SELECT
+          '' AS Id,
+          '' AS CatalogName,
+          '' AS SchemaName,
+          '' AS Name
+        FROM
+          SYSTEM.TABLES
+        WHERE 
+          1 = 0
+        ]]>
+      </DefiningQuery>
+    </EntitySet>
+    <EntitySet Name="SProcedureParameters" EntityType="Self.Parameter">
+      <DefiningQuery>
+        <![CDATA[
+        SELECT
+          '' AS Id,
+          '' AS ParentId,
+          '' AS Name,
+          0 AS Ordinal,
+          '' AS TypeName,
+          0 AS MaxLength,
+          0 AS Precision,
+          0 AS DateTimePrecision,
+          0 AS Scale,
+          '' AS CollationCatalog,
+          '' AS CollationSchema,
+          '' AS CollationName,
+          '' AS CharacterSetCatalog,
+          '' AS CharacterSetSchema,
+          '' AS CharacterSetName,
+          false AS IsMultiSet,
+          '' AS Mode,
+          '' AS Default
+        FROM
+          SYSTEM.TABLES
+        WHERE 
+          1 = 0
+        ]]>
+      </DefiningQuery>
+    </EntitySet>
+
+    <EntitySet Name="STableConstraints" EntityType="Self.Constraint">
+      <DefiningQuery>
+        <![CDATA[
+        SELECT
+          schema || '.' || tablename || '.' || indexname AS Id,
+          schema || '.' || tablename AS ParentId,
+          indexname AS Name,
+          case indextype
+            when 0 then 'PRIMARY KEY'
+            when 1 then 'UNIQUE'
+          end AS ConstraintType,
+          false AS IsDeferrable,
+          false AS IsInitiallyDeferred
+        FROM SYSTEM.INDEXES
+        WHERE
+          schema != 'SYSTEM'
+        ]]>
+        
+        <!--  
+        UNION ALL
+          SELECT
+            table.schema || '.' || table.tablename || '.FOREIGN' || fkey.primaryfieldid AS Id,
+            table.schema || '.' || table.tablename AS ParentId,
+            'FOREIGN' || fkey.primaryfieldid AS Name,
+            'FOREIGN KEY' AS ConstraintType,
+            false AS IsDeferrable,
+            false AS IsInitiallyDeferred
+          FROM SYSTEM.FOREIGNKEYS AS fkey
+          LEFT JOIN SYSTEM.TABLES AS table
+          ON (fkey.PRIMARYTABLEID = table.TABLEID)
+        -->
+      </DefiningQuery>
+    </EntitySet>
+    <EntitySet Name="SCheckConstraints" EntityType="Self.CheckConstraint">
+      <DefiningQuery>
+        <![CDATA[
+        SELECT
+          '' AS Id,
+          '' AS Expression
+        FROM
+          SYSTEM.TABLES
+        WHERE
+          1 = 0
+        ]]>
+      </DefiningQuery>
+    </EntitySet>
+    <EntitySet Name="SConstraintColumns" EntityType="Self.ConstraintColumn">
+      <DefiningQuery>
+        <![CDATA[
+        SELECT
+          schema || '.' || tablename || '.' || indexname AS ConstraintId,
+          schema || '.' || tablename || '.' || field AS ColumnId
+        FROM
+          SYSTEM.INDEXFIELDS
+        WHERE
+          schema != 'SYSTEM'
+        ]]>
+      </DefiningQuery>
+    </EntitySet>
+
+    <EntitySet Name="SForeignKeyConstraints" EntityType="Self.ForeignKeyConstraint">
+      <DefiningQuery>
+        <![CDATA[
+        SELECT
+          table.schema || '.' || table.tablename || '.FOREIGN' || fkey.primaryfieldid AS Id,
+          fkey.updaterule AS UpdateRule,
+          fkey.deleterule AS DeleteRule
+        FROM SYSTEM.FOREIGNKEYS AS fkey
+        LEFT JOIN SYSTEM.TABLES AS table
+        ON (fkey.PRIMARYTABLEID = table.TABLEID)
+        ]]>
+      </DefiningQuery>
+    </EntitySet>
+    <EntitySet Name="STableForeignKeys" EntityType="Self.ForeignKey">
+      <DefiningQuery>
+        <![CDATA[
+        SELECT
+          '' AS Id,
+          '' AS FromColumnId,
+          '' AS ToColumnId,
+          '' AS ConstraintId,
+          0 AS Ordinal
+        FROM
+          SYSTEM.TABLES
+        WHERE
+          1 = 0
+        ]]>
+      </DefiningQuery>
+    </EntitySet>
+
+    <EntitySet Name="SViewConstraints" EntityType="Self.ViewConstraint">
+      <DefiningQuery>
+        <![CDATA[
+        SELECT
+          '' AS Id,
+          '' AS ParentId,
+          '' AS Name,
+          '' AS ConstraintType,
+          false AS IsDeferrable,
+          false AS IsInitiallyDeferred,
+          '' AS Expression,
+          '' AS UpdateRule,
+          '' AS DeleteRule
+        FROM SYSTEM.INDEXES
+        WHERE
+          1 = 0
+        ]]>
+      </DefiningQuery>
+    </EntitySet>
+    <EntitySet Name="SViewConstraintColumns" EntityType="Self.ConstraintColumn">
+      <DefiningQuery>
+        <![CDATA[
+        SELECT
+          '' AS ConstraintId,
+          '' AS ColumnId
+        FROM SYSTEM.INDEXES
+        WHERE
+          1 = 0
+        ]]>
+      </DefiningQuery>
+    </EntitySet>
+    <EntitySet Name="SViewForeignKeys" EntityType="Self.ForeignKey">
+      <DefiningQuery>
+        <![CDATA[
+        SELECT
+          '' AS Id,
+          '' AS ToColumnId,
+          '' AS FromColumnId,
+          '' AS ConstraintId,
+          0 AS Ordinal
+        FROM SYSTEM.INDEXES
+        WHERE
+          1 = 0
+        ]]>
+      </DefiningQuery>
+    </EntitySet>
+
+  </EntityContainer>
+
+  <EntityType Name="Table">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Nullable="false" Type="string" MaxLength="31" />
+    <Property Name="CatalogName" Type="string" MaxLength="8" />
+    <Property Name="SchemaName" Type="string" MaxLength="8" />
+    <Property Name="Name" Nullable="false" Type="string" MaxLength="31" />
+  </EntityType>
+
+  <EntityType Name="TableColumn">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Nullable="false" Type="string" MaxLength="63" />
+    <Property Name="ParentId" Nullable="false" Type="string" MaxLength="31" />
+    <Property Name="Name" Nullable="false" Type="string" MaxLength="31" />
+    <Property Name="Ordinal" Nullable="false" Type="int" />
+    <Property Name="IsNullable" Nullable="false" Type="boolean" />
+    <Property Name="TypeName" Nullable="false" Type="string" MaxLength="256" />
+    <Property Name="MaxLength" Type="int" />
+    <Property Name="Precision" Type="int" />
+    <Property Name="DateTimePrecision" Type="int" />
+    <Property Name="Scale" Type="int" />
+    <Property Name="CollationCatalog" Type="string" MaxLength="128" />
+    <Property Name="CollationSchema" Type="string" MaxLength="128" />
+    <Property Name="CollationName" Type="string" MaxLength="128" />
+    <Property Name="CharacterSetCatalog" Type="string" MaxLength="128" />
+    <Property Name="CharacterSetSchema" Type="string" MaxLength="128" />
+    <Property Name="CharacterSetName" Type="string" MaxLength="128" />
+    <Property Name="IsMultiSet" Nullable="false" Type="boolean" />
+    <Property Name="IsIdentity" Nullable="false" Type="boolean" />
+    <Property Name="IsStoreGenerated" Nullable="false" Type="boolean" />
+    <Property Name="Default" Nullable="true" Type="string" />
+  </EntityType>
+
+  <EntityType Name="View">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Nullable="false" Type="string" MaxLength="31" />
+    <Property Name="CatalogName" Type="string" MaxLength="8" />
+    <Property Name="SchemaName" Type="string" MaxLength="8" />
+    <Property Name="Name" Nullable="false" Type="string" MaxLength="31" />
+    <Property Name="ViewDefinition" Nullable="true" Type="string" />
+    <Property Name="IsUpdatable" Nullable="false" Type="boolean" />
+  </EntityType>
+
+  <EntityType Name="ViewColumn">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Nullable="false" Type="string" MaxLength="63" />
+    <Property Name="ParentId" Nullable="false" Type="string" MaxLength="31" />
+    <Property Name="Name" Nullable="false" Type="string" MaxLength="31" />
+    <Property Name="Ordinal" Nullable="false" Type="int" />
+    <Property Name="IsNullable" Nullable="false" Type="boolean" />
+    <Property Name="TypeName" Nullable="false" Type="string" MaxLength="256" />
+    <Property Name="MaxLength" Type="int" />
+    <Property Name="Precision" Type="int" />
+    <Property Name="DateTimePrecision" Type="int" />
+    <Property Name="Scale" Type="int" />
+    <Property Name="CollationCatalog" Type="string" MaxLength="128" />
+    <Property Name="CollationSchema" Type="string" MaxLength="128" />
+    <Property Name="CollationName" Type="string" MaxLength="128" />
+    <Property Name="CharacterSetCatalog" Type="string" MaxLength="128" />
+    <Property Name="CharacterSetSchema" Type="string" MaxLength="128" />
+    <Property Name="CharacterSetName" Type="string" MaxLength="128" />
+    <Property Name="IsMultiSet" Nullable="false" Type="boolean" />
+    <Property Name="IsIdentity" Nullable="false" Type="boolean" />
+    <Property Name="IsStoreGenerated" Nullable="false" Type="boolean" />
+    <Property Name="Default" Nullable="true" Type="string" />
+  </EntityType>
+
+  <EntityType Name="Function">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Nullable="false" Type="string" MaxLength="31" />
+    <Property Name="CatalogName" Type="string" MaxLength="8" />
+    <Property Name="SchemaName" Type="string" MaxLength="8" />
+    <Property Name="Name" Nullable="false" Type="string" MaxLength="31" />
+    <Property Name="ReturnTypeName" Type="string" MaxLength="256" />
+    <Property Name="ReturnMaxLength" Type="int" />
+    <Property Name="ReturnPrecision" Type="int" />
+    <Property Name="ReturnDateTimePrecision" Type="int" />
+    <Property Name="ReturnScale" Type="int" />
+    <Property Name="ReturnCollationCatalog" Type="string" MaxLength="128" />
+    <Property Name="ReturnCollationSchema" Type="string" MaxLength="128" />
+    <Property Name="ReturnCollationName" Type="string" MaxLength="128" />
+    <Property Name="ReturnCharacterSetCatalog" Type="string" MaxLength="128" />
+    <Property Name="ReturnCharacterSetSchema" Type="string" MaxLength="128" />
+    <Property Name="ReturnCharacterSetName" Type="string" MaxLength="128" />
+    <Property Name="ReturnIsMultiSet" Nullable="false" Type="boolean" />
+    <Property Name="IsAggregate" Type="boolean" />
+    <Property Name="IsBuiltIn" Type="boolean" />
+    <Property Name="IsNiladic" Type="boolean" />
+  </EntityType>
+
+  <EntityType Name="Procedure">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Nullable="false" Type="string" MaxLength="31" />
+    <Property Name="CatalogName" Type="string" MaxLength="8" />
+    <Property Name="SchemaName" Type="string" MaxLength="8" />
+    <Property Name="Name" Nullable="false" Type="string" MaxLength="31" />
+  </EntityType>
+
+  <EntityType Name="Parameter">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Nullable="false" Type="string" MaxLength="63" />
+    <Property Name="ParentId" Nullable="false" Type="string" MaxLength="31" />
+    <Property Name="Name" Nullable="false" Type="string" MaxLength="31" />
+    <Property Name="Ordinal" Nullable="false" Type="int" />
+    <Property Name="TypeName" Nullable="false" Type="string" MaxLength="256" />
+    <Property Name="MaxLength" Nullable="true" Type="int" />
+    <Property Name="Precision" Nullable="true" Type="int" />
+    <Property Name="DateTimePrecision" Type="int" />
+    <Property Name="Scale" Nullable="true" Type="int" />
+    <Property Name="CollationCatalog" Type="string" MaxLength="128" />
+    <Property Name="CollationSchema" Type="string" MaxLength="128" />
+    <Property Name="CollationName" Type="string" MaxLength="128" />
+    <Property Name="CharacterSetCatalog" Type="string" MaxLength="128" />
+    <Property Name="CharacterSetSchema" Type="string" MaxLength="128" />
+    <Property Name="CharacterSetName" Type="string" MaxLength="128" />
+    <Property Name="IsMultiSet" Nullable="false" Type="boolean" />
+    <Property Name="Mode" Type="string" MaxLength="16" />
+    <Property Name="Default" Type="string" />
+  </EntityType>
+
+  <EntityType Name="Constraint">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Nullable="false" Type="string" MaxLength="31" />
+    <Property Name="ParentId" Nullable="false" Type="string" MaxLength="31" />
+    <Property Name="Name" Nullable="false" MaxLength="31" Type="string" />
+    <Property Name="IsDeferrable" Nullable="false" Type="boolean" />
+    <Property Name="IsInitiallyDeferred" Nullable="false" Type="boolean" />
+    <Property Name="ConstraintType" Nullable="false" MaxLength="11" Type="string" />
+  </EntityType>
+
+  <EntityType Name="CheckConstraint">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Nullable="false" Type="string" MaxLength="31" />
+    <Property Name="Expression" Nullable="true" Type="string" MaxLength="1000" />
+  </EntityType>
+
+  <EntityType Name="ConstraintColumn">
+    <Key>
+      <PropertyRef Name="ConstraintId" />
+      <PropertyRef Name="ColumnId" />
+    </Key>
+    <Property Name="ConstraintId" Nullable="false" Type="string" MaxLength="31" />
+    <Property Name="ColumnId" Nullable="false" Type="string" MaxLength="63" />
+  </EntityType>
+
+  <EntityType Name="ForeignKeyConstraint">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Nullable="false" Type="string" MaxLength="31" />
+    <Property Name="UpdateRule" Nullable="false" MaxLength="11" Type="string" />
+    <Property Name="DeleteRule" Nullable="false" MaxLength="11" Type="string" />
+  </EntityType>
+
+  <EntityType Name="ForeignKey">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Nullable="false" Type="string" MaxLength="31" />
+    <Property Name="Ordinal" Nullable="false" Type="int" />
+    <Property Name="ConstraintId" Nullable="false" Type="string" MaxLength="31" />
+    <Property Name="FromColumnId" Nullable="false" Type="string" MaxLength="63" />
+    <Property Name="ToColumnId" Nullable="false" Type="string" MaxLength="63" />
+  </EntityType>
+
+  <EntityType Name="ViewConstraint">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Nullable="false" Type="string" MaxLength="31" />
+    <Property Name="ParentId" Nullable="false" Type="string" MaxLength="31" />
+    <Property Name="Name" Nullable="false" Type="string" MaxLength="31" />
+    <Property Name="IsDeferrable" Nullable="false" Type="boolean" />
+    <Property Name="IsInitiallyDeferred" Nullable="false" Type="boolean" />
+    <Property Name="ConstraintType" Nullable="false" Type="string" MaxLength="11" />
+    <Property Name="Expression" Nullable="true" Type="string" MaxLength="1000" />
+    <Property Name="UpdateRule" Nullable="true" Type="string" MaxLength="11" />
+    <Property Name="DeleteRule" Nullable="true" Type="string" MaxLength="11" />
+  </EntityType>
+  
+</Schema>

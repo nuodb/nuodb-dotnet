@@ -16,7 +16,7 @@ using System.Reflection;
 using Microsoft.VsSDK.UnitTestLibrary;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NuoDB.VisualStudio.DataTools;
+using NuoDb.VisualStudio.DataTools;
 
 namespace NuoDBVSPackage_UnitTests
 {

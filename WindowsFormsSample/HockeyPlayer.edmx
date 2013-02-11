@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="testModel.Store" Alias="Self" Provider="System.Data.NuoDB" ProviderManifestToken="001.016" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns="http://schemas.microsoft.com/ado/2009/02/edm/ssdl">
+    <Schema Namespace="testModel.Store" Alias="Self" Provider="NuoDb.Data.Client" ProviderManifestToken="001.016" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns="http://schemas.microsoft.com/ado/2009/02/edm/ssdl">
         <EntityContainer Name="testModelStoreContainer">
           <EntitySet Name="HOCKEY" EntityType="testModel.Store.HOCKEY" store:Type="Tables" Schema="HOCKEY" />
         </EntityContainer>
@@ -18,8 +18,7 @@
           <Property Name="POSITION" Type="string" MaxLength="100" />
           <Property Name="TEAM" Type="string" MaxLength="100" />
         </EntityType>
-      </Schema>
-    </edmx:StorageModels>
+      </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="testModel" Alias="Self" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns="http://schemas.microsoft.com/ado/2008/09/edm">

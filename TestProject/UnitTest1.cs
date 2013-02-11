@@ -1,6 +1,6 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Data.NuoDB;
+using NuoDb.Data.Client;
 using System.Data.Common;
 using System.Data;
 using System.Collections.Specialized;

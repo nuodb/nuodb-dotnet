@@ -34,10 +34,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="NuoDb.Data.Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=e49f105b7fb49b38" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data.Entity" />
-    <Reference Include="System.Data.NuoDB, Version=1.0.0.0, Culture=neutral, PublicKeyToken=e49f105b7fb49b38" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Security" />
     <Reference Include="System.Xml.Linq" />
@@ -100,8 +100,8 @@
     </None>
     <None Include="testDataSet.xsd">
       <Generator>MSDataSetGenerator</Generator>
-      <LastGenOutput>testDataSet.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
+      <LastGenOutput>testDataSet.Designer.cs</LastGenOutput>
     </None>
     <None Include="testDataSet.xss">
       <DependentUpon>testDataSet.xsd</DependentUpon>

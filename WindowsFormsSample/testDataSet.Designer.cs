@@ -776,13 +776,13 @@ namespace WindowsFormsSample.testDataSetTableAdapters {
     [global::System.ComponentModel.Design.HelpKeywordAttribute("vs.data.TableAdapter")]
     public partial class HOCKEYTableAdapter : global::System.ComponentModel.Component {
         
-        private global::System.Data.NuoDB.NuoDBDataAdapter _adapter;
+        private global::NuoDb.Data.Client.NuoDbDataAdapter _adapter;
         
-        private global::System.Data.NuoDB.NuoDBConnection _connection;
+        private global::NuoDb.Data.Client.NuoDbConnection _connection;
         
         private global::System.Data.Common.DbTransaction _transaction;
         
-        private global::System.Data.NuoDB.NuoDBCommand[] _commandCollection;
+        private global::NuoDb.Data.Client.NuoDbCommand[] _commandCollection;
         
         private bool _clearBeforeFill;
         
@@ -794,7 +794,7 @@ namespace WindowsFormsSample.testDataSetTableAdapters {
         
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-        protected internal global::System.Data.NuoDB.NuoDBDataAdapter Adapter {
+        protected internal global::NuoDb.Data.Client.NuoDbDataAdapter Adapter {
             get {
                 if ((this._adapter == null)) {
                     this.InitAdapter();
@@ -805,7 +805,7 @@ namespace WindowsFormsSample.testDataSetTableAdapters {
         
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-        internal global::System.Data.NuoDB.NuoDBConnection Connection {
+        internal global::NuoDb.Data.Client.NuoDbConnection Connection {
             get {
                 if ((this._connection == null)) {
                     this.InitConnection();
@@ -825,7 +825,7 @@ namespace WindowsFormsSample.testDataSetTableAdapters {
                 }
                 for (int i = 0; (i < this.CommandCollection.Length); i = (i + 1)) {
                     if ((this.CommandCollection[i] != null)) {
-                        ((global::System.Data.NuoDB.NuoDBCommand)(this.CommandCollection[i])).Connection = value;
+                        ((global::NuoDb.Data.Client.NuoDbCommand)(this.CommandCollection[i])).Connection = value;
                     }
                 }
             }
@@ -859,7 +859,7 @@ namespace WindowsFormsSample.testDataSetTableAdapters {
         
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-        protected global::System.Data.NuoDB.NuoDBCommand[] CommandCollection {
+        protected global::NuoDb.Data.Client.NuoDbCommand[] CommandCollection {
             get {
                 if ((this._commandCollection == null)) {
                     this.InitCommandCollection();
@@ -882,7 +882,7 @@ namespace WindowsFormsSample.testDataSetTableAdapters {
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
         private void InitAdapter() {
-            this._adapter = new global::System.Data.NuoDB.NuoDBDataAdapter();
+            this._adapter = new global::NuoDb.Data.Client.NuoDbDataAdapter();
             global::System.Data.Common.DataTableMapping tableMapping = new global::System.Data.Common.DataTableMapping();
             tableMapping.SourceTable = "Table";
             tableMapping.DataSetTable = "HOCKEY";
@@ -892,33 +892,293 @@ namespace WindowsFormsSample.testDataSetTableAdapters {
             tableMapping.ColumnMappings.Add("POSITION", "POSITION");
             tableMapping.ColumnMappings.Add("TEAM", "TEAM");
             this._adapter.TableMappings.Add(tableMapping);
-            this._adapter.DeleteCommand = new global::System.Data.NuoDB.NuoDBCommand();
+            this._adapter.DeleteCommand = new global::NuoDb.Data.Client.NuoDbCommand();
             this._adapter.DeleteCommand.Connection = this.Connection;
             this._adapter.DeleteCommand.CommandText = @"DELETE FROM ""HOCKEY"".""HOCKEY"" WHERE ((""ID"" = ?) AND ((? = 1 AND ""NUMBER"" IS NULL) OR (""NUMBER"" = ?)) AND ((? = 1 AND ""NAME"" IS NULL) OR (""NAME"" = ?)) AND ((? = 1 AND ""POSITION"" IS NULL) OR (""POSITION"" = ?)) AND ((? = 1 AND ""TEAM"" IS NULL) OR (""TEAM"" = ?)))";
             this._adapter.DeleteCommand.CommandType = global::System.Data.CommandType.Text;
-            this._adapter.InsertCommand = new global::System.Data.NuoDB.NuoDBCommand();
+            global::NuoDb.Data.Client.NuoDbParameter param = new global::NuoDb.Data.Client.NuoDbParameter();
+            param.ParameterName = "?";
+            param.DbType = global::System.Data.DbType.Int32;
+            param.Size = 11;
+            param.Direction = global::System.Data.ParameterDirection.Input;
+            param.IsNullable = true;
+            param.SourceColumn = "ID";
+            param.SourceVersion = global::System.Data.DataRowVersion.Original;
+            this._adapter.DeleteCommand.Parameters.Add(param);
+            param = new global::NuoDb.Data.Client.NuoDbParameter();
+            param.ParameterName = "?1";
+            param.DbType = global::System.Data.DbType.Int32;
+            param.Size = 11;
+            param.Direction = global::System.Data.ParameterDirection.Input;
+            param.IsNullable = true;
+            param.SourceColumn = "NUMBER";
+            param.SourceVersion = global::System.Data.DataRowVersion.Original;
+            param.SourceColumnNullMapping = true;
+            this._adapter.DeleteCommand.Parameters.Add(param);
+            param = new global::NuoDb.Data.Client.NuoDbParameter();
+            param.ParameterName = "?2";
+            param.DbType = global::System.Data.DbType.Int32;
+            param.Size = 11;
+            param.Direction = global::System.Data.ParameterDirection.Input;
+            param.IsNullable = true;
+            param.SourceColumn = "NUMBER";
+            param.SourceVersion = global::System.Data.DataRowVersion.Original;
+            this._adapter.DeleteCommand.Parameters.Add(param);
+            param = new global::NuoDb.Data.Client.NuoDbParameter();
+            param.ParameterName = "?3";
+            param.DbType = global::System.Data.DbType.Int32;
+            param.Size = 40;
+            param.Direction = global::System.Data.ParameterDirection.Input;
+            param.IsNullable = true;
+            param.SourceColumn = "NAME";
+            param.SourceVersion = global::System.Data.DataRowVersion.Original;
+            param.SourceColumnNullMapping = true;
+            this._adapter.DeleteCommand.Parameters.Add(param);
+            param = new global::NuoDb.Data.Client.NuoDbParameter();
+            param.ParameterName = "?4";
+            param.DbType = global::System.Data.DbType.String;
+            param.Size = 40;
+            param.Direction = global::System.Data.ParameterDirection.Input;
+            param.IsNullable = true;
+            param.SourceColumn = "NAME";
+            param.SourceVersion = global::System.Data.DataRowVersion.Original;
+            this._adapter.DeleteCommand.Parameters.Add(param);
+            param = new global::NuoDb.Data.Client.NuoDbParameter();
+            param.ParameterName = "?5";
+            param.DbType = global::System.Data.DbType.Int32;
+            param.Size = 40;
+            param.Direction = global::System.Data.ParameterDirection.Input;
+            param.IsNullable = true;
+            param.SourceColumn = "POSITION";
+            param.SourceVersion = global::System.Data.DataRowVersion.Original;
+            param.SourceColumnNullMapping = true;
+            this._adapter.DeleteCommand.Parameters.Add(param);
+            param = new global::NuoDb.Data.Client.NuoDbParameter();
+            param.ParameterName = "?6";
+            param.DbType = global::System.Data.DbType.String;
+            param.Size = 40;
+            param.Direction = global::System.Data.ParameterDirection.Input;
+            param.IsNullable = true;
+            param.SourceColumn = "POSITION";
+            param.SourceVersion = global::System.Data.DataRowVersion.Original;
+            this._adapter.DeleteCommand.Parameters.Add(param);
+            param = new global::NuoDb.Data.Client.NuoDbParameter();
+            param.ParameterName = "?7";
+            param.DbType = global::System.Data.DbType.Int32;
+            param.Size = 40;
+            param.Direction = global::System.Data.ParameterDirection.Input;
+            param.IsNullable = true;
+            param.SourceColumn = "TEAM";
+            param.SourceVersion = global::System.Data.DataRowVersion.Original;
+            param.SourceColumnNullMapping = true;
+            this._adapter.DeleteCommand.Parameters.Add(param);
+            param = new global::NuoDb.Data.Client.NuoDbParameter();
+            param.ParameterName = "?8";
+            param.DbType = global::System.Data.DbType.String;
+            param.Size = 40;
+            param.Direction = global::System.Data.ParameterDirection.Input;
+            param.IsNullable = true;
+            param.SourceColumn = "TEAM";
+            param.SourceVersion = global::System.Data.DataRowVersion.Original;
+            this._adapter.DeleteCommand.Parameters.Add(param);
+            this._adapter.InsertCommand = new global::NuoDb.Data.Client.NuoDbCommand();
             this._adapter.InsertCommand.Connection = this.Connection;
             this._adapter.InsertCommand.CommandText = "INSERT INTO \"HOCKEY\".\"HOCKEY\" (\"ID\", \"NUMBER\", \"NAME\", \"POSITION\", \"TEAM\") VALUES" +
                 " (?, ?, ?, ?, ?)";
             this._adapter.InsertCommand.CommandType = global::System.Data.CommandType.Text;
-            this._adapter.UpdateCommand = new global::System.Data.NuoDB.NuoDBCommand();
+            param = new global::NuoDb.Data.Client.NuoDbParameter();
+            param.ParameterName = "?";
+            param.DbType = global::System.Data.DbType.Int32;
+            param.Size = 11;
+            param.Direction = global::System.Data.ParameterDirection.Input;
+            param.IsNullable = true;
+            param.SourceColumn = "ID";
+            param.SourceVersion = global::System.Data.DataRowVersion.Current;
+            this._adapter.InsertCommand.Parameters.Add(param);
+            param = new global::NuoDb.Data.Client.NuoDbParameter();
+            param.ParameterName = "?1";
+            param.DbType = global::System.Data.DbType.Int32;
+            param.Size = 11;
+            param.Direction = global::System.Data.ParameterDirection.Input;
+            param.IsNullable = true;
+            param.SourceColumn = "NUMBER";
+            param.SourceVersion = global::System.Data.DataRowVersion.Current;
+            this._adapter.InsertCommand.Parameters.Add(param);
+            param = new global::NuoDb.Data.Client.NuoDbParameter();
+            param.ParameterName = "?2";
+            param.DbType = global::System.Data.DbType.String;
+            param.Size = 40;
+            param.Direction = global::System.Data.ParameterDirection.Input;
+            param.IsNullable = true;
+            param.SourceColumn = "NAME";
+            param.SourceVersion = global::System.Data.DataRowVersion.Current;
+            this._adapter.InsertCommand.Parameters.Add(param);
+            param = new global::NuoDb.Data.Client.NuoDbParameter();
+            param.ParameterName = "?3";
+            param.DbType = global::System.Data.DbType.String;
+            param.Size = 40;
+            param.Direction = global::System.Data.ParameterDirection.Input;
+            param.IsNullable = true;
+            param.SourceColumn = "POSITION";
+            param.SourceVersion = global::System.Data.DataRowVersion.Current;
+            this._adapter.InsertCommand.Parameters.Add(param);
+            param = new global::NuoDb.Data.Client.NuoDbParameter();
+            param.ParameterName = "?4";
+            param.DbType = global::System.Data.DbType.String;
+            param.Size = 40;
+            param.Direction = global::System.Data.ParameterDirection.Input;
+            param.IsNullable = true;
+            param.SourceColumn = "TEAM";
+            param.SourceVersion = global::System.Data.DataRowVersion.Current;
+            this._adapter.InsertCommand.Parameters.Add(param);
+            this._adapter.UpdateCommand = new global::NuoDb.Data.Client.NuoDbCommand();
             this._adapter.UpdateCommand.Connection = this.Connection;
             this._adapter.UpdateCommand.CommandText = @"UPDATE ""HOCKEY"".""HOCKEY"" SET ""ID"" = ?, ""NUMBER"" = ?, ""NAME"" = ?, ""POSITION"" = ?, ""TEAM"" = ? WHERE ((""ID"" = ?) AND ((? = 1 AND ""NUMBER"" IS NULL) OR (""NUMBER"" = ?)) AND ((? = 1 AND ""NAME"" IS NULL) OR (""NAME"" = ?)) AND ((? = 1 AND ""POSITION"" IS NULL) OR (""POSITION"" = ?)) AND ((? = 1 AND ""TEAM"" IS NULL) OR (""TEAM"" = ?)))";
             this._adapter.UpdateCommand.CommandType = global::System.Data.CommandType.Text;
+            param = new global::NuoDb.Data.Client.NuoDbParameter();
+            param.ParameterName = "?";
+            param.DbType = global::System.Data.DbType.Int32;
+            param.Size = 11;
+            param.Direction = global::System.Data.ParameterDirection.Input;
+            param.IsNullable = true;
+            param.SourceColumn = "ID";
+            param.SourceVersion = global::System.Data.DataRowVersion.Current;
+            this._adapter.UpdateCommand.Parameters.Add(param);
+            param = new global::NuoDb.Data.Client.NuoDbParameter();
+            param.ParameterName = "?1";
+            param.DbType = global::System.Data.DbType.Int32;
+            param.Size = 11;
+            param.Direction = global::System.Data.ParameterDirection.Input;
+            param.IsNullable = true;
+            param.SourceColumn = "NUMBER";
+            param.SourceVersion = global::System.Data.DataRowVersion.Current;
+            this._adapter.UpdateCommand.Parameters.Add(param);
+            param = new global::NuoDb.Data.Client.NuoDbParameter();
+            param.ParameterName = "?2";
+            param.DbType = global::System.Data.DbType.String;
+            param.Size = 40;
+            param.Direction = global::System.Data.ParameterDirection.Input;
+            param.IsNullable = true;
+            param.SourceColumn = "NAME";
+            param.SourceVersion = global::System.Data.DataRowVersion.Current;
+            this._adapter.UpdateCommand.Parameters.Add(param);
+            param = new global::NuoDb.Data.Client.NuoDbParameter();
+            param.ParameterName = "?3";
+            param.DbType = global::System.Data.DbType.String;
+            param.Size = 40;
+            param.Direction = global::System.Data.ParameterDirection.Input;
+            param.IsNullable = true;
+            param.SourceColumn = "POSITION";
+            param.SourceVersion = global::System.Data.DataRowVersion.Current;
+            this._adapter.UpdateCommand.Parameters.Add(param);
+            param = new global::NuoDb.Data.Client.NuoDbParameter();
+            param.ParameterName = "?4";
+            param.DbType = global::System.Data.DbType.String;
+            param.Size = 40;
+            param.Direction = global::System.Data.ParameterDirection.Input;
+            param.IsNullable = true;
+            param.SourceColumn = "TEAM";
+            param.SourceVersion = global::System.Data.DataRowVersion.Current;
+            this._adapter.UpdateCommand.Parameters.Add(param);
+            param = new global::NuoDb.Data.Client.NuoDbParameter();
+            param.ParameterName = "?5";
+            param.DbType = global::System.Data.DbType.Int32;
+            param.Size = 11;
+            param.Direction = global::System.Data.ParameterDirection.Input;
+            param.IsNullable = true;
+            param.SourceColumn = "ID";
+            param.SourceVersion = global::System.Data.DataRowVersion.Original;
+            this._adapter.UpdateCommand.Parameters.Add(param);
+            param = new global::NuoDb.Data.Client.NuoDbParameter();
+            param.ParameterName = "?6";
+            param.DbType = global::System.Data.DbType.Int32;
+            param.Size = 11;
+            param.Direction = global::System.Data.ParameterDirection.Input;
+            param.IsNullable = true;
+            param.SourceColumn = "NUMBER";
+            param.SourceVersion = global::System.Data.DataRowVersion.Original;
+            param.SourceColumnNullMapping = true;
+            this._adapter.UpdateCommand.Parameters.Add(param);
+            param = new global::NuoDb.Data.Client.NuoDbParameter();
+            param.ParameterName = "?7";
+            param.DbType = global::System.Data.DbType.Int32;
+            param.Size = 11;
+            param.Direction = global::System.Data.ParameterDirection.Input;
+            param.IsNullable = true;
+            param.SourceColumn = "NUMBER";
+            param.SourceVersion = global::System.Data.DataRowVersion.Original;
+            this._adapter.UpdateCommand.Parameters.Add(param);
+            param = new global::NuoDb.Data.Client.NuoDbParameter();
+            param.ParameterName = "?8";
+            param.DbType = global::System.Data.DbType.Int32;
+            param.Size = 40;
+            param.Direction = global::System.Data.ParameterDirection.Input;
+            param.IsNullable = true;
+            param.SourceColumn = "NAME";
+            param.SourceVersion = global::System.Data.DataRowVersion.Original;
+            param.SourceColumnNullMapping = true;
+            this._adapter.UpdateCommand.Parameters.Add(param);
+            param = new global::NuoDb.Data.Client.NuoDbParameter();
+            param.ParameterName = "?9";
+            param.DbType = global::System.Data.DbType.String;
+            param.Size = 40;
+            param.Direction = global::System.Data.ParameterDirection.Input;
+            param.IsNullable = true;
+            param.SourceColumn = "NAME";
+            param.SourceVersion = global::System.Data.DataRowVersion.Original;
+            this._adapter.UpdateCommand.Parameters.Add(param);
+            param = new global::NuoDb.Data.Client.NuoDbParameter();
+            param.ParameterName = "?10";
+            param.DbType = global::System.Data.DbType.Int32;
+            param.Size = 40;
+            param.Direction = global::System.Data.ParameterDirection.Input;
+            param.IsNullable = true;
+            param.SourceColumn = "POSITION";
+            param.SourceVersion = global::System.Data.DataRowVersion.Original;
+            param.SourceColumnNullMapping = true;
+            this._adapter.UpdateCommand.Parameters.Add(param);
+            param = new global::NuoDb.Data.Client.NuoDbParameter();
+            param.ParameterName = "?11";
+            param.DbType = global::System.Data.DbType.String;
+            param.Size = 40;
+            param.Direction = global::System.Data.ParameterDirection.Input;
+            param.IsNullable = true;
+            param.SourceColumn = "POSITION";
+            param.SourceVersion = global::System.Data.DataRowVersion.Original;
+            this._adapter.UpdateCommand.Parameters.Add(param);
+            param = new global::NuoDb.Data.Client.NuoDbParameter();
+            param.ParameterName = "?12";
+            param.DbType = global::System.Data.DbType.Int32;
+            param.Size = 40;
+            param.Direction = global::System.Data.ParameterDirection.Input;
+            param.IsNullable = true;
+            param.SourceColumn = "TEAM";
+            param.SourceVersion = global::System.Data.DataRowVersion.Original;
+            param.SourceColumnNullMapping = true;
+            this._adapter.UpdateCommand.Parameters.Add(param);
+            param = new global::NuoDb.Data.Client.NuoDbParameter();
+            param.ParameterName = "?13";
+            param.DbType = global::System.Data.DbType.String;
+            param.Size = 40;
+            param.Direction = global::System.Data.ParameterDirection.Input;
+            param.IsNullable = true;
+            param.SourceColumn = "TEAM";
+            param.SourceVersion = global::System.Data.DataRowVersion.Original;
+            this._adapter.UpdateCommand.Parameters.Add(param);
         }
         
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
         private void InitConnection() {
-            this._connection = new global::System.Data.NuoDB.NuoDBConnection();
+            this._connection = new global::NuoDb.Data.Client.NuoDbConnection();
             this._connection.ConnectionString = global::WindowsFormsSample.Properties.Settings.Default.NuoDBQuickstart;
         }
         
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
         private void InitCommandCollection() {
-            this._commandCollection = new global::System.Data.NuoDB.NuoDBCommand[1];
-            this._commandCollection[0] = new global::System.Data.NuoDB.NuoDBCommand();
+            this._commandCollection = new global::NuoDb.Data.Client.NuoDbCommand[1];
+            this._commandCollection[0] = new global::NuoDb.Data.Client.NuoDbCommand();
             this._commandCollection[0].Connection = this.Connection;
             this._commandCollection[0].CommandText = "SELECT \"ID\", \"NUMBER\", \"NAME\", \"POSITION\", \"TEAM\" FROM \"HOCKEY\".\"HOCKEY\"";
             this._commandCollection[0].CommandType = global::System.Data.CommandType.Text;
@@ -981,7 +1241,40 @@ namespace WindowsFormsSample.testDataSetTableAdapters {
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
         [global::System.ComponentModel.Design.HelpKeywordAttribute("vs.data.TableAdapter")]
         [global::System.ComponentModel.DataObjectMethodAttribute(global::System.ComponentModel.DataObjectMethodType.Delete, true)]
-        public virtual int Delete() {
+        public virtual int Delete(int __, global::System.Nullable<int> @__2, string @__4, string @__6, string @__8) {
+            this.Adapter.DeleteCommand.Parameters[0].Value = ((int)(__));
+            if ((@__2.HasValue == true)) {
+                this.Adapter.DeleteCommand.Parameters[1].Value = ((object)(0));
+                this.Adapter.DeleteCommand.Parameters[2].Value = ((int)(@__2.Value));
+            }
+            else {
+                this.Adapter.DeleteCommand.Parameters[1].Value = ((object)(1));
+                this.Adapter.DeleteCommand.Parameters[2].Value = global::System.DBNull.Value;
+            }
+            if ((@__4 == null)) {
+                this.Adapter.DeleteCommand.Parameters[3].Value = ((object)(1));
+                this.Adapter.DeleteCommand.Parameters[4].Value = global::System.DBNull.Value;
+            }
+            else {
+                this.Adapter.DeleteCommand.Parameters[3].Value = ((object)(0));
+                this.Adapter.DeleteCommand.Parameters[4].Value = ((string)(@__4));
+            }
+            if ((@__6 == null)) {
+                this.Adapter.DeleteCommand.Parameters[5].Value = ((object)(1));
+                this.Adapter.DeleteCommand.Parameters[6].Value = global::System.DBNull.Value;
+            }
+            else {
+                this.Adapter.DeleteCommand.Parameters[5].Value = ((object)(0));
+                this.Adapter.DeleteCommand.Parameters[6].Value = ((string)(@__6));
+            }
+            if ((@__8 == null)) {
+                this.Adapter.DeleteCommand.Parameters[7].Value = ((object)(1));
+                this.Adapter.DeleteCommand.Parameters[8].Value = global::System.DBNull.Value;
+            }
+            else {
+                this.Adapter.DeleteCommand.Parameters[7].Value = ((object)(0));
+                this.Adapter.DeleteCommand.Parameters[8].Value = ((string)(@__8));
+            }
             global::System.Data.ConnectionState previousConnectionState = this.Adapter.DeleteCommand.Connection.State;
             if (((this.Adapter.DeleteCommand.Connection.State & global::System.Data.ConnectionState.Open) 
                         != global::System.Data.ConnectionState.Open)) {
@@ -1002,7 +1295,32 @@ namespace WindowsFormsSample.testDataSetTableAdapters {
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
         [global::System.ComponentModel.Design.HelpKeywordAttribute("vs.data.TableAdapter")]
         [global::System.ComponentModel.DataObjectMethodAttribute(global::System.ComponentModel.DataObjectMethodType.Insert, true)]
-        public virtual int Insert() {
+        public virtual int Insert(int __, global::System.Nullable<int> @__1, string @__2, string @__3, string @__4) {
+            this.Adapter.InsertCommand.Parameters[0].Value = ((int)(__));
+            if ((@__1.HasValue == true)) {
+                this.Adapter.InsertCommand.Parameters[1].Value = ((int)(@__1.Value));
+            }
+            else {
+                this.Adapter.InsertCommand.Parameters[1].Value = global::System.DBNull.Value;
+            }
+            if ((@__2 == null)) {
+                this.Adapter.InsertCommand.Parameters[2].Value = global::System.DBNull.Value;
+            }
+            else {
+                this.Adapter.InsertCommand.Parameters[2].Value = ((string)(@__2));
+            }
+            if ((@__3 == null)) {
+                this.Adapter.InsertCommand.Parameters[3].Value = global::System.DBNull.Value;
+            }
+            else {
+                this.Adapter.InsertCommand.Parameters[3].Value = ((string)(@__3));
+            }
+            if ((@__4 == null)) {
+                this.Adapter.InsertCommand.Parameters[4].Value = global::System.DBNull.Value;
+            }
+            else {
+                this.Adapter.InsertCommand.Parameters[4].Value = ((string)(@__4));
+            }
             global::System.Data.ConnectionState previousConnectionState = this.Adapter.InsertCommand.Connection.State;
             if (((this.Adapter.InsertCommand.Connection.State & global::System.Data.ConnectionState.Open) 
                         != global::System.Data.ConnectionState.Open)) {
@@ -1023,7 +1341,65 @@ namespace WindowsFormsSample.testDataSetTableAdapters {
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
         [global::System.ComponentModel.Design.HelpKeywordAttribute("vs.data.TableAdapter")]
         [global::System.ComponentModel.DataObjectMethodAttribute(global::System.ComponentModel.DataObjectMethodType.Update, true)]
-        public virtual int Update() {
+        public virtual int Update(int __, global::System.Nullable<int> @__1, string @__2, string @__3, string @__4, int @__5, global::System.Nullable<int> @__7, string @__9, string @__11, string @__13) {
+            this.Adapter.UpdateCommand.Parameters[0].Value = ((int)(__));
+            if ((@__1.HasValue == true)) {
+                this.Adapter.UpdateCommand.Parameters[1].Value = ((int)(@__1.Value));
+            }
+            else {
+                this.Adapter.UpdateCommand.Parameters[1].Value = global::System.DBNull.Value;
+            }
+            if ((@__2 == null)) {
+                this.Adapter.UpdateCommand.Parameters[2].Value = global::System.DBNull.Value;
+            }
+            else {
+                this.Adapter.UpdateCommand.Parameters[2].Value = ((string)(@__2));
+            }
+            if ((@__3 == null)) {
+                this.Adapter.UpdateCommand.Parameters[3].Value = global::System.DBNull.Value;
+            }
+            else {
+                this.Adapter.UpdateCommand.Parameters[3].Value = ((string)(@__3));
+            }
+            if ((@__4 == null)) {
+                this.Adapter.UpdateCommand.Parameters[4].Value = global::System.DBNull.Value;
+            }
+            else {
+                this.Adapter.UpdateCommand.Parameters[4].Value = ((string)(@__4));
+            }
+            this.Adapter.UpdateCommand.Parameters[5].Value = ((int)(@__5));
+            if ((@__7.HasValue == true)) {
+                this.Adapter.UpdateCommand.Parameters[6].Value = ((object)(0));
+                this.Adapter.UpdateCommand.Parameters[7].Value = ((int)(@__7.Value));
+            }
+            else {
+                this.Adapter.UpdateCommand.Parameters[6].Value = ((object)(1));
+                this.Adapter.UpdateCommand.Parameters[7].Value = global::System.DBNull.Value;
+            }
+            if ((@__9 == null)) {
+                this.Adapter.UpdateCommand.Parameters[8].Value = ((object)(1));
+                this.Adapter.UpdateCommand.Parameters[9].Value = global::System.DBNull.Value;
+            }
+            else {
+                this.Adapter.UpdateCommand.Parameters[8].Value = ((object)(0));
+                this.Adapter.UpdateCommand.Parameters[9].Value = ((string)(@__9));
+            }
+            if ((@__11 == null)) {
+                this.Adapter.UpdateCommand.Parameters[10].Value = ((object)(1));
+                this.Adapter.UpdateCommand.Parameters[11].Value = global::System.DBNull.Value;
+            }
+            else {
+                this.Adapter.UpdateCommand.Parameters[10].Value = ((object)(0));
+                this.Adapter.UpdateCommand.Parameters[11].Value = ((string)(@__11));
+            }
+            if ((@__13 == null)) {
+                this.Adapter.UpdateCommand.Parameters[12].Value = ((object)(1));
+                this.Adapter.UpdateCommand.Parameters[13].Value = global::System.DBNull.Value;
+            }
+            else {
+                this.Adapter.UpdateCommand.Parameters[12].Value = ((object)(0));
+                this.Adapter.UpdateCommand.Parameters[13].Value = ((string)(@__13));
+            }
             global::System.Data.ConnectionState previousConnectionState = this.Adapter.UpdateCommand.Connection.State;
             if (((this.Adapter.UpdateCommand.Connection.State & global::System.Data.ConnectionState.Open) 
                         != global::System.Data.ConnectionState.Open)) {
@@ -1038,6 +1414,14 @@ namespace WindowsFormsSample.testDataSetTableAdapters {
                     this.Adapter.UpdateCommand.Connection.Close();
                 }
             }
+        }
+        
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+        [global::System.ComponentModel.Design.HelpKeywordAttribute("vs.data.TableAdapter")]
+        [global::System.ComponentModel.DataObjectMethodAttribute(global::System.ComponentModel.DataObjectMethodType.Update, true)]
+        public virtual int Update(global::System.Nullable<int> @__1, string @__2, string @__3, string @__4, int @__5, global::System.Nullable<int> @__7, string @__9, string @__11, string @__13) {
+            return this.Update(@__5, @__1, @__2, @__3, @__4, @__5, @__7, @__9, @__11, @__13);
         }
     }
     
@@ -1257,7 +1641,7 @@ namespace WindowsFormsSample.testDataSetTableAdapters {
                 //
                 if ((this._hOCKEYTableAdapter != null)) {
                     revertConnections.Add(this._hOCKEYTableAdapter, this._hOCKEYTableAdapter.Connection);
-                    this._hOCKEYTableAdapter.Connection = ((global::System.Data.NuoDB.NuoDBConnection)(workConnection));
+                    this._hOCKEYTableAdapter.Connection = ((global::NuoDb.Data.Client.NuoDbConnection)(workConnection));
                     this._hOCKEYTableAdapter.Transaction = ((global::System.Data.Common.DbTransaction)(workTransaction));
                     if (this._hOCKEYTableAdapter.Adapter.AcceptChangesDuringUpdate) {
                         this._hOCKEYTableAdapter.Adapter.AcceptChangesDuringUpdate = false;
@@ -1323,7 +1707,7 @@ namespace WindowsFormsSample.testDataSetTableAdapters {
                     workConnection.Close();
                 }
                 if ((this._hOCKEYTableAdapter != null)) {
-                    this._hOCKEYTableAdapter.Connection = ((global::System.Data.NuoDB.NuoDBConnection)(revertConnections[this._hOCKEYTableAdapter]));
+                    this._hOCKEYTableAdapter.Connection = ((global::NuoDb.Data.Client.NuoDbConnection)(revertConnections[this._hOCKEYTableAdapter]));
                     this._hOCKEYTableAdapter.Transaction = null;
                 }
                 if ((0 < adaptersWithAcceptChangesDuringUpdate.Count)) {

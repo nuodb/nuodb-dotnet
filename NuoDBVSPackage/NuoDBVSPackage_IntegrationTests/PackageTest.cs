@@ -49,7 +49,7 @@ namespace NuoDBVSPackage_IntegrationTests
 
                 //Validate package load
                 IVsPackage package;
-                Guid packageGuid = new Guid(NuoDB.VisualStudio.DataTools.GuidList.guidNuoDBVSPackagePkgString);
+                Guid packageGuid = new Guid(NuoDb.VisualStudio.DataTools.GuidList.guidNuoDBVSPackagePkgString);
                 Assert.IsTrue(0 == shellService.LoadPackage(ref packageGuid, out package));
                 Assert.IsNotNull(package, "Package failed to load");
 

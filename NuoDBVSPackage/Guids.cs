@@ -30,7 +30,7 @@
 // MUST match guids.h
 using System;
 
-namespace NuoDB.VisualStudio.DataTools
+namespace NuoDb.VisualStudio.DataTools
 {
     static class GuidList
     {

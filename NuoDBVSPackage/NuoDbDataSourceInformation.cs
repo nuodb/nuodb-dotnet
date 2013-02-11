@@ -33,7 +33,7 @@ using System.Text;
 using Microsoft.VisualStudio.Data.AdoDotNet;
 using System.Data;
 
-namespace NuoDB.VisualStudio.DataTools
+namespace NuoDb.VisualStudio.DataTools
 {
     class NuoDbDataSourceInformation : AdoDotNetDataSourceInformation
     {

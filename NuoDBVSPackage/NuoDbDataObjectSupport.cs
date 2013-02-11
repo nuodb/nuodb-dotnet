@@ -32,12 +32,12 @@ using System.Linq;
 using System.Text;
 using Microsoft.VisualStudio.Data;
 
-namespace NuoDB.VisualStudio.DataTools
+namespace NuoDb.VisualStudio.DataTools
 {
     public class NuoDbDataObjectSupport : DataObjectSupport
     {
         public NuoDbDataObjectSupport()
-            : base("NuoDB.VisualStudio.DataTools.NuoDbDataObjectSupport", typeof(NuoDbDataObjectSupport).Assembly)
+            : base("NuoDb.VisualStudio.DataTools.NuoDbDataObjectSupport", typeof(NuoDbDataObjectSupport).Assembly)
 		{
             System.Diagnostics.Trace.WriteLine("NuoDbDataObjectSupport()");
 		}
