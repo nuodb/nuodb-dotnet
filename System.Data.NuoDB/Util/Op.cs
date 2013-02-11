@@ -36,7 +36,7 @@ namespace System.Data.NuoDB.Util
 	// Op
 	//
 	//
-	public class Op
+	class Op
 	{
 		public static string stringDivide(string @string, char c)
 		{

@@ -39,7 +39,7 @@ namespace System.Data.NuoDB.Xml
 	// Doc
 	//
 	//
-	public class Doc
+	class Doc
 	{
 		internal StringBuilder document;
 		internal int offset;

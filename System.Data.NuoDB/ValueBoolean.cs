@@ -36,7 +36,7 @@ namespace System.Data.NuoDB
 	// ValueBoolean
 	//
 	//
-	public class ValueBoolean : Value
+	class ValueBoolean : Value
 	{
 		internal bool value;
 

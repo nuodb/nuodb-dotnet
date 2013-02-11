@@ -34,7 +34,7 @@ namespace System.Data.NuoDB
 	// ValueBytes
 	//
 	//
-	public class ValueBytes : Value
+	class ValueBytes : Value
 	{
 		internal byte[] value;
 

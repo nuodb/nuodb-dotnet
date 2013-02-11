@@ -32,7 +32,7 @@ using System.Security.Cryptography;
 namespace System.Data.NuoDB.Security
 {
 
-    public class RemoteGroup
+    class RemoteGroup
 	{
 		internal BigInteger prime;
 		internal BigInteger generator;

@@ -36,7 +36,7 @@ namespace System.Data.NuoDB
 	// ValueLong
 	//
 	//
-	public class ValueLong : Value
+	class ValueLong : Value
 	{
 		internal long value;
 		internal short scale;

@@ -39,7 +39,7 @@ namespace System.Data.NuoDB
 	// Value
 	//
 	//
-	public abstract class Value
+	abstract class Value
 	{
 /*		private class ValueRef : java.sql.Ref
 		{

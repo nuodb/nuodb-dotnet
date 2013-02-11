@@ -36,7 +36,7 @@ namespace System.Data.NuoDB
 	// ValueDouble
 	//
 	//
-	public class ValueDouble : Value
+	class ValueDouble : Value
 	{
 		internal double value;
 

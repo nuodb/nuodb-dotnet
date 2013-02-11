@@ -42,7 +42,7 @@ namespace System.Data.NuoDB.Xml
 	//
 	//
 
-	public class Tag : IEnumerable<Tag>
+	class Tag : IEnumerable<Tag>
 	{
 		internal string name;
 		internal Tag children_Renamed;

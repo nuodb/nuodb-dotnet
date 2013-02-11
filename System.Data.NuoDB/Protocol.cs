@@ -34,7 +34,7 @@ namespace System.Data.NuoDB
 	// Protocol
 	//
 	//
-	public abstract class Protocol
+	abstract class Protocol
 	{
 		internal const int PROTOCOL_VERSION1 = 1;
 		internal const int PROTOCOL_VERSION2 = 2; // 3/27/2011    Passing SQLState on exceptions; piggybacking generated key result sets

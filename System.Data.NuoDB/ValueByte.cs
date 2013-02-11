@@ -31,7 +31,7 @@ using System;
 namespace System.Data.NuoDB
 {
 
-	public class ValueByte : Value
+	class ValueByte : Value
 	{
 		private byte value;
 

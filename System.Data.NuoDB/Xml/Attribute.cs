@@ -41,7 +41,7 @@ namespace System.Data.NuoDB.Xml
 	//
 	//
 
-	public class Attribute
+	class Attribute
 	{
 		internal Attribute sibling;
 		internal string name;

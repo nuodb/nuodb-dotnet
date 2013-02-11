@@ -37,7 +37,7 @@ namespace System.Data.NuoDB
 	// ValueShort
 	//
 	//
-	public class ValueShort : Value
+	class ValueShort : Value
 	{
 		internal short value;
 		internal short scale;

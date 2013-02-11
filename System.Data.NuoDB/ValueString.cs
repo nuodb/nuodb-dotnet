@@ -37,7 +37,7 @@ namespace System.Data.NuoDB
 	// ValueString
 	//
 	//
-	public class ValueString : Value
+	class ValueString : Value
 	{
 		internal string value;
 

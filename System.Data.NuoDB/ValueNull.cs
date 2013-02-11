@@ -30,7 +30,7 @@ namespace System.Data.NuoDB
 {
 
 
-	public class ValueNull : Value
+	class ValueNull : Value
 	{
 		internal override void encodeValue(EncodedDataStream dataStream)
 		{

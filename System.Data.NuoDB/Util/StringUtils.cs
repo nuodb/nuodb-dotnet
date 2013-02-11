@@ -33,7 +33,7 @@ namespace System.Data.NuoDB.Util
 {
 
 
-	public class StringUtils
+	class StringUtils
 	{
 
 		/// <summary>

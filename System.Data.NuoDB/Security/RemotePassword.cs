@@ -66,7 +66,7 @@ namespace System.Data.NuoDB.Security
 	 * 
 	 */
 
-	public class RemotePassword
+	class RemotePassword
 	{
 		internal static byte[] hexDigits;
 		internal SHA1Managed sha1;

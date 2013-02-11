@@ -34,7 +34,7 @@ namespace System.Data.NuoDB
 	// ValueNumber
 	//
 	//
-	public class ValueNumber : Value
+	class ValueNumber : Value
 	{
 		private readonly decimal value;
 

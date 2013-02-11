@@ -37,7 +37,7 @@ namespace System.Data.NuoDB
 	//
 	//
 
-	public class ValueInt : Value
+	class ValueInt : Value
 	{
 		internal int value;
 		internal short scale;

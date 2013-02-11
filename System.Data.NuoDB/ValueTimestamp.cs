@@ -36,7 +36,7 @@ namespace System.Data.NuoDB
 	// ValueTimestamp
 	//
 	//
-	public class ValueTimestamp : Value
+	class ValueTimestamp : Value
 	{
 		internal DateTime value;
 
