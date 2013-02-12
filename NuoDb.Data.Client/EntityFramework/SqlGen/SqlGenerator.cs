@@ -2093,7 +2093,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
                 Debug.Assert(isScalarElement);
                 resultSql.Append(" SELECT CAST(NULL AS ");
                 resultSql.Append(GetSqlPrimitiveType(collectionType.TypeUsage));
-                resultSql.Append(") AS X FROM (SELECT 1 FROM RDB$DATABASE) AS Y WHERE 1=0");
+                resultSql.Append(") AS X FROM (SELECT 1 FROM SYSTEM.TABLES) AS Y WHERE 1=0");
             }
 
             foreach (DbExpression arg in e.Arguments)
@@ -2104,7 +2104,8 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
                 // For scalar elements, no alias is appended yet. Add this.
                 if (isScalarElement)
                 {
-                    resultSql.Append(" AS X FROM RDB$DATABASE");
+                    // create a 'from' statement that guarantees that only one row is returned
+                    resultSql.Append(" AS X FROM SYSTEM.TABLES AS T WHERE T.TABLENAME='TABLES' AND T.SCHEMA='SYSTEM'");
                 }
                 separator = " UNION ALL ";
             }
