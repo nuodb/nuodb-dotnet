@@ -2725,9 +2725,9 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 
             Debug.Assert(e.Arguments.Count == 3, "Substring should have three arguments");
             result.Append(e.Arguments[0].Accept(sqlgen));
-            result.Append(" FROM ");
+            result.Append(", ");
             result.Append(e.Arguments[1].Accept(sqlgen));
-            result.Append(" FOR ");
+            result.Append(", ");
             result.Append(e.Arguments[2].Accept(sqlgen));
 
             result.Append(")");
