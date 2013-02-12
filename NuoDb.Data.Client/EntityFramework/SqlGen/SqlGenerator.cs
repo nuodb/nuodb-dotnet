@@ -1435,7 +1435,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 
             ISqlFragment topCount = HandleCountExpression(e.Limit);
 
-            result.First = new FirstClause(topCount);
+            result.First = topCount;
             return result;
         }
 
@@ -1782,8 +1782,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
             }
 
             ISqlFragment skipCount = HandleCountExpression(e.Count);
-
-            result.Skip = new SkipClause(skipCount);
+            result.Skip = skipCount;
 
             selectStatementStack.Push(result);
             symbolTable.EnterScope();
@@ -2073,7 +2072,9 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
                     AddFromSymbol(result, "element", fromSymbol, false);
                 }
 
-                result.First = new FirstClause(1);
+                SqlBuilder firstClause = new SqlBuilder();
+                firstClause.Append("1");
+                result.First = firstClause;
                 return result;
             }
 

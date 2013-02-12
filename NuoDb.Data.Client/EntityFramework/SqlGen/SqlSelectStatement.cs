@@ -90,14 +90,15 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
     ///     <query specification> [UNION [{ALL | DISTINCT}] <query specification>]
     /// 
     ///   <query specification> ::=
-    ///     SELECT [FIRST <value>] [SKIP <value>] <select list>
+    ///     SELECT <select list>
     ///     FROM <table expression list>
     ///     WHERE <search condition>
     ///     GROUP BY <group value list>
     ///     HAVING <group condition>
     ///     PLAN <plan item list>
     ///     ORDER BY <sort value list>
-    ///     ROWS <value> [TO <value>]
+    ///     [LIMIT <value> [, <value>] ]
+    ///     [OFFSET <value> ROWS]
     /// 
     ///   <table expression> ::=
     ///     <table name> | <joined table> | <derived table>
@@ -124,9 +125,6 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
     /// 
     /// Notes:
     /// 
-    /// * Either FIRST/SKIP or ROWS is allowed, they cannot be mixed together
-    /// (a syntax error is thrown).
-    /// 
     /// * INSERT statement accepts a select expression to create a dataset to be
     /// inserted into a table. So its SELECT part supports all the features defined
     /// above.
@@ -146,8 +144,8 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
         private List<Symbol> allJoinExtents;
         private List<Symbol> fromExtents;
         private Dictionary<Symbol, bool> outerExtents;
-        private FirstClause first;
-        private SkipClause skip;
+        private ISqlFragment first;
+        private ISqlFragment skip;
         private SqlBuilder select = new SqlBuilder();
         private SqlBuilder from = new SqlBuilder();
         private SqlBuilder where;
@@ -218,7 +216,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
             }
         }
 
-        internal FirstClause First
+        internal ISqlFragment First
         {
             get { return this.first; }
             set
@@ -228,7 +226,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
             }
         }
 
-        internal SkipClause Skip
+        internal ISqlFragment Skip
         {
             get { return this.skip; }
             set
@@ -381,11 +379,6 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
                 writer.Write("DISTINCT ");
             }
 
-            if (this.Skip != null)
-            {
-                this.Skip.WriteSql(writer, sqlGenerator);
-            }
-
             if ((this.select == null) || this.Select.IsEmpty)
             {
                 Debug.Assert(false);  // we have removed all possibilities of SELECT *.
@@ -421,9 +414,28 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
                 this.OrderBy.WriteSql(writer, sqlGenerator);
             }
 
-            if (this.First != null)
+            if (this.First != null && this.Skip != null)
             {
+                writer.WriteLine();
+                writer.Write("LIMIT ");
+                this.Skip.WriteSql(writer, sqlGenerator);
+                writer.Write(", ");
                 this.First.WriteSql(writer, sqlGenerator);
+                writer.Write(" ");
+            }
+            else if (this.First != null)
+            {
+                writer.WriteLine();
+                writer.Write("LIMIT ");
+                this.First.WriteSql(writer, sqlGenerator);
+                writer.Write(" ");
+            }
+            else if (this.Skip != null)
+            {
+                writer.WriteLine();
+                writer.Write("OFFSET ");
+                this.Skip.WriteSql(writer, sqlGenerator);
+                writer.Write(" ROWS ");
             }
 
             --writer.Indent;

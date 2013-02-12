@@ -49,11 +49,9 @@
     <Compile Include="EntityFramework\NuoDbProviderServices.cs" />
     <Compile Include="EntityFramework\SqlGen\DmlSqlGenerator.cs" />
     <Compile Include="EntityFramework\SqlGen\ExpressionTranslator.cs" />
-    <Compile Include="EntityFramework\SqlGen\FirstClause.cs" />
     <Compile Include="EntityFramework\SqlGen\ISqlFragment.cs" />
     <Compile Include="EntityFramework\SqlGen\JoinSymbol.cs" />
     <Compile Include="EntityFramework\SqlGen\MetaDataHelpers.cs" />
-    <Compile Include="EntityFramework\SqlGen\SkipClause.cs" />
     <Compile Include="EntityFramework\SqlGen\SqlBuilder.cs" />
     <Compile Include="EntityFramework\SqlGen\SqlGenerator.cs" />
     <Compile Include="EntityFramework\SqlGen\SqlSelectStatement.cs" />
