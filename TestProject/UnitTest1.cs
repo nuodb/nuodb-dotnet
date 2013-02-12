@@ -22,12 +22,12 @@ namespace TestProject
         }
 
         private TestContext testContextInstance;
-        private const string host = "localhost:48004";
-        private const string user = "dba";
-        private const string password = "goalie";
-        private const string database = "test";
-        private const string schema = "hockey";
-        private string connectionString = "Server=  "+host+"; Database=\""+database+"\"; User = "+user+" ;Password   = '"+password+"';Schema=\""+schema+"\";Something Else";
+        static string host = "localhost:48004";
+        static string user = "dba";
+        static string password = "goalie";
+        static string database = "test";
+        static string schema = "hockey";
+        static internal string connectionString = "Server=  " + host + "; Database=\"" + database + "\"; User = " + user + " ;Password   = '" + password + "';Schema=\"" + schema + "\";Something Else";
 
         /// <summary>
         ///Gets or sets the test context which provides
