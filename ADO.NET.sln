@@ -21,12 +21,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuoDBVSPackage", "NuoDBVSPa
 		{0660AC83-4B1B-4DE0-9D8E-6049DE12E0CD} = {0660AC83-4B1B-4DE0-9D8E-6049DE12E0CD}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuoDBVSPackage_IntegrationTests", "NuoDBVSPackage\NuoDBVSPackage_IntegrationTests\NuoDBVSPackage_IntegrationTests.csproj", "{EAC4D58A-2908-44CE-A31F-2FE0FA87D055}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuoDBVSPackage_UnitTests", "NuoDBVSPackage\NuoDBVSPackage_UnitTests\NuoDBVSPackage_UnitTests.csproj", "{5DD906A5-BF44-4A2E-9D21-4ABD2E61DAF6}"
-EndProject
-Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "WindowsInstaller", "WindowsInstaller\WindowsInstaller.wixproj", "{411189E3-E4C1-4007-A7F1-AB1ABB241F14}"
-EndProject
 Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "DriverInstaller", "DriverInstaller\DriverInstaller.wixproj", "{B96E5BA9-21F7-4F3D-865B-C7010E9087DE}"
 	ProjectSection(ProjectDependencies) = postProject
 		{0660AC83-4B1B-4DE0-9D8E-6049DE12E0CD} = {0660AC83-4B1B-4DE0-9D8E-6049DE12E0CD}
@@ -80,36 +74,6 @@ Global
 		{84554CD4-9013-4D7F-8969-29C332AF607A}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{84554CD4-9013-4D7F-8969-29C332AF607A}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{84554CD4-9013-4D7F-8969-29C332AF607A}.Release|x86.ActiveCfg = Release|Any CPU
-		{EAC4D58A-2908-44CE-A31F-2FE0FA87D055}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EAC4D58A-2908-44CE-A31F-2FE0FA87D055}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EAC4D58A-2908-44CE-A31F-2FE0FA87D055}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{EAC4D58A-2908-44CE-A31F-2FE0FA87D055}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{EAC4D58A-2908-44CE-A31F-2FE0FA87D055}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{EAC4D58A-2908-44CE-A31F-2FE0FA87D055}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EAC4D58A-2908-44CE-A31F-2FE0FA87D055}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EAC4D58A-2908-44CE-A31F-2FE0FA87D055}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{EAC4D58A-2908-44CE-A31F-2FE0FA87D055}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{EAC4D58A-2908-44CE-A31F-2FE0FA87D055}.Release|x86.ActiveCfg = Release|Any CPU
-		{5DD906A5-BF44-4A2E-9D21-4ABD2E61DAF6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5DD906A5-BF44-4A2E-9D21-4ABD2E61DAF6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5DD906A5-BF44-4A2E-9D21-4ABD2E61DAF6}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{5DD906A5-BF44-4A2E-9D21-4ABD2E61DAF6}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{5DD906A5-BF44-4A2E-9D21-4ABD2E61DAF6}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{5DD906A5-BF44-4A2E-9D21-4ABD2E61DAF6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5DD906A5-BF44-4A2E-9D21-4ABD2E61DAF6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5DD906A5-BF44-4A2E-9D21-4ABD2E61DAF6}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{5DD906A5-BF44-4A2E-9D21-4ABD2E61DAF6}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{5DD906A5-BF44-4A2E-9D21-4ABD2E61DAF6}.Release|x86.ActiveCfg = Release|Any CPU
-		{411189E3-E4C1-4007-A7F1-AB1ABB241F14}.Debug|Any CPU.ActiveCfg = Debug|x86
-		{411189E3-E4C1-4007-A7F1-AB1ABB241F14}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
-		{411189E3-E4C1-4007-A7F1-AB1ABB241F14}.Debug|Mixed Platforms.Build.0 = Debug|x86
-		{411189E3-E4C1-4007-A7F1-AB1ABB241F14}.Debug|x86.ActiveCfg = Debug|x86
-		{411189E3-E4C1-4007-A7F1-AB1ABB241F14}.Debug|x86.Build.0 = Debug|x86
-		{411189E3-E4C1-4007-A7F1-AB1ABB241F14}.Release|Any CPU.ActiveCfg = Release|x86
-		{411189E3-E4C1-4007-A7F1-AB1ABB241F14}.Release|Mixed Platforms.ActiveCfg = Release|x86
-		{411189E3-E4C1-4007-A7F1-AB1ABB241F14}.Release|Mixed Platforms.Build.0 = Release|x86
-		{411189E3-E4C1-4007-A7F1-AB1ABB241F14}.Release|x86.ActiveCfg = Release|x86
-		{411189E3-E4C1-4007-A7F1-AB1ABB241F14}.Release|x86.Build.0 = Release|x86
 		{B96E5BA9-21F7-4F3D-865B-C7010E9087DE}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{B96E5BA9-21F7-4F3D-865B-C7010E9087DE}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
 		{B96E5BA9-21F7-4F3D-865B-C7010E9087DE}.Debug|Mixed Platforms.Build.0 = Debug|x86
@@ -146,6 +110,5 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{B96E5BA9-21F7-4F3D-865B-C7010E9087DE} = {E46B6737-B30A-48B2-8596-704E7B4B7E91}
-		{411189E3-E4C1-4007-A7F1-AB1ABB241F14} = {E46B6737-B30A-48B2-8596-704E7B4B7E91}
 	EndGlobalSection
 EndGlobal
