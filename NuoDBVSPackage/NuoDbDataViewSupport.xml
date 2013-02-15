@@ -158,25 +158,16 @@
           <DisplayName resource="DataView_Property_Length"/>
           <Category resource="DataView_Category_DataType"/>
           <Description resource="DataView_Description_Length"/>
-          <StandardValues>
-            <StandardValue value="">0</StandardValue>
-          </StandardValues>
         </Property>
         <Property name="Precision">
           <DisplayName resource="DataView_Property_Precision"/>
           <Category resource="DataView_Category_DataType"/>
           <Description resource="DataView_Description_Precision"/>
-          <StandardValues>
-            <StandardValue value="">0</StandardValue>
-          </StandardValues>
         </Property>
 <!--        <Property name="Scale">
           <DisplayName resource="DataView_Property_Scale"/>
           <Category resource="DataView_Category_DataType"/>
           <Description resource="DataView_Description_Scale"/>
-          <StandardValues>
-            <StandardValue value="">0</StandardValue>
-          </StandardValues>
         </Property>
         -->
         <Property name="Nullable">
