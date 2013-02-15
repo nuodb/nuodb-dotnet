@@ -28,35 +28,47 @@
 
 using System.Data.Common;
 using System;
+using System.ComponentModel;
 
 namespace NuoDb.Data.Client
 {
     public class NuoDbConnectionStringBuilder : DbConnectionStringBuilder
     {
+        [Category("Security")]
+        [Description("Indicates the username to be used when connecting to the data source")]
         public string User
         {
             get { return this.GetString("User"); }
             set { this.SetValue("User", value); }
         }
 
+        [Category("Security")]
+        [Description("Indicates the password to be used when connecting to the data source")]
+        [PasswordPropertyText(true)]
         public string Password
         {
             get { return this.GetString("Password"); }
             set { this.SetValue("Password", value); }
         }
 
+        [Category("Source")]
+        [Description("Indicates one or more addresses of the brokers to be contacted, separated by commas")]
         public string Server
         {
             get { return this.GetString("Server"); }
             set { this.SetValue("Server", value); }
         }
 
+        [Category("Source")]
+        [Description("Indicates the chorus to be used as data source")]
         public string Database
         {
             get { return this.GetString("Database"); }
             set { this.SetValue("Database", value); }
         }
 
+        [Category("Source")]
+        [Description("Indicates the default schema to be used when referring to non-fully qualified tables")]
         public string Schema
         {
             get { return this.GetString("Schema"); }
