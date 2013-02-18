@@ -17,7 +17,7 @@
     <Property Id="EXTENSION_DIR_VS2012">
       <RegistrySearch Id="VS2012_Extension"
                       Root="HKCU"
-                      Key="Software\Microsoft\VisualStudio\12.0_Config\Initialization"
+                      Key="Software\Microsoft\VisualStudio\11.0_Config\Initialization"
                       Name="ApplicationExtensionsFolder"
                       Type="raw" />
     </Property>
