@@ -320,7 +320,7 @@ namespace NuoDb.Data.Client
             }
         }
 
-        private void EnsureStatement()
+        private void EnsureStatement(bool generatingKeys)
         {
             // if the connection has been closed and reopened, the statement identified by this handle 
             // has been closed on the server, and we must re-create it
@@ -328,7 +328,7 @@ namespace NuoDb.Data.Client
             {
                 if (parameters.Count > 0)
                 {
-                    Prepare();
+                    Prepare(generatingKeys);
                 }
                 else
                 {
@@ -356,7 +356,7 @@ namespace NuoDb.Data.Client
             System.Diagnostics.Trace.WriteLine("NuoDbCommand.ExecuteDbDataReader(" + CommandText + ", " + behavior + ")");
 #endif
             checkConnection();
-            EnsureStatement();
+            EnsureStatement(false);
 
             bool readColumnNames = true;
             EncodedDataStream dataStream = new RemEncodedStream(connection.protocolVersion);
@@ -402,7 +402,7 @@ namespace NuoDb.Data.Client
             System.Diagnostics.Trace.WriteLine("NuoDbCommand.ExecuteNonQuery(" + CommandText + ")");
 #endif
             checkConnection();
-            EnsureStatement();
+            EnsureStatement(generatingKeys);
 
             EncodedDataStream dataStream = new RemEncodedStream(connection.protocolVersion);
             if (isPrepared)
@@ -447,11 +447,22 @@ namespace NuoDb.Data.Client
 
         public override void Prepare()
         {
+            Prepare(false);
+        }
+
+        private void Prepare(bool generatingKeys)
+        {
             checkConnection();
             Close();
 
             EncodedDataStream dataStream = new RemEncodedStream(connection.protocolVersion);
-            dataStream.startMessage(Protocol.PrepareStatement);
+            if (generatingKeys)
+            {
+                dataStream.startMessage(Protocol.PrepareStatementKeys);
+                dataStream.encodeInt(generatingKeys ? 1 : 0);
+            }
+            else
+                dataStream.startMessage(Protocol.PrepareStatement);
             dataStream.encodeString(sqlText);
             connection.sendAndReceive(dataStream);
             handle = dataStream.getInt();
