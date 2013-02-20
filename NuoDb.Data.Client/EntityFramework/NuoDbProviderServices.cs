@@ -114,25 +114,10 @@ namespace NuoDb.Data.Client.EntityFramework
 				result.Direction = direction;
 			}
 
-			// .Size and .SqlDbType
+			// .Size
 			// output parameters are handled differently (we need to ensure there is space for return
 			// values where the user has not given a specific Size/MaxLength)
 			bool isOutParam = mode != ParameterMode.In;
-            /*
-            int? size;
-            FbDbType sqlDbType = GetSqlDbType(type, isOutParam, out size);
-
-                        if (result.FbDbType != sqlDbType)
-                        {
-                            result.FbDbType = sqlDbType;
-                        }
-            // Note that we overwrite 'facet' parameters where either the value is different or
-			// there is an output parameter.
-			if (size.HasValue && (isOutParam || result.Size != size.Value))
-			{
-				result.Size = size.Value;
-			}
-            */
 
             // .IsNullable
 			bool isNullable = MetadataHelpers.IsNullable(type);

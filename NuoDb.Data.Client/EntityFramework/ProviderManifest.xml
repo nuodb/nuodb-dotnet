@@ -30,14 +30,14 @@
   <Types>
     <Type Name="string" PrimitiveTypeKind="String">
       <FacetDescriptions>
-        <FixedLength Constant="true" DefaultValue="false"/>
+        <FixedLength Constant="false" DefaultValue="false"/>
         <Unicode Constant="false" DefaultValue="false"/>
         <MaxLength Minimum="1" Maximum="65536" Constant="false" DefaultValue="65535"/>
       </FacetDescriptions>
     </Type>
     <Type Name="varchar" PrimitiveTypeKind="String">
       <FacetDescriptions>
-        <FixedLength Constant="true" DefaultValue="false"/>
+        <FixedLength Constant="false" DefaultValue="false"/>
         <Unicode Constant="false" DefaultValue="false"/>
         <MaxLength Minimum="1" Maximum="65536" Constant="false" DefaultValue="65535"/>
       </FacetDescriptions>
@@ -60,49 +60,55 @@
     <Type Name="decimal" PrimitiveTypeKind="Decimal" >
       <FacetDescriptions>
         <Precision Constant="false" Minimum="1" Maximum="100" DefaultValue="9"/>
-        <Scale Constant="false" Minimum="0" Maximum="100" DefaultValue="10"/>
+        <Scale Constant="false" Minimum="0" Maximum="100" DefaultValue="0"/>
       </FacetDescriptions>
     </Type>
     <Type Name="dec" PrimitiveTypeKind="Decimal" >
       <FacetDescriptions>
         <Precision Constant="false" Minimum="1" Maximum="100" DefaultValue="9"/>
-        <Scale Constant="false" Minimum="0" Maximum="100" DefaultValue="10"/>
+        <Scale Constant="false" Minimum="0" Maximum="100" DefaultValue="0"/>
       </FacetDescriptions>
     </Type>
     <Type Name="numeric" PrimitiveTypeKind="Decimal" >
       <FacetDescriptions>
         <Precision Constant="false" Minimum="1" Maximum="100" DefaultValue="9"/>
-        <Scale Constant="false" Minimum="0" Maximum="100" DefaultValue="10"/>
+        <Scale Constant="false" Minimum="0" Maximum="100" DefaultValue="0"/>
       </FacetDescriptions>
     </Type>
     <Type Name="date" PrimitiveTypeKind="DateTime" >
       <FacetDescriptions>
-        <Precision Constant="false" Minimum="1" Maximum="100" DefaultValue="9"/>
+        <Precision Constant="true" DefaultValue="0"/>
       </FacetDescriptions>
     </Type>
     <Type Name="dateonly" PrimitiveTypeKind="DateTime" >
       <FacetDescriptions>
-        <Precision Constant="false" Minimum="1" Maximum="100" DefaultValue="9"/>
+        <Precision Constant="true" DefaultValue="0"/>
       </FacetDescriptions>
     </Type>
-    <Type Name="time" PrimitiveTypeKind="DateTime" >
+    <Type Name="time" PrimitiveTypeKind="Time" >
       <FacetDescriptions>
-        <Precision Constant="false" Minimum="1" Maximum="100" DefaultValue="9"/>
+        <Precision Constant="true" DefaultValue="4"/>
       </FacetDescriptions>
     </Type>
-    <Type Name="timeonly" PrimitiveTypeKind="DateTime" >
+    <Type Name="timeonly" PrimitiveTypeKind="Time" >
       <FacetDescriptions>
-        <Precision Constant="false" Minimum="1" Maximum="100" DefaultValue="9"/>
+        <Precision Constant="true" DefaultValue="4"/>
       </FacetDescriptions>
     </Type>
     <Type Name="datetime" PrimitiveTypeKind="DateTime" >
       <FacetDescriptions>
-        <Precision Constant="false" Minimum="1" Maximum="100" DefaultValue="9"/>
+        <Precision Constant="true" DefaultValue="4"/>
       </FacetDescriptions>
     </Type>
     <Type Name="timestamp" PrimitiveTypeKind="DateTime" >
       <FacetDescriptions>
-        <Precision Constant="false" Minimum="1" Maximum="100" DefaultValue="9"/>
+        <Precision Constant="true" DefaultValue="4"/>
+      </FacetDescriptions>
+    </Type>
+    <Type Name="binary" PrimitiveTypeKind="Binary">
+      <FacetDescriptions>
+        <FixedLength Constant="false" DefaultValue="false"/>
+        <MaxLength Minimum="1" Maximum="65536" Constant="false" DefaultValue="65535"/>
       </FacetDescriptions>
     </Type>
   </Types>
