@@ -343,6 +343,15 @@ namespace NuoDb.Data.Client
 
         protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior)
         {
+            if (!CommandText.TrimStart(null).Substring(0, 6).ToUpper().Equals("SELECT"))
+            {
+#if DEBUG
+                System.Diagnostics.Trace.WriteLine("The statement is not a SELECT: redirecting to ExecuteNonQuery");
+#endif
+                ExecuteUpdate(true);
+
+                return generatedKeys;
+            }
 #if DEBUG
             System.Diagnostics.Trace.WriteLine("NuoDbCommand.ExecuteDbDataReader(" + CommandText + ", " + behavior + ")");
 #endif
@@ -384,13 +393,17 @@ namespace NuoDb.Data.Client
 
         public override int ExecuteNonQuery()
         {
+            return ExecuteUpdate(false);
+        }
+
+        private int ExecuteUpdate(bool generatingKeys)
+        {
 #if DEBUG
             System.Diagnostics.Trace.WriteLine("NuoDbCommand.ExecuteNonQuery(" + CommandText + ")");
 #endif
             checkConnection();
             EnsureStatement();
 
-            bool generatingKeys = false;
             EncodedDataStream dataStream = new RemEncodedStream(connection.protocolVersion);
             if (isPrepared)
             {
@@ -400,7 +413,13 @@ namespace NuoDb.Data.Client
             }
             else
             {
-                dataStream.startMessage(Protocol.ExecuteUpdate);
+                if (generatingKeys)
+                {
+                    dataStream.startMessage(Protocol.ExecuteUpdateKeys);
+                    dataStream.encodeInt(generatingKeys ? 1 : 0);
+                }
+                else
+                    dataStream.startMessage(Protocol.ExecuteUpdate);
                 dataStream.encodeInt(handle);
                 dataStream.encodeString(sqlText);
             }
