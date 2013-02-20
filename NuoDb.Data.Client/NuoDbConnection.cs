@@ -124,7 +124,7 @@ namespace NuoDb.Data.Client
         internal void sendAndReceive(EncodedDataStream stream)
         {
             try
-			{
+            {
                 lock (this)
                 {
                     stream.send(outputStream);
@@ -151,11 +151,14 @@ namespace NuoDb.Data.Client
                         throw new NuoDbSqlException(message, sqlState, status);
                     }
                 }
-			}
-			catch (IOException exception)
-			{
-				throw new NuoDbSqlException(exception);
-			}
+            }
+            catch (ObjectDisposedException)
+            {
+            }
+            catch (IOException exception)
+            {
+                throw new NuoDbSqlException(exception);
+            }
         }
 
         private ProcessConnection getProcessConnection(string databaseName)
