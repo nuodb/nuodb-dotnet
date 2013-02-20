@@ -333,11 +333,11 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 		// generate parameter (name based on parameter ordinal)
 		internal NuoDbParameter CreateParameter(object value, TypeUsage type)
 		{
-			string parameterName = string.Concat("@p", parameterNameCount.ToString(CultureInfo.InvariantCulture));
+			//string parameterName = string.Concat("@p", parameterNameCount.ToString(CultureInfo.InvariantCulture));
 			parameterNameCount++;
 
             NuoDbParameter parameter = new NuoDbParameter();
-            parameter.ParameterName = parameterName;
+            parameter.ParameterName = "?"; // parameterName;
             //parameter.DbType = type;
             parameter.Direction = ParameterDirection.Input;
             parameter.Value = value;

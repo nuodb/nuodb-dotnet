@@ -98,9 +98,6 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
             tree.Predicate.Accept(translator);
             commandText.AppendLine();
 
-            // generate returning sql
-            GenerateReturningSql(commandText, tree, translator, tree.Returning);
-
             parameters = translator.Parameters;
             return commandText.ToString();
         }
@@ -168,9 +165,6 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
             }
             commandText.AppendLine(")");
 
-            // generate returning sql
-            GenerateReturningSql(commandText, tree, translator, tree.Returning);
-
             parameters = translator.Parameters;
             return commandText.ToString();
         }
@@ -195,124 +189,6 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
             {
                 return false;
             }
-        }
-
-        /// <summary>
-        /// Generates SQL fragment returning server-generated values.
-        /// Requires: translator knows about member values so that we can figure out
-        /// how to construct the key predicate.
-        /// <code>
-        /// Sample SQL:
-        ///     
-        ///     select IdentityValue
-        ///     from dbo.MyTable
-        ///     where @@ROWCOUNT > 0 and IdentityValue = scope_identity()
-        /// 
-        /// or
-        /// 
-        ///     select TimestamptValue
-        ///     from dbo.MyTable
-        ///     where @@ROWCOUNT > 0 and Id = 1
-        /// 
-        /// Note that we filter on rowcount to ensure no rows are returned if no rows were modified.
-        /// </code>
-        /// </summary>
-        /// <param name="commandText">Builder containing command text</param>
-        /// <param name="tree">Modification command tree</param>
-        /// <param name="translator">Translator used to produce DML SQL statement
-        /// for the tree</param>
-        /// <param name="returning">Returning expression. If null, the method returns
-        /// immediately without producing a SELECT statement.</param>
-        private static void GenerateReturningSql(
-            StringBuilder commandText,
-            DbModificationCommandTree tree,
-            ExpressionTranslator translator,
-            DbExpression returning)
-        {
-            // Nothing to do if there is no Returning expression
-            if (returning == null)
-            {
-                return;
-            }
-
-            EntitySetBase table = ((DbScanExpression)tree.Target.Expression).Target;
-            IEnumerable<EdmMember> columnsToFetch =
-            table.ElementType.Members
-                .Where(m => IsStoreGenerated(m))
-                .Except((!(tree is DbInsertCommandTree) ? table.ElementType.KeyMembers : Enumerable.Empty<EdmMember>()));
-
-            StringBuilder startBlock = new StringBuilder();
-            string separator = string.Empty;
-
-            startBlock.AppendLine("EXECUTE BLOCK (");
-            separator = string.Empty;
-            foreach (NuoDbParameter param in translator.Parameters)
-            {
-                startBlock.Append(separator);
-                startBlock.Append(param.ParameterName.Replace("@", string.Empty));
-                startBlock.Append(" ");
-                EdmMember member = translator.MemberValues.First(m => m.Value.Contains(param)).Key;
-                startBlock.Append(SqlGenerator.GetSqlPrimitiveType(member.TypeUsage));
-                if (param.DbType == DbType.StringFixedLength || param.DbType == DbType.String)
-                    startBlock.Append(" CHARACTER SET UTF8");
-                startBlock.Append(" = ");
-                startBlock.Append(param.ParameterName);
-
-                separator = ", ";
-            }
-            startBlock.AppendLine(") ");
-
-            startBlock.AppendLine("RETURNS (");
-            separator = string.Empty;
-            foreach (EdmMember m in columnsToFetch)
-            {
-                startBlock.Append(separator);
-                startBlock.Append(GenerateMemberSql(m));
-                startBlock.Append(" ");
-                startBlock.Append(SqlGenerator.GetSqlPrimitiveType(m.TypeUsage));
-
-                separator = ", ";
-            }
-            startBlock.AppendLine(")");
-            startBlock.AppendLine("AS BEGIN");
-
-            string newCommand = ChangeParamsToPSQLParams(commandText.ToString(), translator.Parameters.Select(p => p.ParameterName).ToArray());
-            commandText.Remove(0, commandText.Length);
-            commandText.Insert(0, newCommand);
-            commandText.Insert(0, startBlock.ToString());
-
-            commandText.Append("RETURNING ");
-            separator = string.Empty;
-            foreach (EdmMember m in columnsToFetch)
-            {
-                commandText.Append(separator);
-                commandText.Append(GenerateMemberSql(m));
-
-                separator = ", ";
-            }
-            commandText.Append(" INTO ");
-            separator = string.Empty;
-            foreach (EdmMember m in columnsToFetch)
-            {
-                commandText.Append(separator);
-                commandText.Append(":" + GenerateMemberSql(m));
-
-                separator = ", ";
-            }
-
-            commandText.AppendLine(";");
-            commandText.AppendLine("SUSPEND;");
-            commandText.AppendLine("END");
-        }
-
-        private static string ChangeParamsToPSQLParams(string commandText, string[] parametersUsed)
-        {
-            StringBuilder command = new StringBuilder(commandText);
-            foreach (string param in parametersUsed)
-            {
-                command.Replace(param, ":" + param.Remove(0, 1));
-            }
-            return command.ToString();
         }
 
         #endregion
