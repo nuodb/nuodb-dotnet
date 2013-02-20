@@ -350,7 +350,7 @@ namespace NuoDb.Data.Client
 #endif
                 ExecuteUpdate(true);
 
-                return generatedKeys;
+                return generatedKeys != null ? generatedKeys : new NuoDbDataReader(connection, -1, null, this, false);
             }
 #if DEBUG
             System.Diagnostics.Trace.WriteLine("NuoDbCommand.ExecuteDbDataReader(" + CommandText + ", " + behavior + ")");
@@ -447,7 +447,9 @@ namespace NuoDb.Data.Client
 
         public override void Prepare()
         {
-            Prepare(false);
+            // always prepare for generating keys when command is not a SELECT
+            bool generatingKeys = !CommandText.TrimStart(null).Substring(0, 6).ToUpper().Equals("SELECT");
+            Prepare(generatingKeys);
         }
 
         private void Prepare(bool generatingKeys)

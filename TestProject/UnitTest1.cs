@@ -174,6 +174,146 @@ namespace TestProject
         }
 
         [TestMethod]
+        public void TestInsertWithGeneratedKeys()
+        {
+            using (NuoDbConnection connection = new NuoDbConnection(connectionString))
+            {
+                connection.Open();
+                DbTransaction transaction = connection.BeginTransaction();
+
+                DbCommand maxIdCmd = connection.CreateCommand();
+                maxIdCmd.CommandText = "select max(id) from hockey";
+                int maxId = (int)maxIdCmd.ExecuteScalar();
+
+                DbCommand updateCommand = connection.CreateCommand();
+                updateCommand.CommandText = "insert into hockey (number, name) values (99, 'xxxx')";
+
+                DbDataReader reader = updateCommand.ExecuteReader();
+                Assert.IsNotNull(reader, "The command should return a generated keys recordset");
+                Assert.IsTrue(reader.Read(), "There must be at least one ID in the generated keys recordset");
+                int lastId = (int)reader.GetValue(0);
+                Assert.IsTrue(lastId > maxId, "The generated ID must be greater than the existing ones");
+
+                transaction.Rollback();
+            }
+        }
+
+        [TestMethod]
+        public void TestUpdateWithGeneratedKeys()
+        {
+            using (NuoDbConnection connection = new NuoDbConnection(connectionString))
+            {
+                connection.Open();
+                DbTransaction transaction = connection.BeginTransaction();
+
+                DbCommand updateCommand = connection.CreateCommand();
+                updateCommand.CommandText = "update hockey set number = 99 where team = 'Bruins'";
+
+                DbDataReader reader = updateCommand.ExecuteReader();
+                Assert.IsNotNull(reader, "The command should return a generated keys recordset");
+                Assert.IsFalse(reader.Read(), "The generated keys recordset should be empty");
+
+                transaction.Rollback();
+            }
+        }
+
+        [TestMethod]
+        public void TestPreparedInsertWithGeneratedKeys1()
+        {
+            using (NuoDbConnection connection = new NuoDbConnection(connectionString))
+            {
+                connection.Open();
+                DbTransaction transaction = connection.BeginTransaction();
+
+                DbCommand maxIdCmd = connection.CreateCommand();
+                maxIdCmd.CommandText = "select max(id) from hockey";
+                int maxId = (int)maxIdCmd.ExecuteScalar();
+
+                DbCommand updateCommand = connection.CreateCommand();
+                updateCommand.CommandText = "insert into hockey (number, name) values (?, ?)";
+                updateCommand.Parameters.Add(99);
+                updateCommand.Parameters.Add("xxx");
+
+                DbDataReader reader = updateCommand.ExecuteReader();
+                Assert.IsNotNull(reader, "The command should return a generated keys recordset");
+                Assert.IsTrue(reader.Read(), "There must be at least one ID in the generated keys recordset");
+                int lastId = (int)reader.GetValue(0);
+                Assert.IsTrue(lastId > maxId, "The generated ID must be greater than the existing ones");
+
+                transaction.Rollback();
+            }
+        }
+
+        [TestMethod]
+        public void TestPreparedInsertWithGeneratedKeys2()
+        {
+            using (NuoDbConnection connection = new NuoDbConnection(connectionString))
+            {
+                connection.Open();
+                DbTransaction transaction = connection.BeginTransaction();
+
+                DbCommand maxIdCmd = connection.CreateCommand();
+                maxIdCmd.CommandText = "select max(id) from hockey";
+                int maxId = (int)maxIdCmd.ExecuteScalar();
+
+                DbCommand updateCommand = connection.CreateCommand();
+                updateCommand.CommandText = "insert into hockey (number, name) values (?, ?)";
+                updateCommand.Prepare();
+                updateCommand.Parameters[0].Value = 99;
+                updateCommand.Parameters[1].Value = "xxx";
+
+                DbDataReader reader = updateCommand.ExecuteReader();
+                Assert.IsNotNull(reader, "The command should return a generated keys recordset");
+                Assert.IsTrue(reader.Read(), "There must be at least one ID in the generated keys recordset");
+                int lastId = (int)reader.GetValue(0);
+                Assert.IsTrue(lastId > maxId, "The generated ID must be greater than the existing ones");
+
+                transaction.Rollback();
+            }
+        }
+
+        [TestMethod]
+        public void TestPreparedUpdateWithGeneratedKeys1()
+        {
+            using (NuoDbConnection connection = new NuoDbConnection(connectionString))
+            {
+                connection.Open();
+                DbTransaction transaction = connection.BeginTransaction();
+
+                DbCommand updateCommand = connection.CreateCommand();
+                updateCommand.CommandText = "update hockey set number = 99 where team = ?";
+                updateCommand.Parameters.Add("Bruins");
+
+                DbDataReader reader = updateCommand.ExecuteReader();
+                Assert.IsNotNull(reader, "The command should return a generated keys recordset");
+                Assert.IsFalse(reader.Read(), "The generated keys recordset should be empty");
+
+                transaction.Rollback();
+            }
+        }
+
+        [TestMethod]
+        public void TestPreparedUpdateWithGeneratedKeys2()
+        {
+            using (NuoDbConnection connection = new NuoDbConnection(connectionString))
+            {
+                connection.Open();
+                DbTransaction transaction = connection.BeginTransaction();
+
+                DbCommand updateCommand = connection.CreateCommand();
+                updateCommand.CommandText = "update hockey set number = 99 where team = ?";
+                updateCommand.Prepare();
+                updateCommand.Parameters[0].Value = "Bruins";
+
+                DbDataReader reader = updateCommand.ExecuteReader();
+                Assert.IsNotNull(reader, "The command should return a generated keys recordset");
+                Assert.IsFalse(reader.Read(), "The generated keys recordset should be empty");
+
+                transaction.Rollback();
+            }
+        }
+
+        [TestMethod]
         public void TestDbProvider()
         {
             DbProviderFactory factory = new NuoDbProviderFactory();

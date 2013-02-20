@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Text;
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Data.Common;
 using NuoDb.Data.Client;
+using System.Data;
 
 namespace TestProject
 {
@@ -1102,5 +1101,39 @@ namespace TestProject
             }
             Assert.AreEqual(tableRows, count);
         }
+
+        [TestMethod]
+        public void LINQTestDML()
+        {
+            if (context.Connection.State != ConnectionState.Open)
+            {
+                context.Connection.Open();
+            }
+            DbTransaction tx = context.Connection.BeginTransaction();
+            try
+            {
+                int initCount = context.HOCKEY.Count();
+                int maxID = (from player in context.HOCKEY
+                                select player.ID).Max();
+                HOCKEY newPlayer = new HOCKEY() { NAME = "Unknown" };
+                context.HOCKEY.AddObject(newPlayer);
+                context.SaveChanges();
+                int afterCount = context.HOCKEY.Count();
+                Assert.IsTrue(afterCount == initCount + 1);
+                Assert.IsNotNull(newPlayer.ID);
+                Assert.IsTrue(newPlayer.ID > maxID);
+                context.DeleteObject(newPlayer);
+                context.SaveChanges();
+                int endCount = context.HOCKEY.Count();
+
+                Assert.AreEqual(initCount, endCount);
+            }
+            finally
+            {
+                tx.Rollback();
+                context.Connection.Close();
+            }
+        }
+
     }
 }
