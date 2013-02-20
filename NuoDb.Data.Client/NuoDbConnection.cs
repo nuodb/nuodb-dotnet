@@ -1622,7 +1622,7 @@ namespace NuoDb.Data.Client
                 return "System.Boolean";
             if (p == "clob" || p == "blob")
                 return "System.String";
-            throw new NotImplementedException();
+            return "";
         }
 
         internal static DbType mapJavaSqlToDbType(int jSQL)
