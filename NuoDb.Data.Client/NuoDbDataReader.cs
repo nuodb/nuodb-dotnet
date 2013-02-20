@@ -45,7 +45,6 @@ namespace NuoDb.Data.Client
         private DataTable metadata;
         private NuoDbCommand statement;
         private EncodedDataStream pendingRows;
-        //private SQLWarning warnings;
         private volatile bool closed = false;
         private volatile int currentRow = 0;
         private volatile bool afterLast_Renamed = false;
@@ -57,9 +56,10 @@ namespace NuoDb.Data.Client
             this.pendingRows = dataStream;
             this.statement = statement;
 
-            this.connection.RegisterResultSet(this.handle);
+            if(this.handle != -1)
+                this.connection.RegisterResultSet(this.handle);
 
-            this.numberColumns = dataStream.getInt();
+            this.numberColumns = this.pendingRows != null ? this.pendingRows.getInt() : 0;
             this.values = new Value[numberColumns];
 
             if (readColumnNames)
@@ -259,6 +259,9 @@ namespace NuoDb.Data.Client
 
         public override bool Read()
         {
+            if (this.pendingRows == null)
+                return false;
+
             //int maxRows = statement == null ? 0 : statement.MaxRows;
             int maxRows = 0;
 
