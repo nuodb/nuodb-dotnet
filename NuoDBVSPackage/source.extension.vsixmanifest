@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Vsix xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Version="1.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2010">
   <Identifier Id="407f565d-8772-4770-8243-5a1f396aae9d">
     <Name>DDEX Provider for NuoDB</Name>
@@ -14,8 +14,18 @@
         <Edition>Pro</Edition>
         <Edition>Express_All</Edition>
       </VisualStudio>
+      <VisualStudio Version="11.0">
+        <Edition>Pro</Edition>
+        <Edition>VWDExpress</Edition>
+        <Edition>IntegratedShell</Edition>      
+      </VisualStudio>
+      <VisualStudio Version="11.1">
+        <Edition>Pro</Edition>
+        <Edition>VWDExpress</Edition>
+        <Edition>IntegratedShell</Edition>      
+      </VisualStudio>
     </SupportedProducts>
-    <SupportedFrameworkRuntimeEdition MinVersion="2.0" MaxVersion="4.0" />
+    <SupportedFrameworkRuntimeEdition MinVersion="2.0" MaxVersion="4.5" />
   </Identifier>
   <References>
     <Reference Id="Microsoft.VisualStudio.MPF" MinVersion="10.0">
