@@ -34,23 +34,34 @@
                         Value="[$Install_DotNetDriver]"
                         Type="string"/>
       </Component>
-      <Component Id="Install_DDEXPlugin" Guid="A04B6218-AD90-40E5-8001-918CF0D3EAF3">
-        <File Id="NuoDb.VisualStudio.DataTools.dll"
-              Source="../NuoDBVSPackage/bin/$(var.Configuration)/NuoDb.VisualStudio.DataTools.dll">
-          <CopyFile Id="NuoDb.VisualStudio.DataTools.dll_VS2010" DestinationProperty="NUODB_EXTENSION_DIR_VS2010"/>
-          <CopyFile Id="NuoDb.VisualStudio.DataTools.dll_VS2012" DestinationProperty="NUODB_EXTENSION_DIR_VS2012"/>
-        </File>
-        <File Id="NuoDb.VisualStudio.DataTools.pkgdef"
-              Source="../NuoDBVSPackage/bin/$(var.Configuration)/NuoDb.VisualStudio.DataTools.pkgdef">
-          <CopyFile Id="NuoDb.VisualStudio.DataTools.pkgdef_VS2010" DestinationProperty="NUODB_EXTENSION_DIR_VS2010"/>
-          <CopyFile Id="NuoDb.VisualStudio.DataTools.pkgdef_VS2012" DestinationProperty="NUODB_EXTENSION_DIR_VS2012"/>
-        </File>
-        <File Id="extension.vsixmanifest"
-              Source="../NuoDBVSPackage/bin/$(var.Configuration)/extension.vsixmanifest">
-          <CopyFile Id="extension.vsixmanifest_VS2010" DestinationProperty="NUODB_EXTENSION_DIR_VS2010"/>
-          <CopyFile Id="extension.vsixmanifest_VS2012" DestinationProperty="NUODB_EXTENSION_DIR_VS2012"/>
-        </File>
-      </Component>
+
+      <Directory Id="NUODB_EXTENSION_DIR_VS2010" Name="VS2010" >
+        <Component Id="Install_DDEXPlugin_VS2010" Guid="A04B6218-AD90-40E5-8001-918CF0D3EAF3">
+          <File KeyPath="yes" Id="NuoDb.VisualStudio.DataTools.pkgdef_VS2010"
+                Source="../NuoDBVSPackage/bin/$(var.Configuration)/NuoDb.VisualStudio.DataTools.pkgdef">
+          </File>
+          <File Id="NuoDb.VisualStudio.DataTools.dll_VS2010"
+                Source="../NuoDBVSPackage/bin/$(var.Configuration)/NuoDb.VisualStudio.DataTools.dll">
+          </File>
+          <File Id="extension.vsixmanifest_VS2010"
+                Source="../NuoDBVSPackage/bin/$(var.Configuration)/extension.vsixmanifest">
+          </File>
+        </Component>
+      </Directory>
+      
+      <Directory Id="NUODB_EXTENSION_DIR_VS2012" Name="VS2012" >
+        <Component Id="Install_DDEXPlugin_VS2012" Guid="0FAF282B-FA33-4F1E-88BC-BD50C19F0B28">
+          <File KeyPath="yes" Id="NuoDb.VisualStudio.DataTools.pkgdef_VS2012"
+                Source="../NuoDBVSPackage/bin/$(var.Configuration)/NuoDb.VisualStudio.DataTools.pkgdef">
+          </File>
+          <File Id="NuoDb.VisualStudio.DataTools.dll_VS2012"
+                Source="../NuoDBVSPackage/bin/$(var.Configuration)/NuoDb.VisualStudio.DataTools.dll">
+          </File>
+          <File Id="extension.vsixmanifest_VS2012"
+                Source="../NuoDBVSPackage/bin/$(var.Configuration)/extension.vsixmanifest">
+          </File>
+        </Component>
+      </Directory>
 
       <Directory Id="GAC" Name="GAC">
         <Component Id="Register_DotNetDriver" Guid="36FCC7E2-FCC8-431B-8C94-EB9E92B84CE6">
