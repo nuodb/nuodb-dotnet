@@ -1318,19 +1318,29 @@ namespace NuoDb.Data.Client
                     {
                         using (NuoDbDataReader reader = new NuoDbDataReader(this, handle, dataStream, null, true))
                         {
+                            // use INDEX_NAME, if present; if missing, the name of the index is in PK_NAME
+                            string indexName = "PK_NAME";
+                            foreach (string column in reader.columnNames)
+                            {
+                                if (column == "INDEX_NAME")
+                                {
+                                    indexName = "INDEX_NAME";
+                                    break;
+                                }
+                            }
                             table.BeginLoadData();
                             while (reader.Read())
                             {
                                 // enforce the restriction on the index name
                                 if (restrictionValues != null && restrictionValues.Length > 3 && restrictionValues[3] != null &&
-                                    !restrictionValues[3].Equals(reader["INDEX_NAME"]))
+                                    !restrictionValues[3].Equals(reader[indexName]))
                                     continue;
-                                if (!unique.Add((string)reader["INDEX_NAME"]))
+                                if (!unique.Add((string)reader[indexName]))
                                     continue;
                                 DataRow row = table.NewRow();
                                 row["INDEX_SCHEMA"] = reader["TABLE_SCHEM"];
                                 row["INDEX_TABLE"] = reader["TABLE_NAME"];
-                                row["INDEX_NAME"] = reader["INDEX_NAME"];
+                                row["INDEX_NAME"] = reader[indexName];
                                 row["INDEX_TYPE"] = "Primary";
                                 row["INDEX_UNIQUE"] = true;
                                 row["INDEX_PRIMARY"] = true;
@@ -1402,12 +1412,22 @@ namespace NuoDb.Data.Client
                     {
                         using (NuoDbDataReader reader = new NuoDbDataReader(this, handle, dataStream, null, true))
                         {
+                            // use INDEX_NAME, if present; if missing, the name of the index is in PK_NAME
+                            string indexName = "PK_NAME";
+                            foreach (string column in reader.columnNames)
+                            {
+                                if (column == "INDEX_NAME")
+                                {
+                                    indexName = "INDEX_NAME";
+                                    break;
+                                }
+                            }
                             table.BeginLoadData();
                             while (reader.Read())
                             {
                                 // enforce the restriction on the index name
                                 if (restrictionValues != null && restrictionValues.Length > 3 && restrictionValues[3] != null &&
-                                    !restrictionValues[3].Equals(reader["INDEX_NAME"]))
+                                    !restrictionValues[3].Equals(reader[indexName]))
                                     continue;
 #if DEBUG
                                 System.Diagnostics.Trace.WriteLine("-> " + reader["TABLE_SCHEM"] + "." + reader["TABLE_NAME"] + " (Primary) =" + reader["COLUMN_NAME"]);
@@ -1415,9 +1435,9 @@ namespace NuoDb.Data.Client
                                 DataRow row = table.NewRow();
                                 row["INDEXCOLUMN_SCHEMA"] = reader["TABLE_SCHEM"];
                                 row["INDEXCOLUMN_TABLE"] = reader["TABLE_NAME"];
-                                row["INDEXCOLUMN_INDEX"] = reader["INDEX_NAME"];
+                                row["INDEXCOLUMN_INDEX"] = reader[indexName];
                                 row["INDEXCOLUMN_NAME"] = reader["COLUMN_NAME"];
-                                row["INDEXCOLUMN_POSITION"] = reader["ORDINAL_POSITION"];
+                                row["INDEXCOLUMN_POSITION"] = reader["KEY_SEQ"];
                                 row["INDEXCOLUMN_ISPRIMARY"] = true;
                                 table.Rows.Add(row);
                             }
