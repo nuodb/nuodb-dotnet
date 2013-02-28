@@ -302,13 +302,10 @@
           false AS IsInitiallyDeferred
         FROM SYSTEM.INDEXES
         WHERE
-          schema != 'SYSTEM'
-        ]]>
-        
-        <!--  
+          schema != 'SYSTEM' AND (indextype = 0 OR indextype = 1) 
         UNION ALL
           SELECT
-            table.schema || '.' || table.tablename || '.FOREIGN' || fkey.primaryfieldid AS Id,
+            table.schema || '.' || table.tablename || '.FOREIGN' || fkey.foreignfieldid AS Id,
             table.schema || '.' || table.tablename AS ParentId,
             'FOREIGN' || fkey.primaryfieldid AS Name,
             'FOREIGN KEY' AS ConstraintType,
@@ -316,8 +313,9 @@
             false AS IsInitiallyDeferred
           FROM SYSTEM.FOREIGNKEYS AS fkey
           LEFT JOIN SYSTEM.TABLES AS table
-          ON (fkey.PRIMARYTABLEID = table.TABLEID)
-        -->
+          ON (fkey.FOREIGNTABLEID = table.TABLEID)
+          WHERE table.schema != 'SYSTEM'
+        ]]>
       </DefiningQuery>
     </EntitySet>
     <EntitySet Name="SCheckConstraints" EntityType="Self.CheckConstraint">
@@ -351,12 +349,13 @@
       <DefiningQuery>
         <![CDATA[
         SELECT
-          table.schema || '.' || table.tablename || '.FOREIGN' || fkey.primaryfieldid AS Id,
+          table.schema || '.' || table.tablename || '.FOREIGN' || fkey.foreignfieldid AS Id,
           fkey.updaterule AS UpdateRule,
           fkey.deleterule AS DeleteRule
         FROM SYSTEM.FOREIGNKEYS AS fkey
         LEFT JOIN SYSTEM.TABLES AS table
-        ON (fkey.PRIMARYTABLEID = table.TABLEID)
+        ON (fkey.FOREIGNTABLEID = table.TABLEID)
+        WHERE table.schema != 'SYSTEM'
         ]]>
       </DefiningQuery>
     </EntitySet>
@@ -364,15 +363,21 @@
       <DefiningQuery>
         <![CDATA[
         SELECT
-          '' AS Id,
-          '' AS FromColumnId,
-          '' AS ToColumnId,
-          '' AS ConstraintId,
-          0 AS Ordinal
-        FROM
-          SYSTEM.TABLES
-        WHERE
-          1 = 0
+          primarytableid || '.' || primaryfieldid || '.' || foreigntableid || '.' || foreignfieldid || '.' || position AS Id,
+          tableFrom.schema || '.' || tableFrom.tableName || '.' || columnsFrom.field AS FromColumnId,
+          tableTo.schema || '.' || tableTo.tableName || '.' || columnsTo.field AS ToColumnId,
+          tableFrom.schema || '.' || tableFrom.tablename || '.FOREIGN' || fkey.foreignfieldid AS ConstraintId,
+          position AS Ordinal
+        FROM SYSTEM.FOREIGNKEYS AS fkey
+        LEFT JOIN SYSTEM.TABLES AS tableTo
+        ON (fkey.primarytableid = tableTo.tableid)
+        LEFT JOIN SYSTEM.FIELDS AS columnsTo
+        ON (tableTo.schema = columnsTo.schema AND tableTo.tableName = columnsTo.tablename AND fkey.primaryfieldid = columnsTo.fieldid)
+        LEFT JOIN SYSTEM.TABLES AS tableFrom
+        ON (fkey.foreigntableid = tableFrom.tableid)
+        LEFT JOIN SYSTEM.FIELDS AS columnsFrom
+        ON (tableFrom.schema = columnsFrom.schema AND tableFrom.tableName = columnsFrom.tablename AND fkey.foreignfieldid = columnsFrom.fieldid)
+        WHERE tableFrom.schema != 'SYSTEM'
         ]]>
       </DefiningQuery>
     </EntitySet>
