@@ -36,6 +36,7 @@ using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.OLE.Interop;
 using Microsoft.VisualStudio.Shell;
+using NuoDb.VisualStudio.DataTools.Editors;
 
 namespace NuoDb.VisualStudio.DataTools
 {
@@ -62,15 +63,25 @@ namespace NuoDb.VisualStudio.DataTools
     // corresponding to the company NuoDB for the version 1.0 of the product "DDEX Provider for NuoDB"
     // that can be loaded on any version (Standard, Professional) of Visual Studio 2008 and greater
     [ProvideLoadKey("Standard", "1.0", "DDEX Provider for NuoDB", "NuoDB", 111)]
-    [Guid(GuidList.guidNuoDBVSPackagePkgString)]
     [ProvideService(typeof(NuoDbDataProviderObjectFactory), ServiceName = "NuoDB Provider Object Factory")]
     [ProvideDataSource(DataSourceGuid = GuidList.guidNuoDBDataSourceString, 
                        DataSourceName = "NuoDB Data Source", 
-                       DataProviderGuid = GuidList.guidNuoDBDataProvider, 
+                       DataProviderGuid = GuidList.guidNuoDBDataProviderString, 
                        DataProviderName = ".NET Framework Data Provider for NuoDB", 
                        FactoryGuid = GuidList.guidNuoDBObjectFactoryServiceString)]
+    [ProvideEditorFactory(typeof(SQLEditorFactory), 114, TrustLevel = __VSEDITORTRUSTLEVEL.ETL_AlwaysTrusted)]
+    [ProvideEditorExtension(typeof(SQLEditorFactory), ".nuosql", 32,
+        ProjectGuid = "{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}",     // Miscellaneaous file projects
+        TemplateDir = "Templates",
+        NameResourceID = 113,
+        DefaultName = "NuoDB SQL Editor")]
+    [ProvideEditorLogicalView(typeof(SQLEditorFactory), GuidList.guidNuoDBSQLEditorLogicalViewString)]
+    [ProvideMenuResource("Menus.ctmenu", 1)]
+    [Guid(GuidList.guidNuoDBVSPackagePkgString)]
     public sealed class NuoDbVSPackagePackage : Package
     {
+        public static NuoDbVSPackagePackage Instance = null;
+
         /// <summary>
         /// Default constructor of the package.
         /// Inside this method you can place any initialization code that does not require 
@@ -80,6 +91,7 @@ namespace NuoDb.VisualStudio.DataTools
         /// </summary>
         public NuoDbVSPackagePackage()
         {
+            Instance = this;
         }
 
 
@@ -94,9 +106,23 @@ namespace NuoDb.VisualStudio.DataTools
         /// </summary>
         protected override void Initialize()
         {
+#if DEBUG
             Trace.WriteLine (string.Format(CultureInfo.CurrentCulture, "Entering Initialize() of: {0}", this.ToString()));
+#endif
             (this as IServiceContainer).AddService(typeof(NuoDbDataProviderObjectFactory), new ServiceCreatorCallback(this.CreateService), true);
             base.Initialize();
+
+            RegisterEditorFactory(new SQLEditorFactory());
+
+            // Add our command handlers for menu (commands must exist in the .vsct file)
+            OleMenuCommandService mcs = GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
+            if (null != mcs)
+            {
+                // Create the command for the 'New Query Connection' menu item.
+                CommandID menuCommandID = new CommandID(GuidList.guidNuoDBVSPackageCmdSet, (int)PkgCmdIDList.cmdNewConnection);
+                MenuCommand menuItem = new MenuCommand(CreateNewQuery, menuCommandID);
+                mcs.AddCommand(menuItem);
+            }
 
         }
         #endregion
@@ -113,6 +139,21 @@ namespace NuoDb.VisualStudio.DataTools
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// This function is the callback used to execute a command when the a menu item is clicked.
+        /// See the Initialize method to see how the menu item is associated to this function using
+        /// the OleMenuCommandService service and the MenuCommand class.
+        /// </summary>
+        private void CreateNewQuery(object sender, EventArgs e)
+        {
+            EnvDTE.DTE dte = (EnvDTE.DTE)GetService(typeof(EnvDTE.DTE));
+            EnvDTE.Window window = dte.ItemOperations.NewFile("NuoDB\\NuoDB SQL Editor");
+            if (window != null && window.Object is SQLEditor)
+            {
+                ((SQLEditor)window.Object).Connect();
+            }
         }
 
     }

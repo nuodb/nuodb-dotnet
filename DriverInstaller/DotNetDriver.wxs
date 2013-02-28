@@ -36,31 +36,11 @@
       </Component>
 
       <Directory Id="NUODB_EXTENSION_DIR_VS2010" Name="VS2010" >
-        <Component Id="Install_DDEXPlugin_VS2010" Guid="A04B6218-AD90-40E5-8001-918CF0D3EAF3">
-          <File KeyPath="yes" Id="NuoDb.VisualStudio.DataTools.pkgdef_VS2010"
-                Source="../NuoDBVSPackage/bin/$(var.Configuration)/NuoDb.VisualStudio.DataTools.pkgdef">
-          </File>
-          <File Id="NuoDb.VisualStudio.DataTools.dll_VS2010"
-                Source="../NuoDBVSPackage/bin/$(var.Configuration)/NuoDb.VisualStudio.DataTools.dll">
-          </File>
-          <File Id="extension.vsixmanifest_VS2010"
-                Source="../NuoDBVSPackage/bin/$(var.Configuration)/extension.vsixmanifest">
-          </File>
-        </Component>
+        <Directory Id="VS2010_Templates" Name="Templates" />
       </Directory>
       
       <Directory Id="NUODB_EXTENSION_DIR_VS2012" Name="VS2012" >
-        <Component Id="Install_DDEXPlugin_VS2012" Guid="0FAF282B-FA33-4F1E-88BC-BD50C19F0B28">
-          <File KeyPath="yes" Id="NuoDb.VisualStudio.DataTools.pkgdef_VS2012"
-                Source="../NuoDBVSPackage/bin/$(var.Configuration)/NuoDb.VisualStudio.DataTools.pkgdef">
-          </File>
-          <File Id="NuoDb.VisualStudio.DataTools.dll_VS2012"
-                Source="../NuoDBVSPackage/bin/$(var.Configuration)/NuoDb.VisualStudio.DataTools.dll">
-          </File>
-          <File Id="extension.vsixmanifest_VS2012"
-                Source="../NuoDBVSPackage/bin/$(var.Configuration)/extension.vsixmanifest">
-          </File>
-        </Component>
+        <Directory Id="VS2012_Templates" Name="Templates" />
       </Directory>
 
       <Directory Id="GAC" Name="GAC">
@@ -162,6 +142,50 @@
         </Component>
       </Directory>
     </DirectoryRef>
+
+    <ComponentGroup Id="Install_DDEXPlugin_VS2010">
+      <Component Guid="A04B6218-AD90-40E5-8001-918CF0D3EAF3" Directory="NUODB_EXTENSION_DIR_VS2010">
+        <File KeyPath="yes" Id="NuoDb.VisualStudio.DataTools.pkgdef_VS2010"
+              Source="../NuoDBVSPackage/bin/$(var.Configuration)/NuoDb.VisualStudio.DataTools.pkgdef">
+        </File>
+        <File Id="NuoDb.VisualStudio.DataTools.dll_VS2010"
+              Source="../NuoDBVSPackage/bin/$(var.Configuration)/NuoDb.VisualStudio.DataTools.dll">
+        </File>
+        <File Id="extension.vsixmanifest_VS2010"
+              Source="../NuoDBVSPackage/bin/$(var.Configuration)/extension.vsixmanifest">
+        </File>
+      </Component>
+      <Component Guid="A04B6218-AD90-40E5-8001-918CF0D3EAF4" Directory="VS2010_Templates">
+        <File KeyPath="yes" Id="NewQuery.nuosql_VS2010"
+              Source="../NuoDBVSPackage/Templates/New Query.nuosql">
+        </File>
+        <File Id="NuoDBVSPackage.vsdir_VS2010"
+              Source="../NuoDBVSPackage/Templates/NuoDBVSPackage.vsdir">
+        </File>
+      </Component>
+    </ComponentGroup>
+
+    <ComponentGroup Id="Install_DDEXPlugin_VS2012">
+      <Component Guid="0FAF282B-FA33-4F1E-88BC-BD50C19F0B28" Directory="NUODB_EXTENSION_DIR_VS2012">
+        <File KeyPath="yes" Id="NuoDb.VisualStudio.DataTools.pkgdef_VS2012"
+              Source="../NuoDBVSPackage/bin/$(var.Configuration)/NuoDb.VisualStudio.DataTools.pkgdef">
+        </File>
+        <File Id="NuoDb.VisualStudio.DataTools.dll_VS2012"
+              Source="../NuoDBVSPackage/bin/$(var.Configuration)/NuoDb.VisualStudio.DataTools.dll">
+        </File>
+        <File Id="extension.vsixmanifest_VS2012"
+              Source="../NuoDBVSPackage/bin/$(var.Configuration)/extension.vsixmanifest">
+        </File>
+      </Component>
+      <Component Guid="0FAF282B-FA33-4F1E-88BC-BD50C19F0B29" Directory="VS2012_Templates">
+        <File KeyPath="yes" Id="NewQuery.nuosql_VS2012"
+              Source="../NuoDBVSPackage/Templates/New Query.nuosql">
+        </File>
+        <File Id="NuoDBVSPackage.vsdir_VS2012"
+              Source="../NuoDBVSPackage/Templates/NuoDBVSPackage.vsdir">
+        </File>
+      </Component>
+    </ComponentGroup>
 
   </Fragment>
 

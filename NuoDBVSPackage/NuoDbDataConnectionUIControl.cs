@@ -27,10 +27,9 @@
 ****************************************************************************/
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Microsoft.VisualStudio.Data;
+using Microsoft.VisualStudio.Data.AdoDotNet;
+using System.Data.Common;
 
 namespace NuoDb.VisualStudio.DataTools
 {
@@ -46,6 +45,11 @@ namespace NuoDb.VisualStudio.DataTools
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.TextBox textBoxSchema;
         private System.Windows.Forms.Label label1;
+
+        public DbConnectionStringBuilder ConnectionStringBuilder
+        {
+            get { return ((AdoDotNetConnectionProperties)base.ConnectionProperties).ConnectionStringBuilder; }
+        }
 
         public NuoDbDataConnectionUIControl()
         {

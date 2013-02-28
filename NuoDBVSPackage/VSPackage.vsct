@@ -1,0 +1,222 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<CommandTable xmlns="http://schemas.microsoft.com/VisualStudio/2005-10-18/CommandTable" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <!--  This is the file that defines the actual layout and type of the commands.
+        It is divided in different sections (e.g. command definition, command
+        placement, ...), with each defining a specific set of properties.
+        See the comment before each section for more details about how to
+        use it. -->
+
+  <!--  The VSCT compiler (the tool that translates this file into the binary 
+        format that VisualStudio will consume) has the ability to run a preprocessor 
+        on the vsct file; this preprocessor is (usually) the C++ preprocessor, so 
+        it is possible to define includes and macros with the same syntax used 
+        in C++ files. Using this ability of the compiler here, we include some files 
+        defining some of the constants that we will use inside the file. -->
+
+  <!--This is the file that defines the IDs for all the commands exposed by VisualStudio. -->
+  <Extern href="stdidcmd.h"/>
+
+  <!--This header contains the command ids for the menus provided by the shell. -->
+  <Extern href="vsshlids.h"/>
+
+  <!--Definition of some VSCT specific constants. In this sample we use it for the IDs inside the guidOfficeIcon group. -->
+  <Extern href="msobtnid.h"/>
+
+  <!--Defines VK_INSERT -->
+  <Extern href="virtkeys.h"/>
+
+  <!--The Commands section is where we the commands, menus and menu groups are defined.
+      This section uses a Guid to identify the package that provides the command defined inside it. -->
+  <Commands package="guidNuoDBVSPackagePkg">
+    <!-- Inside this section we have different sub-sections: one for the menus, another  
+    for the menu groups, one for the buttons (the actual commands), one for the combos 
+    and the last one for the bitmaps used. Each element is identified by a command id that  
+    is a unique pair of guid and numeric identifier; the guid part of the identifier is usually  
+    called "command set" and is used to group different command inside a logically related  
+    group; your package should define its own command set in order to avoid collisions  
+    with command ids defined by other packages. -->
+
+
+    <!--This is the sub-section that defines the menus and toolbars.-->
+    <Menus>
+      <!--  To define an element in this group you need an ID, a parent group, a display priority,
+            a menu type, a name and a default text. -->
+
+      <!-- This defines the submenu where all our command will be declared -->
+      <Menu guid="guidNuoDBVSPackageCmdSet" id="idSubMenu" priority="0x0030" type="Menu">
+        <Parent guid="guidNuoDBVSPackageCmdSet" id="idTopLevelGroup"/>
+        <Strings>
+          <ButtonText>NuoSQL Editor</ButtonText>
+          <CommandName>N&amp;uoSQL Editor</CommandName>
+        </Strings>
+      </Menu>
+    </Menus>
+
+    <!-- In this section you can define new menu groups. A menu group is a container for 
+         other menus or buttons (commands); from a visual point of view you can see the 
+         group as the part of a menu contained between two lines. The parent of a group 
+         must be a menu. -->
+    <Groups>
+
+      <!-- This group is created inside the Data top level menu, and will host the 'NuoDB SQL Editor' sub menu we define -->
+      <Group guid="guidNuoDBVSPackageCmdSet" id="idTopLevelGroup" priority="0xF101">
+        <!-- <Parent guid="guidSHLMainMenu" id="IDM_VS_MENU_TOOLS"/> -->
+        <Parent guid="guid_VSD_MenuGroup" id="IDM_VSD_DATACLASS"/>
+      </Group>
+
+      <!-- This is the group in the submenu that holds the 'New Query Connection' menu items -->
+      <Group guid="guidNuoDBVSPackageCmdSet" id="idMainMenuGroup" priority="0x0600">
+        <Parent guid="guidNuoDBVSPackageCmdSet" id="idSubMenu"/> 
+      </Group>
+
+      <!-- This is the group in the submenu that holds the menu items that should be enabled when the editor is active -->
+      <Group guid="guidNuoDBVSPackageCmdSet" id="idEditorMenuGroup" priority="0x0601">
+        <Parent guid="guidNuoDBVSPackageCmdSet" id="idSubMenu"/>
+        <GroupFlag>Dynamic</GroupFlag>
+      </Group>
+    </Groups>
+
+    <!--Buttons section. -->
+    <!--This section defines the elements the user can interact with, like a menu command or a button 
+        or combo box in a toolbar. -->
+    <Buttons>
+      <!--To define a menu group you have to specify its ID, the parent menu and its display priority. 
+          The command is visible and enabled by default. If you need to change the visibility, status, etc, you can use
+          the CommandFlag node.
+          You can add more than one CommandFlag node e.g.:
+              <CommandFlag>DefaultInvisible</CommandFlag>
+              <CommandFlag>DynamicVisibility</CommandFlag>
+          If you do not want an image next to your command, remove the Icon node or set it to <Icon guid="guidOfficeIcon" id="msotcidNoIcon" /> -->
+
+      <Button guid="guidNuoDBVSPackageCmdSet" id="cmdNewConnection" priority="0x0100" type="Button">
+        <Parent guid="guidNuoDBVSPackageCmdSet" id="idMainMenuGroup" />
+        <Icon guid="guidImages" id="bird" />
+        <Strings>
+          <CommandName>cmdNewConnection</CommandName>
+          <ButtonText>&amp;New Query Connection...</ButtonText>
+        </Strings>
+      </Button>
+      <Button guid="guidNuoDBVSPackageCmdSet" id="cmdConnectionOpen" priority="0x0101" type="Button">
+        <Parent guid="guidNuoDBVSPackageCmdSet" id="idEditorMenuGroup" />
+        <CommandFlag>DefaultInvisible</CommandFlag>
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <Strings>
+          <CommandName>cmdConnectionOpen</CommandName>
+          <ButtonText>&amp;Connect</ButtonText>
+        </Strings>
+      </Button>
+      <Button guid="guidNuoDBVSPackageCmdSet" id="cmdConnectionClose" priority="0x0102" type="Button">
+        <Parent guid="guidNuoDBVSPackageCmdSet" id="idEditorMenuGroup" />
+        <CommandFlag>DefaultInvisible</CommandFlag>
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <Strings>
+          <CommandName>cmdConnectionClose</CommandName>
+          <ButtonText>&amp;Disconnect</ButtonText>
+        </Strings>
+      </Button>
+      <Button guid="guidNuoDBVSPackageCmdSet" id="cmdExecuteCommand" priority="0x0103" type="Button">
+        <Parent guid="guidNuoDBVSPackageCmdSet" id="idEditorMenuGroup" />
+        <CommandFlag>DefaultInvisible</CommandFlag>
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <Strings>
+          <CommandName>cmdExecuteCommand</CommandName>
+          <ButtonText>&amp;Execute SQL</ButtonText>
+        </Strings>
+      </Button>
+
+    </Buttons>
+
+    <!--The bitmaps section is used to define the bitmaps that are used for the commands.-->
+    <Bitmaps>
+      <!--  The bitmap id is defined in a way that is a little bit different from the others: 
+            the declaration starts with a guid for the bitmap strip, then there is the resource id of the 
+            bitmap strip containing the bitmaps and then there are the numeric ids of the elements used 
+            inside a button definition. An important aspect of this declaration is that the element id 
+            must be the actual index (1-based) of the bitmap inside the bitmap strip. -->
+      <Bitmap guid="guidImages" href="Resources\Bitmaps.bmp" usedList="bird"/>
+
+    </Bitmaps>
+
+  </Commands>
+
+  <!-- This section is where you can associate a command with a keyboard shortcut; this association is
+      valid within a specific UI context, that is when the shell is inside a specific mode, e.g. during
+      debugging, editing a file or when the user is using a specific designer. -->
+  <VisibilityConstraints>
+    <!-- Show the Connect/Disconnect/Execute commands only when the active document is our command editor -->
+    <VisibilityItem guid="guidNuoDBVSPackageCmdSet" id="cmdConnectionOpen" context="guidNuoDBVSPackageEditorFactory" />
+    <VisibilityItem guid="guidNuoDBVSPackageCmdSet" id="cmdConnectionClose" context="guidNuoDBVSPackageEditorFactory" />
+    <VisibilityItem guid="guidNuoDBVSPackageCmdSet" id="cmdExecuteCommand" context="guidNuoDBVSPackageEditorFactory" />
+  </VisibilityConstraints>
+
+  <KeyBindings>
+    <!--Keybindings 
+       To define a binding, you have to specify the sequence of keys to press to activate the command  
+       (keystate); 
+       
+       Notice that Visual Studio has a lot of components and commands, so it can be difficult to find a  
+       key binding not used by somebody else; if the key bindings are conflicting only one will be used 
+       and one problem is that the shell will not inform the user that a conflict was found. The only  
+       way to detect the problem is to start Visual Studio under debugger, try to execute any command  
+       and look if there is a message in the output window about a duplicated accelerator found.-->
+    <KeyBinding guid="guidVSStd2K" id="ECMD_INSERT" editor="guidNuoDBVSPackageEditorFactory" key1="VK_INSERT"/>
+  </KeyBindings>
+
+  <!--  Within this section you can specify the set of commands defined somewhere else that your  
+        packages uses; for instance if your package uses the standard ‘Copy’ command, you don’t  
+        need to define it, because it is defined by the shell, but you have to use this section  
+        of the VSCT file to notify the shell that your package uses it using this section. -->
+  <!--  Note that with combo boxes we have effectively two commands in one. Below 
+        we have two pairs of commands; 1st pair commandIDFontName and commandIDFontNameHandler, 
+        2nd pair commandIDFontSize and commandIDFontSizeHandler. Note that: 
+        
+        - commandIDFontName and commandIDFontSize handle the displaying and setting of the font 
+          name and font size respectively 
+        - commandIDFontNameHandler and commandIDFontSizeHandler fill the drop down menus 
+          with the available font names and font sizes respectively 
+     -->
+  <!-- Note also that VS will call QueryStatus only on commandIDFontName and  
+       commandIDFontSize, but not on cmdFontNameHandler and commandIDFontSizeHandler whereas 
+       Exec will be called on all four commands. 
+       Note also that Exec will be called for commandIDFontName and commandIDFontSize for 
+       two cases; first to get the current font name or size and second to 
+       set the font name or size whereas the Exec call for commandIDFontNameHandler and  
+       commandIDFontSizeHandler always have the same meaning - fill the drop down menu. 
+       Finally, note that placement for the combo boxes is defined in the combo 
+       section below by the priority and not in the CommandPlacements section. -->
+  <UsedCommands>
+    <UsedCommand guid="guidVSStd2K" id="ECMD_INSERT"/>
+  </UsedCommands>
+
+  <Symbols>
+    <!-- These come from the Guids.cs source file -->
+    <GuidSymbol name="guidNuoDBVSPackagePkg" value="{407f565d-8772-4770-8243-5a1f396aae9d}" />
+    <GuidSymbol name="guidNuoDBVSPackageEditorFactory" value="{61D4FA5D-176D-49A0-BF25-A0969238186C}" />
+    <GuidSymbol name="guidNuoDBVSPackageCmdSet" value="{41f5f498-5d4f-4811-844e-6e6bd65125c8}">
+
+      <!-- Here we define our menu commands -->
+      <IDSymbol name="idTopLevelGroup" value="0x1020" />
+      <IDSymbol name="idMainMenuGroup" value="0x1021" />
+      <IDSymbol name="idSubMenu" value="0x1022" />
+      <IDSymbol name="idEditorMenuGroup" value="0x1023" />
+
+      <IDSymbol name="cmdNewConnection" value="0x0100" />
+      <IDSymbol name="cmdConnectionOpen" value="0x0101" />
+      <IDSymbol name="cmdConnectionClose" value="0x0102" />
+      <IDSymbol name="cmdExecuteCommand" value="0x0103" />
+      
+    </GuidSymbol>
+
+    <GuidSymbol name="guidImages" value="{F2891E42-C971-4D6B-B86D-2DCD6290767D}" >
+      <IDSymbol name="bird" value="1" />
+    </GuidSymbol>
+
+    <!-- This has been obtained by inspecting the VSCT codes through the VSCT Power Toy extension-->
+    <GuidSymbol name="guid_VSD_MenuGroup" value="{f65c9b12-9cc9-498a-ab19-6cbe3d2c6bc6}" >
+      <IDSymbol name="IDM_VSD_DATACLASS" value="0x0001"/>
+    </GuidSymbol>
+
+  </Symbols>
+
+</CommandTable>

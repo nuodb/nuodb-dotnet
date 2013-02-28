@@ -32,6 +32,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <RunCodeAnalysis>true</RunCodeAnalysis>
+    <DeployExtension>True</DeployExtension>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
@@ -48,6 +49,11 @@
       <Private>false</Private>
     </Reference>
     <Reference Include="Microsoft.VisualStudio.Shell.Immutable.10.0" />
+    <Reference Include="Microsoft.VisualStudio.TextManager.Interop.10.0, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="Microsoft.VisualStudio.TextManager.Interop.8.0, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+    <Reference Include="Microsoft.VisualStudio.TextManager.Interop.9.0, Version=9.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
@@ -113,6 +119,23 @@
     </COMReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Editors\CodeWindow.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Editors\CodeWindow.Designer.cs">
+      <DependentUpon>CodeWindow.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Editors\NewConnectionDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Editors\NewConnectionDialog.Designer.cs">
+      <DependentUpon>NewConnectionDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Editors\SQLEditor.Designer.cs">
+      <DependentUpon>SQLEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Editors\SQLEditorFactory.cs" />
+    <Compile Include="Editors\Win32.cs" />
     <Compile Include="Guids.cs" />
     <Compile Include="NuoDbDataConnectionProperties.cs" />
     <Compile Include="NuoDbDataConnectionSupport.cs" />
@@ -126,6 +149,7 @@
     <Compile Include="NuoDbDataViewSupport.cs" />
     <Compile Include="NuoDbObjectConceptMapper.cs" />
     <Compile Include="NuoDbObjectIdentifierConverter.cs" />
+    <Compile Include="PkgCmdID.cs" />
     <Compile Include="ProvideDataSourceAttribute.cs" />
     <Compile Include="Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -135,8 +159,17 @@
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="NuoDbVSPackagePackage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Editors\SQLEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Editors\NewConnectionDialog.resx">
+      <DependentUpon>NewConnectionDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Editors\SQLEditor.resx">
+      <DependentUpon>SQLEditor.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="NuoDbDataConnectionUIControl.resx">
       <DependentUpon>NuoDbDataConnectionUIControl.cs</DependentUpon>
     </EmbeddedResource>
@@ -152,6 +185,14 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Templates\New Query.nuosql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Templates\NuoDBVSPackage.vsdir">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
     <None Include="source.extension.vsixmanifest">
       <SubType>Designer</SubType>
     </None>
@@ -162,8 +203,16 @@
   <ItemGroup>
     <EmbeddedResource Include="NuoDbDataViewSupport.xml" />
     <EmbeddedResource Include="NuoDbDataObjectSupport.xml" />
+    <Resource Include="Resources\Bitmaps.bmp" />
     <Content Include="Resources\Package.ico" />
   </ItemGroup>
+  <ItemGroup>
+    <VSCTCompile Include="VSPackage.vsct">
+      <ResourceName>Menus.ctmenu</ResourceName>
+      <SubType>Designer</SubType>
+    </VSCTCompile>
+  </ItemGroup>
+  <ItemGroup />
   <PropertyGroup>
     <UseCodebase>true</UseCodebase>
   </PropertyGroup>
