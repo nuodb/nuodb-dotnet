@@ -230,9 +230,6 @@ namespace NuoDb.Data.Client
             }
             set
             {
-#if DEBUG
-                System.Diagnostics.Trace.WriteLine("NuoDbCommand.CommandText = " + value);
-#endif
                 Close();
                 sqlText = value;
                 isPrepared = false;

@@ -1626,8 +1626,6 @@ namespace NuoDb.Data.Client
                 return "System.DBNull";
             if(p == "tinyint" || p == "smallint")
                 return "System.Int16";
-            if(p == "bigint")
-                return "System.Int64";
             if(p == "float")
                 return "System.Single";
             if(p == "double")
@@ -1636,7 +1634,7 @@ namespace NuoDb.Data.Client
                 return "System.Char";
             if(p == "date" || p == "time" || p == "timestamp")
                 return "System.DateTime";
-            if(p == "numeric" || p == "decimal")
+            if(p == "bigint" || p == "numeric" || p == "decimal")
                 return "System.Decimal";
             if(p == "boolean")
                 return "System.Boolean";

@@ -78,7 +78,21 @@ namespace NuoDb.Data.Client.EntityFramework
                 else
                     return TypeUsage.CreateStringTypeUsage(edmPrimitiveType, false, false);
             }
-            else 
+            else if (storeTypeName == "bigint" || storeTypeName == "decimal" || storeTypeName == "numeric")
+            {
+                Facet f;
+                byte precision = 0;
+                if (storeType.Facets.TryGetValue("Precision", false, out f) && !f.IsUnbounded && f.Value != null)
+                    precision = (byte)f.Value;
+                byte scale = 0;
+                if (storeType.Facets.TryGetValue("Scale", false, out f) && !f.IsUnbounded && f.Value != null)
+                    scale = (byte)f.Value;
+                if (precision != 0 && scale != 0)
+                    return TypeUsage.CreateDecimalTypeUsage(edmPrimitiveType, precision, scale);
+                else
+                    return TypeUsage.CreateDecimalTypeUsage(edmPrimitiveType);
+            }
+            else
                 return TypeUsage.CreateDefaultTypeUsage(edmPrimitiveType);
             throw new NotImplementedException();
         }
