@@ -92,8 +92,15 @@ namespace NuoDb.Data.Client
 #if DEBUG
             System.Diagnostics.Trace.WriteLine("NuoDBConnection::Dispose() [state = "+state+"]");
 #endif
-            if (state == ConnectionState.Open)
-                Close();
+            try
+            {
+                if (state == ConnectionState.Open)
+                    Close();
+            }
+            catch (ObjectDisposedException)
+            {
+            }
+
             base.Dispose(disposing);
         }
 
@@ -151,9 +158,6 @@ namespace NuoDb.Data.Client
                         throw new NuoDbSqlException(message, sqlState, status);
                     }
                 }
-            }
-            catch (ObjectDisposedException)
-            {
             }
             catch (IOException exception)
             {
