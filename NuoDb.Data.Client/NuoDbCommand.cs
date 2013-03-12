@@ -467,11 +467,20 @@ namespace NuoDb.Data.Client
             handle = dataStream.getInt();
             connection.RegisterCommand(handle);
             int numberParameters = dataStream.getInt();
-            for (int i = parameters.Count; i < numberParameters; i++)
-                parameters.Add(CreateParameter());
-            for (int i = parameters.Count; i > numberParameters; i--)
-                parameters.RemoveAt(i-1);
-            isPrepared = true;
+            // a prepared DDL command fails to execute
+            if (numberParameters != 0 || CommandText.TrimStart(null).Substring(0, 6).ToUpper().Equals("SELECT"))
+            {
+                for (int i = parameters.Count; i < numberParameters; i++)
+                    parameters.Add(CreateParameter());
+                for (int i = parameters.Count; i > numberParameters; i--)
+                    parameters.RemoveAt(i - 1);
+                isPrepared = true;
+            }
+            else
+            {
+                Close();
+                isPrepared = false;
+            }
         }
 
         public override UpdateRowSource UpdatedRowSource

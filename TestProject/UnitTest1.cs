@@ -147,6 +147,60 @@ namespace TestProject
         }
 
         [TestMethod]
+        public void TestPrepareNoParameter()
+        {
+            using (NuoDbConnection connection = new NuoDbConnection(connectionString))
+            {
+                DbCommand command = connection.CreateCommand();
+                connection.Open();
+
+                command.CommandText = "select * from hockey where id = 2";
+                command.Prepare();
+
+                DbDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    Console.WriteLine("\t{0}\t{1}\t{2}\t{3}", reader[0], reader[1], reader[2], reader["id"]);
+                }
+                reader.Close();
+            }
+        }
+
+        [TestMethod]
+        public void TestPrepareDDLNoParameter()
+        {
+            using (NuoDbConnection connection = new NuoDbConnection(connectionString))
+            {
+                DbCommand command = connection.CreateCommand();
+                connection.Open();
+
+                command.CommandText = "create table xyz (col int)";
+                command.Prepare();
+
+                try
+                {
+                    int value = command.ExecuteNonQuery();
+                }
+                catch(Exception e)
+                {
+                    Assert.Fail("Executing a prepared DDL that doesn't use parameters reports an error: {0}", e.Message);
+                }
+                finally
+                {
+                    try
+                    {
+                        DbCommand cleanup = connection.CreateCommand();
+                        cleanup.CommandText = "drop table xyz";
+                        cleanup.ExecuteNonQuery();
+                    }
+                    catch (Exception)
+                    {
+                    }
+                }
+            }
+        }
+
+        [TestMethod]
         public void TestTransactions()
         {
             using (NuoDbConnection connection = new NuoDbConnection(connectionString))
