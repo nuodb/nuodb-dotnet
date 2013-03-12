@@ -36,7 +36,7 @@ namespace NuoDb.Data.Client
     {
         private string name;
         private object value;
-        private ParameterDirection direction;
+        private ParameterDirection direction = ParameterDirection.Input;
         private DbType dbType;
         private int size;
         private string sourceColumn;
