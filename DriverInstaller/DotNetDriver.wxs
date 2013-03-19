@@ -83,7 +83,7 @@
                       File="[NETFRAMEWORK40CLIENTINSTALLROOTDIR]\Config\machine.Config"
                       ElementPath="MachineConfigDbProviderFactories40"
                       Name="type"
-                      Value="NuoDb.Data.Client.NuoDbProviderFactory, NuoDb.Data.Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=e49f105b7fb49b38"
+                      Value="NuoDb.Data.Client.NuoDbProviderFactory, NuoDb.Data.Client, Version=!(bind.FileVersion.NuoDb.Data.Client.dll), Culture=neutral, PublicKeyToken=e49f105b7fb49b38"
                       Sequence="2" />
 
           <util:XmlConfig Id="MachineConfigDbProviderFactories_Uninstall40"
@@ -128,7 +128,7 @@
                       File="[NETFRAMEWORK20INSTALLROOTDIR]\Config\machine.Config"
                       ElementPath="MachineConfigDbProviderFactories20"
                       Name="type"
-                      Value="NuoDb.Data.Client.NuoDbProviderFactory, NuoDb.Data.Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=e49f105b7fb49b38"
+                      Value="NuoDb.Data.Client.NuoDbProviderFactory, NuoDb.Data.Client, Version=!(bind.FileVersion.NuoDb.Data.Client.dll), Culture=neutral, PublicKeyToken=e49f105b7fb49b38"
                       Sequence="2" />
 
           <util:XmlConfig Id="MachineConfigDbProviderFactories_Uninstall20"
