@@ -70,7 +70,7 @@ namespace NuoDb.Data.Client
         public override bool Contains(string value)
         {
             foreach (NuoDbParameter p in collection)
-                if (p.ParameterName == value)
+                if (String.Equals(p.ParameterName, value, StringComparison.OrdinalIgnoreCase))
                     return true;
             return false;
         }
@@ -99,7 +99,7 @@ namespace NuoDb.Data.Client
         protected override DbParameter GetParameter(string parameterName)
         {
             foreach (NuoDbParameter p in collection)
-                if (p.ParameterName == parameterName)
+                if (String.Equals(p.ParameterName, parameterName, StringComparison.OrdinalIgnoreCase))
                     return p;
             return null;
         }
@@ -112,7 +112,7 @@ namespace NuoDb.Data.Client
         public override int IndexOf(string parameterName)
         {
             for (int i = 0; i < collection.Count; i++)
-                if (collection[i].ParameterName == parameterName)
+                if (String.Equals(collection[i].ParameterName, parameterName, StringComparison.OrdinalIgnoreCase))
                     return i;
             return -1;
         }
@@ -155,7 +155,7 @@ namespace NuoDb.Data.Client
         public override void RemoveAt(string parameterName)
         {
             for (int i = 0; i < collection.Count; i++)
-                if (collection[i].ParameterName == parameterName)
+                if (String.Equals(collection[i].ParameterName, parameterName, StringComparison.OrdinalIgnoreCase))
                 {
                     collection.RemoveAt(i);
                     break;

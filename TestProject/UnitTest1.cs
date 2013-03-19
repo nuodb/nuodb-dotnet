@@ -147,6 +147,106 @@ namespace TestProject
         }
 
         [TestMethod]
+        public void TestNamedParameters1()
+        {
+            using (NuoDbConnection connection = new NuoDbConnection(connectionString))
+            {
+                DbCommand command = connection.CreateCommand();
+                connection.Open();
+
+                command.CommandText = "select * from hockey where number = ?.number and team = ?.team";
+                command.Prepare();
+                command.Parameters[0].Value = 1;
+                command.Parameters[1].Value = "Bruins";
+
+                DbDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    Console.WriteLine("\t{0}\t{1}\t{2}\t{3}", reader[0], reader[1], reader[2], reader["id"]);
+                }
+                reader.Close();
+            }
+        }
+
+        [TestMethod]
+        public void TestNamedParameters2()
+        {
+            using (NuoDbConnection connection = new NuoDbConnection(connectionString))
+            {
+                DbCommand command = connection.CreateCommand();
+                connection.Open();
+
+                command.CommandText = "select * from hockey where number = ?.number and team = ?.team";
+                NuoDbParameter p1 = new NuoDbParameter();
+                p1.ParameterName = "team";
+                p1.Value = "Bruins";
+                command.Parameters.Add(p1);
+                NuoDbParameter p2 = new NuoDbParameter();
+                p2.ParameterName = "number";
+                p2.Value = 1;
+                command.Parameters.Add(p2);
+                command.Prepare();
+
+                DbDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    Console.WriteLine("\t{0}\t{1}\t{2}\t{3}", reader[0], reader[1], reader[2], reader["id"]);
+                }
+                reader.Close();
+            }
+        }
+
+        [TestMethod]
+        public void TestNamedParameters3()
+        {
+            using (NuoDbConnection connection = new NuoDbConnection(connectionString))
+            {
+                DbCommand command = connection.CreateCommand();
+                connection.Open();
+
+                command.CommandText = "select name as \"'?\" from \"hockey\" where name='? ?.fake' or number = ?.number and team = ?.team";
+                NuoDbParameter p1 = new NuoDbParameter();
+                p1.ParameterName = "TEAM";
+                p1.Value = "Bruins";
+                command.Parameters.Add(p1);
+                NuoDbParameter p2 = new NuoDbParameter();
+                p2.ParameterName = "NUMBER";
+                p2.Value = 1;
+                command.Parameters.Add(p2);
+                command.Prepare();
+
+                DbDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    Console.WriteLine("\t{0}", reader["'?"]);
+                }
+                reader.Close();
+            }
+        }
+
+        [TestMethod]
+        public void TestNamedParameters4()
+        {
+            using (NuoDbConnection connection = new NuoDbConnection(connectionString))
+            {
+                DbCommand command = connection.CreateCommand();
+                connection.Open();
+
+                command.CommandText = "select * from hockey where number = ?.number and team = ?.team";
+                command.Prepare();
+                command.Parameters["NumbER"].Value = 1;
+                command.Parameters["TEam"].Value = "Bruins";
+
+                DbDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    Console.WriteLine("\t{0}\t{1}\t{2}\t{3}", reader[0], reader[1], reader[2], reader["ID"]);
+                }
+                reader.Close();
+            }
+        }
+
+        [TestMethod]
         public void TestPrepareNoParameter()
         {
             using (NuoDbConnection connection = new NuoDbConnection(connectionString))

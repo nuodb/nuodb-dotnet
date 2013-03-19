@@ -70,7 +70,7 @@ namespace NuoDb.Data.Client
 
         protected override string GetParameterName(string parameterName)
         {
-            throw new NotSupportedException();
+            return "?."+parameterName;
         }
 
         protected override string GetParameterName(int parameterOrdinal)

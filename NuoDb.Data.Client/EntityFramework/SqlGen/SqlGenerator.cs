@@ -1558,8 +1558,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
             }
             // Do not quote this name.
             // We are not checking that e.Name has no illegal characters. e.g. space
-            //result.Append("@" + e.ParameterName);
-            result.Append("?");
+            result.Append("?." + e.ParameterName);
             if (shouldCastParameter)
             {
                 result.Append(" AS ");
