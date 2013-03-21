@@ -31,6 +31,7 @@ using NuoDb.Data.Client.Xml;
 using System;
 using System.Data;
 using System.Collections.Generic;
+using System.Text;
 
 namespace NuoDb.Data.Client
 {
@@ -455,6 +456,110 @@ namespace NuoDb.Data.Client
             checkConnection();
             Close();
 
+            StringBuilder sqlString = new StringBuilder(sqlText.Length);
+            NuoDbDataParameterCollection newParams = new NuoDbDataParameterCollection();
+            int state = 0;
+            string curParamName = "";
+            bool inSingleQuotes = false, inDoubleQuotes = false;
+            foreach (char c in sqlText)
+            {
+                if (c == '\'' && !inDoubleQuotes)
+                {
+                    inSingleQuotes = !inSingleQuotes;
+                    state = 0;
+                    sqlString.Append(c);
+                    continue;
+                }
+                else if (c == '\"' && !inSingleQuotes)
+                {
+                    inDoubleQuotes = !inDoubleQuotes;
+                    state = 0;
+                    sqlString.Append(c);
+                    continue;
+                }
+                if (inSingleQuotes || inDoubleQuotes)
+                {
+                    sqlString.Append(c);
+                    continue;
+                }
+
+                if (c == '?')
+                    state = 1;
+                else if (c == '@')
+                    state = 2;
+                else if (state == 1)
+                {
+                    if (c == '.')
+                        state = 2;
+                    else
+                    {
+                        // either add a new parameter, or carry over the user-provided one
+                        if (parameters.Count > newParams.Count)
+                            newParams.Add(parameters[newParams.Count]);
+                        else
+                            newParams.Add(new NuoDbParameter());
+                        state = 0;
+                        sqlString.Append("?");
+                        sqlString.Append(c);
+                    }
+                }
+                else if (state == 2)
+                {
+                    if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '_' ||
+                        (curParamName.Length > 0 && ((c >= '0' && c <= '9') || c == '-')))
+                    {
+                        curParamName += c;
+                    }
+                    else
+                    {
+                        // if the user-provided parameters have a value for this name, preserve it
+                        if (parameters.Contains(curParamName))
+                            newParams.Add(parameters[curParamName]);
+                        else
+                        {
+                            NuoDbParameter p = new NuoDbParameter();
+                            p.ParameterName = curParamName;
+                            newParams.Add(p);
+                        }
+                        sqlString.Append("?.");
+                        sqlString.Append(curParamName);
+                        sqlString.Append(c);
+
+                        curParamName = "";
+                        state = 0;
+                    }
+                }
+                else
+                {
+                    state = 0;
+                    sqlString.Append(c);
+                }
+            }
+            // handle the case where the SQL statement ended while parsing a parameter 
+            if (state == 1)
+            {
+                // either add a new parameter, or carry over the user-provided one
+                if (parameters.Count > newParams.Count)
+                    newParams.Add(parameters[newParams.Count]);
+                else
+                    newParams.Add(new NuoDbParameter());
+                sqlString.Append("?");
+            }
+            else if (state == 2)
+            {
+                // if the user-provided parameters have a value for this name, preserve it
+                if (parameters.Contains(curParamName))
+                    newParams.Add(parameters[curParamName]);
+                else
+                {
+                    NuoDbParameter p = new NuoDbParameter();
+                    p.ParameterName = curParamName;
+                    newParams.Add(p);
+                }
+                sqlString.Append("?.");
+                sqlString.Append(curParamName);
+            }
+
             EncodedDataStream dataStream = new RemEncodedStream(connection.protocolVersion);
             if (generatingKeys)
             {
@@ -463,7 +568,7 @@ namespace NuoDb.Data.Client
             }
             else
                 dataStream.startMessage(Protocol.PrepareStatement);
-            dataStream.encodeString(sqlText);
+            dataStream.encodeString(sqlString.ToString());
             connection.sendAndReceive(dataStream);
             handle = dataStream.getInt();
             connection.RegisterCommand(handle);
@@ -471,90 +576,6 @@ namespace NuoDb.Data.Client
             // a prepared DDL command fails to execute
             if (numberParameters != 0 || CommandText.TrimStart(null).Substring(0, 6).ToUpper().Equals("SELECT"))
             {
-                NuoDbDataParameterCollection newParams = new NuoDbDataParameterCollection();
-                int state = 0;
-                string curParamName = "";
-                bool inSingleQuotes = false, inDoubleQuotes = false;
-                foreach (char c in sqlText)
-                {
-                    if (c == '\'' && !inDoubleQuotes)
-                    {
-                        inSingleQuotes = !inSingleQuotes;
-                        state = 0;
-                        continue;
-                    }
-                    else if (c == '\"' && !inSingleQuotes)
-                    {
-                        inDoubleQuotes = !inDoubleQuotes;
-                        state = 0;
-                        continue;
-                    }
-                    if (inSingleQuotes || inDoubleQuotes)
-                        continue;
-
-                    if (c == '?')
-                        state = 1;
-                    else if (state == 1)
-                    {
-                        if (c == '.')
-                            state = 2;
-                        else
-                        {
-                            // either add a new parameter, or carry over the user-provided one
-                            if (parameters.Count > newParams.Count)
-                                newParams.Add(parameters[newParams.Count]);
-                            else
-                                newParams.Add(new NuoDbParameter());
-                            state = 0;
-                        }
-                    }
-                    else if (state == 2)
-                    {
-                        if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '_' ||
-                            (curParamName.Length > 0 && ((c >= '0' && c <= '9') || c == '-')))
-                        {
-                            curParamName += c;
-                        }
-                        else
-                        {
-                            // if the user-provided parameters have a value for this name, preserve it
-                            if (parameters.Contains(curParamName))
-                                newParams.Add(parameters[curParamName]);
-                            else
-                            {
-                                NuoDbParameter p = new NuoDbParameter();
-                                p.ParameterName = curParamName;
-                                newParams.Add(p);
-                            }
-                            curParamName = "";
-                            state = 0;
-                        }
-                    }
-                    else
-                        state = 0;
-                }
-                // handle the case where the SQL statement ended while parsing a parameter 
-                if (state == 1)
-                {
-                    // either add a new parameter, or carry over the user-provided one
-                    if (parameters.Count > newParams.Count)
-                        newParams.Add(parameters[newParams.Count]);
-                    else
-                        newParams.Add(new NuoDbParameter());
-                }
-                else if (state == 2)
-                {
-                    // if the user-provided parameters have a value for this name, preserve it
-                    if (parameters.Contains(curParamName))
-                        newParams.Add(parameters[curParamName]);
-                    else
-                    {
-                        NuoDbParameter p = new NuoDbParameter();
-                        p.ParameterName = curParamName;
-                        newParams.Add(p);
-                    }
-                }
-
                 parameters = newParams;
                 isPrepared = true;
             }

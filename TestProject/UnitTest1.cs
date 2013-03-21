@@ -247,6 +247,28 @@ namespace TestProject
         }
 
         [TestMethod]
+        public void TestNamedParameters5()
+        {
+            using (NuoDbConnection connection = new NuoDbConnection(connectionString))
+            {
+                DbCommand command = connection.CreateCommand();
+                connection.Open();
+
+                command.CommandText = "select * from hockey where number = @number and team = @team";
+                command.Prepare();
+                command.Parameters["NumbER"].Value = 1;
+                command.Parameters["TEam"].Value = "Bruins";
+
+                DbDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    Console.WriteLine("\t{0}\t{1}\t{2}\t{3}", reader[0], reader[1], reader[2], reader["ID"]);
+                }
+                reader.Close();
+            }
+        }
+
+        [TestMethod]
         public void TestPrepareNoParameter()
         {
             using (NuoDbConnection connection = new NuoDbConnection(connectionString))
