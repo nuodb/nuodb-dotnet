@@ -437,8 +437,6 @@ namespace TestProject
             Assert.AreEqual(2, count);
         }
 
-        /*
-         * This causes a "mix of statistic/scalar expression in select list" error
         [TestMethod]
         public void LINQTestGroup2()
         {
@@ -459,7 +457,6 @@ namespace TestProject
             }
             Assert.AreEqual(2, count);
         }
-        */
 
         [TestMethod]
         public void LINQTestGroup3()
@@ -825,8 +822,6 @@ namespace TestProject
             Assert.AreEqual(883, count);
         }
         
-        /*
-         * Like in the g.Count case, this triggers a "mix of statistic/scalar expression in select list" error
         [TestMethod]
         public void LINQTestSum3()
         {
@@ -850,7 +845,6 @@ namespace TestProject
 
             Assert.AreEqual(4, count);
         }
-         */
 
         [TestMethod]
         public void LINQTestMin1()
@@ -869,8 +863,6 @@ namespace TestProject
             Assert.AreEqual(1, number);
         }
 
-        /*
-         * Like in the g.Count case, this triggers a "mix of statistic/scalar expression in select list" error
         [TestMethod]
         public void LINQTestMin3()
         {
@@ -894,7 +886,6 @@ namespace TestProject
 
             Assert.AreEqual(4, count);
         }
-         */
 
         [TestMethod]
         public void LINQTestMax1()
@@ -913,8 +904,6 @@ namespace TestProject
             Assert.AreEqual(91, number);
         }
 
-        /*
-         * Like in the g.Count case, this triggers a "mix of statistic/scalar expression in select list" error
         [TestMethod]
         public void LINQTestMax3()
         {
@@ -938,7 +927,6 @@ namespace TestProject
 
             Assert.AreEqual(4, count);
         }
-         */
 
         [TestMethod]
         public void LINQTestAvg1()
@@ -957,8 +945,6 @@ namespace TestProject
             Assert.AreEqual(37, Math.Round((double)number));
         }
 
-        /*
-         * Like in the g.Count case, this triggers a "mix of statistic/scalar expression in select list" error
         [TestMethod]
         public void LINQTestAvg3()
         {
@@ -982,7 +968,6 @@ namespace TestProject
 
             Assert.AreEqual(4, count);
         }
-         */
 
         /*
          * The union returns NULL for the second table
