@@ -145,6 +145,9 @@
   <data name="400" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>Resources\Package.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="FileChangedOutsideIDE" xml:space="preserve">
+    <value>File has been changed outside the environment. Reload the new file?</value>
+  </data>
   <data name="Provider_Description" xml:space="preserve">
     <value>DDEX Provider for NuoDB</value>
   </data>
@@ -159,5 +162,8 @@
   </data>
   <data name="Provider_ShortDisplayName" xml:space="preserve">
     <value>DDEX Provider for NuoDB</value>
+  </data>
+  <data name="ReadOnlyMarker" xml:space="preserve">
+    <value>[Read Only]</value>
   </data>
 </root>
