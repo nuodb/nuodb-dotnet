@@ -49,24 +49,7 @@ namespace NuoDb.VisualStudio.DataTools.Editors
                 if (_vsTextBuffer != null)
                 {
                     IVsTextLines lines = (IVsTextLines)_vsTextBuffer;
-                    int endLine, endIndex, endLineIndex;
-                    lines.GetLastLineIndex(out endLine, out endIndex);
-                    lines.GetLengthOfLine(endLine, out endLineIndex);
-                    GCHandle handle = GCHandle.Alloc(value, GCHandleType.Pinned);
-                    try
-                    {
-                        TextSpan[] span = new TextSpan[1];
-                        IntPtr textPtr = handle.AddrOfPinnedObject();
-                        int textLen = string.IsNullOrEmpty(value) ? 0 : value.Length;
-                        int hr = lines.ReplaceLines(0, 0, endLine, endLineIndex, textPtr, textLen, span);
-                    }
-                    finally
-                    {
-                        if ((null != handle) && (handle.IsAllocated))
-                        {
-                            handle.Free();
-                        }
-                    }
+                    lines.InitializeContent(value, value.Length);
                 }
             }
         }
