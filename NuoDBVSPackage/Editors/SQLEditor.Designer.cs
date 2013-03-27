@@ -30,9 +30,9 @@
         {
             this.splitContainer = new System.Windows.Forms.SplitContainer();
             this.CommandWindow = new NuoDb.VisualStudio.DataTools.Editors.CodeWindow(this);
+            this.ResultsWindow = new System.Windows.Forms.RichTextBox();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.connectionStatus = new System.Windows.Forms.ToolStripStatusLabel();
-            this.ResultsWindow = new System.Windows.Forms.RichTextBox();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
             this.splitContainer.Panel2.SuspendLayout();
@@ -54,8 +54,8 @@
             // splitContainer.Panel2
             // 
             this.splitContainer.Panel2.Controls.Add(this.ResultsWindow);
-            this.splitContainer.Size = new System.Drawing.Size(820, 457);
-            this.splitContainer.SplitterDistance = 273;
+            this.splitContainer.Size = new System.Drawing.Size(820, 435);
+            this.splitContainer.SplitterDistance = 259;
             this.splitContainer.TabIndex = 0;
             // 
             // CommandWindow
@@ -63,14 +63,25 @@
             this.CommandWindow.Dock = System.Windows.Forms.DockStyle.Fill;
             this.CommandWindow.Location = new System.Drawing.Point(0, 0);
             this.CommandWindow.Name = "CommandWindow";
-            this.CommandWindow.Size = new System.Drawing.Size(820, 273);
+            this.CommandWindow.Size = new System.Drawing.Size(820, 259);
             this.CommandWindow.TabIndex = 0;
+            // 
+            // ResultsWindow
+            // 
+            this.ResultsWindow.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.ResultsWindow.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.ResultsWindow.Location = new System.Drawing.Point(0, 0);
+            this.ResultsWindow.Name = "ResultsWindow";
+            this.ResultsWindow.ReadOnly = true;
+            this.ResultsWindow.Size = new System.Drawing.Size(820, 172);
+            this.ResultsWindow.TabIndex = 0;
+            this.ResultsWindow.Text = "";
             // 
             // statusStrip
             // 
             this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.connectionStatus});
-            this.statusStrip.Location = new System.Drawing.Point(0, 158);
+            this.statusStrip.Location = new System.Drawing.Point(0, 435);
             this.statusStrip.Name = "statusStrip";
             this.statusStrip.Size = new System.Drawing.Size(820, 22);
             this.statusStrip.TabIndex = 1;
@@ -79,18 +90,8 @@
             // connectionStatus
             // 
             this.connectionStatus.Name = "connectionStatus";
-            this.connectionStatus.Size = new System.Drawing.Size(0, 17);
+            this.connectionStatus.Size = new System.Drawing.Size(79, 17);
             this.connectionStatus.Text = "Disconnected";
-            // 
-            // ResultsWindow
-            // 
-            this.ResultsWindow.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.ResultsWindow.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.ResultsWindow.Location = new System.Drawing.Point(0, 0);
-            this.ResultsWindow.Name = "ResultsWindow";
-            this.ResultsWindow.Size = new System.Drawing.Size(820, 180);
-            this.ResultsWindow.TabIndex = 0;
-            this.ResultsWindow.Text = "";
             // 
             // SQLEditor
             // 
@@ -100,12 +101,12 @@
             this.Size = new System.Drawing.Size(820, 457);
             this.splitContainer.Panel1.ResumeLayout(false);
             this.splitContainer.Panel2.ResumeLayout(false);
-            this.splitContainer.Panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).EndInit();
             this.splitContainer.ResumeLayout(false);
             this.statusStrip.ResumeLayout(false);
             this.statusStrip.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
