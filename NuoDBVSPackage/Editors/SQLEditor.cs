@@ -270,6 +270,7 @@ namespace NuoDb.VisualStudio.DataTools.Editors
 
         public int Close()
         {
+            SetFileChangeNotification(null, false);
             return VSConstants.S_OK;
         }
 
