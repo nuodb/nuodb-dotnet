@@ -37,34 +37,58 @@ namespace NuoDb.VisualStudio.DataTools
 {
     class NuoDbObjectConceptMapper : AdoDotNetObjectConceptMapper
     {
-        protected override DbType GetDbTypeFromNativeType(string nativeType)
+        internal DataRow[] FetchTypeInformations(string nativeType, out string typeName, out int len, out int scale)
         {
-#if DEBUG
-            System.Diagnostics.Trace.WriteLine(String.Format("NuoDbObjectConceptMapper::GetDbTypeFromNativeType({0})", nativeType));
-            foreach(DataRow row in this.DataTypes.Rows)
-                foreach(object o in row.ItemArray)
-                    System.Diagnostics.Trace.WriteLine(o);
-#endif
-            DataRow[] rows = this.DataTypes.Select(String.Format("TypeName = '{0}'", nativeType));
-
-            if (rows != null && rows.Length > 0)
+            typeName = nativeType;
+            if (nativeType.Contains('('))
             {
-                return (DbType)Convert.ToInt32(rows[0]["ProviderDbType"]);
+                int parpos = nativeType.IndexOf('(');
+                string rest = nativeType.Substring(parpos).Trim(new char[] { '(', ')' });
+                typeName = nativeType.Substring(0, parpos);
+                if (rest.Contains(','))
+                {
+                    int commapos = rest.IndexOf(',');
+                    len = Int32.Parse(rest.Substring(0, commapos));
+                    scale = Int32.Parse(rest.Substring(commapos + 1));
+                }
+                else
+                {
+                    len = Int32.Parse(rest);
+                    scale = 0;
+                }
+            }
+            else
+            {
+                len = 0;
+                scale = 0;
+                typeName = nativeType;
             }
 
-            return base.GetDbTypeFromNativeType(nativeType);
+            return this.DataTypes.Select(String.Format("TypeName = '{0}'", typeName));
+        }
+
+        protected override DbType GetDbTypeFromNativeType(string nativeType)
+        {
+            DbType dbType = (DbType)GetProviderTypeFromNativeType(nativeType);
+#if DEBUG
+            System.Diagnostics.Trace.WriteLine(String.Format("NuoDbObjectConceptMapper::GetDbTypeFromNativeType({0}) = {1}", nativeType, dbType));
+#endif
+            return dbType;
         }
 
         protected override int GetProviderTypeFromNativeType(string nativeType)
         {
-#if DEBUG
-            System.Diagnostics.Trace.WriteLine(String.Format("NuoDbObjectConceptMapper::GetProviderTypeFromNativeType({0})", nativeType));
-#endif
-            DataRow[] rows = this.DataTypes.Select(String.Format("TypeName = '{0}'", nativeType));
+            string typeName;
+            int len, scale;
+            DataRow[] rows = FetchTypeInformations(nativeType, out typeName, out len, out scale);
 
             if (rows != null && rows.Length > 0)
             {
-                return Convert.ToInt32(rows[0]["ProviderDbType"]);
+                int providerType = Convert.ToInt32(rows[0]["ProviderDbType"]);
+                if ((providerType == (int)DbType.Int16 || providerType == (int)DbType.Int32 || providerType == (int)DbType.Int64) &&
+                     scale > 0)
+                    providerType = (int)DbType.Decimal;
+                return providerType;
             }
 
             return base.GetProviderTypeFromNativeType(nativeType);
@@ -72,14 +96,17 @@ namespace NuoDb.VisualStudio.DataTools
 
         protected override Type GetFrameworkTypeFromNativeType(string nativeType)
         {
-#if DEBUG
-            System.Diagnostics.Trace.WriteLine(String.Format("NuoDbObjectConceptMapper::GetFrameworkTypeFromNativeType({0})", nativeType));
-#endif
-            DataRow[] rows = this.DataTypes.Select(String.Format("TypeName = '{0}'", nativeType));
+            string typeName;
+            int len, scale;
+            DataRow[] rows = FetchTypeInformations(nativeType, out typeName, out len, out scale);
 
             if (rows != null && rows.Length > 0)
             {
-                return Type.GetType(rows[0]["DataType"].ToString());
+                string netType = rows[0]["DataType"].ToString();
+#if DEBUG
+                System.Diagnostics.Trace.WriteLine(String.Format("NuoDbObjectConceptMapper::GetFrameworkTypeFromNativeType({0}) = {1}", nativeType, netType));
+#endif
+                return Type.GetType(netType);
             }
 
             return base.GetFrameworkTypeFromNativeType(nativeType);

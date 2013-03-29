@@ -164,12 +164,11 @@
           <Category resource="DataView_Category_DataType"/>
           <Description resource="DataView_Description_Precision"/>
         </Property>
-<!--        <Property name="Scale">
+        <Property name="Scale">
           <DisplayName resource="DataView_Property_Scale"/>
           <Category resource="DataView_Category_DataType"/>
           <Description resource="DataView_Description_Scale"/>
         </Property>
-        -->
         <Property name="Nullable">
           <DisplayName resource="DataView_Property_Nullable"/>
           <Description resource="DataView_Description_Nullable"/>

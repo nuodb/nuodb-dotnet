@@ -170,16 +170,15 @@
         </Property>
         <Property name="Type" type="System.String" itemName="COLUMN_TYPE">
           <Concepts>
-            <Concept name="UserDataType"/>
             <Concept name="NativeDataType"/>
             <Concept name="ProviderDataType">
-              <Conversion mapper="Microsoft.VisualStudio.Data.AdoDotNet.AdoDotNetObjectConceptMapper"/>
+              <Conversion mapper="NuoDb.VisualStudio.DataTools.NuoDbObjectConceptMapper"/>
             </Concept>
             <Concept name="ProviderDbType">
-              <Conversion mapper="Microsoft.VisualStudio.Data.AdoDotNet.AdoDotNetObjectConceptMapper"/>
+              <Conversion mapper="NuoDb.VisualStudio.DataTools.NuoDbObjectConceptMapper"/>
             </Concept>
             <Concept name="FrameworkDataType">
-              <Conversion mapper="Microsoft.VisualStudio.Data.AdoDotNet.AdoDotNetObjectConceptMapper"/>
+              <Conversion mapper="NuoDb.VisualStudio.DataTools.NuoDbObjectConceptMapper"/>
             </Concept>
           </Concepts>
         </Property>
@@ -191,6 +190,11 @@
         <Property name="Precision" type="System.Int32" itemName="COLUMN_PRECISION">
           <Concepts>
             <Concept name="Precision"/>
+          </Concepts>
+        </Property>
+        <Property name="Scale" type="System.Int32" itemName="COLUMN_SCALE">
+          <Concepts>
+            <Concept name="Scale"/>
           </Concepts>
         </Property>
         <Property name="Nullable" type="System.Boolean" itemName="COLUMN_NULLABLE">

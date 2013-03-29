@@ -193,13 +193,17 @@ namespace NuoDb.Data.Client
                 row["BaseColumnName"] = dataStream.getString();
                 row["ColumnName"] = dataStream.getString();
                 string collationSequence = dataStream.getString();
-                string dataType = dataStream.getString();
-                row["DataTypeName"] = dataType;
-                row["DataType"] = Type.GetType(NuoDbConnection.mapNuoDbToNetType(dataType));
+                row["DataTypeName"] = dataStream.getString();
                 row["ProviderType"] = NuoDbConnection.mapJavaSqlToDbType(dataStream.getInt());
                 row["ColumnSize"] = dataStream.getInt();
                 row["NumericPrecision"] = dataStream.getInt();
                 row["NumericScale"] = dataStream.getInt();
+                if (((DbType)row["ProviderType"] == DbType.Int16 || (DbType)row["ProviderType"] == DbType.Int32 || (DbType)row["ProviderType"] == DbType.Int64) &&
+                    (int)row["NumericScale"] != 0)
+                {
+                    row["ProviderType"] = DbType.Decimal;
+                }
+                row["DataType"] = Type.GetType(NuoDbConnection.mapNuoDbToNetType((string)row["DataTypeName"], (int)row["NumericPrecision"], (int)row["NumericScale"]));
                 int flags = dataStream.getInt();
 		        const int rsmdSearchable = (1 << 1);
 		        const int rsmdAutoIncrement = (1 << 2);
@@ -219,7 +223,9 @@ namespace NuoDb.Data.Client
                 metadata.Rows.Add(row);
 
 #if DEBUG
-                System.Diagnostics.Trace.WriteLine("-> " + row["ColumnName"] + ", " + row["DataTypeName"] + ", " + row["ProviderType"]);
+                System.Diagnostics.Trace.WriteLine("-> " + row["ColumnName"] + ", " + 
+                                                            row["DataTypeName"] + "(" + row["NumericPrecision"] + "," + row["NumericScale"] + ") " + 
+                                                            row["DataType"]);
 #endif
 			}
             metadata.EndLoadData();
@@ -516,7 +522,7 @@ namespace NuoDb.Data.Client
         {
             get
             {
-                return getValue(i).Object;
+                return GetValue(i);
             }
         }
 

@@ -1082,7 +1082,7 @@ namespace NuoDb.Data.Client
             {
                 table.Columns.Add("TypeName", typeof(string));  // The provider-specific data type name.
                 table.Columns.Add("ProviderDbType", typeof(int)); // The provider-specific type value that should be used when specifying 
-                                                                  //a parameter’s type. For example, SqlDbType.Money or OracleType.Blob.
+                //a parameter’s type. For example, SqlDbType.Money or OracleType.Blob.
                 table.Columns.Add("ColumnSize", typeof(long));
                 table.Columns.Add("CreateFormat", typeof(string));
                 table.Columns.Add("CreateParameters", typeof(string));
@@ -1105,509 +1105,7 @@ namespace NuoDb.Data.Client
                 table.Columns.Add("LitteralSuffix", typeof(string));
                 table.Columns.Add("NativeDataType", typeof(string));    // NativeDataType is an OLE DB specific column for exposing the OLE DB type of the data type .
 
-                table.BeginLoadData();
-
-                DataRow row = table.NewRow();
-                row["NativeDataType"] = row["TypeName"] = "smallint";
-                row["ProviderDbType"] = DbType.Int16;
-                row["ColumnSize"] = 5;
-                row["CreateFormat"] = "smallint";
-                row["CreateParameters"] = System.DBNull.Value;
-                row["DataType"] = "System.Int16";
-                row["IsAutoincrementable"] = true;
-                row["IsBestMatch"] = true;
-                row["IsCaseSensitive"] = false;
-                row["IsFixedLength"] = true;
-                row["IsFixedPrecisionScale"] = true;
-                row["IsLong"] = false;
-                row["IsNullable"] = true;
-                row["IsSearchable"] = true;
-                row["IsSearchableWithLike"] = false;
-                row["IsUnsigned"] = false;
-                row["MaximumScale"] = System.DBNull.Value;
-                row["MinimumScale"] = System.DBNull.Value;
-                row["IsConcurrencyType"] = false;
-                row["IsLiteralsSupported"] = System.DBNull.Value;
-                row["LiteralPrefix"] = System.DBNull.Value;
-                row["LitteralSuffix"] = System.DBNull.Value;
-                table.Rows.Add(row);
-
-                row = table.NewRow();
-                row["NativeDataType"] = row["TypeName"] = "int";
-                row["ProviderDbType"] = DbType.Int32;
-                row["ColumnSize"] = 10;
-                row["CreateFormat"] = "int";
-                row["CreateParameters"] = System.DBNull.Value;
-                row["DataType"] = "System.Int32";
-                row["IsAutoincrementable"] = true;
-                row["IsBestMatch"] = true;
-                row["IsCaseSensitive"] = false;
-                row["IsFixedLength"] = true;
-                row["IsFixedPrecisionScale"] = true;
-                row["IsLong"] = false;
-                row["IsNullable"] = true;
-                row["IsSearchable"] = true;
-                row["IsSearchableWithLike"] = false;
-                row["IsUnsigned"] = false;
-                row["MaximumScale"] = System.DBNull.Value;
-                row["MinimumScale"] = System.DBNull.Value;
-                row["IsConcurrencyType"] = false;
-                row["IsLiteralsSupported"] = System.DBNull.Value;
-                row["LiteralPrefix"] = System.DBNull.Value;
-                row["LitteralSuffix"] = System.DBNull.Value;
-                table.Rows.Add(row);
-
-                row = table.NewRow();
-                row["NativeDataType"] = row["TypeName"] = "real";
-                row["ProviderDbType"] = DbType.Single;
-                row["ColumnSize"] = 7;
-                row["CreateFormat"] = "real";
-                row["CreateParameters"] = System.DBNull.Value;
-                row["DataType"] = "System.Single";
-                row["IsAutoincrementable"] = false;
-                row["IsBestMatch"] = true;
-                row["IsCaseSensitive"] = false;
-                row["IsFixedLength"] = true;
-                row["IsFixedPrecisionScale"] = false;
-                row["IsLong"] = false;
-                row["IsNullable"] = true;
-                row["IsSearchable"] = true;
-                row["IsSearchableWithLike"] = false;
-                row["IsUnsigned"] = false;
-                row["MaximumScale"] = System.DBNull.Value;
-                row["MinimumScale"] = System.DBNull.Value;
-                row["IsConcurrencyType"] = false;
-                row["IsLiteralsSupported"] = System.DBNull.Value;
-                row["LiteralPrefix"] = System.DBNull.Value;
-                row["LitteralSuffix"] = System.DBNull.Value;
-                table.Rows.Add(row);
-
-                row = table.NewRow();
-                row["NativeDataType"] = row["TypeName"] = "float";
-                row["ProviderDbType"] = DbType.Double;
-                row["ColumnSize"] = 53;
-                row["CreateFormat"] = "float({0})";
-                row["CreateParameters"] = "number of bits used to store the mantissa";
-                row["DataType"] = "System.Double";
-                row["IsAutoincrementable"] = false;
-                row["IsBestMatch"] = true;
-                row["IsCaseSensitive"] = false;
-                row["IsFixedLength"] = true;
-                row["IsFixedPrecisionScale"] = false;
-                row["IsLong"] = false;
-                row["IsNullable"] = true;
-                row["IsSearchable"] = true;
-                row["IsSearchableWithLike"] = false;
-                row["IsUnsigned"] = false;
-                row["MaximumScale"] = System.DBNull.Value;
-                row["MinimumScale"] = System.DBNull.Value;
-                row["IsConcurrencyType"] = false;
-                row["IsLiteralsSupported"] = System.DBNull.Value;
-                row["LiteralPrefix"] = System.DBNull.Value;
-                row["LitteralSuffix"] = System.DBNull.Value;
-                table.Rows.Add(row);
-
-                row = table.NewRow();
-                row["NativeDataType"] = row["TypeName"] = "bigint";
-                row["ProviderDbType"] = DbType.Int64;
-                row["ColumnSize"] = 19;
-                row["CreateFormat"] = "bigint";
-                row["CreateParameters"] = System.DBNull.Value;
-                row["DataType"] = "System.Int64";
-                row["IsAutoincrementable"] = true;
-                row["IsBestMatch"] = true;
-                row["IsCaseSensitive"] = false;
-                row["IsFixedLength"] = true;
-                row["IsFixedPrecisionScale"] = true;
-                row["IsLong"] = false;
-                row["IsNullable"] = true;
-                row["IsSearchable"] = true;
-                row["IsSearchableWithLike"] = false;
-                row["IsUnsigned"] = false;
-                row["MaximumScale"] = System.DBNull.Value;
-                row["MinimumScale"] = System.DBNull.Value;
-                row["IsConcurrencyType"] = false;
-                row["IsLiteralsSupported"] = System.DBNull.Value;
-                row["LiteralPrefix"] = System.DBNull.Value;
-                row["LitteralSuffix"] = System.DBNull.Value;
-                table.Rows.Add(row);
-
-                row = table.NewRow();
-                row["NativeDataType"] = row["TypeName"] = "decimal";
-                row["ProviderDbType"] = DbType.Decimal;
-                row["ColumnSize"] = 38;
-                row["CreateFormat"] = "decimal({0}, {1})";
-                row["CreateParameters"] = "precision,scale";
-                row["DataType"] = "System.Decimal";
-                row["IsAutoincrementable"] = true;
-                row["IsBestMatch"] = true;
-                row["IsCaseSensitive"] = false;
-                row["IsFixedLength"] = true;
-                row["IsFixedPrecisionScale"] = false;
-                row["IsLong"] = false;
-                row["IsNullable"] = true;
-                row["IsSearchable"] = true;
-                row["IsSearchableWithLike"] = false;
-                row["IsUnsigned"] = false;
-                row["MaximumScale"] = 38;
-                row["MinimumScale"] = 0;
-                row["IsConcurrencyType"] = false;
-                row["IsLiteralsSupported"] = System.DBNull.Value;
-                row["LiteralPrefix"] = System.DBNull.Value;
-                row["LitteralSuffix"] = System.DBNull.Value;
-                table.Rows.Add(row);
-
-                row = table.NewRow();
-                row["NativeDataType"] = row["TypeName"] = "numeric";
-                row["ProviderDbType"] = DbType.Decimal;
-                row["ColumnSize"] = 38;
-                row["CreateFormat"] = "numeric({0}, {1})";
-                row["CreateParameters"] = "precision,scale";
-                row["DataType"] = "System.Decimal";
-                row["IsAutoincrementable"] = true;
-                row["IsBestMatch"] = true;
-                row["IsCaseSensitive"] = false;
-                row["IsFixedLength"] = true;
-                row["IsFixedPrecisionScale"] = false;
-                row["IsLong"] = false;
-                row["IsNullable"] = true;
-                row["IsSearchable"] = true;
-                row["IsSearchableWithLike"] = false;
-                row["IsUnsigned"] = false;
-                row["MaximumScale"] = 38;
-                row["MinimumScale"] = 0;
-                row["IsConcurrencyType"] = false;
-                row["IsLiteralsSupported"] = System.DBNull.Value;
-                row["LiteralPrefix"] = System.DBNull.Value;
-                row["LitteralSuffix"] = System.DBNull.Value;
-                table.Rows.Add(row);
-
-                row = table.NewRow();
-                row["NativeDataType"] = row["TypeName"] = "timestamp";
-                row["ProviderDbType"] = DbType.Time;
-                row["ColumnSize"] = 8;
-                row["CreateFormat"] = "timestamp";
-                row["CreateParameters"] = System.DBNull.Value;
-                row["DataType"] = "System.DateTime";
-                row["IsAutoincrementable"] = false;
-                row["IsBestMatch"] = false;
-                row["IsCaseSensitive"] = false;
-                row["IsFixedLength"] = true;
-                row["IsFixedPrecisionScale"] = false;
-                row["IsLong"] = false;
-                row["IsNullable"] = false;
-                row["IsSearchable"] = true;
-                row["IsSearchableWithLike"] = false;
-                row["IsUnsigned"] = System.DBNull.Value;
-                row["MaximumScale"] = System.DBNull.Value;
-                row["MinimumScale"] = System.DBNull.Value;
-                row["IsConcurrencyType"] = true;
-                row["IsLiteralsSupported"] = System.DBNull.Value;
-                row["LiteralPrefix"] = System.DBNull.Value;
-                row["LitteralSuffix"] = System.DBNull.Value;
-                table.Rows.Add(row);
-
-                row = table.NewRow();
-                row["NativeDataType"] = row["TypeName"] = "date";
-                row["ProviderDbType"] = DbType.Date;
-                row["ColumnSize"] = 3;
-                row["CreateFormat"] = "date";
-                row["CreateParameters"] = System.DBNull.Value;
-                row["DataType"] = "System.DateTime";
-                row["IsAutoincrementable"] = false;
-                row["IsBestMatch"] = false;
-                row["IsCaseSensitive"] = false;
-                row["IsFixedLength"] = true;
-                row["IsFixedPrecisionScale"] = true;
-                row["IsLong"] = false;
-                row["IsNullable"] = true;
-                row["IsSearchable"] = true;
-                row["IsSearchableWithLike"] = true;
-                row["IsUnsigned"] = System.DBNull.Value;
-                row["MaximumScale"] = System.DBNull.Value;
-                row["MinimumScale"] = System.DBNull.Value;
-                row["IsConcurrencyType"] = false;
-                row["IsLiteralsSupported"] = System.DBNull.Value;
-                row["LiteralPrefix"] = "'";
-                row["LitteralSuffix"] = "'";
-                table.Rows.Add(row);
-
-                row = table.NewRow();
-                row["NativeDataType"] = row["TypeName"] = "time";
-                row["ProviderDbType"] = DbType.Time;
-                row["ColumnSize"] = 5;
-                row["CreateFormat"] = "time({0})";
-                row["CreateParameters"] = "scale";
-                row["DataType"] = "System.TimeSpan";
-                row["IsAutoincrementable"] = false;
-                row["IsBestMatch"] = false;
-                row["IsCaseSensitive"] = false;
-                row["IsFixedLength"] = false;
-                row["IsFixedPrecisionScale"] = false;
-                row["IsLong"] = false;
-                row["IsNullable"] = true;
-                row["IsSearchable"] = true;
-                row["IsSearchableWithLike"] = true;
-                row["IsUnsigned"] = System.DBNull.Value;
-                row["MaximumScale"] = 7;
-                row["MinimumScale"] = 0;
-                row["IsConcurrencyType"] = false;
-                row["IsLiteralsSupported"] = System.DBNull.Value;
-                row["LiteralPrefix"] = "'";
-                row["LitteralSuffix"] = "'";
-                table.Rows.Add(row);
-
-                row = table.NewRow();
-                row["NativeDataType"] = row["TypeName"] = "datetime";
-                row["ProviderDbType"] = DbType.DateTime;
-                row["ColumnSize"] = 23;
-                row["CreateFormat"] = "datetime";
-                row["CreateParameters"] = System.DBNull.Value;
-                row["DataType"] = "System.DateTime";
-                row["IsAutoincrementable"] = false;
-                row["IsBestMatch"] = true;
-                row["IsCaseSensitive"] = false;
-                row["IsFixedLength"] = true;
-                row["IsFixedPrecisionScale"] = false;
-                row["IsLong"] = false;
-                row["IsNullable"] = true;
-                row["IsSearchable"] = true;
-                row["IsSearchableWithLike"] = false;
-                row["IsUnsigned"] = System.DBNull.Value;
-                row["MaximumScale"] = System.DBNull.Value;
-                row["MinimumScale"] = System.DBNull.Value;
-                row["IsConcurrencyType"] = false;
-                row["IsLiteralsSupported"] = System.DBNull.Value;
-                row["LiteralPrefix"] = "'";
-                row["LitteralSuffix"] = "'";
-                table.Rows.Add(row);
-
-                row = table.NewRow();
-                row["NativeDataType"] = row["TypeName"] = "binary";
-                row["ProviderDbType"] = DbType.Binary;
-                row["ColumnSize"] = 8000;
-                row["CreateFormat"] = "binary({0})";
-                row["CreateParameters"] = "length";
-                row["DataType"] = "System.Byte[]";
-                row["IsAutoincrementable"] = false;
-                row["IsBestMatch"] = true;
-                row["IsCaseSensitive"] = false;
-                row["IsFixedLength"] = true;
-                row["IsFixedPrecisionScale"] = false;
-                row["IsLong"] = false;
-                row["IsNullable"] = true;
-                row["IsSearchable"] = true;
-                row["IsSearchableWithLike"] = false;
-                row["IsUnsigned"] = System.DBNull.Value;
-                row["MaximumScale"] = System.DBNull.Value;
-                row["MinimumScale"] = System.DBNull.Value;
-                row["IsConcurrencyType"] = false;
-                row["IsLiteralsSupported"] = System.DBNull.Value;
-                row["LiteralPrefix"] = System.DBNull.Value;
-                row["LitteralSuffix"] = System.DBNull.Value;
-                table.Rows.Add(row);
-
-                row = table.NewRow();
-                row["NativeDataType"] = row["TypeName"] = "text";
-                row["ProviderDbType"] = DbType.String;
-                row["ColumnSize"] = 2147483647;
-                row["CreateFormat"] = "text";
-                row["CreateParameters"] = System.DBNull.Value;
-                row["DataType"] = "System.String";
-                row["IsAutoincrementable"] = false;
-                row["IsBestMatch"] = true;
-                row["IsCaseSensitive"] = false;
-                row["IsFixedLength"] = false;
-                row["IsFixedPrecisionScale"] = false;
-                row["IsLong"] = true;
-                row["IsNullable"] = true;
-                row["IsSearchable"] = false;
-                row["IsSearchableWithLike"] = true;
-                row["IsUnsigned"] = System.DBNull.Value;
-                row["MaximumScale"] = System.DBNull.Value;
-                row["MinimumScale"] = System.DBNull.Value;
-                row["IsConcurrencyType"] = false;
-                row["IsLiteralsSupported"] = System.DBNull.Value;
-                row["LiteralPrefix"] = "'";
-                row["LitteralSuffix"] = "'";
-                table.Rows.Add(row);
-
-                row = table.NewRow();
-                row["NativeDataType"] = row["TypeName"] = "ntext";
-                row["ProviderDbType"] = DbType.String;
-                row["ColumnSize"] = 1073741823;
-                row["CreateFormat"] = "ntext";
-                row["CreateParameters"] = System.DBNull.Value;
-                row["DataType"] = "System.String";
-                row["IsAutoincrementable"] = false;
-                row["IsBestMatch"] = true;
-                row["IsCaseSensitive"] = false;
-                row["IsFixedLength"] = false;
-                row["IsFixedPrecisionScale"] = false;
-                row["IsLong"] = true;
-                row["IsNullable"] = true;
-                row["IsSearchable"] = false;
-                row["IsSearchableWithLike"] = true;
-                row["IsUnsigned"] = System.DBNull.Value;
-                row["MaximumScale"] = System.DBNull.Value;
-                row["MinimumScale"] = System.DBNull.Value;
-                row["IsConcurrencyType"] = false;
-                row["IsLiteralsSupported"] = System.DBNull.Value;
-                row["LiteralPrefix"] = "N'";
-                row["LitteralSuffix"] = "'";
-                table.Rows.Add(row);
-
-                row = table.NewRow();
-                row["NativeDataType"] = row["TypeName"] = "string";
-                row["ProviderDbType"] = DbType.String;
-                row["ColumnSize"] = 2147483647;
-                row["CreateFormat"] = "string";
-                row["CreateParameters"] = System.DBNull.Value;
-                row["DataType"] = "System.String";
-                row["IsAutoincrementable"] = false;
-                row["IsBestMatch"] = true;
-                row["IsCaseSensitive"] = false;
-                row["IsFixedLength"] = false;
-                row["IsFixedPrecisionScale"] = false;
-                row["IsLong"] = true;
-                row["IsNullable"] = true;
-                row["IsSearchable"] = false;
-                row["IsSearchableWithLike"] = true;
-                row["IsUnsigned"] = System.DBNull.Value;
-                row["MaximumScale"] = System.DBNull.Value;
-                row["MinimumScale"] = System.DBNull.Value;
-                row["IsConcurrencyType"] = false;
-                row["IsLiteralsSupported"] = System.DBNull.Value;
-                row["LiteralPrefix"] = "'";
-                row["LitteralSuffix"] = "'";
-                table.Rows.Add(row);
-
-                row = table.NewRow();
-                row["NativeDataType"] = row["TypeName"] = "varchar";
-                row["ProviderDbType"] = DbType.String;
-                row["ColumnSize"] = 2147483647;
-                row["CreateFormat"] = "varchar({0})";
-                row["CreateParameters"] = "length";
-                row["DataType"] = "System.String";
-                row["IsAutoincrementable"] = false;
-                row["IsBestMatch"] = true;
-                row["IsCaseSensitive"] = false;
-                row["IsFixedLength"] = false;
-                row["IsFixedPrecisionScale"] = false;
-                row["IsLong"] = false;
-                row["IsNullable"] = true;
-                row["IsSearchable"] = true;
-                row["IsSearchableWithLike"] = true;
-                row["IsUnsigned"] = System.DBNull.Value;
-                row["MaximumScale"] = System.DBNull.Value;
-                row["MinimumScale"] = System.DBNull.Value;
-                row["IsConcurrencyType"] = false;
-                row["IsLiteralsSupported"] = System.DBNull.Value;
-                row["LiteralPrefix"] = "'";
-                row["LitteralSuffix"] = "'";
-                table.Rows.Add(row);
-
-                row = table.NewRow();
-                row["NativeDataType"] = row["TypeName"] = "char";
-                row["ProviderDbType"] = DbType.String;
-                row["ColumnSize"] = 2147483647;
-                row["CreateFormat"] = "char({0})";
-                row["CreateParameters"] = "length";
-                row["DataType"] = "System.String";
-                row["IsAutoincrementable"] = false;
-                row["IsBestMatch"] = true;
-                row["IsCaseSensitive"] = false;
-                row["IsFixedLength"] = true;
-                row["IsFixedPrecisionScale"] = false;
-                row["IsLong"] = false;
-                row["IsNullable"] = true;
-                row["IsSearchable"] = true;
-                row["IsSearchableWithLike"] = true;
-                row["IsUnsigned"] = System.DBNull.Value;
-                row["MaximumScale"] = System.DBNull.Value;
-                row["MinimumScale"] = System.DBNull.Value;
-                row["IsConcurrencyType"] = false;
-                row["IsLiteralsSupported"] = System.DBNull.Value;
-                row["LiteralPrefix"] = "'";
-                row["LitteralSuffix"] = "'";
-                table.Rows.Add(row);
-
-                row = table.NewRow();
-                row["NativeDataType"] = row["TypeName"] = "nchar";
-                row["ProviderDbType"] = DbType.String;
-                row["ColumnSize"] = 1073741823;
-                row["CreateFormat"] = "nchar({0})";
-                row["CreateParameters"] = "length";
-                row["DataType"] = "System.String";
-                row["IsAutoincrementable"] = false;
-                row["IsBestMatch"] = true;
-                row["IsCaseSensitive"] = false;
-                row["IsFixedLength"] = true;
-                row["IsFixedPrecisionScale"] = false;
-                row["IsLong"] = false;
-                row["IsNullable"] = true;
-                row["IsSearchable"] = true;
-                row["IsSearchableWithLike"] = true;
-                row["IsUnsigned"] = System.DBNull.Value;
-                row["MaximumScale"] = System.DBNull.Value;
-                row["MinimumScale"] = System.DBNull.Value;
-                row["IsConcurrencyType"] = false;
-                row["IsLiteralsSupported"] = System.DBNull.Value;
-                row["LiteralPrefix"] = "N'";
-                row["LitteralSuffix"] = "'";
-                table.Rows.Add(row);
-
-                row = table.NewRow();
-                row["NativeDataType"] = row["TypeName"] = "nvarchar";
-                row["ProviderDbType"] = DbType.String;
-                row["ColumnSize"] = 1073741823;
-                row["CreateFormat"] = "nvarchar({0})";
-                row["CreateParameters"] = "length";
-                row["DataType"] = "System.String";
-                row["IsAutoincrementable"] = false;
-                row["IsBestMatch"] = true;
-                row["IsCaseSensitive"] = false;
-                row["IsFixedLength"] = false;
-                row["IsFixedPrecisionScale"] = false;
-                row["IsLong"] = false;
-                row["IsNullable"] = true;
-                row["IsSearchable"] = true;
-                row["IsSearchableWithLike"] = true;
-                row["IsUnsigned"] = System.DBNull.Value;
-                row["MaximumScale"] = System.DBNull.Value;
-                row["MinimumScale"] = System.DBNull.Value;
-                row["IsConcurrencyType"] = false;
-                row["IsLiteralsSupported"] = System.DBNull.Value;
-                row["LiteralPrefix"] = "N'";
-                row["LitteralSuffix"] = "'";
-                table.Rows.Add(row);
-
-                row = table.NewRow();
-                row["NativeDataType"] = row["TypeName"] = "varbinary";
-                row["ProviderDbType"] = DbType.Binary;
-                row["ColumnSize"] = 1073741823;
-                row["CreateFormat"] = "varbinary({0})";
-                row["CreateParameters"] = "length";
-                row["DataType"] = "System.Byte[]";
-                row["IsAutoincrementable"] = false;
-                row["IsBestMatch"] = true;
-                row["IsCaseSensitive"] = false;
-                row["IsFixedLength"] = false;
-                row["IsFixedPrecisionScale"] = false;
-                row["IsLong"] = false;
-                row["IsNullable"] = true;
-                row["IsSearchable"] = true;
-                row["IsSearchableWithLike"] = true;
-                row["IsUnsigned"] = System.DBNull.Value;
-                row["MaximumScale"] = System.DBNull.Value;
-                row["MinimumScale"] = System.DBNull.Value;
-                row["IsConcurrencyType"] = false;
-                row["IsLiteralsSupported"] = System.DBNull.Value;
-                row["LiteralPrefix"] = "0x";
-                row["LitteralSuffix"] = System.DBNull.Value;
-                table.Rows.Add(row);
-
-                table.EndLoadData();
+                table.ReadXml(XmlReader.Create(typeof(NuoDbConnection).Assembly.GetManifestResourceStream("NuoDb.Data.Client.DataTypes.xml")));
             }
             else if (collectionName == "Tables")
             {
@@ -1671,6 +1169,7 @@ namespace NuoDb.Data.Client
                 table.Columns.Add("COLUMN_NULLABLE", typeof(bool));
                 table.Columns.Add("COLUMN_IDENTITY", typeof(bool));
                 table.Columns.Add("COLUMN_DEFAULT", typeof(string));
+                table.Columns.Add("COLUMN_SCALE", typeof(int));
 
                 dataStream.startMessage(Protocol.GetColumns);
                 dataStream.encodeNull(); // catalog is always null
@@ -1690,22 +1189,37 @@ namespace NuoDb.Data.Client
                         table.BeginLoadData();
                         while (reader.Read())
                         {
-#if DEBUG
-                            System.Diagnostics.Trace.WriteLine("-> " + reader["COLUMN_NAME"]);
-#endif
                             DataRow row = table.NewRow();
                             row["COLUMN_SCHEMA"] = reader["TABLE_SCHEM"];
                             row["COLUMN_TABLE"] = reader["TABLE_NAME"];
                             row["COLUMN_NAME"] = reader["COLUMN_NAME"];
                             row["COLUMN_POSITION"] = reader["ORDINAL_POSITION"];
-                            row["COLUMN_TYPE"] = reader["TYPE_NAME"];
                             row["COLUMN_LENGTH"] = reader["COLUMN_SIZE"];
-                            row["COLUMN_PRECISION"] = reader["DECIMAL_DIGITS"];
+                            row["COLUMN_PRECISION"] = reader["BUFFER_LENGTH"];
+                            row["COLUMN_SCALE"] = reader["DECIMAL_DIGITS"];
+                            if (isNumeric((string)reader["TYPE_NAME"]))
+                            {
+                                if((int)reader["DECIMAL_DIGITS"]!=0)
+                                    row["COLUMN_TYPE"] = reader["TYPE_NAME"] + "(" + reader["BUFFER_LENGTH"] + "," + reader["DECIMAL_DIGITS"] + ")";
+                                else
+                                    row["COLUMN_TYPE"] = reader["TYPE_NAME"];
+                            }
+                            else
+                            {
+                                if (isVarLenType((string)reader["TYPE_NAME"]) && (int)reader["COLUMN_SIZE"] != 0)
+                                    row["COLUMN_TYPE"] = reader["TYPE_NAME"] + "(" + reader["COLUMN_SIZE"] + ")";
+                                else
+                                    row["COLUMN_TYPE"] = reader["TYPE_NAME"];
+                            }
                             if (!reader.IsDBNull(reader.GetOrdinal("IS_NULLABLE")))
                                 row["COLUMN_NULLABLE"] = reader["IS_NULLABLE"].Equals("YES");
                             if (!reader.IsDBNull(reader.GetOrdinal("IS_AUTOINCREMENT")))
                                 row["COLUMN_IDENTITY"] = reader["IS_AUTOINCREMENT"].Equals("YES");
                             row["COLUMN_DEFAULT"] = reader["COLUMN_DEF"];
+
+#if DEBUG
+                            System.Diagnostics.Trace.WriteLine("-> " + row["COLUMN_NAME"] + " " + row["COLUMN_TYPE"]);
+#endif
                             table.Rows.Add(row);
                         }
                         table.EndLoadData();
@@ -1754,9 +1268,23 @@ namespace NuoDb.Data.Client
                                 row["INDEX_SCHEMA"] = reader["TABLE_SCHEM"];
                                 row["INDEX_TABLE"] = reader["TABLE_NAME"];
                                 row["INDEX_NAME"] = reader["INDEX_NAME"];
-                                row["INDEX_TYPE"] = reader["TYPE"];
-                                row["INDEX_UNIQUE"] = reader["NON_UNIQUE"];
-                                row["INDEX_PRIMARY"] = reader["NON_UNIQUE"];
+                                switch ((int)reader["TYPE"])
+                                {
+                                    case 0:
+                                        row["INDEX_TYPE"] = "Primary";
+                                        break;
+                                    case 1:
+                                        row["INDEX_TYPE"] = "Unique";
+                                        break;
+                                    case 2:
+                                        row["INDEX_TYPE"] = "Secondary";
+                                        break;
+                                    case 3:
+                                        row["INDEX_TYPE"] = "Foreign Key";
+                                        break;
+                                }
+                                row["INDEX_UNIQUE"] = ((int)reader["NON_UNIQUE"]==0)?true:false;
+                                row["INDEX_PRIMARY"] = ((int)reader["TYPE"]==0)?true:false;
                                 table.Rows.Add(row);
                             }
                             table.EndLoadData();
@@ -2071,31 +1599,50 @@ namespace NuoDb.Data.Client
             throw new NotImplementedException();
         }
 
-        internal static string mapNuoDbToNetType(string p)
+        internal static bool isNumeric(string p)
+        {
+            string[] numeric_types = new string[]{ "integer", "int", "smallint", "tinyint", "float", "double", "bigint", "numeric", "decimal" };
+            foreach(string type in numeric_types)
+                if(type.Equals(p))
+                    return true;
+            return false;
+        }
+
+        internal static bool isVarLenType(string p)
+        {
+            string[] varlen_types = new string[] { "char", "varchar", "nchar", "nvarchar" };
+            foreach (string type in varlen_types)
+                if (type.Equals(p))
+                    return true;
+            return false;
+        }
+
+        internal static string mapNuoDbToNetType(string p, int precision, int scale)
         {
             p = p.ToLower();
-            if (p == "string" || p == "varchar" || p == "longvarchar")
+            if (p == "string" || p == "char" || p == "varchar" || p == "longvarchar")
                 return "System.String";
-            if (p == "integer")
-                return "System.Int32";
-            if (p == "null")
-                return "System.DBNull";
-            if(p == "tinyint" || p == "smallint")
-                return "System.Int16";
+            if (p == "tinyint" || p == "smallint" || p == "integer" || p == "numeric" || p == "decimal")
+            {
+                if (scale == 0)
+                    return "System.Int32";
+                else
+                    return "System.Decimal";
+            }
             if(p == "float")
                 return "System.Single";
             if(p == "double")
                 return "System.Double";
-            if(p == "char")
-                return "System.Char";
             if(p == "date" || p == "time" || p == "timestamp")
                 return "System.DateTime";
-            if(p == "bigint" || p == "numeric" || p == "decimal")
+            if(p == "bigint")
                 return "System.Decimal";
             if(p == "boolean")
                 return "System.Boolean";
             if (p == "clob" || p == "blob")
                 return "System.String";
+            if (p == "null")
+                return "System.DBNull";
             return "";
         }
 
@@ -2107,7 +1654,6 @@ namespace NuoDb.Data.Client
                     return DbType.Boolean;
                 case -6: //TINYINT
                 case 5: //SMALLINT
-                    return DbType.Int16;
                 case 4: //INTEGER
                     return DbType.Int32;
                 case -5: //BIGINT
@@ -2121,7 +1667,6 @@ namespace NuoDb.Data.Client
                 case 3: //DECIMAL
                     return DbType.Decimal;
                 case 1: //CHAR
-                    return DbType.Byte;
                 case 12: //VARCHAR
                 case -1: //LONGVARCHAR
                     return DbType.String;
