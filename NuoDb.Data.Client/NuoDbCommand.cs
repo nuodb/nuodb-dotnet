@@ -460,24 +460,31 @@ namespace NuoDb.Data.Client
             NuoDbDataParameterCollection newParams = new NuoDbDataParameterCollection();
             int state = 0;
             string curParamName = "";
-            bool inSingleQuotes = false, inDoubleQuotes = false;
+            bool inSingleQuotes = false, inDoubleQuotes = false, inSmartQuotes = false;
             foreach (char c in sqlText)
             {
-                if (c == '\'' && !inDoubleQuotes)
+                if (c == '\'' && !(inDoubleQuotes || inSmartQuotes))
                 {
                     inSingleQuotes = !inSingleQuotes;
                     state = 0;
                     sqlString.Append(c);
                     continue;
                 }
-                else if (c == '\"' && !inSingleQuotes)
+                else if (c == '\"' && !(inSingleQuotes || inSmartQuotes))
                 {
                     inDoubleQuotes = !inDoubleQuotes;
                     state = 0;
                     sqlString.Append(c);
                     continue;
                 }
-                if (inSingleQuotes || inDoubleQuotes)
+                else if (c == '`' && !(inSingleQuotes || inDoubleQuotes))
+                {
+                    inSmartQuotes = !inSmartQuotes;
+                    state = 0;
+                    sqlString.Append(c);
+                    continue;
+                }
+                if (inSingleQuotes || inDoubleQuotes || inSmartQuotes)
                 {
                     sqlString.Append(c);
                     continue;
