@@ -1074,7 +1074,7 @@ namespace NuoDb.VisualStudio.DataTools.Editors
         /// <param name="_isFileReadOnly">Indicates whether the file loaded is Read Only or not</param>
         private void SetReadOnly(bool _isFileReadOnly)
         {
-            //this.editorControl.RichTextBoxControl.ReadOnly = _isFileReadOnly;
+            CommandWindow.SetReadOnly(_isFileReadOnly);
 
             //update editor caption with "[Read Only]" or "" as necessary
             string editorCaption = "";

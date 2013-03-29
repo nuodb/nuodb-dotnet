@@ -164,6 +164,6 @@
     <value>DDEX Provider for NuoDB</value>
   </data>
   <data name="ReadOnlyMarker" xml:space="preserve">
-    <value>[Read Only]</value>
+    <value> [Read Only]</value>
   </data>
 </root>

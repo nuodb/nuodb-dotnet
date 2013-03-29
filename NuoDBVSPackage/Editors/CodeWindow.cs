@@ -114,7 +114,6 @@ namespace NuoDb.VisualStudio.DataTools.Editors
             ows.SetSite(_editor);
             //string strSQL = "select * from sometable";
             //hr = _vsTextBuffer.InitializeContent(strSQL, strSQL.Length);
-            //_vsTextBuffer.SetStateFlags((uint)BUFFERSTATEFLAGS.BSF_USER_READONLY);
             switch (NuoDbVSPackagePackage.Instance.GetMajorVStudioVersion())
             {
                 case 10:
@@ -176,6 +175,11 @@ namespace NuoDb.VisualStudio.DataTools.Editors
                 0, 0,
                 this.Width,
                 this.Height, 0);
+        }
+
+        public void SetReadOnly(bool isReadOnly)
+        {
+            _vsTextBuffer.SetStateFlags(isReadOnly?(uint)BUFFERSTATEFLAGS.BSF_USER_READONLY:0);
         }
 
     }
