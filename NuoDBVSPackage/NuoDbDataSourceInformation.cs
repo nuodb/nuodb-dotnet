@@ -54,7 +54,8 @@ namespace NuoDb.VisualStudio.DataTools
             base.AddProperty(AdoDotNetDataSourceInformation.ParameterPrefix, "");
             base.AddProperty(AdoDotNetDataSourceInformation.ParameterPrefixInName, false);
             base.AddProperty(AdoDotNetDataSourceInformation.ProcedureSupported, false);
-            base.AddProperty(AdoDotNetDataSourceInformation.QuotedIdentifierPartsCaseSensitive, false);
+            base.AddProperty(AdoDotNetDataSourceInformation.QuotedIdentifierPartsCaseSensitive, true);
+            base.AddProperty(AdoDotNetDataSourceInformation.QuotedIdentifierPartsStorageCase, 'M');
             base.AddProperty(AdoDotNetDataSourceInformation.SchemaSupported, true);
             base.AddProperty(AdoDotNetDataSourceInformation.SchemaSupportedInDml, true);
             base.AddProperty(AdoDotNetDataSourceInformation.ServerSeparator, ".");

@@ -185,6 +185,8 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Templates\DDL_Templates\GenerateNuoSQL.Utility.ttinclude.txt" />
+    <Resource Include="Templates\DDL_Templates\SSDLToNuoSQL.tt.txt" />
     <Content Include="Templates\New Query.nuosql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>

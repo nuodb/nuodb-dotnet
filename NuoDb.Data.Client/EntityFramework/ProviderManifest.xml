@@ -30,7 +30,7 @@
   <Types>
     <Type Name="string" PrimitiveTypeKind="String">
       <FacetDescriptions>
-        <FixedLength Constant="false" DefaultValue="false"/>
+        <FixedLength Constant="true" DefaultValue="false"/>
         <Unicode Constant="false" DefaultValue="false"/>
         <MaxLength Minimum="1" Maximum="65536" Constant="false" DefaultValue="65535"/>
       </FacetDescriptions>
@@ -46,7 +46,7 @@
       <FacetDescriptions>
         <FixedLength Constant="true" DefaultValue="true"/>
         <Unicode Constant="false" DefaultValue="false"/>
-        <MaxLength Minimum="1" Maximum="1" Constant="true" DefaultValue="1"/>
+        <MaxLength Minimum="1" Maximum="65536" Constant="false" DefaultValue="65536"/>
       </FacetDescriptions>
     </Type>
     <Type Name="smallint" PrimitiveTypeKind="Int16" />

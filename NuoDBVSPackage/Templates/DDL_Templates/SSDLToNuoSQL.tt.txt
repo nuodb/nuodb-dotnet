@@ -1,0 +1,196 @@
+﻿<# 
+//---------------------------------------------------------------------
+// <copyright file="SsdlToNuoSQL.tt" company="NuoDB">
+//      Copyright (c) NuoDB Inc.  All rights reserved.
+// </copyright>
+//---------------------------------------------------------------------
+// This T4 template generates SQL from an instance of 
+// System.Data.Metadata.Edm.StoreItemCollection, an object representation
+// of the SSDL. This SQL is compatible with NuoDB databases.
+//---------------------------------------------------------------------
+// Note: We will resolve all paths in assembly directives at runtime, taking 
+// macros into account (e.g. $(DevEnvDir), $(ProjectDir), etc.)
+#>
+<#@ assembly name="System.Core" #>
+<#@ assembly name="System.Data.Entity" #>
+<#@ assembly name="System.Data.Entity.Design" #>
+<#@ assembly name="$(DevEnvDir)Microsoft.Data.Entity.Design.DatabaseGeneration.dll"#>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="System.Data.Entity.Design" #>
+<#@ import namespace="System.Data.Metadata.Edm" #>
+<#@ import namespace="Microsoft.Data.Entity.Design.DatabaseGeneration" #>
+<#@ import namespace="System.Runtime.Remoting.Messaging" #>
+<#@ import namespace="System.Text.RegularExpressions" #>
+<#@ template language="C#" debug="true" hostspecific="true" #>
+<#@ include file="GenerateNuoSQL.Utility.ttinclude"#>
+<#@ output extension = ".nuosql" #>
+<#
+
+// +++++++++++++++++++++++++++++++++++++++++++++++++
+// Setup for the template (initializing variables, etc.)
+// +++++++++++++++++++++++++++++++++++++++++++++++++
+
+    string edmxPath = this.GetInput<string>(EdmParameterBag.ParameterName.EdmxPath.ToString());
+    
+    if (false == InitializeAndValidateExistingStore()) 
+    {
+#>
+-- Warning: There were errors validating the existing SSDL. Drop statements
+-- will not be generated.
+<#
+    }
+#>
+-- --------------------------------------------------
+-- Entity Designer DDL Script for NuoDB
+-- --------------------------------------------------
+-- Date Created: <#=DateTime.Now#>
+<#
+    if (!String.IsNullOrEmpty(edmxPath))
+    {
+#>
+-- Generated from EDMX file: <#=edmxPath#>
+<#
+    }
+#>
+-- --------------------------------------------------
+
+<#
+    foreach (string unescapedSchemaName in (from es in Store.GetAllEntitySets() select es.GetSchemaName()).Distinct())
+    {
+#>
+CREATE SCHEMA `<#=Id(unescapedSchemaName)#>`;
+<#
+    }
+#>
+
+<#
+//-- --------------------------------------------------
+//-- Dropping existing FOREIGN KEY constraints
+//-- --------------------------------------------------
+#>
+
+<#
+    foreach (AssociationSet associationSet in ExistingStore.GetAllAssociationSets())
+    {
+        ReferentialConstraint constraint = associationSet.ElementType.ReferentialConstraints.Single();
+        string constraintName = Id(WriteFKConstraintName(constraint));
+        AssociationSetEnd dependentSetEnd = associationSet.AssociationSetEnds.Where(ase => ase.CorrespondingAssociationEndMember == constraint.ToRole).Single();
+        string schemaName = Id(dependentSetEnd.EntitySet.GetSchemaName());
+        string dependentTableName = Id(dependentSetEnd.EntitySet.GetTableName());
+        
+#>
+-- ALTER TABLE `<#=schemaName#>`.`<#=dependentTableName#>` DROP CONSTRAINT `<#=constraintName#>`;
+<#
+    }
+#>
+
+-- --------------------------------------------------
+-- Dropping existing tables
+-- --------------------------------------------------
+
+<#
+    foreach (EntitySet entitySet in ExistingStore.GetAllEntitySets())
+    { 
+        string schemaName = Id(entitySet.GetSchemaName());
+        string tableName = Id(entitySet.GetTableName());
+        
+#>
+DROP TABLE IF EXISTS `<#=schemaName#>`.`<#=tableName#>`;
+<#
+    }
+#>
+
+-- --------------------------------------------------
+-- Creating all tables
+-- --------------------------------------------------
+
+<#
+    foreach (EntitySet entitySet in Store.GetAllEntitySets())
+    {
+        string schemaName = Id(entitySet.GetSchemaName());
+        string tableName = Id(entitySet.GetTableName());
+#>
+-- Creating table '<#=tableName#>'
+CREATE TABLE `<#=schemaName#>`.`<#=tableName#>` (
+<#
+        string primaryKey = null;
+        foreach (EdmProperty property in entitySet.ElementType.GetKeyProperties())
+        {
+            if(primaryKey == null)
+                primaryKey = property.Name;
+            else
+            {
+                primaryKey = null;
+                break;
+            }
+        }
+
+        for (int p = 0; p < entitySet.ElementType.Properties.Count; p++)
+        {
+            EdmProperty prop = entitySet.ElementType.Properties[p];
+#>
+    `<#=Id(prop.Name)#>` <#=prop.ToStoreType()#> <#=WriteIdentity(prop)#> <#=(primaryKey == prop.Name) ? "GENERATED ALWAYS AS PRIMARY KEY" : ""#> <#=WriteNullable(prop.Nullable)#><#=(p < entitySet.ElementType.Properties.Count - 1) ? "," : ""#>
+<#
+        }
+#>
+);
+
+<#
+        if(primaryKey == null)
+        {
+#>
+-- Creating primary key on <#=WriteColumns(entitySet.ElementType.GetKeyProperties(), ',')#> in table '<#=tableName#>'
+ALTER TABLE `<#=schemaName#>`.`<#=tableName#>`
+ADD CONSTRAINT `PK_<#=tableName#>`
+    PRIMARY KEY (<#=WriteColumns(entitySet.ElementType.GetKeyProperties(), ',')#> ASC);
+<# 
+        } 
+#>
+
+<# 
+    } 
+#>
+
+-- --------------------------------------------------
+-- Creating all FOREIGN KEY constraints
+-- --------------------------------------------------
+
+<#
+    foreach (AssociationSet associationSet in Store.GetAllAssociationSets())
+    {
+        ReferentialConstraint constraint = associationSet.ElementType.ReferentialConstraints.Single();
+        AssociationSetEnd dependentSetEnd = associationSet.AssociationSetEnds.Where(ase => ase.CorrespondingAssociationEndMember == constraint.ToRole).Single();
+        AssociationSetEnd principalSetEnd = associationSet.AssociationSetEnds.Where(ase => ase.CorrespondingAssociationEndMember == constraint.FromRole).Single();
+        string schemaName = Id(dependentSetEnd.EntitySet.GetSchemaName());
+        string dependentTableName = Id(dependentSetEnd.EntitySet.GetTableName());
+        string principalTableName = Id(principalSetEnd.EntitySet.GetTableName());
+#>
+-- Creating foreign key on <#=WriteColumns(constraint.ToProperties, ',')#> in table '<#=dependentTableName#>'
+ALTER TABLE `<#=schemaName#>`.`<#=dependentTableName#>`
+ADD CONSTRAINT `<#=WriteFKConstraintName(constraint)#>`
+    FOREIGN KEY (<#=WriteColumns(constraint.ToProperties, ',')#>)
+    REFERENCES `<#=schemaName#>`.`<#=principalTableName#>`
+        (<#=WriteColumns(constraint.FromProperties, ',')#>)
+    <#=GetDeleteAction(constraint)#>;
+<#      
+        // if the foreign keys are part of the primary key on the dependent end, then we should not add a constraint.
+        if (!dependentSetEnd.EntitySet.ElementType.GetKeyProperties().Take(constraint.ToProperties.Count()).OrderBy(r => r.Name).SequenceEqual(constraint.ToProperties.OrderBy(r => r.Name)))
+        {
+#>
+
+-- Creating index for FOREIGN KEY '<#=WriteFKConstraintName(constraint)#>'
+CREATE INDEX `IX_<#=WriteFKConstraintName(constraint)#>`
+ON `<#=schemaName#>`.`<#=dependentTableName#>`
+    (<#=WriteColumns(constraint.ToProperties, ',')#>);
+<#      
+        }
+#>
+
+<#
+    }
+#>
+-- --------------------------------------------------
+-- Script has ended
+-- --------------------------------------------------
