@@ -115,7 +115,15 @@ namespace NuoDb.VisualStudio.DataTools.Editors
             //string strSQL = "select * from sometable";
             //hr = _vsTextBuffer.InitializeContent(strSQL, strSQL.Length);
             //_vsTextBuffer.SetStateFlags((uint)BUFFERSTATEFLAGS.BSF_USER_READONLY);
-            hr = _vsTextBuffer.SetLanguageServiceID(ref GuidList.guidSQLLangSvc);
+            switch (NuoDbVSPackagePackage.Instance.GetMajorVStudioVersion())
+            {
+                case 10:
+                    hr = _vsTextBuffer.SetLanguageServiceID(ref GuidList.guidSQLLangSvc_VS2010);
+                    break;
+                case 11:
+                    hr = _vsTextBuffer.SetLanguageServiceID(ref GuidList.guidSQLLangSvc_VS2012);
+                    break;
+            }
 
             // create/initialize/site a VsCodeWindow object
             _vsCodeWindow = (IVsCodeWindow)NuoDbVSPackagePackage.Instance.CreateInstance(ref clsidVsCodeWindow, ref iidVsCodeWindow, typeof(IVsCodeWindow));

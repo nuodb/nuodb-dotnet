@@ -156,5 +156,18 @@ namespace NuoDb.VisualStudio.DataTools
             }
         }
 
+        private const int MaxVsVersion = 11;    // VS2012
+
+        internal int GetMajorVStudioVersion()
+        {
+            EnvDTE.DTE dte = (EnvDTE.DTE)this.GetService(typeof(EnvDTE.DTE));
+            string vsVersion = dte.Version;
+            Version version;
+            if (Version.TryParse(vsVersion, out version))
+            {
+                return version.Major;
+            }
+            return MaxVsVersion;
+        }
     }
 }

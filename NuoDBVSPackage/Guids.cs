@@ -46,7 +46,8 @@ namespace NuoDb.VisualStudio.DataTools
         public static readonly Guid guidNuoDBVSPackageCmdSet = new Guid(guidNuoDBVSPackageCmdSetString);
         public static readonly Guid guidNuoDBObjectFactoryService = new Guid(guidNuoDBObjectFactoryServiceString);
         public static readonly Guid guidNuoDBDataSource = new Guid(guidNuoDBDataSourceString);
-        public static Guid guidSQLLangSvc = new Guid("{c4d96929-a9b0-42cc-b3e0-adac0435d7f2}");
+        public static Guid guidSQLLangSvc_VS2010 = new Guid("{c4d96929-a9b0-42cc-b3e0-adac0435d7f2}");
+        public static Guid guidSQLLangSvc_VS2012 = new Guid("{ed1a9c1c-d95c-4dc1-8db8-e5a28707a864}");
         public static Guid guidCmdUI_TextEditor = VSConstants.GUID_TextEditorFactory;
     };
 }
