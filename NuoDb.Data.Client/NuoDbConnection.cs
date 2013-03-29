@@ -72,7 +72,6 @@ namespace NuoDb.Data.Client
         private ConnectionState state = ConnectionState.Closed;
         private string lastBroker;
 
-        private Dictionary<int, string> mapSQLTypes = null;
         private List<int> listResultSets = new List<int>();
         private List<int> listCommands = new List<int>();
 
@@ -1661,10 +1660,6 @@ namespace NuoDb.Data.Client
             }
             else if (collectionName == "Columns")
             {
-                // trigger the creation of the map SqlType -> native name
-                if (mapSQLTypes == null)
-                    GetSchema(DbMetaDataCollectionNames.DataTypes);
-
                 table.Columns.Add("COLUMN_CATALOG", typeof(string));
                 table.Columns.Add("COLUMN_SCHEMA", typeof(string));
                 table.Columns.Add("COLUMN_TABLE", typeof(string));
@@ -1703,8 +1698,7 @@ namespace NuoDb.Data.Client
                             row["COLUMN_TABLE"] = reader["TABLE_NAME"];
                             row["COLUMN_NAME"] = reader["COLUMN_NAME"];
                             row["COLUMN_POSITION"] = reader["ORDINAL_POSITION"];
-                            if (mapSQLTypes.ContainsKey((int)reader["DATA_TYPE"]))
-                                row["COLUMN_TYPE"] = mapSQLTypes[(int)reader["DATA_TYPE"]];
+                            row["COLUMN_TYPE"] = reader["TYPE_NAME"];
                             row["COLUMN_LENGTH"] = reader["COLUMN_SIZE"];
                             row["COLUMN_PRECISION"] = reader["DECIMAL_DIGITS"];
                             if (!reader.IsDBNull(reader.GetOrdinal("IS_NULLABLE")))
