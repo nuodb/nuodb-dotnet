@@ -49,6 +49,7 @@ namespace NuoDb.Data.Client
         internal NuoDbDataReader generatedKeys;
         private NuoDbDataParameterCollection parameters = new NuoDbDataParameterCollection();
         private bool isPrepared = false;
+        private bool isPreparedWithKeys = false;
         private bool isDesignTimeVisible = false;
         private UpdateRowSource updatedRowSource = UpdateRowSource.Both;
 
@@ -321,6 +322,9 @@ namespace NuoDb.Data.Client
 
         private void EnsureStatement(bool generatingKeys)
         {
+            // if the statement is prepared, but with a different setting for generatingKeys, re-prepare it
+            if (isPrepared && isPreparedWithKeys != generatingKeys)
+                isPrepared = false;
             // if the connection has been closed and reopened, the statement identified by this handle 
             // has been closed on the server, and we must re-create it
             if (handle == -1 || !connection.IsCommandRegistered(handle))
@@ -347,6 +351,7 @@ namespace NuoDb.Data.Client
 #if DEBUG
                 System.Diagnostics.Trace.WriteLine("The statement is not a SELECT: redirecting to ExecuteNonQuery");
 #endif
+                // If the command was already prepared, it will be prepared again, in order to enable the generatingKeys option
                 ExecuteUpdate(true);
 
                 return generatedKeys != null ? generatedKeys : new NuoDbDataReader(connection, -1, null, this, false);
@@ -446,9 +451,7 @@ namespace NuoDb.Data.Client
 
         public override void Prepare()
         {
-            // always prepare for generating keys when command is not a SELECT
-            bool generatingKeys = !CommandText.TrimStart(null).Substring(0, 6).ToUpper().Equals("SELECT");
-            Prepare(generatingKeys);
+            Prepare(false);
         }
 
         private void Prepare(bool generatingKeys)
@@ -585,6 +588,7 @@ namespace NuoDb.Data.Client
             {
                 parameters = newParams;
                 isPrepared = true;
+                isPreparedWithKeys = generatingKeys;
             }
             else
             {

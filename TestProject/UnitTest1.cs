@@ -761,6 +761,59 @@ namespace TestProject
                 Assert.IsTrue(found, "Table HOCKEY was not found in the list of tables");
             }
         }
+        
+        [TestMethod]
+        public void TestScalability()
+        {
+            using (NuoDbConnection cnn = new NuoDbConnection(connectionString))
+            {
+                cnn.Open();
+                try
+                {
+                    DbCommand dropCommand = new NuoDbCommand("drop table temp", cnn);
+                    dropCommand.ExecuteNonQuery();
+                }
+                catch (Exception)
+                {
+                    // table is allowed to be missing
+                }
+                
+                DbCommand createCommand = new NuoDbCommand("create table temp (col1 integer, col2 integer)", cnn);
+                int result = createCommand.ExecuteNonQuery();
+
+                DbCommand cmm = cnn.CreateCommand();
+                cmm.CommandText = "insert into temp(col1, col2) values(?, ?)";
+                cmm.Parameters.Add(new NuoDbParameter { DbType = DbType.Int32, ParameterName = "col1" });
+                cmm.Parameters.Add(new NuoDbParameter { DbType = DbType.Int32, ParameterName = "col2" });
+                cmm.Prepare();
+
+                int[] count = new int[] { 1000, 5000, 10000, 20000, 40000 };
+                double[] times = new double[count.Length];
+                for (var k = 0; k < count.Length; k++)
+                {
+                    DateTime start = DateTime.Now;
+                    for (var i = 1; i <= count[k]; i++)
+                    {
+                        cmm.Parameters["col1"].Value = i;
+                        cmm.Parameters["col2"].Value = 2 * i;
+                        cmm.ExecuteNonQuery();
+                    }
+                    DateTime end = DateTime.Now;
+                    times[k] = (end - start).TotalMilliseconds;
+                    if (k == 0)
+                        Console.WriteLine("{0} runs = {1} msec", count[k], times[k]);
+                    else
+                    {
+                        double countRatio = (count[k] / count[0]);
+                        double timeRatio = (times[k] / times[0]);
+                        Console.WriteLine("{0} runs = {1} msec => {2} {3}", count[k], times[k], countRatio, timeRatio);
+                        Assert.IsTrue(timeRatio < (countRatio * 1.10), "Scalability at {2} rows is not linear! (time for {0} rows = {1}; time for {2} rows = {3} => ratio = {4} is greater than {5}",
+                            new object[] { count[0], times[0], count[k], times[k], timeRatio, countRatio });
+
+                    }
+                }
+            }
+        }
 
     }
 }
