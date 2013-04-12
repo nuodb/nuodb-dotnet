@@ -216,7 +216,8 @@ namespace NuoDb.Data.Client
                 }
                 else
                 {
-                    throw new ArgumentException(String.Format("Unsupported type of parameter: {0}", param.GetType().Name), "parameter");
+                    System.Diagnostics.Trace.WriteLine(String.Format("Unsupported type of parameter: {0}, sending as a plain string", param.GetType().Name));
+                    dataStream.encodeString(param.ToString());
                 }
             }
         }
