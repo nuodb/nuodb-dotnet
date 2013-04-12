@@ -24,6 +24,7 @@
     <Feature Id="VStudioFeature" Title="Installing Visual Studio plugins" Level="1">
       <ComponentGroupRef Id="Install_DDEXPlugin_VS2010" />
       <ComponentGroupRef Id="Install_DDEXPlugin_VS2012" />
+      <ComponentRef Id="ForceVStudioRefresh"/>
     </Feature>
 
     <Feature Id="SamplesFeature" Title="Installing sample projects" Level="1">
