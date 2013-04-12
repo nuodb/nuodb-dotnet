@@ -49,11 +49,11 @@
       <DefiningQuery>
         <![CDATA[
         SELECT
-          schema || '.' || tableName || '.' || field AS Id,
-          schema || '.' || tableName AS ParentId,
-          field AS Name,
-          fieldId AS Ordinal,
-          case flags
+          F.schema || '.' || F.tableName || '.' || F.field AS Id,
+          F.schema || '.' || F.tableName AS ParentId,
+          F.field AS Name,
+          F.fieldId AS Ordinal,
+          case F.flags
             when 0 then true
             when 1 then false
             when 2 then true
@@ -72,13 +72,13 @@
             when 15 then false
           end AS IsNullable,
           case
-            when domainname is not null and domainname <> '' then schema || '.' || domainname
-            else system.datatypes.name
+            when F.domainname is not null and F.domainname <> '' then F.schema || '.' || F.domainname
+            else D.name
           end AS TypeName,
-          length AS MaxLength,
-          precision AS Precision,
+          F.length AS MaxLength,
+          F.precision AS Precision,
           0 AS DateTimePrecision,
-          scale AS Scale,
+          F.scale AS Scale,
           '' AS CollationCatalog,
           '' AS CollationSchema,
           '' AS CollationName,
@@ -87,21 +87,21 @@
           '' AS CharacterSetName,
           false AS IsMultiSet,
           case
-            when generator_sequence is not null and generator_sequence like '%IDENTITY_SEQUENCE' then true
+            when F.generator_sequence is not null and F.generator_sequence like '%IDENTITY_SEQUENCE' then true
             else false
           end AS IsIdentity,
           case 
-            when flags >= 8 then true
-            when flags < 8 then false
+            when F.flags >= 8 then true
+            when F.flags < 8 then false
           end AS IsStoreGenerated,
-          defaultvalue AS Default
-        FROM SYSTEM.FIELDS,SYSTEM.DATATYPES,SYSTEM.TABLES
+          F.defaultvalue AS Default
+        FROM SYSTEM.FIELDS as F,SYSTEM.DATATYPES as D,SYSTEM.TABLES as T
         WHERE
-          SYSTEM.FIELDS.schema != 'SYSTEM' AND
-          SYSTEM.FIELDS.datatype = SYSTEM.DATATYPES.id AND
-          SYSTEM.FIELDS.schema = SYSTEM.TABLES.schema AND
-          SYSTEM.FIELDS.tableName = SYSTEM.TABLES.tableName AND
-          SYSTEM.TABLES.type = 'TABLE'
+          F.schema != 'SYSTEM' AND
+          F.datatype = D.id AND
+          F.schema = T.schema AND
+          F.tableName = T.tableName AND
+          T.type = 'TABLE'
         ]]>
         </DefiningQuery>
     </EntitySet>
@@ -126,11 +126,11 @@
       <DefiningQuery>
         <![CDATA[
         SELECT
-          schema || '.' || tableName || '.' || field AS Id,
-          schema || '.' || tableName AS ParentId,
-          field AS Name,
-          fieldId AS Ordinal,
-          case flags
+          F.schema || '.' || F.tableName || '.' || F.field AS Id,
+          F.schema || '.' || F.tableName AS ParentId,
+          F.field AS Name,
+          F.fieldId AS Ordinal,
+          case F.flags
             when 0 then true
             when 1 then false
             when 2 then true
@@ -149,13 +149,13 @@
             when 15 then false
           end AS IsNullable,
           case
-            when domainname is not null and domainname <> '' then schema || '.' || domainname
-            else system.datatypes.name
+            when F.domainname is not null and F.domainname <> '' then F.schema || '.' || F.domainname
+            else D.name
           end AS TypeName,
-          length AS MaxLength,
-          precision AS Precision,
+          F.length AS MaxLength,
+          F.precision AS Precision,
           0 AS DateTimePrecision,
-          scale AS Scale,
+          F.scale AS Scale,
           '' AS CollationCatalog,
           '' AS CollationSchema,
           '' AS CollationName,
@@ -164,21 +164,21 @@
           '' AS CharacterSetName,
           false AS IsMultiSet,
           case
-            when generator_sequence is not null and generator_sequence like '%IDENTITY_SEQUENCE' then true
+            when F.generator_sequence is not null and F.generator_sequence like '%IDENTITY_SEQUENCE' then true
             else false
           end AS IsIdentity,
           case 
-            when flags >= 8 then true
-            when flags < 8 then false
+            when F.flags >= 8 then true
+            when F.flags < 8 then false
           end AS IsStoreGenerated,
-          defaultvalue AS Default
-        FROM SYSTEM.FIELDS,SYSTEM.DATATYPES,SYSTEM.TABLES
+          F.defaultvalue AS Default
+        FROM SYSTEM.FIELDS as F,SYSTEM.DATATYPES as D,SYSTEM.TABLES as T
         WHERE
-          SYSTEM.FIELDS.schema != 'SYSTEM' AND
-          SYSTEM.FIELDS.datatype = SYSTEM.DATATYPES.id AND
-          SYSTEM.FIELDS.schema = SYSTEM.TABLES.schema AND
-          SYSTEM.FIELDS.tableName = SYSTEM.TABLES.tableName AND
-          SYSTEM.TABLES.type = 'VIEW'
+          F.schema != 'SYSTEM' AND
+          F.datatype = D.id AND
+          F.schema = T.schema AND
+          F.tableName = T.tableName AND
+          T.type = 'VIEW'
         ]]>
       </DefiningQuery>
     </EntitySet>
@@ -363,11 +363,11 @@
       <DefiningQuery>
         <![CDATA[
         SELECT
-          primarytableid || '.' || primaryfieldid || '.' || foreigntableid || '.' || foreignfieldid || '.' || position AS Id,
+          fkey.primarytableid || '.' || fkey.primaryfieldid || '.' || fkey.foreigntableid || '.' || fkey.foreignfieldid || '.' || fkey.position AS Id,
           tableFrom.schema || '.' || tableFrom.tableName || '.' || columnsFrom.field AS FromColumnId,
           tableTo.schema || '.' || tableTo.tableName || '.' || columnsTo.field AS ToColumnId,
           tableFrom.schema || '.' || tableFrom.tablename || '.FOREIGN' || fkey.foreignfieldid AS ConstraintId,
-          position AS Ordinal
+          fkey.position AS Ordinal
         FROM SYSTEM.FOREIGNKEYS AS fkey
         LEFT JOIN SYSTEM.TABLES AS tableTo
         ON (fkey.primarytableid = tableTo.tableid)
