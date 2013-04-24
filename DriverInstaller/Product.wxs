@@ -22,9 +22,9 @@
     </Feature>
 
     <Feature Id="VStudioFeature" Title="Installing Visual Studio plugins" Level="1">
+      <ComponentRef Id="Install_VSPackage"/>
       <ComponentGroupRef Id="Install_DDEXPlugin_VS2010" />
       <ComponentGroupRef Id="Install_DDEXPlugin_VS2012" />
-      <ComponentRef Id="ForceVStudioRefresh"/>
     </Feature>
 
     <Feature Id="SamplesFeature" Title="Installing sample projects" Level="1">
@@ -33,6 +33,69 @@
       <ComponentGroupRef Id="SampleWebProject" />
     </Feature>
 
+    <!-- Section to handle the intallation of the VSIX -->
+    <Property Id="IDE_DIR_VS2010">
+      <RegistrySearch Id="VS2010_IDE"
+                      Root="HKCU"
+                      Key="Software\Microsoft\VisualStudio\10.0_Config"
+                      Name="InstallDir"
+                      Type="raw" />
+    </Property>
+    <SetProperty Id="VSIX_INSTALLER_VS2010" Value="[IDE_DIR_VS2010]VSIXInstaller.exe" After="AppSearch">IDE_DIR_VS2010</SetProperty>
+
+    <Property Id="VSIX_INSTALLER_VS2012">
+      <RegistrySearch Id="VS2012_VSIX_INSTALLER"
+                      Root="HKCU"
+                      Key="Software\Microsoft\VisualStudio\11.0_Config"
+                      Name="VSIXInstallerLocation"
+                      Type="raw" />
+    </Property>
+
+    <CustomAction Id="RegisterVSIX_VS2010" 
+                  Directory="INSTALLFOLDER"
+                  ExeCommand="&quot;[VSIX_INSTALLER_VS2010]&quot; /admin /quiet &quot;[#NuoDb.VisualStudio.DataTools.vsix]&quot;"
+                  Impersonate="no"
+                  Execute="deferred"
+                  />
+    <CustomAction Id="UnRegisterVSIX_VS2010" 
+                  Directory="INSTALLFOLDER"
+                  ExeCommand="&quot;[VSIX_INSTALLER_VS2010]&quot; /admin /quiet /uninstall:407f565d-8772-4770-8243-5a1f396aae9d"
+                  Return="ignore"
+                  Impersonate="no"
+                  Execute="deferred"
+                  />
+    <CustomAction Id="RegisterVSIX_VS2012"
+                  Directory="INSTALLFOLDER"
+                  ExeCommand="&quot;[VSIX_INSTALLER_VS2012]&quot; /admin /quiet &quot;[#NuoDb.VisualStudio.DataTools.vsix]&quot;"
+                  Impersonate="no"
+                  Execute="deferred"
+                  />
+    <CustomAction Id="UnRegisterVSIX_VS2012"
+                  Directory="INSTALLFOLDER"
+                  ExeCommand="&quot;[VSIX_INSTALLER_VS2012]&quot; /admin /quiet /uninstall:407f565d-8772-4770-8243-5a1f396aae9d"
+                  Return="ignore"
+                  Impersonate="no"
+                  Execute="deferred"
+                  />
+
+    <!-- The !VStudioFeature is the installed state of the feature -->
+    <!-- The &VStudioFeature is the action state of the feature -->
+    <!-- The possible states are absent = 2, local = 3, run from source = 4 -->
+    <InstallExecuteSequence>
+      <Custom Action="RegisterVSIX_VS2010" Before="InstallFinalize">
+        <![CDATA[VSIX_INSTALLER_VS2010 AND (&VStudioFeature=3) AND (!VStudioFeature=2)]]>
+      </Custom>
+      <Custom Action="UnRegisterVSIX_VS2010" Before="RemoveFiles">
+        <![CDATA[VSIX_INSTALLER_VS2010 AND (&VStudioFeature=2) AND (!VStudioFeature=3)]]>
+      </Custom>
+      <Custom Action="RegisterVSIX_VS2012" Before="InstallFinalize">
+        <![CDATA[VSIX_INSTALLER_VS2012 AND (&VStudioFeature=3) AND (!VStudioFeature=2)]]>
+      </Custom>
+      <Custom Action="UnRegisterVSIX_VS2012" Before="RemoveFiles">
+        <![CDATA[VSIX_INSTALLER_VS2012 AND (&VStudioFeature=2) AND (!VStudioFeature=3)]]>
+      </Custom>
+    </InstallExecuteSequence>
+    
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="ProgramFilesFolder">
         <Directory Id="INSTALLFOLDER" Name="ADO.NET Driver for NuoDB" />

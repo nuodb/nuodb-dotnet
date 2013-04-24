@@ -14,7 +14,6 @@
                       Name="ApplicationExtensionsFolder"
                       Type="raw" />
     </Property>
-    <SetProperty Id="NUODB_EXTENSION_DIR_VS2010" Value="[EXTENSION_DIR_VS2010]\NuoDB" After="AppSearch">EXTENSION_DIR_VS2010</SetProperty>
 
     <Property Id="EXTENSION_DIR_VS2012">
       <RegistrySearch Id="VS2012_Extension"
@@ -23,7 +22,6 @@
                       Name="ApplicationExtensionsFolder"
                       Type="raw" />
     </Property>
-    <SetProperty Id="NUODB_EXTENSION_DIR_VS2012" Value="[EXTENSION_DIR_VS2012]\NuoDB" After="AppSearch">EXTENSION_DIR_VS2012</SetProperty>
 
     <DirectoryRef Id="INSTALLFOLDER">
       <Component Id="Install_DotNetDriver" Guid="A04B6218-AD90-40E5-8001-918CF0D3EAF2">
@@ -37,10 +35,13 @@
                         Type="string"/>
       </Component>
 
+      <Component Id="Install_VSPackage" Guid="B7AFEE82-BFBA-4631-B239-12A8EC52DF2C">
+        <File Id="NuoDb.VisualStudio.DataTools.vsix"
+              KeyPath="yes"
+              Source="../NuoDBVSPackage/bin/$(var.Configuration)/NuoDb.VisualStudio.DataTools.vsix"/>
+      </Component>
+
       <Directory Id="EXTENSION_DIR_VS2010" Name="VS2010">
-        <Directory Id="NUODB_EXTENSION_DIR_VS2010" Name="NuoDB" >
-          <Directory Id="VS2010_Templates" Name="Templates" />
-        </Directory>
         <Directory Id="EXTENSION_DIR_VS2010_MICROSOFT" Name="Microsoft" >
           <Directory Id="EXTENSION_DIR_VS2010_MICROSOFT_EFT" Name="Entity Framework Tools">
             <Directory Id="EXTENSION_DIR_VS2010_MICROSOFT_EFT_DBGEN" Name="DBGen"/>
@@ -52,9 +53,6 @@
       </Directory>
 
       <Directory Id="EXTENSION_DIR_VS2012" Name="VS2012">
-        <Directory Id="NUODB_EXTENSION_DIR_VS2012" Name="NuoDB" >
-          <Directory Id="VS2012_Templates" Name="Templates" />
-        </Directory>
         <Directory Id="EXTENSION_DIR_VS2012_MICROSOFT" Name="Microsoft" >
           <Directory Id="EXTENSION_DIR_VS2012_MICROSOFT_EFT" Name="Entity Framework Tools">
             <Directory Id="EXTENSION_DIR_VS2012_MICROSOFT_EFT_DBGEN" Name="DBGen"/>
@@ -254,34 +252,7 @@
       </Directory>
     </DirectoryRef>
 
-    <Component Guid="EE2D9D51-67B3-45D3-B7C0-1EA45DCCB59A" Id="ForceVStudioRefresh" Directory="TARGETDIR">
-      <RegistryValue KeyPath="yes" Action="write" Root="HKCU" Key="SOFTWARE\NuoDB" Name="Installed" Type="integer" Value="0"/>
-      <RemoveRegistryKey Id="ForceRefreshOnInstall_VS2010" Action="removeOnInstall" Root="HKCU" Key="SOFTWARE\Microsoft\VisualStudio\10.0_Config"/>
-      <RemoveRegistryKey Id="ForceRefreshOnUninstall_VS2010"  Action="removeOnUninstall" Root="HKCU" Key="SOFTWARE\Microsoft\VisualStudio\10.0_Config"/>
-      <RemoveRegistryKey Id="ForceRefreshOnInstall_VS2012" Action="removeOnInstall" Root="HKCU" Key="SOFTWARE\Microsoft\VisualStudio\11.0_Config"/>
-      <RemoveRegistryKey Id="ForceRefreshOnUninstall_VS2012"  Action="removeOnUninstall" Root="HKCU" Key="SOFTWARE\Microsoft\VisualStudio\11.0_Config"/>
-    </Component>
-
     <ComponentGroup Id="Install_DDEXPlugin_VS2010">
-      <Component Guid="A04B6218-AD90-40E5-8001-918CF0D3EAF3" Directory="NUODB_EXTENSION_DIR_VS2010">
-        <File KeyPath="yes" Id="NuoDb.VisualStudio.DataTools.pkgdef_VS2010"
-              Source="../NuoDBVSPackage/bin/$(var.Configuration)/NuoDb.VisualStudio.DataTools.pkgdef">
-        </File>
-        <File Id="NuoDb.VisualStudio.DataTools.dll_VS2010"
-              Source="../NuoDBVSPackage/bin/$(var.Configuration)/NuoDb.VisualStudio.DataTools.dll">
-        </File>
-        <File Id="extension.vsixmanifest_VS2010"
-              Source="../NuoDBVSPackage/bin/$(var.Configuration)/extension.vsixmanifest">
-        </File>
-      </Component>
-      <Component Guid="A04B6218-AD90-40E5-8001-918CF0D3EAF4" Directory="VS2010_Templates">
-        <File KeyPath="yes" Id="NewQuery.nuosql_VS2010"
-              Source="../NuoDBVSPackage/Templates/New Query.nuosql">
-        </File>
-        <File Id="NuoDBVSPackage.vsdir_VS2010"
-              Source="../NuoDBVSPackage/Templates/NuoDBVSPackage.vsdir">
-        </File>
-      </Component>
       <Component Guid="A04B6218-AD90-40E5-8001-918CF0D3EAF5" Directory="EXTENSION_DIR_VS2010_MICROSOFT_EFT_DBGEN">
         <File KeyPath="yes" Id="SSDLToNuoSQL.tt_VS2010"
               Name="SSDLToNuoSQL.tt"
@@ -297,25 +268,6 @@
     </ComponentGroup>
 
     <ComponentGroup Id="Install_DDEXPlugin_VS2012">
-      <Component Guid="0FAF282B-FA33-4F1E-88BC-BD50C19F0B28" Directory="NUODB_EXTENSION_DIR_VS2012">
-        <File KeyPath="yes" Id="NuoDb.VisualStudio.DataTools.pkgdef_VS2012"
-              Source="../NuoDBVSPackage/bin/$(var.Configuration)/NuoDb.VisualStudio.DataTools.pkgdef">
-        </File>
-        <File Id="NuoDb.VisualStudio.DataTools.dll_VS2012"
-              Source="../NuoDBVSPackage/bin/$(var.Configuration)/NuoDb.VisualStudio.DataTools.dll">
-        </File>
-        <File Id="extension.vsixmanifest_VS2012"
-              Source="../NuoDBVSPackage/bin/$(var.Configuration)/extension.vsixmanifest">
-        </File>
-      </Component>
-      <Component Guid="0FAF282B-FA33-4F1E-88BC-BD50C19F0B29" Directory="VS2012_Templates">
-        <File KeyPath="yes" Id="NewQuery.nuosql_VS2012"
-              Source="../NuoDBVSPackage/Templates/New Query.nuosql">
-        </File>
-        <File Id="NuoDBVSPackage.vsdir_VS2012"
-              Source="../NuoDBVSPackage/Templates/NuoDBVSPackage.vsdir">
-        </File>
-      </Component>
       <Component Guid="A04B6218-AD90-40E5-8001-918CF0D3EAF7" Directory="EXTENSION_DIR_VS2012_MICROSOFT_EFT_DBGEN">
         <File KeyPath="yes" Id="SSDLToNuoSQL.tt_VS2012"
               Name="SSDLToNuoSQL.tt"
