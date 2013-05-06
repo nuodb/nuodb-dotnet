@@ -26,9 +26,33 @@
 * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-using System.Data.Common;
-
 namespace NuoDb.Data.Client
 {
-    public delegate void NuoDbRowUpdatedEventHandler(object sender, RowUpdatedEventArgs e);
+    public class BatchProcessedEventArgs
+    {
+        private int batchSize, totalSize;
+        private bool hasErrors;
+
+        public int BatchSize 
+        {
+            get { return batchSize; }
+
+            set { batchSize = value; }
+        }
+
+        public int TotalSize
+        {
+            get { return totalSize; }
+
+            set { totalSize = value; }
+        }
+
+        public bool HasErrors
+        {
+            get { return hasErrors; }
+
+            set { hasErrors = value; }
+        }
+
+    }
 }

@@ -26,9 +26,7 @@
 * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-using System.Data.Common;
-
 namespace NuoDb.Data.Client
 {
-    public delegate void NuoDbRowUpdatedEventHandler(object sender, RowUpdatedEventArgs e);
+    public delegate void BatchProcessedEventHandler(object sender, BatchProcessedEventArgs e);
 }

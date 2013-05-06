@@ -309,15 +309,7 @@ namespace TestProject
                 }
                 finally
                 {
-                    try
-                    {
-                        DbCommand cleanup = connection.CreateCommand();
-                        cleanup.CommandText = "drop table xyz";
-                        cleanup.ExecuteNonQuery();
-                    }
-                    catch (Exception)
-                    {
-                    }
+                    DropTable(connection, "xyz");
                 }
             }
         }
@@ -613,15 +605,7 @@ namespace TestProject
                 connection.Open();
                 //DbTransaction transaction = connection.BeginTransaction();
 
-                try
-                {
-                    DbCommand dropCommand = new NuoDbCommand("drop table temp", connection);
-                    dropCommand.ExecuteNonQuery();
-                }
-                catch (Exception)
-                {
-                    // table is allowed to be missing
-                }
+                DropTable(connection, "temp");
 
                 DbCommand createCommand = new NuoDbCommand("create table temp (col "+sqlType+")", connection);
                 int result = createCommand.ExecuteNonQuery();
@@ -768,15 +752,7 @@ namespace TestProject
             using (NuoDbConnection cnn = new NuoDbConnection(connectionString))
             {
                 cnn.Open();
-                try
-                {
-                    DbCommand dropCommand = new NuoDbCommand("drop table temp", cnn);
-                    dropCommand.ExecuteNonQuery();
-                }
-                catch (Exception)
-                {
-                    // table is allowed to be missing
-                }
+                DropTable(cnn, "temp");
                 
                 DbCommand createCommand = new NuoDbCommand("create table temp (col1 integer, col2 integer)", cnn);
                 int result = createCommand.ExecuteNonQuery();
@@ -815,5 +791,522 @@ namespace TestProject
             }
         }
 
+        private static void CreateTargetForBulkLoad()
+        {
+            using (NuoDbConnection connection = new NuoDbConnection(connectionString))
+            {
+                connection.Open();
+                DropTable(connection, "temp");
+
+                DbCommand createCommand = new NuoDbCommand("create table temp (col string)", connection);
+                int result = createCommand.ExecuteNonQuery();
+            }
+        }
+
+        private static void VerifyBulkLoad(int expectedCount, string expectedFirstRow)
+        {
+            using (NuoDbConnection connection = new NuoDbConnection(connectionString))
+            {
+                connection.Open();
+
+                DbCommand command = new NuoDbCommand("select count(*) from temp", connection);
+                object val = command.ExecuteScalar();
+
+                Assert.AreEqual(expectedCount, val);
+
+                command = new NuoDbCommand("select col from temp", connection);
+                val = command.ExecuteScalar();
+
+                Assert.AreEqual(expectedFirstRow, val);
+            }
+        }
+
+        [TestMethod]
+        public void TestBulkLoad_DataRowsNoMapping()
+        {
+            CreateTargetForBulkLoad();
+
+            NuoDbBulkLoader loader = new NuoDbBulkLoader(connectionString);
+            loader.BatchSize = 2;
+            loader.DestinationTableName = "TEMP";
+            DataTable metadata = new DataTable("dummy");
+            metadata.Columns.Add("xyz", typeof(string));
+            DataRow[] rows = new DataRow[10];
+            for(int i=0;i<rows.Length;i++)
+            {
+                rows[i] = metadata.NewRow();
+                rows[i][0]=Convert.ToString(i);
+            }
+
+            loader.WriteToServer(rows);
+
+            VerifyBulkLoad(rows.Length, "0");
+        }
+
+        [TestMethod]
+        public void TestBulkLoad_DataRowsWithMappingOrdinal2Ordinal()
+        {
+            CreateTargetForBulkLoad();
+
+            NuoDbBulkLoader loader = new NuoDbBulkLoader(connectionString);
+            loader.BatchSize = 2;
+            loader.DestinationTableName = "TEMP";
+            loader.ColumnMappings.Add(1, 0);
+
+            DataTable metadata = new DataTable("dummy");
+            metadata.Columns.Add("xyz1", typeof(int));
+            metadata.Columns.Add("xyz2", typeof(string));
+            DataRow[] rows = new DataRow[10];
+            for (int i = 0; i < rows.Length; i++)
+            {
+                rows[i] = metadata.NewRow();
+                rows[i][0] = -1;
+                rows[i][1] = Convert.ToString(i);
+            }
+
+            loader.WriteToServer(rows);
+
+            VerifyBulkLoad(rows.Length, "0");
+        }
+
+        [TestMethod]
+        public void TestBulkLoad_DataRowsWithMappingOrdinal2Name()
+        {
+            CreateTargetForBulkLoad();
+
+            NuoDbBulkLoader loader = new NuoDbBulkLoader(connectionString);
+            loader.BatchSize = 2;
+            loader.DestinationTableName = "TEMP";
+            loader.ColumnMappings.Add(1, "col");
+
+            DataTable metadata = new DataTable("dummy");
+            metadata.Columns.Add("xyz1", typeof(int));
+            metadata.Columns.Add("xyz2", typeof(string));
+            DataRow[] rows = new DataRow[10];
+            for (int i = 0; i < rows.Length; i++)
+            {
+                rows[i] = metadata.NewRow();
+                rows[i][0] = -1;
+                rows[i][1] = Convert.ToString(i);
+            }
+
+            loader.WriteToServer(rows);
+
+            VerifyBulkLoad(rows.Length, "0");
+        }
+
+        [TestMethod]
+        public void TestBulkLoad_DataRowsWithMappingName2Ordinal()
+        {
+            CreateTargetForBulkLoad();
+
+            NuoDbBulkLoader loader = new NuoDbBulkLoader(connectionString);
+            loader.BatchSize = 2;
+            loader.DestinationTableName = "TEMP";
+            loader.ColumnMappings.Add("xyz2", 0);
+
+            DataTable metadata = new DataTable("dummy");
+            metadata.Columns.Add("xyz1", typeof(int));
+            metadata.Columns.Add("xyz2", typeof(string));
+            DataRow[] rows = new DataRow[10];
+            for (int i = 0; i < rows.Length; i++)
+            {
+                rows[i] = metadata.NewRow();
+                rows[i][0] = -1;
+                rows[i][1] = Convert.ToString(i);
+            }
+
+            loader.WriteToServer(rows);
+
+            VerifyBulkLoad(rows.Length, "0");
+        }
+        
+        [TestMethod]
+        public void TestBulkLoad_DataRowsWithMappingName2Name()
+        {
+            CreateTargetForBulkLoad();
+
+            NuoDbBulkLoader loader = new NuoDbBulkLoader(connectionString);
+            loader.BatchSize = 2;
+            loader.DestinationTableName = "TEMP";
+            loader.ColumnMappings.Add("xyz2", "col");
+
+            DataTable metadata = new DataTable("dummy");
+            metadata.Columns.Add("xyz1", typeof(int));
+            metadata.Columns.Add("xyz2", typeof(string));
+            DataRow[] rows = new DataRow[10];
+            for (int i = 0; i < rows.Length; i++)
+            {
+                rows[i] = metadata.NewRow();
+                rows[i][0] = -1;
+                rows[i][1] = Convert.ToString(i);
+            }
+
+            loader.WriteToServer(rows);
+
+            VerifyBulkLoad(rows.Length, "0");
+        }
+
+        [TestMethod]
+        public void TestBulkLoad_DataTableWithStateNoMapping()
+        {
+            CreateTargetForBulkLoad();
+
+            NuoDbBulkLoader loader = new NuoDbBulkLoader(connectionString);
+            loader.BatchSize = 2;
+            loader.DestinationTableName = "TEMP";
+            DataTable metadata = new DataTable("dummy");
+            metadata.Columns.Add("xyz", typeof(string));
+            const int ROW_TO_ADD = 10;
+            metadata.BeginLoadData();
+            for (int i = 0; i < ROW_TO_ADD; i++)
+            {
+                DataRow row = metadata.NewRow();
+                row[0] = Convert.ToString(i);
+                metadata.Rows.Add(row);
+            }
+            metadata.EndLoadData();
+            metadata.AcceptChanges();
+            metadata.Rows[ROW_TO_ADD / 2].BeginEdit();
+            metadata.Rows[ROW_TO_ADD / 2][0] = "999";
+            metadata.Rows[ROW_TO_ADD / 2].EndEdit();
+
+            loader.WriteToServer(metadata, DataRowState.Modified);
+
+            VerifyBulkLoad(1, "999");
+        }
+
+        [TestMethod]
+        public void TestBulkLoad_DataTableNoMapping()
+        {
+            CreateTargetForBulkLoad();
+
+            NuoDbBulkLoader loader = new NuoDbBulkLoader(connectionString);
+            loader.BatchSize = 2;
+            loader.DestinationTableName = "TEMP";
+            DataTable metadata = new DataTable("dummy");
+            metadata.Columns.Add("xyz", typeof(string));
+            const int ROW_TO_ADD = 10;
+            for (int i = 0; i < ROW_TO_ADD; i++)
+            {
+                DataRow row = metadata.NewRow();
+                row[0] = Convert.ToString(i);
+                metadata.Rows.Add(row);
+            }
+
+            loader.WriteToServer(metadata);
+
+            VerifyBulkLoad(ROW_TO_ADD, "0");
+        }
+
+        [TestMethod]
+        public void TestBulkLoad_DataTableWithMappingOrdinal2Ordinal()
+        {
+            CreateTargetForBulkLoad();
+
+            NuoDbBulkLoader loader = new NuoDbBulkLoader(connectionString);
+            loader.BatchSize = 2;
+            loader.DestinationTableName = "TEMP";
+            loader.ColumnMappings.Add(1, 0);
+
+            DataTable metadata = new DataTable("dummy");
+            metadata.Columns.Add("xyz1", typeof(int));
+            metadata.Columns.Add("xyz2", typeof(string));
+            const int ROW_TO_ADD = 10;
+            for (int i = 0; i < ROW_TO_ADD; i++)
+            {
+                DataRow row = metadata.NewRow();
+                row[0] = -1;
+                row[1] = Convert.ToString(i);
+                metadata.Rows.Add(row);
+            }
+
+            loader.WriteToServer(metadata);
+
+            VerifyBulkLoad(ROW_TO_ADD, "0");
+        }
+
+        [TestMethod]
+        public void TestBulkLoad_DataTableWithMappingOrdinal2Name()
+        {
+            CreateTargetForBulkLoad();
+
+            NuoDbBulkLoader loader = new NuoDbBulkLoader(connectionString);
+            loader.BatchSize = 2;
+            loader.DestinationTableName = "TEMP";
+            loader.ColumnMappings.Add(1, "col");
+
+            DataTable metadata = new DataTable("dummy");
+            metadata.Columns.Add("xyz1", typeof(int));
+            metadata.Columns.Add("xyz2", typeof(string));
+            const int ROW_TO_ADD = 10;
+            for (int i = 0; i < ROW_TO_ADD; i++)
+            {
+                DataRow row = metadata.NewRow();
+                row[0] = -1;
+                row[1] = Convert.ToString(i);
+                metadata.Rows.Add(row);
+            }
+
+            loader.WriteToServer(metadata);
+
+            VerifyBulkLoad(ROW_TO_ADD, "0");
+        }
+
+        [TestMethod]
+        public void TestBulkLoad_DataTableWithMappingName2Ordinal()
+        {
+            CreateTargetForBulkLoad();
+
+            NuoDbBulkLoader loader = new NuoDbBulkLoader(connectionString);
+            loader.BatchSize = 2;
+            loader.DestinationTableName = "TEMP";
+            loader.ColumnMappings.Add("xyz2", 0);
+
+            DataTable metadata = new DataTable("dummy");
+            metadata.Columns.Add("xyz1", typeof(int));
+            metadata.Columns.Add("xyz2", typeof(string));
+            const int ROW_TO_ADD = 10;
+            for (int i = 0; i < ROW_TO_ADD; i++)
+            {
+                DataRow row = metadata.NewRow();
+                row[0] = -1;
+                row[1] = Convert.ToString(i);
+                metadata.Rows.Add(row);
+            }
+
+            loader.WriteToServer(metadata);
+
+            VerifyBulkLoad(ROW_TO_ADD, "0");
+        }
+
+        [TestMethod]
+        public void TestBulkLoad_DataTableWithMappingName2Name()
+        {
+            CreateTargetForBulkLoad();
+
+            NuoDbBulkLoader loader = new NuoDbBulkLoader(connectionString);
+            loader.BatchSize = 2;
+            loader.DestinationTableName = "TEMP";
+            loader.ColumnMappings.Add("xyz2", "col");
+
+            DataTable metadata = new DataTable("dummy");
+            metadata.Columns.Add("xyz1", typeof(int));
+            metadata.Columns.Add("xyz2", typeof(string));
+            const int ROW_TO_ADD = 10;
+            for (int i = 0; i < ROW_TO_ADD; i++)
+            {
+                DataRow row = metadata.NewRow();
+                row[0] = -1;
+                row[1] = Convert.ToString(i);
+                metadata.Rows.Add(row);
+            }
+
+            loader.WriteToServer(metadata);
+
+            VerifyBulkLoad(ROW_TO_ADD, "0");
+        }
+
+        [TestMethod]
+        public void TestBulkLoad_DataReaderNoMapping()
+        {
+            CreateTargetForBulkLoad();
+
+            NuoDbBulkLoader loader = new NuoDbBulkLoader(connectionString);
+            loader.BatchSize = 2;
+            loader.DestinationTableName = "TEMP";
+
+            using (NuoDbConnection connection = new NuoDbConnection(connectionString))
+            {
+                DbCommand command = new NuoDbCommand("select position from hockey order by number", connection);
+
+                connection.Open();
+                DbDataReader reader = command.ExecuteReader();
+                loader.WriteToServer(reader);
+                reader.Close();
+
+                command = new NuoDbCommand("select count(*) from hockey", connection);
+                object val = command.ExecuteScalar();
+
+                VerifyBulkLoad((int)val, "Fan");
+            }
+        }
+
+        [TestMethod]
+        public void TestBulkLoad_DataReaderWithMappingOrdinal2Ordinal()
+        {
+            CreateTargetForBulkLoad();
+
+            NuoDbBulkLoader loader = new NuoDbBulkLoader(connectionString);
+            loader.BatchSize = 2;
+            loader.DestinationTableName = "TEMP";
+            loader.ColumnMappings.Add(1, 0);
+
+            using (NuoDbConnection connection = new NuoDbConnection(connectionString))
+            {
+                DbCommand command = new NuoDbCommand("select number, position as xyz2 from hockey order by number", connection);
+
+                connection.Open();
+                DbDataReader reader = command.ExecuteReader();
+                loader.WriteToServer(reader);
+                reader.Close();
+
+                command = new NuoDbCommand("select count(*) from hockey", connection);
+                object val = command.ExecuteScalar();
+
+                VerifyBulkLoad((int)val, "Fan");
+            }
+
+        }
+
+        [TestMethod]
+        public void TestBulkLoad_DataReaderWithMappingOrdinal2Name()
+        {
+            CreateTargetForBulkLoad();
+
+            NuoDbBulkLoader loader = new NuoDbBulkLoader(connectionString);
+            loader.BatchSize = 2;
+            loader.DestinationTableName = "TEMP";
+            loader.ColumnMappings.Add(1, "col");
+
+            using (NuoDbConnection connection = new NuoDbConnection(connectionString))
+            {
+                DbCommand command = new NuoDbCommand("select number, position as xyz2 from hockey order by number", connection);
+
+                connection.Open();
+                DbDataReader reader = command.ExecuteReader();
+                loader.WriteToServer(reader);
+                reader.Close();
+
+                command = new NuoDbCommand("select count(*) from hockey", connection);
+                object val = command.ExecuteScalar();
+
+                VerifyBulkLoad((int)val, "Fan");
+            }
+
+        }
+
+        [TestMethod]
+        public void TestBulkLoad_DataReaderWithMappingName2Ordinal()
+        {
+            CreateTargetForBulkLoad();
+
+            NuoDbBulkLoader loader = new NuoDbBulkLoader(connectionString);
+            loader.BatchSize = 2;
+            loader.DestinationTableName = "TEMP";
+            loader.ColumnMappings.Add("xyz2", 0);
+
+            using (NuoDbConnection connection = new NuoDbConnection(connectionString))
+            {
+                DbCommand command = new NuoDbCommand("select number, position as xyz2 from hockey order by number", connection);
+
+                connection.Open();
+                DbDataReader reader = command.ExecuteReader();
+                loader.WriteToServer(reader);
+                reader.Close();
+
+                command = new NuoDbCommand("select count(*) from hockey", connection);
+                object val = command.ExecuteScalar();
+
+                VerifyBulkLoad((int)val, "Fan");
+            }
+        }
+
+        [TestMethod]
+        public void TestBulkLoad_DataReaderWithMappingName2Name()
+        {
+            CreateTargetForBulkLoad();
+
+            NuoDbBulkLoader loader = new NuoDbBulkLoader(connectionString);
+            loader.BatchSize = 2;
+            loader.DestinationTableName = "TEMP";
+            loader.ColumnMappings.Add("xyz2", "col");
+
+            using (NuoDbConnection connection = new NuoDbConnection(connectionString))
+            {
+                DbCommand command = new NuoDbCommand("select number, position as xyz2 from hockey order by number", connection);
+
+                connection.Open();
+                DbDataReader reader = command.ExecuteReader();
+                loader.WriteToServer(reader);
+                reader.Close();
+
+                command = new NuoDbCommand("select count(*) from hockey", connection);
+                object val = command.ExecuteScalar();
+
+                VerifyBulkLoad((int)val, "Fan");
+            }
+        }
+
+        [TestMethod]
+        public void TestBulkLoadPerformance()
+        {
+            using (NuoDbConnection cnn = new NuoDbConnection(connectionString))
+            {
+                cnn.Open();
+                DropTable(cnn, "temp");
+
+                DbCommand createCommand = new NuoDbCommand("create table temp (col1 integer, col2 integer)", cnn);
+                int result = createCommand.ExecuteNonQuery();
+
+                DbCommand cmm = cnn.CreateCommand();
+                cmm.CommandText = "insert into temp(col1, col2) values(?, ?)";
+                cmm.Parameters.Add(new NuoDbParameter { DbType = DbType.Int32, ParameterName = "col1" });
+                cmm.Parameters.Add(new NuoDbParameter { DbType = DbType.Int32, ParameterName = "col2" });
+                cmm.Prepare();
+
+                const int ROW_NUMBER = 40000;
+                DateTime start = DateTime.Now;
+                for (var i = 1; i <= ROW_NUMBER; i++)
+                {
+                    cmm.Parameters["col1"].Value = i;
+                    cmm.Parameters["col2"].Value = 2 * i;
+                    cmm.ExecuteNonQuery();
+                }
+                DateTime end = DateTime.Now;
+                double insertTime = (end - start).TotalMilliseconds;
+
+                DropTable(cnn, "temp2");
+                createCommand = new NuoDbCommand("create table temp2 (col1 integer, col2 integer)", cnn);
+                createCommand.ExecuteNonQuery();
+
+                NuoDbBulkLoader loader = new NuoDbBulkLoader(connectionString);
+                loader.DestinationTableName = "TEMP2";
+
+                DbCommand command = new NuoDbCommand("select * from temp", cnn);
+                DbDataReader reader = command.ExecuteReader();
+
+                loader.BatchProcessed += new BatchProcessedEventHandler(loader_BatchProcessed);
+                start = DateTime.Now;
+                loader.WriteToServer(reader);
+                end = DateTime.Now;
+
+                double loadTime = (end - start).TotalMilliseconds;
+
+                reader.Close();
+
+                Console.WriteLine("{0} insert = {1}\n{0} bulk load = {2}\n", ROW_NUMBER, insertTime, loadTime);
+
+                Assert.IsTrue(loadTime < insertTime, "BulkLoad takes more time than manual insertion");
+            }
+        }
+
+        void loader_BatchProcessed(object sender, NuoDb.Data.Client.BatchProcessedEventArgs e)
+        {
+            Console.WriteLine("Batch of {0} rows inserted, current count is {1}\n", e.BatchSize,e.TotalSize);
+        }
+
+        private static void DropTable(NuoDbConnection cnn, string tableName)
+        {
+            try
+            {
+                DbCommand dropCommand = new NuoDbCommand("drop table " + tableName, cnn);
+                dropCommand.ExecuteNonQuery();
+            }
+            catch (Exception)
+            {
+                // table is allowed to be missing
+            }
+        }
     }
 }

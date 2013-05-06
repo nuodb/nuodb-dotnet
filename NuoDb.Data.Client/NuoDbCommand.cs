@@ -27,10 +27,8 @@
 ****************************************************************************/
 
 using System.Data.Common;
-using NuoDb.Data.Client.Xml;
 using System;
 using System.Data;
-using System.Collections.Generic;
 using System.Text;
 
 namespace NuoDb.Data.Client
@@ -44,7 +42,7 @@ namespace NuoDb.Data.Client
         private NuoDbConnection connection;
         private string sqlText = "";
         private int timeout;
-        private int handle = -1;
+        internal int handle = -1;
         internal int updateCount;
         internal NuoDbDataReader generatedKeys;
         private NuoDbDataParameterCollection parameters = new NuoDbDataParameterCollection();
@@ -151,74 +149,7 @@ namespace NuoDb.Data.Client
 #if DEBUG
                 System.Diagnostics.Trace.WriteLine("param " + n + "="+param);
 #endif
-                if (param == null || System.DBNull.Value.Equals(param))
-                {
-                    dataStream.encodeNull();
-                }
-                else if (param is string)
-                {
-                    dataStream.encodeString((string)param);
-                }
-                else if (param is char)
-                {
-                    dataStream.encodeString(new string((char)param, 1));
-                }
-                else if (param is int)
-                {
-                    dataStream.encodeInt((int)param);
-                }
-                else if (param is long)
-                {
-                    dataStream.encodeLong((long)param);
-                }
-                else if (param is decimal)
-                {
-                    decimal d = (decimal)param;
-                    int scale = 0;
-                    while((d % 1) != 0)
-                    {
-                        scale++;
-                        d *= 10;
-                    }
-                    dataStream.encodeLong((long)d, scale);
-                }
-                else if (param is bool)
-                {
-                    dataStream.encodeBoolean((bool)param);
-                }
-                else if (param is byte)
-                {
-                    dataStream.encodeInt((byte)param);
-                }
-                else if (param is short)
-                {
-                    dataStream.encodeInt((short)param);
-                }
-                else if (param is float)
-                {
-                    dataStream.encodeDouble((float)param);
-                }
-                else if (param is double)
-                {
-                    dataStream.encodeDouble((double)param);
-                }
-                else if (param is byte[])
-                {
-                    dataStream.encodeBytes((byte[])param);
-                }
-                else if (param is DateTime)
-                {
-                    dataStream.encodeDate((DateTime)param);
-                }
-                else if (param is TimeSpan)
-                {
-                    dataStream.encodeTime((TimeSpan)param);
-                }
-                else
-                {
-                    System.Diagnostics.Trace.WriteLine(String.Format("Unsupported type of parameter: {0}, sending as a plain string", param.GetType().Name));
-                    dataStream.encodeString(param.ToString());
-                }
+                dataStream.encodeDotNetObject(param);
             }
         }
 

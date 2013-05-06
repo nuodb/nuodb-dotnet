@@ -27,9 +27,6 @@
 ****************************************************************************/
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using NuoDb.Data.Client.Net;
 
 namespace NuoDb.Data.Client
@@ -476,6 +473,78 @@ namespace NuoDb.Data.Client
 
 			return 8;
 		}
+
+        public virtual void encodeDotNetObject(object value)
+        {
+            if (value == null || System.DBNull.Value.Equals(value))
+            {
+                encodeNull();
+            }
+            else if (value is string)
+            {
+                encodeString((string)value);
+            }
+            else if (value is char)
+            {
+                encodeString(new string((char)value, 1));
+            }
+            else if (value is int)
+            {
+                encodeInt((int)value);
+            }
+            else if (value is long)
+            {
+                encodeLong((long)value);
+            }
+            else if (value is decimal)
+            {
+                decimal d = (decimal)value;
+                int scale = 0;
+                while ((d % 1) != 0)
+                {
+                    scale++;
+                    d *= 10;
+                }
+                encodeLong((long)d, scale);
+            }
+            else if (value is bool)
+            {
+                encodeBoolean((bool)value);
+            }
+            else if (value is byte)
+            {
+                encodeInt((byte)value);
+            }
+            else if (value is short)
+            {
+                encodeInt((short)value);
+            }
+            else if (value is float)
+            {
+                encodeDouble((float)value);
+            }
+            else if (value is double)
+            {
+                encodeDouble((double)value);
+            }
+            else if (value is byte[])
+            {
+                encodeBytes((byte[])value);
+            }
+            else if (value is DateTime)
+            {
+                encodeDate((DateTime)value);
+            }
+            else if (value is TimeSpan)
+            {
+                encodeTime((TimeSpan)value);
+            }
+            else
+            {
+                System.Diagnostics.Trace.WriteLine(String.Format("Unsupported type of parameter: {0}, sending as a plain string", value.GetType().Name));
+                encodeString(value.ToString());
+            }
+        }
 
 		public virtual void encodeInt(int value)
 		{

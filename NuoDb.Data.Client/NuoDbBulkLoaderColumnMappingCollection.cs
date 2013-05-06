@@ -26,9 +26,53 @@
 * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-using System.Data.Common;
+using System.Collections;
 
 namespace NuoDb.Data.Client
 {
-    public delegate void NuoDbRowUpdatedEventHandler(object sender, RowUpdatedEventArgs e);
+    public class NuoDbBulkLoaderColumnMappingCollection : CollectionBase
+    {
+        public NuoDbBulkLoaderColumnMappingCollection()
+            : base()
+        {
+        }
+        public NuoDbBulkLoaderColumnMappingCollection(int capacity)
+            : base(capacity)
+        {
+        }
+
+        public NuoDbBulkLoaderColumnMapping this[int index]
+        {
+            get
+            {
+                return ((NuoDbBulkLoaderColumnMapping)List[index]);
+            }
+            set
+            {
+                List[index] = value;
+            }
+        }
+
+        public NuoDbBulkLoaderColumnMapping Add(NuoDbBulkLoaderColumnMapping mapping)
+        {
+            List.Add(mapping);
+            return mapping;
+        }
+        public NuoDbBulkLoaderColumnMapping Add(int source, int target)
+        {
+            return Add(new NuoDbBulkLoaderColumnMapping(source, target));
+        }
+        public NuoDbBulkLoaderColumnMapping Add(string source, int target)
+        {
+            return Add(new NuoDbBulkLoaderColumnMapping(source, target));
+        }
+        public NuoDbBulkLoaderColumnMapping Add(int source, string target)
+        {
+            return Add(new NuoDbBulkLoaderColumnMapping(source, target));
+        }
+        public NuoDbBulkLoaderColumnMapping Add(string source, string target)
+        {
+            return Add(new NuoDbBulkLoaderColumnMapping(source, target));
+        }
+    }
 }

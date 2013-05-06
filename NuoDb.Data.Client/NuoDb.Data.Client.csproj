@@ -46,6 +46,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BatchProcessedEventArgs.cs" />
+    <Compile Include="BatchProcessedEventHandler.cs" />
     <Compile Include="EntityFramework\NuoDbProviderManifest.cs" />
     <Compile Include="EntityFramework\NuoDbProviderServices.cs" />
     <Compile Include="EntityFramework\SqlGen\DmlSqlGenerator.cs" />
@@ -61,6 +63,9 @@
     <Compile Include="EntityFramework\SqlGen\SymbolPair.cs" />
     <Compile Include="EntityFramework\SqlGen\SymbolTable.cs" />
     <Compile Include="Net\SocketListener.cs" />
+    <Compile Include="NuoDbBulkLoader.cs" />
+    <Compile Include="NuoDbBulkLoaderColumnMapping .cs" />
+    <Compile Include="NuoDbBulkLoaderColumnMappingCollection.cs" />
     <Compile Include="NuoDbCommandBuilder.cs" />
     <Compile Include="NuoDbConnectionStringBuilder.cs" />
     <Compile Include="NuoDbDataAdapter.cs" />

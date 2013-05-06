@@ -30,35 +30,60 @@ using System;
 
 namespace NuoDb.Data.Client
 {
-    public class NuoDbSqlException : Exception
+    public class NuoDbBulkLoaderColumnMapping
     {
-        private NuoDbSqlCode code;
+        private int sourceOrdinal;
+        private int destinationOrdinal;
+        private string destinationColumn;
+        private string sourceColumn;
 
-        public NuoDbSqlCode Code
+        public int SourceOrdinal
         {
-            get { return code; }
+            get { return sourceOrdinal; }
         }
 
-        public NuoDbSqlException(string message)
-            : base(message)
+        public int DestinationOrdinal
         {
+            get { return destinationOrdinal; }
         }
-        public NuoDbSqlException(string message, NuoDbSqlCode code)
-            : base(message)
+
+        public string DestinationColumn
         {
-            this.code = code;
+            get { return destinationColumn; }
         }
-        public NuoDbSqlException(string message, string status, int code)
-            : this(message, NuoDbSqlCode.FindCode(code))
+
+        public string SourceColumn
         {
+            get { return sourceColumn; }
         }
-        public NuoDbSqlException(string message, Exception exception)
-            : base(message, exception)
+
+        public NuoDbBulkLoaderColumnMapping(int source, int target)
         {
+            if (source < 0)
+                throw new ArgumentOutOfRangeException("source", "The column ordinal must be a non-negative number");
+            if (target < 0)
+                throw new ArgumentOutOfRangeException("target", "The column ordinal must be a non-negative number");
+            this.sourceOrdinal = source;
+            this.destinationOrdinal = target;
         }
-        public NuoDbSqlException(Exception exception)
-            : base("", exception)
+        public NuoDbBulkLoaderColumnMapping(string source, int target)
         {
+            if (target < 0)
+                throw new ArgumentOutOfRangeException("target", "The column ordinal must be a non-negative number");
+            this.sourceColumn = source;
+            this.destinationOrdinal = target;
+        }
+        public NuoDbBulkLoaderColumnMapping(int source, string target)
+        {
+            if (source < 0)
+                throw new ArgumentOutOfRangeException("source", "The column ordinal must be a non-negative number");
+            this.sourceOrdinal = source;
+            this.destinationColumn = target;
+        }
+        public NuoDbBulkLoaderColumnMapping(string source, string target)
+        {
+            this.sourceColumn = source;
+            this.destinationColumn = target;
         }
     }
 }

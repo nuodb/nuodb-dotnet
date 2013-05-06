@@ -30,13 +30,13 @@ using System;
 namespace NuoDb.Data.Client
 {
 
-	/// <summary>
-	/// Maps Nuodb vendor error codes to default SQLState values.
-	/// </summary>
-	public class NuoDbSqlCode
-	{
-		// modifications to this list must also update C++'s SQLException.h
-		public static NuoDbSqlCode[] values = {
+    /// <summary>
+    /// Maps Nuodb vendor error codes to default SQLState values.
+    /// </summary>
+    public class NuoDbSqlCode
+    {
+        // modifications to this list must also update C++'s SQLException.h
+        public static NuoDbSqlCode[] values = {
                                              new NuoDbSqlCode("SYNTAX_ERROR", -1, "42000"),
                                              new NuoDbSqlCode("FEATURE_NOT_YET_IMPLEMENTED", -2, "0A000"),
                                              new NuoDbSqlCode("BUG_CHECK", -3, "58000"),
@@ -86,38 +86,49 @@ namespace NuoDb.Data.Client
                                              new NuoDbSqlCode("TRANSACT_ERROR", -50, "58000"),
                                              new NuoDbSqlCode("JAVA_ERROR", -51,"58000")
                                          };
-		// modifications to this list must also update C++'s SQLException.h
+        // modifications to this list must also update C++'s SQLException.h
 
         private string name;
-		private int code;
-		private String sqlState;
+        private int code;
+        private String sqlState;
 
-		private NuoDbSqlCode(string name, int code, String sqlState)
-		{
+        private NuoDbSqlCode(string name, int code, String sqlState)
+        {
             this.name = name;
-			this.code = code;
-			this.sqlState = sqlState;
-		}
+            this.code = code;
+            this.sqlState = sqlState;
+        }
 
-		public static NuoDbSqlCode FindCode(int code)
-		{
-            for (int i = 0; i < values.Length; i++ )
+        public static NuoDbSqlCode FindError(string code)
+        {
+            for (int i = 0; i < values.Length; i++)
+            {
+                if (values[i].SQLState == code)
+                    return values[i];
+            }
+
+            return null;
+        }
+
+        public static NuoDbSqlCode FindCode(int code)
+        {
+            for (int i = 0; i < values.Length; i++)
             {
                 if (values[i].Code == code)
                     return values[i];
             }
-	
-			return null;
-		}
 
-		public static String FindSQLState(int code)
-		{
-			NuoDbSqlCode theCode = FindCode(code);
-			if(theCode == null)
-				return null;
-			else
-				return theCode.SQLState;
-		}
+            return null;
+        }
+
+        public static String FindSQLState(int code)
+        {
+            NuoDbSqlCode theCode = FindCode(code);
+            if (theCode == null)
+                return null;
+            else
+                return theCode.SQLState;
+        }
 
         public int Code
         {
@@ -128,6 +139,6 @@ namespace NuoDb.Data.Client
         {
             get { return sqlState; }
         }
-	}
+    }
 
 }
