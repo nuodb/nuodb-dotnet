@@ -50,9 +50,12 @@ namespace TestProject
         // You can use the following additional attributes as you write your tests:
         //
         // Use ClassInitialize to run code before running the first test in the class
-        // [ClassInitialize()]
-        // public static void MyClassInitialize(TestContext testContext) { }
-        //
+        [ClassInitialize()]
+        public static void MyClassInitialize(TestContext testContext)
+        {
+            Utils.CreateHockeyTable();
+        }
+        
         // Use ClassCleanup to run code after all tests in a class have run
         // [ClassCleanup()]
         // public static void MyClassCleanup() { }
@@ -309,7 +312,7 @@ namespace TestProject
                 }
                 finally
                 {
-                    DropTable(connection, "xyz");
+                    Utils.DropTable(connection, "xyz");
                 }
             }
         }
@@ -605,7 +608,7 @@ namespace TestProject
                 connection.Open();
                 //DbTransaction transaction = connection.BeginTransaction();
 
-                DropTable(connection, "temp");
+                Utils.DropTable(connection, "temp");
 
                 DbCommand createCommand = new NuoDbCommand("create table temp (col "+sqlType+")", connection);
                 int result = createCommand.ExecuteNonQuery();
@@ -752,7 +755,7 @@ namespace TestProject
             using (NuoDbConnection cnn = new NuoDbConnection(connectionString))
             {
                 cnn.Open();
-                DropTable(cnn, "temp");
+                Utils.DropTable(cnn, "temp");
                 
                 DbCommand createCommand = new NuoDbCommand("create table temp (col1 integer, col2 integer)", cnn);
                 int result = createCommand.ExecuteNonQuery();
@@ -796,7 +799,7 @@ namespace TestProject
             using (NuoDbConnection connection = new NuoDbConnection(connectionString))
             {
                 connection.Open();
-                DropTable(connection, "temp");
+                Utils.DropTable(connection, "temp");
 
                 DbCommand createCommand = new NuoDbCommand("create table temp (col string)", connection);
                 int result = createCommand.ExecuteNonQuery();
@@ -1244,7 +1247,7 @@ namespace TestProject
             using (NuoDbConnection cnn = new NuoDbConnection(connectionString))
             {
                 cnn.Open();
-                DropTable(cnn, "temp");
+                Utils.DropTable(cnn, "temp");
 
                 DbCommand createCommand = new NuoDbCommand("create table temp (col1 integer, col2 integer)", cnn);
                 int result = createCommand.ExecuteNonQuery();
@@ -1266,7 +1269,7 @@ namespace TestProject
                 DateTime end = DateTime.Now;
                 double insertTime = (end - start).TotalMilliseconds;
 
-                DropTable(cnn, "temp2");
+                Utils.DropTable(cnn, "temp2");
                 createCommand = new NuoDbCommand("create table temp2 (col1 integer, col2 integer)", cnn);
                 createCommand.ExecuteNonQuery();
 
@@ -1296,17 +1299,5 @@ namespace TestProject
             Console.WriteLine("Batch of {0} rows inserted, current count is {1}\n", e.BatchSize,e.TotalSize);
         }
 
-        private static void DropTable(NuoDbConnection cnn, string tableName)
-        {
-            try
-            {
-                DbCommand dropCommand = new NuoDbCommand("drop table " + tableName, cnn);
-                dropCommand.ExecuteNonQuery();
-            }
-            catch (Exception)
-            {
-                // table is allowed to be missing
-            }
-        }
     }
 }
