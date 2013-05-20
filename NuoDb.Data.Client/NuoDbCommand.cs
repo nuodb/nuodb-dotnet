@@ -256,7 +256,10 @@ namespace NuoDb.Data.Client
         {
             // if the statement is prepared, but with a different setting for generatingKeys, re-prepare it
             if (isPrepared && isPreparedWithKeys != generatingKeys)
-                isPrepared = false;
+            {
+                Close();
+                Prepare(generatingKeys);
+            }
             // if the connection has been closed and reopened, the statement identified by this handle 
             // has been closed on the server, and we must re-create it
             if (handle == -1 || !connection.IsCommandRegistered(handle))

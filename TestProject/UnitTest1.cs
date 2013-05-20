@@ -411,6 +411,12 @@ namespace TestProject
                 int lastId = (int)reader.GetValue(0);
                 Assert.IsTrue(lastId > maxId, "The generated ID must be greater than the existing ones");
 
+                DbCommand selectCommand = connection.CreateCommand();
+                selectCommand.CommandText = "select name from hockey where id = ?";
+                selectCommand.Parameters.Add(lastId);
+                string value = (string)selectCommand.ExecuteScalar();
+                Assert.AreEqual("xxx", value);
+
                 transaction.Rollback();
             }
         }
@@ -438,6 +444,12 @@ namespace TestProject
                 Assert.IsTrue(reader.Read(), "There must be at least one ID in the generated keys recordset");
                 int lastId = (int)reader.GetValue(0);
                 Assert.IsTrue(lastId > maxId, "The generated ID must be greater than the existing ones");
+
+                DbCommand selectCommand = connection.CreateCommand();
+                selectCommand.CommandText = "select name from hockey where id = ?";
+                selectCommand.Parameters.Add(lastId);
+                string value = (string)selectCommand.ExecuteScalar();
+                Assert.AreEqual("xxx", value);
 
                 transaction.Rollback();
             }
