@@ -4,3 +4,5 @@ obj
 *.suo
 
 WebApplicationSample/WebApplicationSample.csproj.user
+/*.sdf
+/*.opensdf

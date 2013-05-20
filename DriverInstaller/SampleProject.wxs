@@ -18,6 +18,9 @@
         <Directory Id="dir85CD24AD85CC158EEAC2713361190102" Name="Scripts" />
         <Directory Id="dirFC41714AD7B05BEE2AF387A2260F9049" Name="Properties" />
       </Directory>
+      <Directory Id="dir7C4943161F4326908FB17010A3E00061" Name="ConsoleSample" >
+        <Directory Id="dirFE4B148A70A647221D7C840E963A9F37" Name="Properties" />
+      </Directory>
 
     </DirectoryRef>
   </Fragment>
@@ -187,6 +190,26 @@
       </Component>
       <Component Id="cmpA52AC23D220BB46E116A76471B8B22C2" Directory="dir2F8045421329F2D7DE8A0388EC04E3F5" Guid="*">
         <File Id="fil62E264256BC61E52504157856B7A50E0" KeyPath="yes" Source="..\WebApplicationSample\Styles\Site.css" />
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+
+  <Fragment>
+    <ComponentGroup Id="ConsoleProject">
+      <Component Id="cmp02B7ADAC1AF98B2861F962D2C49B0F73" Directory="dir7C4943161F4326908FB17010A3E00061" Guid="*">
+        <File Id="fil775C2CABF0EAF115CDFA6E41F6D6481D" KeyPath="yes" Source="..\ConsoleSample.csproj" />
+      </Component>
+      <Component Id="cmpC9FD95CB5EC51D752EF1D95D3CA0385B" Directory="dir7C4943161F4326908FB17010A3E00061" Guid="*">
+        <File Id="fil0D8777B2EF78B6AEF05223F5301AA349" KeyPath="yes" Source="..\ConsoleSample.csproj.user" />
+      </Component>
+      <Component Id="cmpD08D8056468BD258F5D8C7A06D3C22F3" Directory="dir7C4943161F4326908FB17010A3E00061" Guid="*">
+        <File Id="filD26E03D38BDD88CD9D8C7FD1892C2F90" KeyPath="yes" Source="..\HelloDB.cs" />
+      </Component>
+      <Component Id="cmpB14CD14ECE69EB3D8BF44DEA6EE83A0A" Directory="dir7C4943161F4326908FB17010A3E00061" Guid="*">
+        <File Id="filD94AF716847DA1EE07CAD401BF1AB6AA" KeyPath="yes" Source="..\Program.cs" />
+      </Component>
+      <Component Id="cmp2303E8F98F7DD361AF488C13268FD0AA" Directory="dirFE4B148A70A647221D7C840E963A9F37" Guid="*">
+        <File Id="fil7840301D7484731F1AADB19B00BA60E3" KeyPath="yes" Source="..\Properties\AssemblyInfo.cs" />
       </Component>
     </ComponentGroup>
   </Fragment>

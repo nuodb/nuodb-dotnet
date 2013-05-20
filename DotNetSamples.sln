@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsFormsSample", "Windo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApplicationSample", "WebApplicationSample\WebApplicationSample.csproj", "{FDE45A07-57F4-4096-B262-97EFAD500BCC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleSample", "ConsoleSample\ConsoleSample.csproj", "{51CF36CD-7035-4CF9-A7E7-97C1BA85BB9B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -34,6 +36,16 @@ Global
 		{FDE45A07-57F4-4096-B262-97EFAD500BCC}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{FDE45A07-57F4-4096-B262-97EFAD500BCC}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{FDE45A07-57F4-4096-B262-97EFAD500BCC}.Release|x86.ActiveCfg = Release|Any CPU
+		{51CF36CD-7035-4CF9-A7E7-97C1BA85BB9B}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{51CF36CD-7035-4CF9-A7E7-97C1BA85BB9B}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{51CF36CD-7035-4CF9-A7E7-97C1BA85BB9B}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{51CF36CD-7035-4CF9-A7E7-97C1BA85BB9B}.Debug|x86.ActiveCfg = Debug|x86
+		{51CF36CD-7035-4CF9-A7E7-97C1BA85BB9B}.Debug|x86.Build.0 = Debug|x86
+		{51CF36CD-7035-4CF9-A7E7-97C1BA85BB9B}.Release|Any CPU.ActiveCfg = Release|x86
+		{51CF36CD-7035-4CF9-A7E7-97C1BA85BB9B}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{51CF36CD-7035-4CF9-A7E7-97C1BA85BB9B}.Release|Mixed Platforms.Build.0 = Release|x86
+		{51CF36CD-7035-4CF9-A7E7-97C1BA85BB9B}.Release|x86.ActiveCfg = Release|x86
+		{51CF36CD-7035-4CF9-A7E7-97C1BA85BB9B}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
