@@ -34,7 +34,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="NuoDb.Data.Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=e49f105b7fb49b38" />
+    <Reference Include="NuoDb.Data.Client"/>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data.Entity" />
@@ -57,8 +57,8 @@
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
     <Compile Include="HockeyPlayer.Designer.cs">
-      <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
       <DependentUpon>HockeyPlayer.edmx</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
