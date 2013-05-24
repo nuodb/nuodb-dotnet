@@ -31,6 +31,7 @@
       <ComponentRef Id="SamplesSolution" />
       <ComponentGroupRef Id="SampleProject" />
       <ComponentGroupRef Id="SampleWebProject" />
+      <ComponentGroupRef Id="ConsoleProject" />
     </Feature>
 
     <!-- Section to handle the intallation of the VSIX -->
@@ -54,6 +55,7 @@
     <CustomAction Id="RegisterVSIX_VS2010" 
                   Directory="INSTALLFOLDER"
                   ExeCommand="&quot;[VSIX_INSTALLER_VS2010]&quot; /admin /quiet &quot;[#NuoDb.VisualStudio.DataTools.vsix]&quot;"
+                  Return="ignore"
                   Impersonate="no"
                   Execute="deferred"
                   />
@@ -67,6 +69,7 @@
     <CustomAction Id="RegisterVSIX_VS2012"
                   Directory="INSTALLFOLDER"
                   ExeCommand="&quot;[VSIX_INSTALLER_VS2012]&quot; /admin /quiet &quot;[#NuoDb.VisualStudio.DataTools.vsix]&quot;"
+                  Return="ignore"
                   Impersonate="no"
                   Execute="deferred"
                   />
