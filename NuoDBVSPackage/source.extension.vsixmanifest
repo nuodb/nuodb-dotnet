@@ -6,6 +6,7 @@
     <Version>1.0</Version>
     <Description xml:space="preserve">DDEX Provider for NuoDB</Description>
     <Locale>1033</Locale>
+    <Icon>Resources\Package.ico</Icon>
     <InstalledByMsi>false</InstalledByMsi>
     <SupportedProducts>
       <VisualStudio Version="10.0">
@@ -17,15 +18,16 @@
       <VisualStudio Version="11.0">
         <Edition>Pro</Edition>
         <Edition>VWDExpress</Edition>
-        <Edition>IntegratedShell</Edition>      
+        <Edition>IntegratedShell</Edition>
       </VisualStudio>
       <VisualStudio Version="11.1">
         <Edition>Pro</Edition>
         <Edition>VWDExpress</Edition>
-        <Edition>IntegratedShell</Edition>      
+        <Edition>IntegratedShell</Edition>
       </VisualStudio>
     </SupportedProducts>
     <SupportedFrameworkRuntimeEdition MinVersion="2.0" MaxVersion="4.5" />
+    <AllUsers>true</AllUsers>
   </Identifier>
   <References>
     <Reference Id="Microsoft.VisualStudio.MPF" MinVersion="10.0">
