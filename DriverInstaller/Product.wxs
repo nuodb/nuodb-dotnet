@@ -18,7 +18,7 @@
 
     <Feature Id="ProductFeature" Title="Installing database driver" Level="1">
       <ComponentRef Id="Install_DotNetDriver" />
-      <ComponentRef Id="Register_DotNetDriver" />
+      <ComponentGroupRef Id="Register_DotNetDriver" />
     </Feature>
 
     <Feature Id="VStudioFeature" Title="Installing Visual Studio plugins" Level="1">

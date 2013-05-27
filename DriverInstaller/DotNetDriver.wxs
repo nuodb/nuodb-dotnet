@@ -2,10 +2,41 @@
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
      xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
   <Fragment>
-    <PropertyRef Id="NETFRAMEWORK20INSTALLROOTDIR"/>
-    <PropertyRef Id="NETFRAMEWORK40CLIENTINSTALLROOTDIR"/>
-    <PropertyRef Id="NETFRAMEWORK20INSTALLROOTDIR64"/>
-    <PropertyRef Id="NETFRAMEWORK40CLIENTINSTALLROOTDIR64"/>
+    <Property Id="DOTNET_20_CONFIG">
+      <RegistrySearch Id="NetFxInstallRootForNetfx20Search" Type="raw" Root="HKLM" Key="Software\Microsoft\.NETFramework" Name="InstallRoot">
+        <DirectorySearch Id="NetFx20InstallRootSearch" Path="v2.0.50727" Depth="0">
+          <DirectorySearch Id="SearchMachineConfig_20" Path="Config" Depth="0">
+            <FileSearch Id="FileSearchMachineConfig_20" Name="machine.config"/>
+          </DirectorySearch>
+        </DirectorySearch>
+      </RegistrySearch>
+    </Property>
+    
+    <Property Id="DOTNET_40_CONFIG">
+      <RegistrySearch Id="NetFxInstallRootForNetfx40Client" Root="HKLM" Key="Software\Microsoft\NET Framework Setup\NDP\v4\Client" Name="InstallPath" Type="raw" >
+        <DirectorySearch Id="SearchMachineConfig_40" Path="Config" Depth="0">
+          <FileSearch Id="FileSearchMachineConfig_40" Name="machine.config"/>
+        </DirectorySearch>
+      </RegistrySearch>
+    </Property>
+
+    <Property Id="DOTNET64_20_CONFIG">
+      <RegistrySearch Id="NetFxInstallRootForNetfx20Search64" Type="raw" Root="HKLM" Key="Software\Microsoft\.NETFramework" Name="InstallRoot" Win64="yes">
+        <DirectorySearch Id="NetFx20InstallRootSearch64" Path="v2.0.50727" Depth="0">
+          <DirectorySearch Id="SearchMachineConfig_6420" Path="Config" Depth="0">
+            <FileSearch Id="FileSearchMachineConfig_6420" Name="machine.config"/>
+          </DirectorySearch>
+        </DirectorySearch>
+      </RegistrySearch>
+    </Property>
+
+    <Property Id="DOTNET64_40_CONFIG">
+      <RegistrySearch Id="NetFxInstallRootForNetfx40Client64" Root="HKLM" Key="Software\Microsoft\NET Framework Setup\NDP\v4\Client" Name="InstallPath" Type="raw" Win64="yes" >
+        <DirectorySearch Id="SearchMachineConfig_6440" Path="Config" Depth="0">
+          <FileSearch Id="FileSearchMachineConfig_6440" Name="machine.config"/>
+        </DirectorySearch>
+      </RegistrySearch>
+    </Property>
 
     <Property Id="EXTENSION_DIR_VS2010">
       <RegistrySearch Id="VS2010_Extension"
@@ -64,16 +95,21 @@
       </Directory>
 
       <Directory Id="GAC" Name="GAC">
-        <Component Id="Register_DotNetDriver" Guid="36FCC7E2-FCC8-431B-8C94-EB9E92B84CE6">
+        <Component Id="Register_GAC" Guid="36FCC7E2-FCC8-431B-8C94-EB9E92B84CE6">
           <File Id="NuoDb.Data.Client.dll_GAC"
                 Name="NuoDb.Data.Client.dll"
                 Assembly=".net"
                 KeyPath="yes"
                 Source="../NuoDb.Data.Client/bin/$(var.Configuration)/NuoDb.Data.Client.dll"/>
+        </Component>
 
+        <Component Id="Register_DotNetProvider_40" Guid="DE4E60BA-8202-4BB5-9AB7-88248CD6B368">
+          <RegistryKey Root="HKLM" Key="Software\NuoDB">
+            <RegistryValue KeyPath="yes" Name=".NET 4.0" Value="1" Type="integer"/>
+          </RegistryKey>
           <!-- .NET 4.0 -->
           <util:XmlConfig Id="MachineConfigDbProviderFactories40"
-                      File="[NETFRAMEWORK40CLIENTINSTALLROOTDIR]Config\machine.Config"
+                      File="[DOTNET_40_CONFIG]"
                       Action="create"
                       On="install"
                       ElementPath="//configuration/system.data/DbProviderFactories"
@@ -82,43 +118,48 @@
                       Sequence="1" />
 
           <util:XmlConfig Id="MachineConfigDbProviderFactories_Name40"
-                      File="[NETFRAMEWORK40CLIENTINSTALLROOTDIR]Config\machine.Config"
+                      File="[DOTNET_40_CONFIG]"
                       ElementPath="MachineConfigDbProviderFactories40"
                       Name="name"
                       Value="NuoDB Data Provider"
                       Sequence="2" />
           <util:XmlConfig Id="MachineConfigDbProviderFactories_Invariant40"
-                      File="[NETFRAMEWORK40CLIENTINSTALLROOTDIR]Config\machine.Config"
+                      File="[DOTNET_40_CONFIG]"
                       ElementPath="MachineConfigDbProviderFactories40"
                       Name="invariant"
                       Value="NuoDb.Data.Client"
                       Sequence="2" />
           <util:XmlConfig Id="MachineConfigDbProviderFactories_Description40"
-                      File="[NETFRAMEWORK40CLIENTINSTALLROOTDIR]Config\machine.Config"
+                      File="[DOTNET_40_CONFIG]"
                       ElementPath="MachineConfigDbProviderFactories40"
                       Name="description"
                       Value=".NET Framework Data Provider for NuoDB"
                       Sequence="2" />
           <util:XmlConfig Id="MachineConfigDbProviderFactories_Type40"
-                      File="[NETFRAMEWORK40CLIENTINSTALLROOTDIR]Config\machine.Config"
+                      File="[DOTNET_40_CONFIG]"
                       ElementPath="MachineConfigDbProviderFactories40"
                       Name="type"
                       Value="NuoDb.Data.Client.NuoDbProviderFactory, NuoDb.Data.Client, Version=!(bind.FileVersion.NuoDb.Data.Client.dll), Culture=neutral, PublicKeyToken=e49f105b7fb49b38"
                       Sequence="2" />
 
           <util:XmlConfig Id="MachineConfigDbProviderFactories_Uninstall40"
-                      File="[NETFRAMEWORK40CLIENTINSTALLROOTDIR]Config\machine.Config"
+                      File="[DOTNET_40_CONFIG]"
                       Action="delete"
                       On="uninstall"
                       Node="element"
                       VerifyPath="add[\[]@invariant='NuoDb.Data.Client'[\]]"
                       ElementPath="//configuration/system.data/DbProviderFactories"
                       Sequence="1" />
+          <Condition>DOTNET_40_CONFIG</Condition>
+        </Component>
 
-
+        <Component Id="Register_DotNetProvider_20" Guid="30E05F54-C856-4645-8701-0AF31EF27BA6">
+          <RegistryKey Root="HKLM" Key="Software\NuoDB">
+            <RegistryValue KeyPath="yes" Name=".NET 2.0" Value="1" Type="integer"/>
+          </RegistryKey>
           <!-- .NET 2.0 - 3.5 -->
           <util:XmlConfig Id="MachineConfigDbProviderFactories20"
-                      File="[NETFRAMEWORK20INSTALLROOTDIR]Config\machine.Config"
+                      File="[DOTNET_20_CONFIG]"
                       Action="create"
                       On="install"
                       ElementPath="//configuration/system.data/DbProviderFactories"
@@ -127,42 +168,48 @@
                       Sequence="1" />
 
           <util:XmlConfig Id="MachineConfigDbProviderFactories_Name20"
-                      File="[NETFRAMEWORK20INSTALLROOTDIR]Config\machine.Config"
+                      File="[DOTNET_20_CONFIG]"
                       ElementPath="MachineConfigDbProviderFactories20"
                       Name="name"
                       Value="NuoDB Data Provider"
                       Sequence="2" />
           <util:XmlConfig Id="MachineConfigDbProviderFactories_Invariant20"
-                      File="[NETFRAMEWORK20INSTALLROOTDIR]Config\machine.Config"
+                      File="[DOTNET_20_CONFIG]"
                       ElementPath="MachineConfigDbProviderFactories20"
                       Name="invariant"
                       Value="NuoDb.Data.Client"
                       Sequence="2" />
           <util:XmlConfig Id="MachineConfigDbProviderFactories_Description20"
-                      File="[NETFRAMEWORK20INSTALLROOTDIR]Config\machine.Config"
+                      File="[DOTNET_20_CONFIG]"
                       ElementPath="MachineConfigDbProviderFactories20"
                       Name="description"
                       Value=".NET Framework Data Provider for NuoDB"
                       Sequence="2" />
           <util:XmlConfig Id="MachineConfigDbProviderFactories_Type20"
-                      File="[NETFRAMEWORK20INSTALLROOTDIR]Config\machine.Config"
+                      File="[DOTNET_20_CONFIG]"
                       ElementPath="MachineConfigDbProviderFactories20"
                       Name="type"
                       Value="NuoDb.Data.Client.NuoDbProviderFactory, NuoDb.Data.Client, Version=!(bind.FileVersion.NuoDb.Data.Client.dll), Culture=neutral, PublicKeyToken=e49f105b7fb49b38"
                       Sequence="2" />
 
           <util:XmlConfig Id="MachineConfigDbProviderFactories_Uninstall20"
-                      File="[NETFRAMEWORK20INSTALLROOTDIR]Config\machine.Config"
+                      File="[DOTNET_20_CONFIG]"
                       Action="delete"
                       On="uninstall"
                       Node="element"
                       VerifyPath="add[\[]@invariant='NuoDb.Data.Client'[\]]"
                       ElementPath="//configuration/system.data/DbProviderFactories"
                       Sequence="1" />
+          <Condition>DOTNET_20_CONFIG</Condition>
+        </Component>
 
+        <Component Id="Register_DotNet64Provider_40" Guid="C34983FA-F5B9-492E-B50B-F890697FE306">
+          <RegistryKey Root="HKLM" Key="Software\NuoDB">
+            <RegistryValue KeyPath="yes" Name=".NET 4.0 64 bit" Value="1" Type="integer"/>
+          </RegistryKey>
           <!-- .NET 4.0 64 bit-->
           <util:XmlConfig Id="MachineConfigDbProviderFactories40_x64"
-                      File="[NETFRAMEWORK40CLIENTINSTALLROOTDIR64]Config\machine.Config"
+                      File="[DOTNET64_40_CONFIG]"
                       Action="create"
                       On="install"
                       ElementPath="//configuration/system.data/DbProviderFactories"
@@ -171,43 +218,48 @@
                       Sequence="1" />
 
           <util:XmlConfig Id="MachineConfigDbProviderFactories_Name40_x64"
-                      File="[NETFRAMEWORK40CLIENTINSTALLROOTDIR64]Config\machine.Config"
+                      File="[DOTNET64_40_CONFIG]"
                       ElementPath="MachineConfigDbProviderFactories40_x64"
                       Name="name"
                       Value="NuoDB Data Provider"
                       Sequence="2" />
           <util:XmlConfig Id="MachineConfigDbProviderFactories_Invariant40_x64"
-                      File="[NETFRAMEWORK40CLIENTINSTALLROOTDIR64]Config\machine.Config"
+                      File="[DOTNET64_40_CONFIG]"
                       ElementPath="MachineConfigDbProviderFactories40_x64"
                       Name="invariant"
                       Value="NuoDb.Data.Client"
                       Sequence="2" />
           <util:XmlConfig Id="MachineConfigDbProviderFactories_Description40_x64"
-                      File="[NETFRAMEWORK40CLIENTINSTALLROOTDIR64]Config\machine.Config"
+                      File="[DOTNET64_40_CONFIG]"
                       ElementPath="MachineConfigDbProviderFactories40_x64"
                       Name="description"
                       Value=".NET Framework Data Provider for NuoDB"
                       Sequence="2" />
           <util:XmlConfig Id="MachineConfigDbProviderFactories_Type40_x64"
-                      File="[NETFRAMEWORK40CLIENTINSTALLROOTDIR64]Config\machine.Config"
+                      File="[DOTNET64_40_CONFIG]"
                       ElementPath="MachineConfigDbProviderFactories40_x64"
                       Name="type"
                       Value="NuoDb.Data.Client.NuoDbProviderFactory, NuoDb.Data.Client, Version=!(bind.FileVersion.NuoDb.Data.Client.dll), Culture=neutral, PublicKeyToken=e49f105b7fb49b38"
                       Sequence="2" />
 
           <util:XmlConfig Id="MachineConfigDbProviderFactories_Uninstall40_x64"
-                      File="[NETFRAMEWORK40CLIENTINSTALLROOTDIR64]Config\machine.Config"
+                      File="[DOTNET64_40_CONFIG]"
                       Action="delete"
                       On="uninstall"
                       Node="element"
                       VerifyPath="add[\[]@invariant='NuoDb.Data.Client'[\]]"
                       ElementPath="//configuration/system.data/DbProviderFactories"
                       Sequence="1" />
+          <Condition>DOTNET64_40_CONFIG</Condition>
+        </Component>
 
-
+        <Component Id="Register_DotNet64Provider_20" Guid="40705DB7-4BF6-4063-8A83-EC5AE44F36F1">
+          <RegistryKey Root="HKLM" Key="Software\NuoDB">
+            <RegistryValue KeyPath="yes" Name=".NET 2.0 64 bit" Value="1" Type="integer"/>
+          </RegistryKey>
           <!-- .NET 2.0 - 3.5 64 it-->
           <util:XmlConfig Id="MachineConfigDbProviderFactories20_x64"
-                      File="[NETFRAMEWORK20INSTALLROOTDIR64]Config\machine.Config"
+                      File="[DOTNET64_20_CONFIG]"
                       Action="create"
                       On="install"
                       ElementPath="//configuration/system.data/DbProviderFactories"
@@ -216,38 +268,39 @@
                       Sequence="1" />
 
           <util:XmlConfig Id="MachineConfigDbProviderFactories_Name20_x64"
-                      File="[NETFRAMEWORK20INSTALLROOTDIR64]Config\machine.Config"
+                      File="[DOTNET64_20_CONFIG]"
                       ElementPath="MachineConfigDbProviderFactories20_x64"
                       Name="name"
                       Value="NuoDB Data Provider"
                       Sequence="2" />
           <util:XmlConfig Id="MachineConfigDbProviderFactories_Invariant20_x64"
-                      File="[NETFRAMEWORK20INSTALLROOTDIR64]Config\machine.Config"
+                      File="[DOTNET64_20_CONFIG]"
                       ElementPath="MachineConfigDbProviderFactories20_x64"
                       Name="invariant"
                       Value="NuoDb.Data.Client"
                       Sequence="2" />
           <util:XmlConfig Id="MachineConfigDbProviderFactories_Description20_x64"
-                      File="[NETFRAMEWORK20INSTALLROOTDIR64]Config\machine.Config"
+                      File="[DOTNET64_20_CONFIG]"
                       ElementPath="MachineConfigDbProviderFactories20_x64"
                       Name="description"
                       Value=".NET Framework Data Provider for NuoDB"
                       Sequence="2" />
           <util:XmlConfig Id="MachineConfigDbProviderFactories_Type20_x64"
-                      File="[NETFRAMEWORK20INSTALLROOTDIR64]Config\machine.Config"
+                      File="[DOTNET64_20_CONFIG]"
                       ElementPath="MachineConfigDbProviderFactories20_x64"
                       Name="type"
                       Value="NuoDb.Data.Client.NuoDbProviderFactory, NuoDb.Data.Client, Version=!(bind.FileVersion.NuoDb.Data.Client.dll), Culture=neutral, PublicKeyToken=e49f105b7fb49b38"
                       Sequence="2" />
 
           <util:XmlConfig Id="MachineConfigDbProviderFactories_Uninstall20_x64"
-                      File="[NETFRAMEWORK20INSTALLROOTDIR64]Config\machine.Config"
+                      File="[DOTNET64_20_CONFIG]"
                       Action="delete"
                       On="uninstall"
                       Node="element"
                       VerifyPath="add[\[]@invariant='NuoDb.Data.Client'[\]]"
                       ElementPath="//configuration/system.data/DbProviderFactories"
                       Sequence="1" />
+          <Condition>DOTNET64_20_CONFIG</Condition>
         </Component>
       </Directory>
     </DirectoryRef>
@@ -282,6 +335,13 @@
       </Component>
     </ComponentGroup>
 
+    <ComponentGroup Id="Register_DotNetDriver">
+      <ComponentRef Id="Register_GAC"/>
+      <ComponentRef Id="Register_DotNetProvider_20"/>
+      <ComponentRef Id="Register_DotNetProvider_40"/>
+      <ComponentRef Id="Register_DotNet64Provider_20"/>
+      <ComponentRef Id="Register_DotNet64Provider_40"/>
+    </ComponentGroup>
   </Fragment>
 
 </Wix>
