@@ -25,6 +25,9 @@
 * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
+/*
+	Contributors: Jiri Cincura (jiri@cincura.net)
+*/
 
 using System;
 using System.Collections.Generic;
@@ -49,23 +52,36 @@ namespace NuoDb.Data.Client.Net
         public CryptoSocket(string address, int port)
             : base(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.IP)
         {
-            IPHostEntry addresses = Dns.GetHostEntry(address);
-            if (addresses.AddressList.Length == 0)
-            {
-                int pos = address.LastIndexOf(':');
-                if (pos == -1)
-                    throw new IOException(String.Format("Host name {0} cannot be resolved", address));
+			var ipAddresses = default(IPAddress[]);
 
-                port = Convert.ToInt32(address.Substring(pos + 1));
-                address = address.Substring(0, pos);
-                addresses = Dns.GetHostEntry(address);
-                if (addresses.AddressList.Length == 0)
-                    throw new IOException(String.Format("Host name {0} cannot be resolved", address));
-            }
+			// try fast path with IP directly
+			var ipAddress = default(IPAddress);
+			if (IPAddress.TryParse(address, out ipAddress))
+			{
+				ipAddresses = new IPAddress[] { ipAddress };
+			}
+			// resolve
+			else
+			{
+				IPHostEntry addresses = Dns.GetHostEntry(address);
+				if (addresses.AddressList.Length == 0)
+				{
+					int pos = address.LastIndexOf(':');
+					if (pos == -1)
+						throw new IOException(String.Format("Host name {0} cannot be resolved", address));
+
+					port = Convert.ToInt32(address.Substring(pos + 1));
+					address = address.Substring(0, pos);
+					addresses = Dns.GetHostEntry(address);
+					if (addresses.AddressList.Length == 0)
+						throw new IOException(String.Format("Host name {0} cannot be resolved", address));
+				}
+				ipAddresses = addresses.AddressList;
+			}
 
             try
             {
-                Connect(addresses.AddressList, port);
+				Connect(ipAddresses, port);
             }
             catch (SocketException exception)
             {
