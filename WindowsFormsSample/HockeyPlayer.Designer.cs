@@ -8,14 +8,21 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.ComponentModel;
+using System.Data.EntityClient;
 using System.Data.Objects;
 using System.Data.Objects.DataClasses;
-using System.Data.EntityClient;
-using System.ComponentModel;
-using System.Xml.Serialization;
+using System.Linq;
 using System.Runtime.Serialization;
+using System.Xml.Serialization;
 
 [assembly: EdmSchemaAttribute()]
+#region EDM Relationship Metadata
+
+[assembly: EdmRelationshipAttribute("testModel", "PLAYERSSCORING", "PLAYERS", System.Data.Metadata.Edm.RelationshipMultiplicity.One, typeof(WindowsFormsSample.PLAYERS), "SCORING", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(WindowsFormsSample.SCORING), true)]
+[assembly: EdmRelationshipAttribute("testModel", "TEAMSSCORING", "TEAMS", System.Data.Metadata.Edm.RelationshipMultiplicity.One, typeof(WindowsFormsSample.TEAMS), "SCORING", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(WindowsFormsSample.SCORING), true)]
+
+#endregion
 
 namespace WindowsFormsSample
 {
@@ -68,60 +75,114 @@ namespace WindowsFormsSample
         /// <summary>
         /// No Metadata Documentation available.
         /// </summary>
-        public ObjectSet<HOCKEY> HOCKEY
+        public ObjectSet<PLAYERS> PLAYERS
         {
             get
             {
-                if ((_HOCKEY == null))
+                if ((_PLAYERS == null))
                 {
-                    _HOCKEY = base.CreateObjectSet<HOCKEY>("HOCKEY");
+                    _PLAYERS = base.CreateObjectSet<PLAYERS>("PLAYERS");
                 }
-                return _HOCKEY;
+                return _PLAYERS;
             }
         }
-        private ObjectSet<HOCKEY> _HOCKEY;
+        private ObjectSet<PLAYERS> _PLAYERS;
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        public ObjectSet<SCORING> SCORING
+        {
+            get
+            {
+                if ((_SCORING == null))
+                {
+                    _SCORING = base.CreateObjectSet<SCORING>("SCORING");
+                }
+                return _SCORING;
+            }
+        }
+        private ObjectSet<SCORING> _SCORING;
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        public ObjectSet<TEAMS> TEAMS
+        {
+            get
+            {
+                if ((_TEAMS == null))
+                {
+                    _TEAMS = base.CreateObjectSet<TEAMS>("TEAMS");
+                }
+                return _TEAMS;
+            }
+        }
+        private ObjectSet<TEAMS> _TEAMS;
 
         #endregion
+
         #region AddTo Methods
     
         /// <summary>
-        /// Deprecated Method for adding a new object to the HOCKEY EntitySet. Consider using the .Add method of the associated ObjectSet&lt;T&gt; property instead.
+        /// Deprecated Method for adding a new object to the PLAYERS EntitySet. Consider using the .Add method of the associated ObjectSet&lt;T&gt; property instead.
         /// </summary>
-        public void AddToHOCKEY(HOCKEY hOCKEY)
+        public void AddToPLAYERS(PLAYERS pLAYERS)
         {
-            base.AddObject("HOCKEY", hOCKEY);
+            base.AddObject("PLAYERS", pLAYERS);
+        }
+    
+        /// <summary>
+        /// Deprecated Method for adding a new object to the SCORING EntitySet. Consider using the .Add method of the associated ObjectSet&lt;T&gt; property instead.
+        /// </summary>
+        public void AddToSCORING(SCORING sCORING)
+        {
+            base.AddObject("SCORING", sCORING);
+        }
+    
+        /// <summary>
+        /// Deprecated Method for adding a new object to the TEAMS EntitySet. Consider using the .Add method of the associated ObjectSet&lt;T&gt; property instead.
+        /// </summary>
+        public void AddToTEAMS(TEAMS tEAMS)
+        {
+            base.AddObject("TEAMS", tEAMS);
         }
 
         #endregion
+
     }
-    
 
     #endregion
-    
+
     #region Entities
     
     /// <summary>
     /// No Metadata Documentation available.
     /// </summary>
-    [EdmEntityTypeAttribute(NamespaceName="testModel", Name="HOCKEY")]
+    [EdmEntityTypeAttribute(NamespaceName="testModel", Name="PLAYERS")]
     [Serializable()]
     [DataContractAttribute(IsReference=true)]
-    public partial class HOCKEY : EntityObject
+    public partial class PLAYERS : EntityObject
     {
         #region Factory Method
     
         /// <summary>
-        /// Create a new HOCKEY object.
+        /// Create a new PLAYERS object.
         /// </summary>
-        /// <param name="id">Initial value of the ID property.</param>
-        public static HOCKEY CreateHOCKEY(global::System.Int32 id)
+        /// <param name="pLAYERID">Initial value of the PLAYERID property.</param>
+        /// <param name="fIRSTNHL">Initial value of the FIRSTNHL property.</param>
+        /// <param name="lASTNHL">Initial value of the LASTNHL property.</param>
+        public static PLAYERS CreatePLAYERS(global::System.String pLAYERID, global::System.Int32 fIRSTNHL, global::System.Int32 lASTNHL)
         {
-            HOCKEY hOCKEY = new HOCKEY();
-            hOCKEY.ID = id;
-            return hOCKEY;
+            PLAYERS pLAYERS = new PLAYERS();
+            pLAYERS.PLAYERID = pLAYERID;
+            pLAYERS.FIRSTNHL = fIRSTNHL;
+            pLAYERS.LASTNHL = lASTNHL;
+            return pLAYERS;
         }
 
         #endregion
+
         #region Primitive Properties
     
         /// <summary>
@@ -129,75 +190,171 @@ namespace WindowsFormsSample
         /// </summary>
         [EdmScalarPropertyAttribute(EntityKeyProperty=true, IsNullable=false)]
         [DataMemberAttribute()]
-        public global::System.Int32 ID
+        public global::System.String PLAYERID
         {
             get
             {
-                return _ID;
+                return _PLAYERID;
             }
             set
             {
-                if (_ID != value)
+                if (_PLAYERID != value)
                 {
-                    OnIDChanging(value);
-                    ReportPropertyChanging("ID");
-                    _ID = StructuralObject.SetValidValue(value);
-                    ReportPropertyChanged("ID");
-                    OnIDChanged();
+                    OnPLAYERIDChanging(value);
+                    ReportPropertyChanging("PLAYERID");
+                    _PLAYERID = StructuralObject.SetValidValue(value, false);
+                    ReportPropertyChanged("PLAYERID");
+                    OnPLAYERIDChanged();
                 }
             }
         }
-        private global::System.Int32 _ID;
-        partial void OnIDChanging(global::System.Int32 value);
-        partial void OnIDChanged();
+        private global::System.String _PLAYERID;
+        partial void OnPLAYERIDChanging(global::System.String value);
+        partial void OnPLAYERIDChanged();
     
         /// <summary>
         /// No Metadata Documentation available.
         /// </summary>
         [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=true)]
         [DataMemberAttribute()]
-        public Nullable<global::System.Int32> NUMBER
+        public global::System.String FIRSTNAME
         {
             get
             {
-                return _NUMBER;
+                return _FIRSTNAME;
             }
             set
             {
-                OnNUMBERChanging(value);
-                ReportPropertyChanging("NUMBER");
-                _NUMBER = StructuralObject.SetValidValue(value);
-                ReportPropertyChanged("NUMBER");
-                OnNUMBERChanged();
+                OnFIRSTNAMEChanging(value);
+                ReportPropertyChanging("FIRSTNAME");
+                _FIRSTNAME = StructuralObject.SetValidValue(value, true);
+                ReportPropertyChanged("FIRSTNAME");
+                OnFIRSTNAMEChanged();
             }
         }
-        private Nullable<global::System.Int32> _NUMBER;
-        partial void OnNUMBERChanging(Nullable<global::System.Int32> value);
-        partial void OnNUMBERChanged();
+        private global::System.String _FIRSTNAME;
+        partial void OnFIRSTNAMEChanging(global::System.String value);
+        partial void OnFIRSTNAMEChanged();
     
         /// <summary>
         /// No Metadata Documentation available.
         /// </summary>
         [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=true)]
         [DataMemberAttribute()]
-        public global::System.String NAME
+        public global::System.String LASTNAME
         {
             get
             {
-                return _NAME;
+                return _LASTNAME;
             }
             set
             {
-                OnNAMEChanging(value);
-                ReportPropertyChanging("NAME");
-                _NAME = StructuralObject.SetValidValue(value, true);
-                ReportPropertyChanged("NAME");
-                OnNAMEChanged();
+                OnLASTNAMEChanging(value);
+                ReportPropertyChanging("LASTNAME");
+                _LASTNAME = StructuralObject.SetValidValue(value, true);
+                ReportPropertyChanged("LASTNAME");
+                OnLASTNAMEChanged();
             }
         }
-        private global::System.String _NAME;
-        partial void OnNAMEChanging(global::System.String value);
-        partial void OnNAMEChanged();
+        private global::System.String _LASTNAME;
+        partial void OnLASTNAMEChanging(global::System.String value);
+        partial void OnLASTNAMEChanged();
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=true)]
+        [DataMemberAttribute()]
+        public Nullable<global::System.Int32> HEIGHT
+        {
+            get
+            {
+                return _HEIGHT;
+            }
+            set
+            {
+                OnHEIGHTChanging(value);
+                ReportPropertyChanging("HEIGHT");
+                _HEIGHT = StructuralObject.SetValidValue(value);
+                ReportPropertyChanged("HEIGHT");
+                OnHEIGHTChanged();
+            }
+        }
+        private Nullable<global::System.Int32> _HEIGHT;
+        partial void OnHEIGHTChanging(Nullable<global::System.Int32> value);
+        partial void OnHEIGHTChanged();
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=true)]
+        [DataMemberAttribute()]
+        public Nullable<global::System.Int32> WEIGHT
+        {
+            get
+            {
+                return _WEIGHT;
+            }
+            set
+            {
+                OnWEIGHTChanging(value);
+                ReportPropertyChanging("WEIGHT");
+                _WEIGHT = StructuralObject.SetValidValue(value);
+                ReportPropertyChanged("WEIGHT");
+                OnWEIGHTChanged();
+            }
+        }
+        private Nullable<global::System.Int32> _WEIGHT;
+        partial void OnWEIGHTChanging(Nullable<global::System.Int32> value);
+        partial void OnWEIGHTChanged();
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
+        [DataMemberAttribute()]
+        public global::System.Int32 FIRSTNHL
+        {
+            get
+            {
+                return _FIRSTNHL;
+            }
+            set
+            {
+                OnFIRSTNHLChanging(value);
+                ReportPropertyChanging("FIRSTNHL");
+                _FIRSTNHL = StructuralObject.SetValidValue(value);
+                ReportPropertyChanged("FIRSTNHL");
+                OnFIRSTNHLChanged();
+            }
+        }
+        private global::System.Int32 _FIRSTNHL;
+        partial void OnFIRSTNHLChanging(global::System.Int32 value);
+        partial void OnFIRSTNHLChanged();
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
+        [DataMemberAttribute()]
+        public global::System.Int32 LASTNHL
+        {
+            get
+            {
+                return _LASTNHL;
+            }
+            set
+            {
+                OnLASTNHLChanging(value);
+                ReportPropertyChanging("LASTNHL");
+                _LASTNHL = StructuralObject.SetValidValue(value);
+                ReportPropertyChanged("LASTNHL");
+                OnLASTNHLChanged();
+            }
+        }
+        private global::System.Int32 _LASTNHL;
+        partial void OnLASTNHLChanging(global::System.Int32 value);
+        partial void OnLASTNHLChanged();
     
         /// <summary>
         /// No Metadata Documentation available.
@@ -228,29 +385,904 @@ namespace WindowsFormsSample
         /// </summary>
         [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=true)]
         [DataMemberAttribute()]
-        public global::System.String TEAM
+        public Nullable<global::System.Int32> BIRTHYEAR
         {
             get
             {
-                return _TEAM;
+                return _BIRTHYEAR;
             }
             set
             {
-                OnTEAMChanging(value);
-                ReportPropertyChanging("TEAM");
-                _TEAM = StructuralObject.SetValidValue(value, true);
-                ReportPropertyChanged("TEAM");
-                OnTEAMChanged();
+                OnBIRTHYEARChanging(value);
+                ReportPropertyChanging("BIRTHYEAR");
+                _BIRTHYEAR = StructuralObject.SetValidValue(value);
+                ReportPropertyChanged("BIRTHYEAR");
+                OnBIRTHYEARChanged();
             }
         }
-        private global::System.String _TEAM;
-        partial void OnTEAMChanging(global::System.String value);
-        partial void OnTEAMChanged();
+        private Nullable<global::System.Int32> _BIRTHYEAR;
+        partial void OnBIRTHYEARChanging(Nullable<global::System.Int32> value);
+        partial void OnBIRTHYEARChanged();
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=true)]
+        [DataMemberAttribute()]
+        public Nullable<global::System.Int32> BIRTHMON
+        {
+            get
+            {
+                return _BIRTHMON;
+            }
+            set
+            {
+                OnBIRTHMONChanging(value);
+                ReportPropertyChanging("BIRTHMON");
+                _BIRTHMON = StructuralObject.SetValidValue(value);
+                ReportPropertyChanged("BIRTHMON");
+                OnBIRTHMONChanged();
+            }
+        }
+        private Nullable<global::System.Int32> _BIRTHMON;
+        partial void OnBIRTHMONChanging(Nullable<global::System.Int32> value);
+        partial void OnBIRTHMONChanged();
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=true)]
+        [DataMemberAttribute()]
+        public Nullable<global::System.Int32> BIRTHDAY
+        {
+            get
+            {
+                return _BIRTHDAY;
+            }
+            set
+            {
+                OnBIRTHDAYChanging(value);
+                ReportPropertyChanging("BIRTHDAY");
+                _BIRTHDAY = StructuralObject.SetValidValue(value);
+                ReportPropertyChanged("BIRTHDAY");
+                OnBIRTHDAYChanged();
+            }
+        }
+        private Nullable<global::System.Int32> _BIRTHDAY;
+        partial void OnBIRTHDAYChanging(Nullable<global::System.Int32> value);
+        partial void OnBIRTHDAYChanged();
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=true)]
+        [DataMemberAttribute()]
+        public global::System.String BIRTHCOUNTRY
+        {
+            get
+            {
+                return _BIRTHCOUNTRY;
+            }
+            set
+            {
+                OnBIRTHCOUNTRYChanging(value);
+                ReportPropertyChanging("BIRTHCOUNTRY");
+                _BIRTHCOUNTRY = StructuralObject.SetValidValue(value, true);
+                ReportPropertyChanged("BIRTHCOUNTRY");
+                OnBIRTHCOUNTRYChanged();
+            }
+        }
+        private global::System.String _BIRTHCOUNTRY;
+        partial void OnBIRTHCOUNTRYChanging(global::System.String value);
+        partial void OnBIRTHCOUNTRYChanged();
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=true)]
+        [DataMemberAttribute()]
+        public global::System.String BIRTHSTATE
+        {
+            get
+            {
+                return _BIRTHSTATE;
+            }
+            set
+            {
+                OnBIRTHSTATEChanging(value);
+                ReportPropertyChanging("BIRTHSTATE");
+                _BIRTHSTATE = StructuralObject.SetValidValue(value, true);
+                ReportPropertyChanged("BIRTHSTATE");
+                OnBIRTHSTATEChanged();
+            }
+        }
+        private global::System.String _BIRTHSTATE;
+        partial void OnBIRTHSTATEChanging(global::System.String value);
+        partial void OnBIRTHSTATEChanged();
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=true)]
+        [DataMemberAttribute()]
+        public global::System.String BIRTHCITY
+        {
+            get
+            {
+                return _BIRTHCITY;
+            }
+            set
+            {
+                OnBIRTHCITYChanging(value);
+                ReportPropertyChanging("BIRTHCITY");
+                _BIRTHCITY = StructuralObject.SetValidValue(value, true);
+                ReportPropertyChanged("BIRTHCITY");
+                OnBIRTHCITYChanged();
+            }
+        }
+        private global::System.String _BIRTHCITY;
+        partial void OnBIRTHCITYChanging(global::System.String value);
+        partial void OnBIRTHCITYChanged();
 
         #endregion
+
     
+        #region Navigation Properties
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [XmlIgnoreAttribute()]
+        [SoapIgnoreAttribute()]
+        [DataMemberAttribute()]
+        [EdmRelationshipNavigationPropertyAttribute("testModel", "PLAYERSSCORING", "SCORING")]
+        public EntityCollection<SCORING> SCORING
+        {
+            get
+            {
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedCollection<SCORING>("testModel.PLAYERSSCORING", "SCORING");
+            }
+            set
+            {
+                if ((value != null))
+                {
+                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedCollection<SCORING>("testModel.PLAYERSSCORING", "SCORING", value);
+                }
+            }
+        }
+
+        #endregion
+
+    }
+    
+    /// <summary>
+    /// No Metadata Documentation available.
+    /// </summary>
+    [EdmEntityTypeAttribute(NamespaceName="testModel", Name="SCORING")]
+    [Serializable()]
+    [DataContractAttribute(IsReference=true)]
+    public partial class SCORING : EntityObject
+    {
+        #region Factory Method
+    
+        /// <summary>
+        /// Create a new SCORING object.
+        /// </summary>
+        /// <param name="pLAYERID">Initial value of the PLAYERID property.</param>
+        /// <param name="yEAR">Initial value of the YEAR property.</param>
+        /// <param name="sTINT">Initial value of the STINT property.</param>
+        /// <param name="tEAMID">Initial value of the TEAMID property.</param>
+        /// <param name="pOSITION">Initial value of the POSITION property.</param>
+        /// <param name="gAMESPLAYED">Initial value of the GAMESPLAYED property.</param>
+        /// <param name="gOALS">Initial value of the GOALS property.</param>
+        /// <param name="aSSISTS">Initial value of the ASSISTS property.</param>
+        /// <param name="pENALTYMINUTES">Initial value of the PENALTYMINUTES property.</param>
+        public static SCORING CreateSCORING(global::System.String pLAYERID, global::System.Int32 yEAR, global::System.Int32 sTINT, global::System.String tEAMID, global::System.String pOSITION, global::System.Int32 gAMESPLAYED, global::System.Int32 gOALS, global::System.Int32 aSSISTS, global::System.Int32 pENALTYMINUTES)
+        {
+            SCORING sCORING = new SCORING();
+            sCORING.PLAYERID = pLAYERID;
+            sCORING.YEAR = yEAR;
+            sCORING.STINT = sTINT;
+            sCORING.TEAMID = tEAMID;
+            sCORING.POSITION = pOSITION;
+            sCORING.GAMESPLAYED = gAMESPLAYED;
+            sCORING.GOALS = gOALS;
+            sCORING.ASSISTS = aSSISTS;
+            sCORING.PENALTYMINUTES = pENALTYMINUTES;
+            return sCORING;
+        }
+
+        #endregion
+
+        #region Primitive Properties
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=true, IsNullable=false)]
+        [DataMemberAttribute()]
+        public global::System.String PLAYERID
+        {
+            get
+            {
+                return _PLAYERID;
+            }
+            set
+            {
+                if (_PLAYERID != value)
+                {
+                    OnPLAYERIDChanging(value);
+                    ReportPropertyChanging("PLAYERID");
+                    _PLAYERID = StructuralObject.SetValidValue(value, false);
+                    ReportPropertyChanged("PLAYERID");
+                    OnPLAYERIDChanged();
+                }
+            }
+        }
+        private global::System.String _PLAYERID;
+        partial void OnPLAYERIDChanging(global::System.String value);
+        partial void OnPLAYERIDChanged();
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=true, IsNullable=false)]
+        [DataMemberAttribute()]
+        public global::System.Int32 YEAR
+        {
+            get
+            {
+                return _YEAR;
+            }
+            set
+            {
+                if (_YEAR != value)
+                {
+                    OnYEARChanging(value);
+                    ReportPropertyChanging("YEAR");
+                    _YEAR = StructuralObject.SetValidValue(value);
+                    ReportPropertyChanged("YEAR");
+                    OnYEARChanged();
+                }
+            }
+        }
+        private global::System.Int32 _YEAR;
+        partial void OnYEARChanging(global::System.Int32 value);
+        partial void OnYEARChanged();
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=true, IsNullable=false)]
+        [DataMemberAttribute()]
+        public global::System.Int32 STINT
+        {
+            get
+            {
+                return _STINT;
+            }
+            set
+            {
+                if (_STINT != value)
+                {
+                    OnSTINTChanging(value);
+                    ReportPropertyChanging("STINT");
+                    _STINT = StructuralObject.SetValidValue(value);
+                    ReportPropertyChanged("STINT");
+                    OnSTINTChanged();
+                }
+            }
+        }
+        private global::System.Int32 _STINT;
+        partial void OnSTINTChanging(global::System.Int32 value);
+        partial void OnSTINTChanged();
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=true, IsNullable=false)]
+        [DataMemberAttribute()]
+        public global::System.String TEAMID
+        {
+            get
+            {
+                return _TEAMID;
+            }
+            set
+            {
+                if (_TEAMID != value)
+                {
+                    OnTEAMIDChanging(value);
+                    ReportPropertyChanging("TEAMID");
+                    _TEAMID = StructuralObject.SetValidValue(value, false);
+                    ReportPropertyChanged("TEAMID");
+                    OnTEAMIDChanged();
+                }
+            }
+        }
+        private global::System.String _TEAMID;
+        partial void OnTEAMIDChanging(global::System.String value);
+        partial void OnTEAMIDChanged();
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=true, IsNullable=false)]
+        [DataMemberAttribute()]
+        public global::System.String POSITION
+        {
+            get
+            {
+                return _POSITION;
+            }
+            set
+            {
+                if (_POSITION != value)
+                {
+                    OnPOSITIONChanging(value);
+                    ReportPropertyChanging("POSITION");
+                    _POSITION = StructuralObject.SetValidValue(value, false);
+                    ReportPropertyChanged("POSITION");
+                    OnPOSITIONChanged();
+                }
+            }
+        }
+        private global::System.String _POSITION;
+        partial void OnPOSITIONChanging(global::System.String value);
+        partial void OnPOSITIONChanged();
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
+        [DataMemberAttribute()]
+        public global::System.Int32 GAMESPLAYED
+        {
+            get
+            {
+                return _GAMESPLAYED;
+            }
+            set
+            {
+                OnGAMESPLAYEDChanging(value);
+                ReportPropertyChanging("GAMESPLAYED");
+                _GAMESPLAYED = StructuralObject.SetValidValue(value);
+                ReportPropertyChanged("GAMESPLAYED");
+                OnGAMESPLAYEDChanged();
+            }
+        }
+        private global::System.Int32 _GAMESPLAYED;
+        partial void OnGAMESPLAYEDChanging(global::System.Int32 value);
+        partial void OnGAMESPLAYEDChanged();
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
+        [DataMemberAttribute()]
+        public global::System.Int32 GOALS
+        {
+            get
+            {
+                return _GOALS;
+            }
+            set
+            {
+                OnGOALSChanging(value);
+                ReportPropertyChanging("GOALS");
+                _GOALS = StructuralObject.SetValidValue(value);
+                ReportPropertyChanged("GOALS");
+                OnGOALSChanged();
+            }
+        }
+        private global::System.Int32 _GOALS;
+        partial void OnGOALSChanging(global::System.Int32 value);
+        partial void OnGOALSChanged();
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
+        [DataMemberAttribute()]
+        public global::System.Int32 ASSISTS
+        {
+            get
+            {
+                return _ASSISTS;
+            }
+            set
+            {
+                OnASSISTSChanging(value);
+                ReportPropertyChanging("ASSISTS");
+                _ASSISTS = StructuralObject.SetValidValue(value);
+                ReportPropertyChanged("ASSISTS");
+                OnASSISTSChanged();
+            }
+        }
+        private global::System.Int32 _ASSISTS;
+        partial void OnASSISTSChanging(global::System.Int32 value);
+        partial void OnASSISTSChanged();
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
+        [DataMemberAttribute()]
+        public global::System.Int32 PENALTYMINUTES
+        {
+            get
+            {
+                return _PENALTYMINUTES;
+            }
+            set
+            {
+                OnPENALTYMINUTESChanging(value);
+                ReportPropertyChanging("PENALTYMINUTES");
+                _PENALTYMINUTES = StructuralObject.SetValidValue(value);
+                ReportPropertyChanged("PENALTYMINUTES");
+                OnPENALTYMINUTESChanged();
+            }
+        }
+        private global::System.Int32 _PENALTYMINUTES;
+        partial void OnPENALTYMINUTESChanging(global::System.Int32 value);
+        partial void OnPENALTYMINUTESChanged();
+
+        #endregion
+
+    
+        #region Navigation Properties
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [XmlIgnoreAttribute()]
+        [SoapIgnoreAttribute()]
+        [DataMemberAttribute()]
+        [EdmRelationshipNavigationPropertyAttribute("testModel", "PLAYERSSCORING", "PLAYERS")]
+        public PLAYERS PLAYERS
+        {
+            get
+            {
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<PLAYERS>("testModel.PLAYERSSCORING", "PLAYERS").Value;
+            }
+            set
+            {
+                ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<PLAYERS>("testModel.PLAYERSSCORING", "PLAYERS").Value = value;
+            }
+        }
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [BrowsableAttribute(false)]
+        [DataMemberAttribute()]
+        public EntityReference<PLAYERS> PLAYERSReference
+        {
+            get
+            {
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<PLAYERS>("testModel.PLAYERSSCORING", "PLAYERS");
+            }
+            set
+            {
+                if ((value != null))
+                {
+                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedReference<PLAYERS>("testModel.PLAYERSSCORING", "PLAYERS", value);
+                }
+            }
+        }
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [XmlIgnoreAttribute()]
+        [SoapIgnoreAttribute()]
+        [DataMemberAttribute()]
+        [EdmRelationshipNavigationPropertyAttribute("testModel", "TEAMSSCORING", "TEAMS")]
+        public TEAMS TEAMS
+        {
+            get
+            {
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<TEAMS>("testModel.TEAMSSCORING", "TEAMS").Value;
+            }
+            set
+            {
+                ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<TEAMS>("testModel.TEAMSSCORING", "TEAMS").Value = value;
+            }
+        }
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [BrowsableAttribute(false)]
+        [DataMemberAttribute()]
+        public EntityReference<TEAMS> TEAMSReference
+        {
+            get
+            {
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<TEAMS>("testModel.TEAMSSCORING", "TEAMS");
+            }
+            set
+            {
+                if ((value != null))
+                {
+                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedReference<TEAMS>("testModel.TEAMSSCORING", "TEAMS", value);
+                }
+            }
+        }
+
+        #endregion
+
+    }
+    
+    /// <summary>
+    /// No Metadata Documentation available.
+    /// </summary>
+    [EdmEntityTypeAttribute(NamespaceName="testModel", Name="TEAMS")]
+    [Serializable()]
+    [DataContractAttribute(IsReference=true)]
+    public partial class TEAMS : EntityObject
+    {
+        #region Factory Method
+    
+        /// <summary>
+        /// Create a new TEAMS object.
+        /// </summary>
+        /// <param name="yEAR">Initial value of the YEAR property.</param>
+        /// <param name="tEAMID">Initial value of the TEAMID property.</param>
+        /// <param name="nAME">Initial value of the NAME property.</param>
+        /// <param name="cONFERENCEID">Initial value of the CONFERENCEID property.</param>
+        /// <param name="dIVISIONID">Initial value of the DIVISIONID property.</param>
+        /// <param name="rANK">Initial value of the RANK property.</param>
+        /// <param name="pLAYOFF">Initial value of the PLAYOFF property.</param>
+        /// <param name="gAMES">Initial value of the GAMES property.</param>
+        /// <param name="wINS">Initial value of the WINS property.</param>
+        /// <param name="lOSSES">Initial value of the LOSSES property.</param>
+        /// <param name="tIES">Initial value of the TIES property.</param>
+        public static TEAMS CreateTEAMS(global::System.Int32 yEAR, global::System.String tEAMID, global::System.String nAME, global::System.String cONFERENCEID, global::System.String dIVISIONID, global::System.Int32 rANK, global::System.String pLAYOFF, global::System.Int32 gAMES, global::System.Int32 wINS, global::System.Int32 lOSSES, global::System.Int32 tIES)
+        {
+            TEAMS tEAMS = new TEAMS();
+            tEAMS.YEAR = yEAR;
+            tEAMS.TEAMID = tEAMID;
+            tEAMS.NAME = nAME;
+            tEAMS.CONFERENCEID = cONFERENCEID;
+            tEAMS.DIVISIONID = dIVISIONID;
+            tEAMS.RANK = rANK;
+            tEAMS.PLAYOFF = pLAYOFF;
+            tEAMS.GAMES = gAMES;
+            tEAMS.WINS = wINS;
+            tEAMS.LOSSES = lOSSES;
+            tEAMS.TIES = tIES;
+            return tEAMS;
+        }
+
+        #endregion
+
+        #region Primitive Properties
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=true, IsNullable=false)]
+        [DataMemberAttribute()]
+        public global::System.Int32 YEAR
+        {
+            get
+            {
+                return _YEAR;
+            }
+            set
+            {
+                if (_YEAR != value)
+                {
+                    OnYEARChanging(value);
+                    ReportPropertyChanging("YEAR");
+                    _YEAR = StructuralObject.SetValidValue(value);
+                    ReportPropertyChanged("YEAR");
+                    OnYEARChanged();
+                }
+            }
+        }
+        private global::System.Int32 _YEAR;
+        partial void OnYEARChanging(global::System.Int32 value);
+        partial void OnYEARChanged();
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=true, IsNullable=false)]
+        [DataMemberAttribute()]
+        public global::System.String TEAMID
+        {
+            get
+            {
+                return _TEAMID;
+            }
+            set
+            {
+                if (_TEAMID != value)
+                {
+                    OnTEAMIDChanging(value);
+                    ReportPropertyChanging("TEAMID");
+                    _TEAMID = StructuralObject.SetValidValue(value, false);
+                    ReportPropertyChanged("TEAMID");
+                    OnTEAMIDChanged();
+                }
+            }
+        }
+        private global::System.String _TEAMID;
+        partial void OnTEAMIDChanging(global::System.String value);
+        partial void OnTEAMIDChanged();
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
+        [DataMemberAttribute()]
+        public global::System.String NAME
+        {
+            get
+            {
+                return _NAME;
+            }
+            set
+            {
+                OnNAMEChanging(value);
+                ReportPropertyChanging("NAME");
+                _NAME = StructuralObject.SetValidValue(value, false);
+                ReportPropertyChanged("NAME");
+                OnNAMEChanged();
+            }
+        }
+        private global::System.String _NAME;
+        partial void OnNAMEChanging(global::System.String value);
+        partial void OnNAMEChanged();
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
+        [DataMemberAttribute()]
+        public global::System.String CONFERENCEID
+        {
+            get
+            {
+                return _CONFERENCEID;
+            }
+            set
+            {
+                OnCONFERENCEIDChanging(value);
+                ReportPropertyChanging("CONFERENCEID");
+                _CONFERENCEID = StructuralObject.SetValidValue(value, false);
+                ReportPropertyChanged("CONFERENCEID");
+                OnCONFERENCEIDChanged();
+            }
+        }
+        private global::System.String _CONFERENCEID;
+        partial void OnCONFERENCEIDChanging(global::System.String value);
+        partial void OnCONFERENCEIDChanged();
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
+        [DataMemberAttribute()]
+        public global::System.String DIVISIONID
+        {
+            get
+            {
+                return _DIVISIONID;
+            }
+            set
+            {
+                OnDIVISIONIDChanging(value);
+                ReportPropertyChanging("DIVISIONID");
+                _DIVISIONID = StructuralObject.SetValidValue(value, false);
+                ReportPropertyChanged("DIVISIONID");
+                OnDIVISIONIDChanged();
+            }
+        }
+        private global::System.String _DIVISIONID;
+        partial void OnDIVISIONIDChanging(global::System.String value);
+        partial void OnDIVISIONIDChanged();
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
+        [DataMemberAttribute()]
+        public global::System.Int32 RANK
+        {
+            get
+            {
+                return _RANK;
+            }
+            set
+            {
+                OnRANKChanging(value);
+                ReportPropertyChanging("RANK");
+                _RANK = StructuralObject.SetValidValue(value);
+                ReportPropertyChanged("RANK");
+                OnRANKChanged();
+            }
+        }
+        private global::System.Int32 _RANK;
+        partial void OnRANKChanging(global::System.Int32 value);
+        partial void OnRANKChanged();
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
+        [DataMemberAttribute()]
+        public global::System.String PLAYOFF
+        {
+            get
+            {
+                return _PLAYOFF;
+            }
+            set
+            {
+                OnPLAYOFFChanging(value);
+                ReportPropertyChanging("PLAYOFF");
+                _PLAYOFF = StructuralObject.SetValidValue(value, false);
+                ReportPropertyChanged("PLAYOFF");
+                OnPLAYOFFChanged();
+            }
+        }
+        private global::System.String _PLAYOFF;
+        partial void OnPLAYOFFChanging(global::System.String value);
+        partial void OnPLAYOFFChanged();
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
+        [DataMemberAttribute()]
+        public global::System.Int32 GAMES
+        {
+            get
+            {
+                return _GAMES;
+            }
+            set
+            {
+                OnGAMESChanging(value);
+                ReportPropertyChanging("GAMES");
+                _GAMES = StructuralObject.SetValidValue(value);
+                ReportPropertyChanged("GAMES");
+                OnGAMESChanged();
+            }
+        }
+        private global::System.Int32 _GAMES;
+        partial void OnGAMESChanging(global::System.Int32 value);
+        partial void OnGAMESChanged();
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
+        [DataMemberAttribute()]
+        public global::System.Int32 WINS
+        {
+            get
+            {
+                return _WINS;
+            }
+            set
+            {
+                OnWINSChanging(value);
+                ReportPropertyChanging("WINS");
+                _WINS = StructuralObject.SetValidValue(value);
+                ReportPropertyChanged("WINS");
+                OnWINSChanged();
+            }
+        }
+        private global::System.Int32 _WINS;
+        partial void OnWINSChanging(global::System.Int32 value);
+        partial void OnWINSChanged();
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
+        [DataMemberAttribute()]
+        public global::System.Int32 LOSSES
+        {
+            get
+            {
+                return _LOSSES;
+            }
+            set
+            {
+                OnLOSSESChanging(value);
+                ReportPropertyChanging("LOSSES");
+                _LOSSES = StructuralObject.SetValidValue(value);
+                ReportPropertyChanged("LOSSES");
+                OnLOSSESChanged();
+            }
+        }
+        private global::System.Int32 _LOSSES;
+        partial void OnLOSSESChanging(global::System.Int32 value);
+        partial void OnLOSSESChanged();
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
+        [DataMemberAttribute()]
+        public global::System.Int32 TIES
+        {
+            get
+            {
+                return _TIES;
+            }
+            set
+            {
+                OnTIESChanging(value);
+                ReportPropertyChanging("TIES");
+                _TIES = StructuralObject.SetValidValue(value);
+                ReportPropertyChanged("TIES");
+                OnTIESChanged();
+            }
+        }
+        private global::System.Int32 _TIES;
+        partial void OnTIESChanging(global::System.Int32 value);
+        partial void OnTIESChanged();
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=true)]
+        [DataMemberAttribute()]
+        public Nullable<global::System.Int32> OVERTIMELOSSES
+        {
+            get
+            {
+                return _OVERTIMELOSSES;
+            }
+            set
+            {
+                OnOVERTIMELOSSESChanging(value);
+                ReportPropertyChanging("OVERTIMELOSSES");
+                _OVERTIMELOSSES = StructuralObject.SetValidValue(value);
+                ReportPropertyChanged("OVERTIMELOSSES");
+                OnOVERTIMELOSSESChanged();
+            }
+        }
+        private Nullable<global::System.Int32> _OVERTIMELOSSES;
+        partial void OnOVERTIMELOSSESChanging(Nullable<global::System.Int32> value);
+        partial void OnOVERTIMELOSSESChanged();
+
+        #endregion
+
+    
+        #region Navigation Properties
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [XmlIgnoreAttribute()]
+        [SoapIgnoreAttribute()]
+        [DataMemberAttribute()]
+        [EdmRelationshipNavigationPropertyAttribute("testModel", "TEAMSSCORING", "SCORING")]
+        public EntityCollection<SCORING> SCORING
+        {
+            get
+            {
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedCollection<SCORING>("testModel.TEAMSSCORING", "SCORING");
+            }
+            set
+            {
+                if ((value != null))
+                {
+                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedCollection<SCORING>("testModel.TEAMSSCORING", "SCORING", value);
+                }
+            }
+        }
+
+        #endregion
+
     }
 
     #endregion
+
     
 }

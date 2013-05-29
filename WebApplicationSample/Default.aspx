@@ -10,7 +10,7 @@
     <p>
         To learn more about NuoDB visit <a href="http://www.nuodb.com" title="NuoDB Website">www.nuodb.com</a>.</p>
     <p>
-        Select the position of the players: &nbsp;
+        Select the team: &nbsp;
         <asp:DropDownList ID="DropDownList1" runat="server" AutoPostBack="True" 
             onselectedindexchanged="DropDownList1_SelectedIndexChanged">
         </asp:DropDownList>

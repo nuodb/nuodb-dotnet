@@ -17,15 +17,15 @@ namespace WebApplicationSample
 
             if (!IsPostBack)
             {
-                var positions = from player in hockey.HOCKEY
-                                orderby player.NAME
-                                select new
-                                {
-                                    player.POSITION
-                                };
-                DropDownList1.DataValueField = "Position";
-                DropDownList1.DataTextField = "Position";
-                DropDownList1.DataSource = positions.Distinct();
+                var teams = from team in hockey.TEAMS
+                            select new
+                            {
+                                team.TEAMID,
+                                team.NAME
+                            };
+                DropDownList1.DataValueField = "TEAMID";
+                DropDownList1.DataTextField = "NAME";
+                DropDownList1.DataSource = teams.Distinct().OrderBy(t => t.NAME);
                 DataBind();
             }
 
@@ -33,15 +33,22 @@ namespace WebApplicationSample
 
         protected void DropDownList1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            var players = from player in hockey.HOCKEY
-                          where player.POSITION == DropDownList1.SelectedValue
-                          orderby player.NAME
+            var players = from player in
+                              (from roster in hockey.SCORING
+                               where roster.TEAMID == DropDownList1.SelectedValue
+                               select new
+                               {
+                                   NAME = roster.PLAYERS.FIRSTNAME + " " + roster.PLAYERS.LASTNAME,
+                                   GOALS = roster.GOALS,
+                                   TEAM = roster.TEAMS.NAME
+                               })
+                          group player by player.NAME into goals
                           select new
                           {
-                              player.NAME,
-                              player.TEAM
+                              NAME = goals.Key,
+                              GOALS = goals.Sum(s => s.GOALS)
                           };
-            GridView1.DataSource = players;
+            GridView1.DataSource = players.OrderByDescending(p => p.GOALS);
             DataBind();
         }
     }

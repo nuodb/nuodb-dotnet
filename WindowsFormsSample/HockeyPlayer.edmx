@@ -4,50 +4,228 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-    <Schema Namespace="testModel.Store" Alias="Self" Provider="NuoDb.Data.Client" ProviderManifestToken="001.016" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns="http://schemas.microsoft.com/ado/2009/02/edm/ssdl">
+    <Schema Namespace="testModel.Store" Alias="Self" Provider="NuoDb.Data.Client" ProviderManifestToken="001.022" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns="http://schemas.microsoft.com/ado/2009/02/edm/ssdl">
         <EntityContainer Name="testModelStoreContainer">
-          <EntitySet Name="HOCKEY" EntityType="testModel.Store.HOCKEY" store:Type="Tables" Schema="HOCKEY" />
+          <EntitySet Name="PLAYERS" EntityType="testModel.Store.PLAYERS" store:Type="Tables" Schema="HOCKEY" />
+          <EntitySet Name="SCORING" EntityType="testModel.Store.SCORING" store:Type="Tables" Schema="HOCKEY" />
+          <EntitySet Name="TEAMS" EntityType="testModel.Store.TEAMS" store:Type="Tables" Schema="HOCKEY" />
         </EntityContainer>
-        <EntityType Name="HOCKEY">
+        <EntityType Name="PLAYERS">
           <Key>
-            <PropertyRef Name="ID" />
+            <PropertyRef Name="PLAYERID" />
           </Key>
-          <Property Name="ID" Type="integer" Nullable="false" StoreGeneratedPattern="Identity" />
-          <Property Name="NUMBER" Type="integer" />
-          <Property Name="NAME" Type="string" MaxLength="100" />
-          <Property Name="POSITION" Type="string" MaxLength="100" />
-          <Property Name="TEAM" Type="string" MaxLength="100" />
+          <Property Name="PLAYERID" Type="varchar" Nullable="false" MaxLength="10" />
+          <Property Name="FIRSTNAME" Type="varchar" MaxLength="32" />
+          <Property Name="LASTNAME" Type="varchar" MaxLength="32" />
+          <Property Name="HEIGHT" Type="integer" />
+          <Property Name="WEIGHT" Type="integer" />
+          <Property Name="FIRSTNHL" Type="integer" Nullable="false" />
+          <Property Name="LASTNHL" Type="integer" Nullable="false" />
+          <Property Name="POSITION" Type="varchar" MaxLength="8" />
+          <Property Name="BIRTHYEAR" Type="integer" />
+          <Property Name="BIRTHMON" Type="integer" />
+          <Property Name="BIRTHDAY" Type="integer" />
+          <Property Name="BIRTHCOUNTRY" Type="varchar" MaxLength="32" />
+          <Property Name="BIRTHSTATE" Type="varchar" MaxLength="32" />
+          <Property Name="BIRTHCITY" Type="varchar" MaxLength="32" />
+        </EntityType>
+        <EntityType Name="SCORING">
+          <Key>
+            <PropertyRef Name="PLAYERID" />
+            <PropertyRef Name="YEAR" />
+            <PropertyRef Name="STINT" />
+            <PropertyRef Name="TEAMID" />
+            <PropertyRef Name="POSITION" />
+          </Key>
+          <Property Name="PLAYERID" Type="varchar" Nullable="false" MaxLength="10" />
+          <Property Name="YEAR" Type="integer" Nullable="false" />
+          <Property Name="STINT" Type="integer" Nullable="false" />
+          <Property Name="TEAMID" Type="varchar" Nullable="false" MaxLength="3" />
+          <Property Name="POSITION" Type="varchar" Nullable="false" MaxLength="4" />
+          <Property Name="GAMESPLAYED" Type="integer" Nullable="false" />
+          <Property Name="GOALS" Type="integer" Nullable="false" />
+          <Property Name="ASSISTS" Type="integer" Nullable="false" />
+          <Property Name="PENALTYMINUTES" Type="integer" Nullable="false" />
+        </EntityType>
+        <EntityType Name="TEAMS">
+          <Key>
+            <PropertyRef Name="YEAR" />
+            <PropertyRef Name="TEAMID" />
+          </Key>
+          <Property Name="YEAR" Type="integer" Nullable="false" />
+          <Property Name="TEAMID" Type="varchar" Nullable="false" MaxLength="3" />
+          <Property Name="NAME" Type="varchar" Nullable="false" MaxLength="48" />
+          <Property Name="CONFERENCEID" Type="varchar" Nullable="false" MaxLength="2" />
+          <Property Name="DIVISIONID" Type="varchar" Nullable="false" MaxLength="2" />
+          <Property Name="RANK" Type="integer" Nullable="false" />
+          <Property Name="PLAYOFF" Type="varchar" Nullable="false" MaxLength="6" />
+          <Property Name="GAMES" Type="integer" Nullable="false" />
+          <Property Name="WINS" Type="integer" Nullable="false" />
+          <Property Name="LOSSES" Type="integer" Nullable="false" />
+          <Property Name="TIES" Type="integer" Nullable="false" />
+          <Property Name="OVERTIMELOSSES" Type="integer" />
         </EntityType>
       </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="testModel" Alias="Self" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns="http://schemas.microsoft.com/ado/2008/09/edm">
         <EntityContainer Name="testEntities" annotation:LazyLoadingEnabled="true">
-          <EntitySet Name="HOCKEY" EntityType="testModel.HOCKEY" />
+          <EntitySet Name="PLAYERS" EntityType="testModel.PLAYERS" />
+          <EntitySet Name="SCORING" EntityType="testModel.SCORING" />
+          <EntitySet Name="TEAMS" EntityType="testModel.TEAMS" />
+          <AssociationSet Name="PLAYERSSCORING" Association="testModel.PLAYERSSCORING">
+            <End Role="PLAYERS" EntitySet="PLAYERS" />
+            <End Role="SCORING" EntitySet="SCORING" />
+          </AssociationSet>
+          <AssociationSet Name="TEAMSSCORING" Association="testModel.TEAMSSCORING">
+            <End Role="TEAMS" EntitySet="TEAMS" />
+            <End Role="SCORING" EntitySet="SCORING" />
+          </AssociationSet>
         </EntityContainer>
-        <EntityType Name="HOCKEY">
+        <EntityType Name="PLAYERS">
           <Key>
-            <PropertyRef Name="ID" />
+            <PropertyRef Name="PLAYERID" />
           </Key>
-          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="NUMBER" Type="Int32" />
-          <Property Name="NAME" Type="String" MaxLength="100" Unicode="false" FixedLength="false" />
-          <Property Name="POSITION" Type="String" MaxLength="100" Unicode="false" FixedLength="false" />
-          <Property Name="TEAM" Type="String" MaxLength="100" Unicode="false" FixedLength="false" />
+          <Property Type="String" Name="PLAYERID" Nullable="false" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Type="String" Name="FIRSTNAME" MaxLength="32" FixedLength="false" Unicode="false" />
+          <Property Type="String" Name="LASTNAME" MaxLength="32" FixedLength="false" Unicode="false" />
+          <Property Type="Int32" Name="HEIGHT" />
+          <Property Type="Int32" Name="WEIGHT" />
+          <Property Type="Int32" Name="FIRSTNHL" Nullable="false" />
+          <Property Type="Int32" Name="LASTNHL" Nullable="false" />
+          <Property Type="String" Name="POSITION" MaxLength="8" FixedLength="false" Unicode="false" />
+          <Property Type="Int32" Name="BIRTHYEAR" />
+          <Property Type="Int32" Name="BIRTHMON" />
+          <Property Type="Int32" Name="BIRTHDAY" />
+          <Property Type="String" Name="BIRTHCOUNTRY" MaxLength="32" FixedLength="false" Unicode="false" />
+          <Property Type="String" Name="BIRTHSTATE" MaxLength="32" FixedLength="false" Unicode="false" />
+          <Property Type="String" Name="BIRTHCITY" MaxLength="32" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="SCORING" Relationship="testModel.PLAYERSSCORING" FromRole="PLAYERS" ToRole="SCORING" />
         </EntityType>
-      </Schema>
+        <EntityType Name="SCORING">
+          <Key>
+            <PropertyRef Name="PLAYERID" />
+            <PropertyRef Name="YEAR" />
+            <PropertyRef Name="STINT" />
+            <PropertyRef Name="TEAMID" />
+            <PropertyRef Name="POSITION" />
+          </Key>
+          <Property Type="String" Name="PLAYERID" Nullable="false" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Type="Int32" Name="YEAR" Nullable="false" />
+          <Property Type="Int32" Name="STINT" Nullable="false" />
+          <Property Type="String" Name="TEAMID" Nullable="false" MaxLength="3" FixedLength="false" Unicode="false" />
+          <Property Type="String" Name="POSITION" Nullable="false" MaxLength="4" FixedLength="false" Unicode="false" />
+          <Property Type="Int32" Name="GAMESPLAYED" Nullable="false" />
+          <Property Type="Int32" Name="GOALS" Nullable="false" />
+          <Property Type="Int32" Name="ASSISTS" Nullable="false" />
+          <Property Type="Int32" Name="PENALTYMINUTES" Nullable="false" />
+          <NavigationProperty Name="PLAYERS" Relationship="testModel.PLAYERSSCORING" FromRole="SCORING" ToRole="PLAYERS" />
+          <NavigationProperty Name="TEAMS" Relationship="testModel.TEAMSSCORING" FromRole="SCORING" ToRole="TEAMS" />
+        </EntityType>
+        <EntityType Name="TEAMS">
+          <Key>
+            <PropertyRef Name="YEAR" />
+            <PropertyRef Name="TEAMID" />
+          </Key>
+          <Property Type="Int32" Name="YEAR" Nullable="false" />
+          <Property Type="String" Name="TEAMID" Nullable="false" MaxLength="3" FixedLength="false" Unicode="false" />
+          <Property Type="String" Name="NAME" Nullable="false" MaxLength="48" FixedLength="false" Unicode="false" />
+          <Property Type="String" Name="CONFERENCEID" Nullable="false" MaxLength="2" FixedLength="false" Unicode="false" />
+          <Property Type="String" Name="DIVISIONID" Nullable="false" MaxLength="2" FixedLength="false" Unicode="false" />
+          <Property Type="Int32" Name="RANK" Nullable="false" />
+          <Property Type="String" Name="PLAYOFF" Nullable="false" MaxLength="6" FixedLength="false" Unicode="false" />
+          <Property Type="Int32" Name="GAMES" Nullable="false" />
+          <Property Type="Int32" Name="WINS" Nullable="false" />
+          <Property Type="Int32" Name="LOSSES" Nullable="false" />
+          <Property Type="Int32" Name="TIES" Nullable="false" />
+          <Property Type="Int32" Name="OVERTIMELOSSES" />
+          <NavigationProperty Name="SCORING" Relationship="testModel.TEAMSSCORING" FromRole="TEAMS" ToRole="SCORING" />
+        </EntityType>
+        <Association Name="PLAYERSSCORING">
+          <End Type="testModel.PLAYERS" Role="PLAYERS" Multiplicity="1" />
+          <End Type="testModel.SCORING" Role="SCORING" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PLAYERS">
+              <PropertyRef Name="PLAYERID" />
+            </Principal>
+            <Dependent Role="SCORING">
+              <PropertyRef Name="PLAYERID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="TEAMSSCORING">
+          <End Type="testModel.TEAMS" Role="TEAMS" Multiplicity="1" />
+          <End Type="testModel.SCORING" Role="SCORING" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="TEAMS">
+              <PropertyRef Name="YEAR" />
+              <PropertyRef Name="TEAMID" />
+            </Principal>
+            <Dependent Role="SCORING">
+              <PropertyRef Name="YEAR" />
+              <PropertyRef Name="TEAMID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
     <edmx:Mappings>
       <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2008/09/mapping/cs">
         <EntityContainerMapping StorageEntityContainer="testModelStoreContainer" CdmEntityContainer="testEntities">
-          <EntitySetMapping Name="HOCKEY"><EntityTypeMapping TypeName="testModel.HOCKEY"><MappingFragment StoreEntitySet="HOCKEY">
-            <ScalarProperty Name="ID" ColumnName="ID" />
-            <ScalarProperty Name="NUMBER" ColumnName="NUMBER" />
-            <ScalarProperty Name="NAME" ColumnName="NAME" />
-            <ScalarProperty Name="POSITION" ColumnName="POSITION" />
-            <ScalarProperty Name="TEAM" ColumnName="TEAM" />
-          </MappingFragment></EntityTypeMapping></EntitySetMapping>
+          <EntitySetMapping Name="PLAYERS">
+            <EntityTypeMapping TypeName="testModel.PLAYERS">
+              <MappingFragment StoreEntitySet="PLAYERS">
+                <ScalarProperty Name="BIRTHCITY" ColumnName="BIRTHCITY" />
+                <ScalarProperty Name="BIRTHSTATE" ColumnName="BIRTHSTATE" />
+                <ScalarProperty Name="BIRTHCOUNTRY" ColumnName="BIRTHCOUNTRY" />
+                <ScalarProperty Name="BIRTHDAY" ColumnName="BIRTHDAY" />
+                <ScalarProperty Name="BIRTHMON" ColumnName="BIRTHMON" />
+                <ScalarProperty Name="BIRTHYEAR" ColumnName="BIRTHYEAR" />
+                <ScalarProperty Name="POSITION" ColumnName="POSITION" />
+                <ScalarProperty Name="LASTNHL" ColumnName="LASTNHL" />
+                <ScalarProperty Name="FIRSTNHL" ColumnName="FIRSTNHL" />
+                <ScalarProperty Name="WEIGHT" ColumnName="WEIGHT" />
+                <ScalarProperty Name="HEIGHT" ColumnName="HEIGHT" />
+                <ScalarProperty Name="LASTNAME" ColumnName="LASTNAME" />
+                <ScalarProperty Name="FIRSTNAME" ColumnName="FIRSTNAME" />
+                <ScalarProperty Name="PLAYERID" ColumnName="PLAYERID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="SCORING">
+            <EntityTypeMapping TypeName="testModel.SCORING">
+              <MappingFragment StoreEntitySet="SCORING">
+                <ScalarProperty Name="PENALTYMINUTES" ColumnName="PENALTYMINUTES" />
+                <ScalarProperty Name="ASSISTS" ColumnName="ASSISTS" />
+                <ScalarProperty Name="GOALS" ColumnName="GOALS" />
+                <ScalarProperty Name="GAMESPLAYED" ColumnName="GAMESPLAYED" />
+                <ScalarProperty Name="POSITION" ColumnName="POSITION" />
+                <ScalarProperty Name="TEAMID" ColumnName="TEAMID" />
+                <ScalarProperty Name="STINT" ColumnName="STINT" />
+                <ScalarProperty Name="YEAR" ColumnName="YEAR" />
+                <ScalarProperty Name="PLAYERID" ColumnName="PLAYERID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="TEAMS">
+            <EntityTypeMapping TypeName="testModel.TEAMS">
+              <MappingFragment StoreEntitySet="TEAMS">
+                <ScalarProperty Name="OVERTIMELOSSES" ColumnName="OVERTIMELOSSES" />
+                <ScalarProperty Name="TIES" ColumnName="TIES" />
+                <ScalarProperty Name="LOSSES" ColumnName="LOSSES" />
+                <ScalarProperty Name="WINS" ColumnName="WINS" />
+                <ScalarProperty Name="GAMES" ColumnName="GAMES" />
+                <ScalarProperty Name="PLAYOFF" ColumnName="PLAYOFF" />
+                <ScalarProperty Name="RANK" ColumnName="RANK" />
+                <ScalarProperty Name="DIVISIONID" ColumnName="DIVISIONID" />
+                <ScalarProperty Name="CONFERENCEID" ColumnName="CONFERENCEID" />
+                <ScalarProperty Name="NAME" ColumnName="NAME" />
+                <ScalarProperty Name="TEAMID" ColumnName="TEAMID" />
+                <ScalarProperty Name="YEAR" ColumnName="YEAR" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
         </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>
@@ -69,7 +247,17 @@
     <!-- Diagram content (shape and connector positions) -->
     <Diagrams>
       <Diagram Name="HockeyPlayer">
-        <EntityTypeShape EntityType="testModel.HOCKEY" Width="1.5" PointX="0.75" PointY="0.75" Height="1.9802864583333331" IsExpanded="true" />
+        <EntityTypeShape EntityType="testModel.PLAYERS" Width="1.5" PointX="0.75" PointY="0.75" Height="3.7109993489583335" />
+        <EntityTypeShape EntityType="testModel.SCORING" Width="1.5" PointX="2.75" PointY="0.75" Height="3.1340950520833331" />
+        <EntityTypeShape EntityType="testModel.TEAMS" Width="1.5" PointX="4.75" PointY="0.75" Height="3.3263964843749996" />
+        <AssociationConnector Association="testModel.PLAYERSSCORING">
+          <ConnectorPoint PointX="2.25" PointY="2.3170475260416667" />
+          <ConnectorPoint PointX="2.75" PointY="2.3170475260416667" />
+        </AssociationConnector>
+        <AssociationConnector Association="testModel.TEAMSSCORING">
+          <ConnectorPoint PointX="4.75" PointY="2.3170475260416667" />
+          <ConnectorPoint PointX="4.25" PointY="2.3170475260416667" />
+        </AssociationConnector>
       </Diagram>
     </Diagrams>
   </Designer>
