@@ -578,8 +578,6 @@ namespace TestProject
             Assert.AreEqual(1, count);
         }
 
-        /*
-         * This returns two rows, even if the first time there is a NULL value
         [TestMethod]
         public void LINQTestUnion1()
         {
@@ -591,13 +589,12 @@ namespace TestProject
             foreach (var x in lowNums)
             {
                 Console.WriteLine(x);
-                Assert.IsNotNull(x);
+                Assert.IsNotNull(x, "Bug DB-2621");
                 count++;
             }
-            Assert.AreEqual(1, count);
+            Assert.AreEqual(1, count, "Bug DB-2621");
         }
-         */
-
+        
         /*
          * INTERSECT is not supported
         [TestMethod]
@@ -849,6 +846,30 @@ namespace TestProject
 
             Assert.AreEqual(4, count);
         }
+        
+        [TestMethod]
+        public void LINQTestSum4()
+        {
+            var lowNums = (from p in context.HOCKEY
+                          group p by p.POSITION into g
+                          select new
+                          {
+                              Position = g.Key,
+                              Values = g.Sum(p => p.NUMBER)
+                          }).OrderBy(q => q.Values);
+
+            int count = 0;
+            Console.WriteLine("Sum of all numbers, grouped by position and listed in ascending order:");
+            foreach (var x in lowNums)
+            {
+                Console.WriteLine(x.Position + " -> " + x.Values);
+                if (x.Position == "Fan")
+                    Assert.AreEqual(1, x.Values);
+                count++;
+            }
+
+            Assert.AreEqual(4, count, "Bug DB-3090");
+        }
 
         [TestMethod]
         public void LINQTestMin1()
@@ -973,8 +994,6 @@ namespace TestProject
             Assert.AreEqual(4, count);
         }
 
-        /*
-         * The union returns NULL for the second table
         [TestMethod]
         public void LINQTestConcat1()
         {
@@ -986,16 +1005,15 @@ namespace TestProject
                                   select player2.TEAM);
 
             int count = 0;
-            Console.WriteLine("All players and their teams:");
+            Console.WriteLine("All fans and their teams:");
             foreach (var x in lowNums)
             {
                 Console.WriteLine(x);
-                Assert.IsNotNull(x);
+                Assert.IsNotNull(x, "Bug DB-2621");
                 count++;
             }
             Assert.AreEqual(2, count);
         }
-         */
 
         [TestMethod]
         public void LINQTestJoin1()
