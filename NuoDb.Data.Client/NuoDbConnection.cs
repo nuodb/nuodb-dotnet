@@ -358,12 +358,15 @@ namespace NuoDb.Data.Client
             get { return 0; }
         }
 
-        public override void EnlistTransaction(System.Transactions.Transaction transaction)
+        public override void EnlistTransaction(System.Transactions.Transaction txn)
         {
 #if DEBUG
             System.Diagnostics.Trace.WriteLine("NuoDBConnection::EnlistTransaction(" + transaction + ")");
 #endif
-            base.EnlistTransaction(transaction);
+            if(transaction == null)
+                transaction = BeginDbTransaction(IsolationLevel.ReadCommitted);
+            txn.EnlistVolatile(transaction as NuoDbTransaction, System.Transactions.EnlistmentOptions.None);
+            //base.EnlistTransaction(transaction);
         }
 
         protected override DbTransaction BeginDbTransaction(IsolationLevel isolationLevel)

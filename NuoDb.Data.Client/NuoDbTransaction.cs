@@ -32,15 +32,16 @@ using System.Linq;
 using System.Text;
 using System.Data.Common;
 using System.Data;
+using System.Transactions;
 
 namespace NuoDb.Data.Client
 {
-    public class NuoDbTransaction : DbTransaction
+    public class NuoDbTransaction : DbTransaction, ISinglePhaseNotification
     {
         private NuoDbConnection connection;
-        private IsolationLevel isolationLevel;
+        private System.Data.IsolationLevel isolationLevel;
 
-        public NuoDbTransaction(NuoDbConnection nuoDBConnection, IsolationLevel isolationLevel)
+        public NuoDbTransaction(NuoDbConnection nuoDBConnection, System.Data.IsolationLevel isolationLevel)
         {
             this.connection = nuoDBConnection;
             this.isolationLevel = isolationLevel;
@@ -56,7 +57,7 @@ namespace NuoDb.Data.Client
             get { return connection; }
         }
 
-        public override IsolationLevel IsolationLevel
+        public override System.Data.IsolationLevel IsolationLevel
         {
             get { return isolationLevel; }
         }
@@ -65,5 +66,54 @@ namespace NuoDb.Data.Client
         {
             connection.Rollback();
         }
+
+        #region ISinglePhaseNotification Members
+
+        public void SinglePhaseCommit(SinglePhaseEnlistment singlePhaseEnlistment)
+        {
+#if DEBUG
+            System.Diagnostics.Trace.WriteLine("NuoDbTransaction::SinglePhaseCommit()");
+#endif
+            Commit();
+            singlePhaseEnlistment.Done();
+        }
+
+        #endregion
+
+        #region IEnlistmentNotification Members
+
+        public void Commit(Enlistment enlistment)
+        {
+#if DEBUG
+            System.Diagnostics.Trace.WriteLine("NuoDbTransaction::IEnlistmentNotification::Commit()");
+#endif
+            Commit();
+            enlistment.Done();
+        }
+
+        public void InDoubt(Enlistment enlistment)
+        {
+#if DEBUG
+            System.Diagnostics.Trace.WriteLine("NuoDbTransaction::IEnlistmentNotification::InDoubt()");
+#endif
+        }
+
+        public void Prepare(PreparingEnlistment preparingEnlistment)
+        {
+#if DEBUG
+            System.Diagnostics.Trace.WriteLine("NuoDbTransaction::IEnlistmentNotification::Prepare()");
+#endif
+        }
+
+        public void Rollback(Enlistment enlistment)
+        {
+#if DEBUG
+            System.Diagnostics.Trace.WriteLine("NuoDbTransaction::IEnlistmentNotification::Rollback()");
+#endif
+            Rollback();
+            enlistment.Done();
+        }
+
+        #endregion
     }
 }
