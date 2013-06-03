@@ -305,16 +305,18 @@
           schema != 'SYSTEM' AND (indextype = 0 OR indextype = 1) 
         UNION ALL
           SELECT
-            table.schema || '.' || table.tablename || '.FOREIGN' || fkey.foreignfieldid AS Id,
+            table.schema || '.' || table.tablename || '.FOREIGN' || fkey.foreigntableid || '_' || fkey.primarytableid AS Id,
             table.schema || '.' || table.tablename AS ParentId,
-            'FOREIGN' || fkey.primaryfieldid AS Name,
+            'FOREIGN' || fkey.foreigntableid || '_' || fkey.primarytableid AS Name,
             'FOREIGN KEY' AS ConstraintType,
             false AS IsDeferrable,
             false AS IsInitiallyDeferred
           FROM SYSTEM.FOREIGNKEYS AS fkey
           LEFT JOIN SYSTEM.TABLES AS table
           ON (fkey.FOREIGNTABLEID = table.TABLEID)
-          WHERE table.schema != 'SYSTEM'
+          WHERE 
+            fkey.position = 0 AND
+            table.schema != 'SYSTEM'
         ]]>
       </DefiningQuery>
     </EntitySet>
@@ -349,13 +351,27 @@
       <DefiningQuery>
         <![CDATA[
         SELECT
-          table.schema || '.' || table.tablename || '.FOREIGN' || fkey.foreignfieldid AS Id,
-          fkey.updaterule AS UpdateRule,
-          fkey.deleterule AS DeleteRule
+          table.schema || '.' || table.tablename || '.FOREIGN' || fkey.foreigntableid || '_' || fkey.primarytableid AS Id,
+          case fkey.updaterule 
+            when 0 then 'CASCADE'
+            when 1 then 'RESTRICT'
+            when 2 then 'SET NULL'
+            when 3 then 'NO ACTION'
+            when 4 then 'SET DEFAULT'
+          end AS UpdateRule,
+          case fkey.deleterule 
+            when 0 then 'CASCADE'
+            when 1 then 'RESTRICT'
+            when 2 then 'SET NULL'
+            when 3 then 'NO ACTION'
+            when 4 then 'SET DEFAULT'
+          end AS DeleteRule
         FROM SYSTEM.FOREIGNKEYS AS fkey
         LEFT JOIN SYSTEM.TABLES AS table
         ON (fkey.FOREIGNTABLEID = table.TABLEID)
-        WHERE table.schema != 'SYSTEM'
+        WHERE
+          fkey.position = 0 AND
+          table.schema != 'SYSTEM'
         ]]>
       </DefiningQuery>
     </EntitySet>
@@ -366,7 +382,7 @@
           fkey.primarytableid || '.' || fkey.primaryfieldid || '.' || fkey.foreigntableid || '.' || fkey.foreignfieldid || '.' || fkey.position AS Id,
           tableFrom.schema || '.' || tableFrom.tableName || '.' || columnsFrom.field AS FromColumnId,
           tableTo.schema || '.' || tableTo.tableName || '.' || columnsTo.field AS ToColumnId,
-          tableFrom.schema || '.' || tableFrom.tablename || '.FOREIGN' || fkey.foreignfieldid AS ConstraintId,
+          tableFrom.schema || '.' || tableFrom.tablename || '.FOREIGN' || fkey.foreigntableid || '_' || fkey.primarytableid AS ConstraintId,
           fkey.position AS Ordinal
         FROM SYSTEM.FOREIGNKEYS AS fkey
         LEFT JOIN SYSTEM.TABLES AS tableTo
