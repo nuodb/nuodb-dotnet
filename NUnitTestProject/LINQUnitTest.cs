@@ -1,27 +1,24 @@
 ﻿using System;
+using NUnit.Framework;
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Data.Common;
 using NuoDb.Data.Client;
 using System.Data;
 
-namespace TestProject
+namespace NUnitTestProject
 {
-    /// <summary>
-    /// Summary description for LINQUnitTest
-    /// </summary>
-    [TestClass]
-    public class LINQUnitTest
+    [TestFixture]
+    public class LINQTestFixture
     {
         testEntities context;
         int tableRows = 0;
 
-        public LINQUnitTest()
+        public LINQTestFixture()
         {
             context = new testEntities();
             try
             {
-                using (NuoDbConnection connection = new NuoDbConnection(UnitTest1.connectionString))
+                using (NuoDbConnection connection = new NuoDbConnection(TestFixture1.connectionString))
                 {
                     DbCommand command = new NuoDbCommand("select count(*) from hockey", connection);
 
@@ -34,51 +31,13 @@ namespace TestProject
             }
         }
 
-        private TestContext testContextInstance;
-
-        /// <summary>
-        ///Gets or sets the test context which provides
-        ///information about and functionality for the current test run.
-        ///</summary>
-        public TestContext TestContext
-        {
-            get
-            {
-                return testContextInstance;
-            }
-            set
-            {
-                testContextInstance = value;
-            }
-        }
-
-        #region Additional test attributes
-        //
-        // You can use the following additional attributes as you write your tests:
-        //
-        // Use ClassInitialize to run code before running the first test in the class
-        [ClassInitialize()]
-        public static void MyClassInitialize(TestContext testContext) 
+        [TestFixtureSetUp]
+        public static void Init() 
         {
             Utils.CreateHockeyTable();
         }
 
-        //
-        // Use ClassCleanup to run code after all tests in a class have run
-        // [ClassCleanup()]
-        // public static void MyClassCleanup() { }
-        //
-        // Use TestInitialize to run code before running each test 
-        // [TestInitialize()]
-        // public void MyTestInitialize() { }
-        //
-        // Use TestCleanup to run code after each test has run
-        // [TestCleanup()]
-        // public void MyTestCleanup() { }
-        //
-        #endregion
-
-        [TestMethod]
+        [Test]
         public void LINQTestWhere1()
         {
             var lowNums = from p in context.HOCKEY
@@ -95,7 +54,7 @@ namespace TestProject
             Assert.AreEqual(1, count);
         }
 
-        [TestMethod]
+        [Test]
         public void LINQTestWhere2()
         {
             var lowNums = from p in context.HOCKEY
@@ -112,7 +71,7 @@ namespace TestProject
             Assert.AreEqual(1, count);
         }
 
-        [TestMethod]
+        [Test]
         public void LINQTestWhere3()
         {
             var lowNums = from p in context.HOCKEY
@@ -129,7 +88,7 @@ namespace TestProject
             Assert.AreEqual(1, count);
         }
 
-        [TestMethod]
+        [Test]
         public void LINQTestWhere4()
         {
             var lowNums = context.HOCKEY.Where((player) => player.NUMBER < 5);
@@ -144,7 +103,7 @@ namespace TestProject
             Assert.AreEqual(1, count);
         }
 
-        [TestMethod]
+        [Test]
         public void LINQTestSelect1()
         {
             var lowNums = from p in context.HOCKEY
@@ -160,7 +119,7 @@ namespace TestProject
             Assert.AreEqual(tableRows, count);
         }
 
-        [TestMethod]
+        [Test]
         public void LINQTestSelect2()
         {
             var lowNums = from p in context.HOCKEY
@@ -180,7 +139,7 @@ namespace TestProject
             Assert.AreEqual(tableRows, count);
         }
 
-        [TestMethod]
+        [Test]
         public void LINQTestSelect3()
         {
             var lowNums = from p in context.HOCKEY
@@ -200,7 +159,7 @@ namespace TestProject
             Assert.AreEqual(tableRows, count);
         }
 
-        [TestMethod]
+        [Test]
         public void LINQTestSelect4()
         {
             var lowNums = from p in context.HOCKEY
@@ -219,7 +178,7 @@ namespace TestProject
             Assert.AreEqual(tableRows, count);
         }
 
-        [TestMethod]
+        [Test]
         public void LINQTestSelect5()
         {
             var lowNums = context.HOCKEY.Select((player) => new { Num = player.NUMBER, Name = player.NAME });
@@ -234,7 +193,7 @@ namespace TestProject
             Assert.AreEqual(tableRows, count);
         }
 
-        [TestMethod]
+        [Test]
         public void LINQTestSelect6()
         {
             var lowNums = from p1 in context.HOCKEY
@@ -256,7 +215,7 @@ namespace TestProject
             Assert.AreEqual(tableRows, count);
         }
 
-        [TestMethod]
+        [Test]
         public void LINQTestSelect7()
         {
             var lowNums = from p1 in context.HOCKEY
@@ -279,7 +238,7 @@ namespace TestProject
             Assert.AreEqual(1, count);
         }
 
-        [TestMethod]
+        [Test]
         public void LINQTestPartition1()
         {
             var lowNums = context.HOCKEY.Take(3);
@@ -294,7 +253,7 @@ namespace TestProject
             Assert.AreEqual(3, count);
         }
 
-        [TestMethod]
+        [Test]
         public void LINQTestPartition2()
         {
             var lowNums = (from p in context.HOCKEY
@@ -312,7 +271,7 @@ namespace TestProject
             Assert.AreEqual(3, count);
         }
 
-        [TestMethod]
+        [Test]
         public void LINQTestPartition3()
         {
             var lowNums = context.HOCKEY.OrderBy(player => player.NUMBER).Skip(5);
@@ -327,7 +286,7 @@ namespace TestProject
             Assert.AreEqual(tableRows-5, count);
         }
 
-        [TestMethod]
+        [Test]
         public void LINQTestPartition4()
         {
             var lowNums = context.HOCKEY.OrderBy(player => player.NUMBER).Skip(5).Take(3);
@@ -342,7 +301,7 @@ namespace TestProject
             Assert.AreEqual(3, count);
         }
 
-        [TestMethod]
+        [Test]
         public void LINQTestOrder1()
         {
             var lowNums = from p in context.HOCKEY
@@ -359,7 +318,7 @@ namespace TestProject
             }
         }
 
-        [TestMethod]
+        [Test]
         public void LINQTestOrder2()
         {
             var lowNums = from p in context.HOCKEY
@@ -376,7 +335,7 @@ namespace TestProject
             }
         }
 
-        [TestMethod]
+        [Test]
         public void LINQTestOrder3()
         {
             var lowNums = from p in context.HOCKEY
@@ -400,7 +359,7 @@ namespace TestProject
             }
         }
 
-        [TestMethod]
+        [Test]
         public void LINQTestOrder4()
         {
             var lowNums = context.HOCKEY.OrderBy(player => player.POSITION);
@@ -415,7 +374,7 @@ namespace TestProject
             }
         }
 
-        [TestMethod]
+        [Test]
         public void LINQTestGroup1()
         {
             var lowNums = from p in context.HOCKEY
@@ -441,7 +400,7 @@ namespace TestProject
             Assert.AreEqual(2, count);
         }
 
-        [TestMethod]
+        [Test]
         public void LINQTestGroup2()
         {
             var lowNums = from p in context.HOCKEY
@@ -462,7 +421,7 @@ namespace TestProject
             Assert.AreEqual(2, count);
         }
 
-        [TestMethod]
+        [Test]
         public void LINQTestGroup3()
         {
             var lowNums = from p in context.HOCKEY
@@ -485,7 +444,7 @@ namespace TestProject
             }
         }
 
-        [TestMethod]
+        [Test]
         public void LINQTestGroup4()
         {
             var lowNums = from p in context.HOCKEY
@@ -510,7 +469,7 @@ namespace TestProject
 
         /*
          * This generates a OUTER APPLY statement
-        [TestMethod]
+        [Test]
         public void LINQTestGroup5()
         {
             var lowNums = from p in context.HOCKEY
@@ -545,7 +504,7 @@ namespace TestProject
         }
          */
 
-        [TestMethod]
+        [Test]
         public void LINQTestGroup6()
         {
             var lowNums = context.HOCKEY.GroupBy(player => player.TEAM, player => player.NAME);
@@ -562,7 +521,7 @@ namespace TestProject
             }
         }
 
-        [TestMethod]
+        [Test]
         public void LINQTestDistinct1()
         {
             var lowNums = (from player in context.HOCKEY
@@ -578,7 +537,7 @@ namespace TestProject
             Assert.AreEqual(1, count);
         }
 
-        [TestMethod]
+        [Test]
         public void LINQTestUnion1()
         {
             var lowNums = (from player in context.HOCKEY select player.TEAM)
@@ -597,7 +556,7 @@ namespace TestProject
         
         /*
          * INTERSECT is not supported
-        [TestMethod]
+        [Test]
         public void LINQTestIntersect1()
         {
             var lowNums = (from player in context.HOCKEY select player.TEAM)
@@ -616,7 +575,7 @@ namespace TestProject
 
         /*
          * EXCEPT is not supported
-        [TestMethod]
+        [Test]
         public void LINQTestExcept1()
         {
             var lowNums = (from player in context.HOCKEY select player.TEAM)
@@ -633,7 +592,7 @@ namespace TestProject
         }
          */
 
-        [TestMethod]
+        [Test]
         public void LINQTestToArray1()
         {
             var lowNums = (from player in context.HOCKEY select player.TEAM).ToArray();
@@ -646,7 +605,7 @@ namespace TestProject
             Assert.AreEqual(tableRows, lowNums.Length);
         }
 
-        [TestMethod]
+        [Test]
         public void LINQTestToList1()
         {
             var lowNums = (from player in context.HOCKEY select player.TEAM).ToList();
@@ -659,7 +618,7 @@ namespace TestProject
             Assert.AreEqual(tableRows, lowNums.Count);
         }
 
-        [TestMethod]
+        [Test]
         public void LINQTestToDictionary1()
         {
             var lowNums = context.HOCKEY.ToDictionary(player => player.NAME);
@@ -672,7 +631,7 @@ namespace TestProject
             Assert.AreEqual(tableRows, lowNums.Count);
         }
 
-        [TestMethod]
+        [Test]
         public void LINQTestFirst1()
         {
             var x = context.HOCKEY.First();
@@ -682,7 +641,7 @@ namespace TestProject
             Console.WriteLine(x.NAME + " " + x.POSITION);
         }
 
-        [TestMethod]
+        [Test]
         public void LINQTestFirst2()
         {
             var x = context.HOCKEY.First(player => player.NAME.StartsWith("MAX "));
@@ -692,7 +651,7 @@ namespace TestProject
             Console.WriteLine(x.NAME + " " + x.POSITION);
         }
 
-        [TestMethod]
+        [Test]
         public void LINQTestFirst3()
         {
             var x = (from player in context.HOCKEY
@@ -701,21 +660,21 @@ namespace TestProject
             Assert.IsNull(x);
         }
 
-        [TestMethod]
+        [Test]
         public void LINQTestFirst4()
         {
             var x = context.HOCKEY.FirstOrDefault(player => player.NUMBER == 1900);
             Assert.IsNull(x);
         }
 
-        [TestMethod]
+        [Test]
         public void LINQTestAny1()
         {
             bool x = context.HOCKEY.Any(player => player.TEAM == "Bruins");
             Assert.IsTrue(x);
         }
 
-        [TestMethod]
+        [Test]
         public void LINQTestAny2()
         {
             var lowNums = from player in context.HOCKEY
@@ -737,14 +696,14 @@ namespace TestProject
             Assert.AreEqual(1, count);
         }
 
-        [TestMethod]
+        [Test]
         public void LINQTestAll1()
         {
             bool x = context.HOCKEY.All(player => player.TEAM == "Bruins");
             Assert.IsTrue(x);
         }
 
-        [TestMethod]
+        [Test]
         public void LINQTestAll2()
         {
             var lowNums = from player in context.HOCKEY
@@ -766,7 +725,7 @@ namespace TestProject
             Assert.AreEqual(1, count);
         }
 
-        [TestMethod]
+        [Test]
         public void LINQTestAll3()
         {
             var lowNums = from player in context.HOCKEY
@@ -788,7 +747,7 @@ namespace TestProject
             Assert.AreEqual(0, count);
         }
 
-        [TestMethod]
+        [Test]
         public void LINQTestCount1()
         {
             int count = (from player in context.HOCKEY
@@ -797,7 +756,7 @@ namespace TestProject
             Assert.AreEqual(1, count);
         }
 
-        [TestMethod]
+        [Test]
         public void LINQTestCount2()
         {
             int count = context.HOCKEY.Count(player => player.POSITION == "Fan");
@@ -805,7 +764,7 @@ namespace TestProject
             Assert.AreEqual(1, count);
         }
 
-        [TestMethod]
+        [Test]
         public void LINQTestSum1()
         {
             int? count = (from player in context.HOCKEY
@@ -815,7 +774,7 @@ namespace TestProject
             Assert.AreEqual(35+40, count);
         }
 
-        [TestMethod]
+        [Test]
         public void LINQTestSum2()
         {
             int? count = context.HOCKEY.Sum(player => player.NUMBER);
@@ -823,7 +782,7 @@ namespace TestProject
             Assert.AreEqual(883, count);
         }
         
-        [TestMethod]
+        [Test]
         public void LINQTestSum3()
         {
             var lowNums = from p in context.HOCKEY
@@ -847,7 +806,7 @@ namespace TestProject
             Assert.AreEqual(4, count);
         }
         
-        [TestMethod]
+        [Test]
         public void LINQTestSum4()
         {
             var lowNums = (from p in context.HOCKEY
@@ -871,7 +830,7 @@ namespace TestProject
             Assert.AreEqual(4, count, "Bug DB-3090");
         }
 
-        [TestMethod]
+        [Test]
         public void LINQTestMin1()
         {
             int? number = (from player in context.HOCKEY
@@ -880,7 +839,7 @@ namespace TestProject
             Assert.AreEqual(1, number);
         }
 
-        [TestMethod]
+        [Test]
         public void LINQTestMin2()
         {
             int? number = context.HOCKEY.Min(player => player.NUMBER);
@@ -888,7 +847,7 @@ namespace TestProject
             Assert.AreEqual(1, number);
         }
 
-        [TestMethod]
+        [Test]
         public void LINQTestMin3()
         {
             var lowNums = from p in context.HOCKEY
@@ -912,7 +871,7 @@ namespace TestProject
             Assert.AreEqual(4, count);
         }
 
-        [TestMethod]
+        [Test]
         public void LINQTestMax1()
         {
             int? number = (from player in context.HOCKEY
@@ -921,7 +880,7 @@ namespace TestProject
             Assert.AreEqual(91, number);
         }
 
-        [TestMethod]
+        [Test]
         public void LINQTestMax2()
         {
             int? number = context.HOCKEY.Max(player => player.NUMBER);
@@ -929,7 +888,7 @@ namespace TestProject
             Assert.AreEqual(91, number);
         }
 
-        [TestMethod]
+        [Test]
         public void LINQTestMax3()
         {
             var lowNums = from p in context.HOCKEY
@@ -953,7 +912,7 @@ namespace TestProject
             Assert.AreEqual(4, count);
         }
 
-        [TestMethod]
+        [Test]
         public void LINQTestAvg1()
         {
             double? number = (from player in context.HOCKEY
@@ -962,7 +921,7 @@ namespace TestProject
             Assert.AreEqual(37, Math.Round((double)number));
         }
 
-        [TestMethod]
+        [Test]
         public void LINQTestAvg2()
         {
             double? number = context.HOCKEY.Average(player => player.NUMBER);
@@ -970,7 +929,7 @@ namespace TestProject
             Assert.AreEqual(37, Math.Round((double)number));
         }
 
-        [TestMethod]
+        [Test]
         public void LINQTestAvg3()
         {
             var lowNums = from p in context.HOCKEY
@@ -994,7 +953,7 @@ namespace TestProject
             Assert.AreEqual(4, count);
         }
 
-        [TestMethod]
+        [Test]
         public void LINQTestConcat1()
         {
             var lowNums = (from player in context.HOCKEY
@@ -1015,7 +974,7 @@ namespace TestProject
             Assert.AreEqual(2, count);
         }
 
-        [TestMethod]
+        [Test]
         public void LINQTestJoin1()
         {
             var lowNums = from player in context.HOCKEY
@@ -1036,7 +995,7 @@ namespace TestProject
             Assert.AreEqual(tableRows, count);
         }
 
-        [TestMethod]
+        [Test]
         public void LINQTestJoin2()
         {
             var lowNums = from player in context.HOCKEY
@@ -1058,7 +1017,7 @@ namespace TestProject
             Assert.AreEqual(1, count);
         }
 
-        [TestMethod]
+        [Test]
         public void LINQTestJoin3()
         {
             var lowNums = from player in context.HOCKEY
@@ -1081,7 +1040,7 @@ namespace TestProject
             Assert.AreEqual(tableRows, count);
         }
 
-        [TestMethod]
+        [Test]
         public void LINQTestJoin4()
         {
             var lowNums = from player in context.HOCKEY
@@ -1109,7 +1068,7 @@ namespace TestProject
             Assert.AreEqual(tableRows, count);
         }
 
-        [TestMethod]
+        [Test]
         public void LINQTestDML()
         {
             if (context.Connection.State != ConnectionState.Open)

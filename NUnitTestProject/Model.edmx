@@ -4,9 +4,9 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="testModel.Store" Alias="Self" Provider="NuoDb.Data.Client" ProviderManifestToken="001.016" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns="http://schemas.microsoft.com/ado/2009/02/edm/ssdl">
+      <Schema Namespace="testModel.Store" Alias="Self" Provider="NuoDb.Data.Client" ProviderManifestToken="001.016" xmlns="http://schemas.microsoft.com/ado/2009/02/edm/ssdl">
         <EntityContainer Name="testModelStoreContainer">
-          <EntitySet Name="HOCKEY" EntityType="testModel.Store.HOCKEY" store:Type="Tables" Schema="HOCKEY" />
+          <EntitySet Name="HOCKEY" EntityType="testModel.Store.HOCKEY" store:Type="Tables" Schema="HOCKEY" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
         </EntityContainer>
         <EntityType Name="HOCKEY">
           <Key>
@@ -22,15 +22,15 @@
     </edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
-      <Schema Namespace="testModel" Alias="Self" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns="http://schemas.microsoft.com/ado/2008/09/edm">
-        <EntityContainer Name="testEntities" annotation:LazyLoadingEnabled="true">
+      <Schema Namespace="testModel" Alias="Self" xmlns="http://schemas.microsoft.com/ado/2008/09/edm">
+        <EntityContainer Name="testEntities" annotation:LazyLoadingEnabled="true" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation">
           <EntitySet Name="HOCKEY" EntityType="testModel.HOCKEY" />
         </EntityContainer>
         <EntityType Name="HOCKEY">
           <Key>
             <PropertyRef Name="ID" />
           </Key>
-          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" />
           <Property Name="NUMBER" Type="Int32" />
           <Property Name="NAME" Type="String" MaxLength="100" Unicode="false" FixedLength="false" />
           <Property Name="POSITION" Type="String" MaxLength="100" Unicode="false" FixedLength="false" />

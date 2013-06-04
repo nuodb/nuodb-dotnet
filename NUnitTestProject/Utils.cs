@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using NuoDb.Data.Client;
 using System.Data.Common;
 
-namespace TestProject
+namespace NUnitTestProject
 {
     class Utils
     {
@@ -24,7 +21,7 @@ namespace TestProject
 
         internal static void CreateHockeyTable()
         {
-            using (NuoDbConnection connection = new NuoDbConnection(UnitTest1.connectionString))
+            using (NuoDbConnection connection = new NuoDbConnection(TestFixture1.connectionString))
             {
                 connection.Open();
                 try

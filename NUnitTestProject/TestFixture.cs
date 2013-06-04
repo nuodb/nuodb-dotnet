@@ -1,27 +1,15 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using NuoDb.Data.Client;
 using System.Data.Common;
 using System.Data;
-using System.Collections.Specialized;
 using System.Collections;
 
-namespace TestProject
+namespace NUnitTestProject
 {
-    /// <summary>
-    /// Summary description for UnitTest1
-    /// </summary>
-    [TestClass]
-    public class UnitTest1
+    [TestFixture]
+    public class TestFixture1
     {
-        public UnitTest1()
-        {
-            //
-            // TODO: Add constructor logic here
-            //
-        }
-
-        private TestContext testContextInstance;
         static string host = "localhost:48004";
         static string user = "dba";
         static string password = "goalie";
@@ -29,51 +17,16 @@ namespace TestProject
         static string schema = "hockey";
         static internal string connectionString = "Server=  " + host + "; Database=\"" + database + "\"; User = " + user + " ;Password   = '" + password + "';Schema=\"" + schema + "\";Something Else";
 
-        /// <summary>
-        ///Gets or sets the test context which provides
-        ///information about and functionality for the current test run.
-        ///</summary>
-        public TestContext TestContext
-        {
-            get
-            {
-                return testContextInstance;
-            }
-            set
-            {
-                testContextInstance = value;
-            }
-        }
-
-        #region Additional test attributes
-        //
-        // You can use the following additional attributes as you write your tests:
-        //
-        // Use ClassInitialize to run code before running the first test in the class
-        [ClassInitialize()]
-        public static void MyClassInitialize(TestContext testContext)
+        [TestFixtureSetUp]
+        public static void Init()
         {
             Utils.CreateHockeyTable();
         }
-        
-        // Use ClassCleanup to run code after all tests in a class have run
-        // [ClassCleanup()]
-        // public static void MyClassCleanup() { }
-        //
-        // Use TestInitialize to run code before running each test 
-        // [TestInitialize()]
-        // public void MyTestInitialize() { }
-        //
-        // Use TestCleanup to run code after each test has run
-        // [TestCleanup()]
-        // public void MyTestCleanup() { }
-        //
-        #endregion
 
-        [TestMethod]
+        [Test]
         public void TestHighAvailability()
         {
-            using (NuoDbConnection connection = new NuoDbConnection(connectionString.Replace("Server=","Server=localhost:8,")))
+            using (NuoDbConnection connection = new NuoDbConnection(connectionString.Replace("Server=", "Server=localhost:8,")))
             {
                 DbCommand command = new NuoDbCommand("select * from hockey", connection);
 
@@ -87,7 +40,7 @@ namespace TestProject
             }
         }
 
-        [TestMethod]
+        [Test]
         public void TestCommand1()
         {
             using (NuoDbConnection connection = new NuoDbConnection(connectionString))
@@ -104,7 +57,7 @@ namespace TestProject
             }
         }
 
-        [TestMethod]
+        [Test]
         public void TestCommand2()
         {
             using (NuoDbConnection connection = new NuoDbConnection(connectionString))
@@ -128,7 +81,7 @@ namespace TestProject
             }
         }
 
-        [TestMethod]
+        [Test]
         public void TestParameter()
         {
             using (NuoDbConnection connection = new NuoDbConnection(connectionString))
@@ -149,7 +102,7 @@ namespace TestProject
             }
         }
 
-        [TestMethod]
+        [Test]
         public void TestNamedParameters1()
         {
             using (NuoDbConnection connection = new NuoDbConnection(connectionString))
@@ -171,7 +124,7 @@ namespace TestProject
             }
         }
 
-        [TestMethod]
+        [Test]
         public void TestNamedParameters2()
         {
             using (NuoDbConnection connection = new NuoDbConnection(connectionString))
@@ -199,7 +152,7 @@ namespace TestProject
             }
         }
 
-        [TestMethod]
+        [Test]
         public void TestNamedParameters3()
         {
             using (NuoDbConnection connection = new NuoDbConnection(connectionString))
@@ -227,7 +180,7 @@ namespace TestProject
             }
         }
 
-        [TestMethod]
+        [Test]
         public void TestNamedParameters4()
         {
             using (NuoDbConnection connection = new NuoDbConnection(connectionString))
@@ -249,7 +202,7 @@ namespace TestProject
             }
         }
 
-        [TestMethod]
+        [Test]
         public void TestNamedParameters5()
         {
             using (NuoDbConnection connection = new NuoDbConnection(connectionString))
@@ -271,7 +224,7 @@ namespace TestProject
             }
         }
 
-        [TestMethod]
+        [Test]
         public void TestPrepareNoParameter()
         {
             using (NuoDbConnection connection = new NuoDbConnection(connectionString))
@@ -291,7 +244,7 @@ namespace TestProject
             }
         }
 
-        [TestMethod]
+        [Test]
         public void TestPrepareDDLNoParameter()
         {
             using (NuoDbConnection connection = new NuoDbConnection(connectionString))
@@ -306,7 +259,7 @@ namespace TestProject
                 {
                     int value = command.ExecuteNonQuery();
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     Assert.Fail("Executing a prepared DDL that doesn't use parameters reports an error: {0}", e.Message);
                 }
@@ -317,7 +270,7 @@ namespace TestProject
             }
         }
 
-        [TestMethod]
+        [Test]
         public void TestTransactions()
         {
             using (NuoDbConnection connection = new NuoDbConnection(connectionString))
@@ -344,7 +297,7 @@ namespace TestProject
             }
         }
 
-        [TestMethod]
+        [Test]
         public void TestInsertWithGeneratedKeys()
         {
             using (NuoDbConnection connection = new NuoDbConnection(connectionString))
@@ -369,7 +322,7 @@ namespace TestProject
             }
         }
 
-        [TestMethod]
+        [Test]
         public void TestUpdateWithGeneratedKeys()
         {
             using (NuoDbConnection connection = new NuoDbConnection(connectionString))
@@ -388,7 +341,7 @@ namespace TestProject
             }
         }
 
-        [TestMethod]
+        [Test]
         public void TestPreparedInsertWithGeneratedKeys1()
         {
             using (NuoDbConnection connection = new NuoDbConnection(connectionString))
@@ -421,7 +374,7 @@ namespace TestProject
             }
         }
 
-        [TestMethod]
+        [Test]
         public void TestPreparedInsertWithGeneratedKeys2()
         {
             using (NuoDbConnection connection = new NuoDbConnection(connectionString))
@@ -455,7 +408,7 @@ namespace TestProject
             }
         }
 
-        [TestMethod]
+        [Test]
         public void TestPreparedUpdateWithGeneratedKeys1()
         {
             using (NuoDbConnection connection = new NuoDbConnection(connectionString))
@@ -475,7 +428,7 @@ namespace TestProject
             }
         }
 
-        [TestMethod]
+        [Test]
         public void TestPreparedUpdateWithGeneratedKeys2()
         {
             using (NuoDbConnection connection = new NuoDbConnection(connectionString))
@@ -496,7 +449,7 @@ namespace TestProject
             }
         }
 
-        [TestMethod]
+        [Test]
         public void TestDbProvider()
         {
             DbProviderFactory factory = new NuoDbProviderFactory();
@@ -526,7 +479,7 @@ namespace TestProject
             }
         }
 
-        [TestMethod]
+        [Test]
         public void TestDisconnected()
         {
             using (NuoDbConnection connection = new NuoDbConnection(connectionString))
@@ -563,7 +516,7 @@ namespace TestProject
             }
         }
 
-        [TestMethod]
+        [Test]
         public void TestDisconnectedUpdate()
         {
             using (NuoDbConnection connection = new NuoDbConnection(connectionString))
@@ -607,7 +560,7 @@ namespace TestProject
 
             }
         }
-        
+
         public void TestDataType(string sqlType, object value)
         {
             TestDataType(sqlType, value, value);
@@ -622,7 +575,7 @@ namespace TestProject
 
                 Utils.DropTable(connection, "temp");
 
-                DbCommand createCommand = new NuoDbCommand("create table temp (col "+sqlType+")", connection);
+                DbCommand createCommand = new NuoDbCommand("create table temp (col " + sqlType + ")", connection);
                 int result = createCommand.ExecuteNonQuery();
 
                 DbCommand insertCommand = new NuoDbCommand("insert into temp (col) values (?)", connection);
@@ -632,7 +585,7 @@ namespace TestProject
                 DbCommand command = new NuoDbCommand("select col from temp", connection);
                 object val = command.ExecuteScalar();
                 // compare dates using the string representation
-                if(val is DateTime)
+                if (val is DateTime)
                     Assert.AreEqual(DateTime.Parse(expected.ToString()), val);
                 else if (val is TimeSpan)
                     Assert.AreEqual(TimeSpan.Parse(expected.ToString()), val);
@@ -645,7 +598,7 @@ namespace TestProject
             }
         }
 
-        [TestMethod]
+        [Test]
         public void TestDataTypeString()
         {
             TestDataType("string", "dummy");
@@ -654,51 +607,51 @@ namespace TestProject
             TestDataType("clob", "dummy");
         }
 
-        [TestMethod]
+        [Test]
         public void TestDataTypeBoolean()
         {
             TestDataType("boolean", false);
         }
 
-        [TestMethod]
+        [Test]
         public void TestDataTypeByte()
         {
             //TestDataType("tinyint", 45);
         }
 
-        [TestMethod]
+        [Test]
         public void TestDataTypeInt16()
         {
             TestDataType("smallint", 45);
         }
 
-        [TestMethod]
+        [Test]
         public void TestDataTypeInt32()
         {
             TestDataType("integer", 45);
             TestDataType("int", 45);
         }
 
-        [TestMethod]
+        [Test]
         public void TestDataTypeInt64()
         {
             TestDataType("bigint", 45000000000);
         }
 
-        [TestMethod]
+        [Test]
         public void TestDataTypeFloat()
         {
             TestDataType("real", 45.3);
             TestDataType("float", 45.3);
         }
 
-        [TestMethod]
+        [Test]
         public void TestDataTypeDouble()
         {
             TestDataType("double", 45.3987654321);
         }
 
-        [TestMethod]
+        [Test]
         public void TestDataTypeDecimal()
         {
             TestDataType("numeric", 45.3987654321, 45);
@@ -708,13 +661,13 @@ namespace TestProject
             TestDataType("dec(18,12)", 45.3987654321M);
         }
 
-        [TestMethod]
+        [Test]
         public void TestDataTypeChar()
         {
             TestDataType("char", 'A', "A");
         }
 
-        [TestMethod]
+        [Test]
         public void TestDataTypeDate()
         {
             DateTime now = DateTime.Now;
@@ -723,7 +676,7 @@ namespace TestProject
             TestDataType("dateonly", "1999-01-31");
         }
 
-        [TestMethod]
+        [Test]
         public void TestDataTypeTime()
         {
             TestDataType("time", new TimeSpan(10, 30, 22));
@@ -731,20 +684,20 @@ namespace TestProject
             TestDataType("timeonly", "10:30:22");
         }
 
-        [TestMethod]
+        [Test]
         public void TestDataTypeTimestamp()
         {
             TestDataType("timestamp", "1999-01-31 10:30:00.100");
             TestDataType("datetime", "1999-01-31 10:30:00.100");
         }
 
-        [TestMethod]
+        [Test]
         public void TestDataTypeBlob()
         {
             TestDataType("blob", "xxx", new byte[] { (byte)'x', (byte)'x', (byte)'x' });
         }
 
-        [TestMethod]
+        [Test]
         public void TestSchema()
         {
             using (NuoDbConnection connection = new NuoDbConnection(connectionString))
@@ -760,15 +713,15 @@ namespace TestProject
                 Assert.IsTrue(found, "Table HOCKEY was not found in the list of tables");
             }
         }
-        
-        [TestMethod]
+
+        [Test]
         public void TestScalability()
         {
             using (NuoDbConnection cnn = new NuoDbConnection(connectionString))
             {
                 cnn.Open();
                 Utils.DropTable(cnn, "temp");
-                
+
                 DbCommand createCommand = new NuoDbCommand("create table temp (col1 integer, col2 integer)", cnn);
                 int result = createCommand.ExecuteNonQuery();
 
@@ -836,7 +789,7 @@ namespace TestProject
             }
         }
 
-        [TestMethod]
+        [Test]
         public void TestBulkLoad_DataRowsNoMapping()
         {
             CreateTargetForBulkLoad();
@@ -847,10 +800,10 @@ namespace TestProject
             DataTable metadata = new DataTable("dummy");
             metadata.Columns.Add("xyz", typeof(string));
             DataRow[] rows = new DataRow[10];
-            for(int i=0;i<rows.Length;i++)
+            for (int i = 0; i < rows.Length; i++)
             {
                 rows[i] = metadata.NewRow();
-                rows[i][0]=Convert.ToString(i);
+                rows[i][0] = Convert.ToString(i);
             }
 
             loader.WriteToServer(rows);
@@ -858,7 +811,7 @@ namespace TestProject
             VerifyBulkLoad(rows.Length, "0");
         }
 
-        [TestMethod]
+        [Test]
         public void TestBulkLoad_DataRowsWithMappingOrdinal2Ordinal()
         {
             CreateTargetForBulkLoad();
@@ -884,7 +837,7 @@ namespace TestProject
             VerifyBulkLoad(rows.Length, "0");
         }
 
-        [TestMethod]
+        [Test]
         public void TestBulkLoad_DataRowsWithMappingOrdinal2Name()
         {
             CreateTargetForBulkLoad();
@@ -910,7 +863,7 @@ namespace TestProject
             VerifyBulkLoad(rows.Length, "0");
         }
 
-        [TestMethod]
+        [Test]
         public void TestBulkLoad_DataRowsWithMappingName2Ordinal()
         {
             CreateTargetForBulkLoad();
@@ -935,8 +888,8 @@ namespace TestProject
 
             VerifyBulkLoad(rows.Length, "0");
         }
-        
-        [TestMethod]
+
+        [Test]
         public void TestBulkLoad_DataRowsWithMappingName2Name()
         {
             CreateTargetForBulkLoad();
@@ -962,7 +915,7 @@ namespace TestProject
             VerifyBulkLoad(rows.Length, "0");
         }
 
-        [TestMethod]
+        [Test]
         public void TestBulkLoad_DataTableWithStateNoMapping()
         {
             CreateTargetForBulkLoad();
@@ -991,7 +944,7 @@ namespace TestProject
             VerifyBulkLoad(1, "999");
         }
 
-        [TestMethod]
+        [Test]
         public void TestBulkLoad_DataTableNoMapping()
         {
             CreateTargetForBulkLoad();
@@ -1014,7 +967,7 @@ namespace TestProject
             VerifyBulkLoad(ROW_TO_ADD, "0");
         }
 
-        [TestMethod]
+        [Test]
         public void TestBulkLoad_DataTableWithMappingOrdinal2Ordinal()
         {
             CreateTargetForBulkLoad();
@@ -1041,7 +994,7 @@ namespace TestProject
             VerifyBulkLoad(ROW_TO_ADD, "0");
         }
 
-        [TestMethod]
+        [Test]
         public void TestBulkLoad_DataTableWithMappingOrdinal2Name()
         {
             CreateTargetForBulkLoad();
@@ -1068,7 +1021,7 @@ namespace TestProject
             VerifyBulkLoad(ROW_TO_ADD, "0");
         }
 
-        [TestMethod]
+        [Test]
         public void TestBulkLoad_DataTableWithMappingName2Ordinal()
         {
             CreateTargetForBulkLoad();
@@ -1095,7 +1048,7 @@ namespace TestProject
             VerifyBulkLoad(ROW_TO_ADD, "0");
         }
 
-        [TestMethod]
+        [Test]
         public void TestBulkLoad_DataTableWithMappingName2Name()
         {
             CreateTargetForBulkLoad();
@@ -1122,7 +1075,7 @@ namespace TestProject
             VerifyBulkLoad(ROW_TO_ADD, "0");
         }
 
-        [TestMethod]
+        [Test]
         public void TestBulkLoad_DataReaderNoMapping()
         {
             CreateTargetForBulkLoad();
@@ -1147,7 +1100,7 @@ namespace TestProject
             }
         }
 
-        [TestMethod]
+        [Test]
         public void TestBulkLoad_DataReaderWithMappingOrdinal2Ordinal()
         {
             CreateTargetForBulkLoad();
@@ -1174,7 +1127,7 @@ namespace TestProject
 
         }
 
-        [TestMethod]
+        [Test]
         public void TestBulkLoad_DataReaderWithMappingOrdinal2Name()
         {
             CreateTargetForBulkLoad();
@@ -1201,7 +1154,7 @@ namespace TestProject
 
         }
 
-        [TestMethod]
+        [Test]
         public void TestBulkLoad_DataReaderWithMappingName2Ordinal()
         {
             CreateTargetForBulkLoad();
@@ -1227,7 +1180,7 @@ namespace TestProject
             }
         }
 
-        [TestMethod]
+        [Test]
         public void TestBulkLoad_DataReaderWithMappingName2Name()
         {
             CreateTargetForBulkLoad();
@@ -1253,7 +1206,7 @@ namespace TestProject
             }
         }
 
-        [TestMethod]
+        [Test]
         public void TestBulkLoadPerformance()
         {
             using (NuoDbConnection cnn = new NuoDbConnection(connectionString))
@@ -1308,7 +1261,7 @@ namespace TestProject
 
         void loader_BatchProcessed(object sender, NuoDb.Data.Client.BatchProcessedEventArgs e)
         {
-            Console.WriteLine("Batch of {0} rows inserted, current count is {1}\n", e.BatchSize,e.TotalSize);
+            Console.WriteLine("Batch of {0} rows inserted, current count is {1}\n", e.BatchSize, e.TotalSize);
         }
 
     }

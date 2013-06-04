@@ -8,16 +8,16 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.ComponentModel;
+using System.Data.EntityClient;
 using System.Data.Objects;
 using System.Data.Objects.DataClasses;
-using System.Data.EntityClient;
-using System.ComponentModel;
-using System.Xml.Serialization;
+using System.Linq;
 using System.Runtime.Serialization;
+using System.Xml.Serialization;
 
 [assembly: EdmSchemaAttribute()]
-
-namespace TestProject
+namespace NUnitTestProject
 {
     #region Contexts
     
@@ -82,6 +82,7 @@ namespace TestProject
         private ObjectSet<HOCKEY> _HOCKEY;
 
         #endregion
+
         #region AddTo Methods
     
         /// <summary>
@@ -93,11 +94,11 @@ namespace TestProject
         }
 
         #endregion
+
     }
-    
 
     #endregion
-    
+
     #region Entities
     
     /// <summary>
@@ -122,6 +123,7 @@ namespace TestProject
         }
 
         #endregion
+
         #region Primitive Properties
     
         /// <summary>
@@ -248,9 +250,11 @@ namespace TestProject
         partial void OnTEAMChanged();
 
         #endregion
+
     
     }
 
     #endregion
+
     
 }
