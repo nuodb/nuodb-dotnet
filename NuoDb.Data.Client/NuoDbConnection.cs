@@ -48,7 +48,7 @@ namespace NuoDb.Data.Client
     // it would try to do that because the parent class derives from Component, but it's abstract
     // and it cannot be instanciated
     [System.ComponentModel.DesignerCategory("")]
-    public sealed class NuoDbConnection : DbConnection
+    public sealed class NuoDbConnection : DbConnection, ICloneable
     {
         internal DbTransaction transaction;
         internal const int PORT = 48004;
@@ -96,7 +96,7 @@ namespace NuoDb.Data.Client
                 if (state == ConnectionState.Open)
                     Close();
             }
-            catch (ObjectDisposedException)
+            catch (Exception)
             {
             }
 
@@ -1765,5 +1765,14 @@ namespace NuoDb.Data.Client
         {
             get { return NuoDbProviderFactory.Instance; }
         }
+
+        #region ICloneable Members
+
+        public object Clone()
+        {
+            return new NuoDbConnection(this.ConnectionString);
+        }
+
+        #endregion
     }
 }

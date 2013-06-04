@@ -149,7 +149,10 @@ namespace NuoDb.Data.Client
 
         public override void Remove(object value)
         {
-            throw new NotImplementedException();
+            if (!(value is NuoDbParameter))
+                throw new ArgumentException("Parameter is not a NuoDB parameter", "value");
+
+            collection.Remove(value as NuoDbParameter);
         }
 
         public override void RemoveAt(string parameterName)

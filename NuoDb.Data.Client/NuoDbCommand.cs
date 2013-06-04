@@ -70,7 +70,13 @@ namespace NuoDb.Data.Client
 
         protected override void Dispose(bool disposing)
         {
-            Close();
+            try
+            {
+                Close();
+            }
+            catch (Exception)
+            {
+            }
             base.Dispose(disposing);
         }
 
