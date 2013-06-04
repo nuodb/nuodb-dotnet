@@ -11,30 +11,24 @@ namespace NUnitTestProject
     public class LINQTestFixture
     {
         testEntities context;
-        int tableRows = 0;
+        static int tableRows = 0;
 
         public LINQTestFixture()
         {
             context = new testEntities();
-            try
-            {
-                using (NuoDbConnection connection = new NuoDbConnection(TestFixture1.connectionString))
-                {
-                    DbCommand command = new NuoDbCommand("select count(*) from hockey", connection);
-
-                    connection.Open();
-                    tableRows = (int)command.ExecuteScalar();
-                }
-            }
-            catch (Exception)
-            {
-            }
         }
 
         [TestFixtureSetUp]
         public static void Init() 
         {
             Utils.CreateHockeyTable();
+            using (NuoDbConnection connection = new NuoDbConnection(TestFixture1.connectionString))
+            {
+                DbCommand command = new NuoDbCommand("select count(*) from hockey", connection);
+
+                connection.Open();
+                tableRows = (int)command.ExecuteScalar();
+            }
         }
 
         [Test]
