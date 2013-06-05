@@ -24,6 +24,9 @@
 * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
 * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+* 
+* Contributors:
+*	Jiri Cincura (jiri@cincura.net)
 ****************************************************************************/
 
 using System.Data.Common;
@@ -193,7 +196,9 @@ namespace NuoDb.Data.Client.EntityFramework
                         return TypeUsage.CreateBinaryTypeUsage(storePrimitiveType, isFixedLength);
                     }
 
-                case PrimitiveTypeKind.Guid:
+				case PrimitiveTypeKind.Guid:
+					return TypeUsage.CreateDefaultTypeUsage(StoreTypeNameToStorePrimitiveType["guid_char"]);
+
                 default:
                     throw new NotSupportedException(string.Format("There is no store type corresponding to the EDM type '{0}' of primitive type '{1}'.", edmType, primitiveType.PrimitiveTypeKind));
             }

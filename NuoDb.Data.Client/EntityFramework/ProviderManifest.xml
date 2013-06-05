@@ -116,5 +116,12 @@
         <MaxLength Minimum="1" Maximum="65536" Constant="false" DefaultValue="65535"/>
       </FacetDescriptions>
     </Type>
+		<Type Name="guid_char" PrimitiveTypeKind="Guid" >
+			<FacetDescriptions>
+				<FixedLength Constant="true" DefaultValue="true"/>
+				<Unicode Constant="false" DefaultValue="false"/>
+				<MaxLength Minimum="38" Maximum="38" Constant="true" DefaultValue="38"/>
+			</FacetDescriptions>
+		</Type>
   </Types>
 </ProviderManifest>
