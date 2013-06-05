@@ -33,14 +33,9 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 				var tableName = MetadataHelpers.GetTableName(entitySet);
 				result.AppendFormat("CREATE TABLE {0} (", SqlGenerator.QuoteIdentifier(tableName));
 				result.AppendLine();
-				foreach (var property in MetadataHelpers.GetProperties(entitySet.ElementType))
-				{
-					var column = GenerateColumn(property);
-					result.Append("\t");
-					result.Append(column);
-					result.Append(",");
-					result.AppendLine();
-				}
+				result.Append("\t");
+				result.Append(string.Join("," + Environment.NewLine + "\t", MetadataHelpers.GetProperties(entitySet.ElementType).Select(p => GenerateColumn(p))));
+				result.AppendLine();
 				result.Append(");");
 				result.AppendLine();
 				result.AppendFormat("ALTER TABLE {0} ADD PRIMARY KEY ({1});",
