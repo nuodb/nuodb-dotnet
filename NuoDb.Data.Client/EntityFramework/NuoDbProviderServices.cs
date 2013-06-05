@@ -24,6 +24,9 @@
 * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
 * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+* 
+* Contributors:
+*	Jiri Cincura (jiri@cincura.net)
 ****************************************************************************/
 
 using System.Collections.Generic;
@@ -149,5 +152,25 @@ namespace NuoDb.Data.Client.EntityFramework
             string version = dsInfo.Rows[0].Field<string>("DataSourceInternalProductVersion");
             return version;
         }
+
+		protected override void DbCreateDatabase(DbConnection connection, int? commandTimeout, StoreItemCollection storeItemCollection)
+		{
+			throw new NotSupportedException("Creating database is not supported in NuoDB driver.");
+		}
+
+		protected override string DbCreateDatabaseScript(string providerManifestToken, StoreItemCollection storeItemCollection)
+		{
+			return ScriptBuilder.GenerateDatabaseScript(providerManifestToken, storeItemCollection);
+		}
+
+		protected override bool DbDatabaseExists(DbConnection connection, int? commandTimeout, StoreItemCollection storeItemCollection)
+		{
+			throw new NotSupportedException("Checking database existence is not supported in NuoDB driver.");
+		}
+
+		protected override void DbDeleteDatabase(DbConnection connection, int? commandTimeout, StoreItemCollection storeItemCollection)
+		{
+			throw new NotSupportedException("Deleting database is not supported in NuoDB driver.");
+		}
     }
 }
