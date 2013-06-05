@@ -12,11 +12,9 @@
  *     express or implied.  See the License for the specific 
  *     language governing rights and limitations under the License.
  * 
- *  Copyright (c) 2008-2010 Jiri Cincura (jiri@cincura.net)
+ *  Author: Jiri Cincura (jiri@cincura.net)
  *  All Rights Reserved.
  */
-
-#if (!(NET_35 && !ENTITY_FRAMEWORK))
 
 using System;
 using System.Collections.Generic;
@@ -1010,16 +1008,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
                 //    builder.Append(QuoteIdentifier(entitySetBase.EntityContainer.Name));
                 //    builder.Append(".");
                 //}
-
-                string tableName = MetadataHelpers.TryGetValueForMetadataProperty<string>(entitySetBase, "Table");
-                if (!string.IsNullOrEmpty(tableName))
-                {
-                    builder.Append(QuoteIdentifier(tableName));
-                }
-                else
-                {
-                    builder.Append(QuoteIdentifier(entitySetBase.Name));
-                }
+                builder.Append(QuoteIdentifier(MetadataHelpers.GetTableName(entitySetBase)));
             }
             return builder.ToString();
         }
@@ -3892,4 +3881,3 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
     }
 
 }
-#endif
