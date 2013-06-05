@@ -60,7 +60,8 @@
     <Compile Include="EntityFramework\SqlGen\ExpressionTranslator.cs" />
     <Compile Include="EntityFramework\SqlGen\ISqlFragment.cs" />
     <Compile Include="EntityFramework\SqlGen\JoinSymbol.cs" />
-    <Compile Include="EntityFramework\SqlGen\MetaDataHelpers.cs" />
+    <Compile Include="EntityFramework\SqlGen\MetadataHelpers.cs" />
+    <Compile Include="EntityFramework\SqlGen\ScriptBuilder.cs" />
     <Compile Include="EntityFramework\SqlGen\SqlBuilder.cs" />
     <Compile Include="EntityFramework\SqlGen\SqlGenerator.cs" />
     <Compile Include="EntityFramework\SqlGen\SqlSelectStatement.cs" />
