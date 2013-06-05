@@ -10,8 +10,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>NuoDb.Data.Client</RootNamespace>
     <AssemblyName>NuoDb.Data.Client</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -37,7 +38,11 @@
     <AssemblyOriginatorKeyFile>Key.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="EntityFramework">
+      <HintPath>..\libs\EntityFramework.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data.Entity" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -48,6 +53,7 @@
   <ItemGroup>
     <Compile Include="BatchProcessedEventArgs.cs" />
     <Compile Include="BatchProcessedEventHandler.cs" />
+    <Compile Include="EntityFramework\NuoDbConnectionFactory.cs" />
     <Compile Include="EntityFramework\NuoDbProviderManifest.cs" />
     <Compile Include="EntityFramework\NuoDbProviderServices.cs" />
     <Compile Include="EntityFramework\SqlGen\DmlSqlGenerator.cs" />
