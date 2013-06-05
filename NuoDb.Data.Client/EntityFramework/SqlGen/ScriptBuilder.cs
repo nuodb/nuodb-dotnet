@@ -42,6 +42,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 					result.AppendLine();
 				}
 				result.Append(");");
+				result.AppendLine();
 				result.AppendFormat("ALTER TABLE {0} ADD PRIMARY KEY ({1});",
 					SqlGenerator.QuoteIdentifier(tableName),
 					string.Join(", ", entitySet.ElementType.KeyMembers.Select(pk => SqlGenerator.QuoteIdentifier(pk.Name))));
