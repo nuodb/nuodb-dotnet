@@ -12,11 +12,9 @@
  *     express or implied.  See the License for the specific 
  *     language governing rights and limitations under the License.
  * 
- *  Copyright (c) 2008-2010 Jiri Cincura (jiri@cincura.net)
+ *  Author: Jiri Cincura (jiri@cincura.net)
  *  All Rights Reserved.
  */
-
-#if (!(NET_35 && !ENTITY_FRAMEWORK))
 
 using System;
 using System.Collections.Generic;
@@ -396,4 +394,3 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 		#endregion
 	}
 }
-#endif
