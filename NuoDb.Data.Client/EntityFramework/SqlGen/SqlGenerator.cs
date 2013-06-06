@@ -111,40 +111,40 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
             Dictionary<string, FunctionHandler> functionHandlers = new Dictionary<string, FunctionHandler>(StringComparer.Ordinal);
 
             #region Other Canonical Functions
-            functionHandlers.Add("NewGuid", HandleCanonicalFunctionNewGuid);
+			functionHandlers.Add("NewGuid", HandleCanonicalFunctionNotSupported);
             #endregion
 
             #region Math Canonical Functions
-            functionHandlers.Add("Abs", HandleCanonicalFunctionAbs);
-            functionHandlers.Add("Ceiling", HandleCanonicalFunctionCeiling);
-            functionHandlers.Add("Floor", HandleCanonicalFunctionFloor);
+            functionHandlers.Add("Abs", HandleCanonicalFunctionNotSupported);
+			functionHandlers.Add("Ceiling", HandleCanonicalFunctionNotSupported);
+			functionHandlers.Add("Floor", HandleCanonicalFunctionNotSupported);
             functionHandlers.Add("Power", HandleCanonicalFunctionPower);
-            functionHandlers.Add("Round", HandleCanonicalFunctionRound);
-            functionHandlers.Add("Truncate", HandleCanonicalFunctionTruncate);
+			functionHandlers.Add("Round", HandleCanonicalFunctionNotSupported);
+			functionHandlers.Add("Truncate", HandleCanonicalFunctionNotSupported);
             #endregion
 
             #region String Canonical Functions
-            functionHandlers.Add("Concat", HandleConcatFunction);
-            functionHandlers.Add("Contains", HandleContainsFunction);
-            functionHandlers.Add("EndsWith", HandleEndsWithFunction);
-            functionHandlers.Add("IndexOf", HandleCanonicalFunctionIndexOf);
+            functionHandlers.Add("Concat", HandleCanonicalConcatFunction);
+            functionHandlers.Add("Contains", HandleCanonicalContainsFunction);
+            functionHandlers.Add("EndsWith", HandleCanonicalEndsWithFunction);
+            functionHandlers.Add("IndexOf", HandleCanonicalFunctionNotSupported);
             functionHandlers.Add("Length", HandleCanonicalFunctionLength);
             functionHandlers.Add("ToLower", HandleCanonicalFunctionToLower);
             functionHandlers.Add("ToUpper", HandleCanonicalFunctionToUpper);
-            functionHandlers.Add("Trim", HandleCanonicalFunctionTrim);
-            functionHandlers.Add("LTrim", HandleCanonicalFunctionLTrim);
-            functionHandlers.Add("RTrim", HandleCanonicalFunctionRTrim);
-            functionHandlers.Add("Left", HandleCanonicalFunctionLeft);
-            functionHandlers.Add("Right", HandleCanonicalFunctionRight);
-            functionHandlers.Add("Reverse", HandleCanonicalFunctionReverse);
-            functionHandlers.Add("Replace", HandleCanonicalFunctionReplace);
-            functionHandlers.Add("StartsWith", HandleStartsWithFunction);
+            functionHandlers.Add("Trim", HandleCanonicalFunctionNotSupported);
+			functionHandlers.Add("LTrim", HandleCanonicalFunctionNotSupported);
+			functionHandlers.Add("RTrim", HandleCanonicalFunctionNotSupported);
+			functionHandlers.Add("Left", HandleCanonicalFunctionNotSupported);
+			functionHandlers.Add("Right", HandleCanonicalFunctionNotSupported);
+			functionHandlers.Add("Reverse", HandleCanonicalFunctionNotSupported);
+            functionHandlers.Add("Replace", HandleCanonicalFunctionNotSupported);
+            functionHandlers.Add("StartsWith", HandleCanonicalStartsWithFunction);
             functionHandlers.Add("Substring", HandleCanonicalFunctionSubstring);
             #endregion
 
             #region Date and Time Canonical Functions
-            functionHandlers.Add("AddNanoseconds", (sqlgen, e) => HandleCanonicalFunctionDateTimeAdd(sqlgen, e, null)); // not supported
-            functionHandlers.Add("AddMicroseconds", (sqlgen, e) => HandleCanonicalFunctionDateTimeAdd(sqlgen, e, null)); // not supported
+            functionHandlers.Add("AddNanoseconds", (sqlgen, e) => HandleCanonicalFunctionDateTimeAdd(sqlgen, e, null));
+            functionHandlers.Add("AddMicroseconds", (sqlgen, e) => HandleCanonicalFunctionDateTimeAdd(sqlgen, e, null));
             functionHandlers.Add("AddMilliseconds", (sqlgen, e) => HandleCanonicalFunctionDateTimeAdd(sqlgen, e, "MILLISECOND"));
             functionHandlers.Add("AddSeconds", (sqlgen, e) => HandleCanonicalFunctionDateTimeAdd(sqlgen, e, "SECOND"));
             functionHandlers.Add("AddMinutes", (sqlgen, e) => HandleCanonicalFunctionDateTimeAdd(sqlgen, e, "MINUTE"));
@@ -153,15 +153,15 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
             functionHandlers.Add("AddMonths", (sqlgen, e) => HandleCanonicalFunctionDateTimeAdd(sqlgen, e, "MONTH"));
             functionHandlers.Add("AddYears", (sqlgen, e) => HandleCanonicalFunctionDateTimeAdd(sqlgen, e, "YEAR"));
             functionHandlers.Add("CreateDateTime", HandleCanonicalFunctionCreateDateTime);
-            functionHandlers.Add("CreateDateTimeOffset", HandleCanonicalFunctionCreateDateTimeOffset); // not supported
+            functionHandlers.Add("CreateDateTimeOffset", HandleCanonicalFunctionCreateDateTimeOffset);
             functionHandlers.Add("CreateTime", HandleCanonicalFunctionCreateTime);
             functionHandlers.Add("CurrentDateTime", HandleCanonicalFunctionCurrentDateTime);
-            functionHandlers.Add("CurrentDateTimeOffset", HandleCanonicalFunctionCurrentDateTimeOffset); // not supported
-            functionHandlers.Add("CurrentUtcDateTime", HandleCanonicalFunctionCurrentUtcDateTime); // not supported
+            functionHandlers.Add("CurrentDateTimeOffset", HandleCanonicalFunctionCurrentDateTimeOffset);
+            functionHandlers.Add("CurrentUtcDateTime", HandleCanonicalFunctionCurrentUtcDateTime);
             functionHandlers.Add("Day", (sqlgen, e) => HandleCanonicalFunctionExtract(sqlgen, e, "DAY"));
             functionHandlers.Add("DayOfYear", (sqlgen, e) => HandleCanonicalFunctionExtract(sqlgen, e, "YEARDAY"));
-            functionHandlers.Add("DiffNanoseconds", (sqlgen, e) => HandleCanonicalFunctionDateTimeDiff(sqlgen, e, null)); // not supported
-            functionHandlers.Add("DiffMicroseconds", (sqlgen, e) => HandleCanonicalFunctionDateTimeDiff(sqlgen, e, null)); // not supported
+            functionHandlers.Add("DiffNanoseconds", (sqlgen, e) => HandleCanonicalFunctionDateTimeDiff(sqlgen, e, null));
+            functionHandlers.Add("DiffMicroseconds", (sqlgen, e) => HandleCanonicalFunctionDateTimeDiff(sqlgen, e, null));
             functionHandlers.Add("DiffMilliseconds", (sqlgen, e) => HandleCanonicalFunctionDateTimeDiff(sqlgen, e, "MILLISECOND"));
             functionHandlers.Add("DiffSeconds", (sqlgen, e) => HandleCanonicalFunctionDateTimeDiff(sqlgen, e, "SECOND"));
             functionHandlers.Add("DiffMinutes", (sqlgen, e) => HandleCanonicalFunctionDateTimeDiff(sqlgen, e, "MINUTE"));
@@ -169,7 +169,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
             functionHandlers.Add("DiffDays", (sqlgen, e) => HandleCanonicalFunctionDateTimeDiff(sqlgen, e, "DAY"));
             functionHandlers.Add("DiffMonths", (sqlgen, e) => HandleCanonicalFunctionDateTimeDiff(sqlgen, e, "MONTH"));
             functionHandlers.Add("DiffYears", (sqlgen, e) => HandleCanonicalFunctionDateTimeDiff(sqlgen, e, "YEAR"));
-            functionHandlers.Add("GetTotalOffsetMinutes", HandleCanonicalFunctionGetTotalOffsetMinutes); // not supported
+            functionHandlers.Add("GetTotalOffsetMinutes", HandleCanonicalFunctionGetTotalOffsetMinutes);
             functionHandlers.Add("Hour", (sqlgen, e) => HandleCanonicalFunctionExtract(sqlgen, e, "HOUR"));
             functionHandlers.Add("Millisecond", (sqlgen, e) => HandleCanonicalFunctionExtract(sqlgen, e, "MILLISECOND"));
             functionHandlers.Add("Minute", (sqlgen, e) => HandleCanonicalFunctionExtract(sqlgen, e, "MINUTE"));
@@ -180,10 +180,10 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
             #endregion
 
             #region Bitwise Canonical Functions
-            functionHandlers.Add("BitwiseAnd", HandleCanonicalFunctionBitwiseAnd);
-            functionHandlers.Add("BitwiseNot", HandleCanonicalFunctionBitwiseNot); // not supported
-            functionHandlers.Add("BitwiseOr", HandleCanonicalFunctionBitwiseOr);
-            functionHandlers.Add("BitwiseXor", HandleCanonicalFunctionBitwiseXor);
+            functionHandlers.Add("BitwiseAnd", HandleCanonicalFunctionNotSupported);
+            functionHandlers.Add("BitwiseNot", HandleCanonicalFunctionNotSupported);
+			functionHandlers.Add("BitwiseOr", HandleCanonicalFunctionNotSupported);
+			functionHandlers.Add("BitwiseXor", HandleCanonicalFunctionNotSupported);
             #endregion
 
             return functionHandlers;
@@ -2389,19 +2389,20 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
         }
 
         #region String Canonical Functions
-        private static ISqlFragment HandleConcatFunction(SqlGenerator sqlgen, DbFunctionExpression e)
+        private static ISqlFragment HandleCanonicalConcatFunction(SqlGenerator sqlgen, DbFunctionExpression e)
         {
             return sqlgen.HandleSpecialFunctionToOperator(e, false);
         }
 
-        private static ISqlFragment HandleContainsFunction(SqlGenerator sqlgen, DbFunctionExpression e)
+        private static ISqlFragment HandleCanonicalContainsFunction(SqlGenerator sqlgen, DbFunctionExpression e)
         {
             sqlgen.shouldHandleBoolComparison = false;
             return sqlgen.HandleSpecialFunctionToOperator(e, false);
         }
 
-        private static ISqlFragment HandleEndsWithFunction(SqlGenerator sqlgen, DbFunctionExpression e)
+        private static ISqlFragment HandleCanonicalEndsWithFunction(SqlGenerator sqlgen, DbFunctionExpression e)
         {
+#warning Maybe LIKE
             // should we do this thinking for developer or should (s)he create own solution???
             sqlgen.shouldHandleBoolComparison = false;
             SqlBuilder result = new SqlBuilder();
@@ -2413,104 +2414,22 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
             return result;
         }
 
-        private static ISqlFragment HandleCanonicalFunctionIndexOf(SqlGenerator sqlgen, DbFunctionExpression e)
-        {
-            // convert [IndexOf('string', field) > 0] into [field CONTAINING 'string']
-            sqlgen.shouldHandleBoolComparison = false;
-            SqlBuilder result = new SqlBuilder();
-            Debug.Assert(e.Arguments.Count > 0 && e.Arguments.Count <= 2, "There should be 1 or 2 arguments for operator");
-
-            if (e.Arguments.Count > 1)
-            {
-                result.Append(e.Arguments[1].Accept(sqlgen));
-            }
-            result.Append(" CONTAINING ");
-            result.Append(e.Arguments[0].Accept(sqlgen));
-            return result;
-        }
-
         private static ISqlFragment HandleCanonicalFunctionLength(SqlGenerator sqlgen, DbFunctionExpression e)
         {
             return sqlgen.HandleFunctionDefaultGivenName(e, "CHAR_LENGTH");
         }
 
-        private static ISqlFragment HandleCanonicalFunctionTrim(SqlGenerator sqlgen, DbFunctionExpression e)
-        {
-            return TrimHelper(sqlgen, e, "BOTH");
-        }
-
-        private static ISqlFragment HandleCanonicalFunctionLTrim(SqlGenerator sqlgen, DbFunctionExpression e)
-        {
-            return TrimHelper(sqlgen, e, "LEADING");
-        }
-
-        private static ISqlFragment HandleCanonicalFunctionRTrim(SqlGenerator sqlgen, DbFunctionExpression e)
-        {
-            return TrimHelper(sqlgen, e, "TRAILING");
-        }
-
-        /// <summary>
-        /// TRIM ( [ [ <trim specification> ] [ <trim character> ] FROM ] <value expression> )
-        /// <trim specification> ::=  LEADING  | TRAILING  | BOTH
-        /// </summary>
-        private static ISqlFragment TrimHelper(SqlGenerator sqlgen, DbFunctionExpression e, string what)
-        {
-            SqlBuilder result = new SqlBuilder();
-
-            result.Append("TRIM(");
-            result.Append(what);
-            result.Append(" FROM ");
-
-            Debug.Assert(e.Arguments.Count == 1, "Trim should have one argument");
-            result.Append(e.Arguments[0].Accept(sqlgen));
-
-            result.Append(")");
-
-            return result;
-        }
-
-        private static ISqlFragment HandleCanonicalFunctionLeft(SqlGenerator sqlgen, DbFunctionExpression e)
-        {
-            return sqlgen.HandleFunctionDefaultGivenName(e, "LEFT");
-        }
-
-        private static ISqlFragment HandleCanonicalFunctionRight(SqlGenerator sqlgen, DbFunctionExpression e)
-        {
-            return sqlgen.HandleFunctionDefaultGivenName(e, "RIGHT");
-        }
-
-        private static ISqlFragment HandleCanonicalFunctionReverse(SqlGenerator sqlgen, DbFunctionExpression e)
-        {
-            return sqlgen.HandleFunctionDefaultGivenName(e, "REVERSE");
-        }
-
-        private static ISqlFragment HandleCanonicalFunctionReplace(SqlGenerator sqlgen, DbFunctionExpression e)
-        {
-            return sqlgen.HandleFunctionDefaultGivenName(e, "REPLACE");
-        }
-
-        private static ISqlFragment HandleStartsWithFunction(SqlGenerator sqlgen, DbFunctionExpression e)
-        {
+        private static ISqlFragment HandleCanonicalStartsWithFunction(SqlGenerator sqlgen, DbFunctionExpression e)
+		{
+#warning Maybe LIKE
             sqlgen.shouldHandleBoolComparison = false;
             return sqlgen.HandleSpecialFunctionToOperator(e, false);
         }
 
         private static ISqlFragment HandleCanonicalFunctionSubstring(SqlGenerator sqlgen, DbFunctionExpression e)
-        {
-            SqlBuilder result = new SqlBuilder();
-
-            result.Append("SUBSTRING(");
-
-            Debug.Assert(e.Arguments.Count == 3, "Substring should have three arguments");
-            result.Append(e.Arguments[0].Accept(sqlgen));
-            result.Append(", ");
-            result.Append(e.Arguments[1].Accept(sqlgen));
-            result.Append(", ");
-            result.Append(e.Arguments[2].Accept(sqlgen));
-
-            result.Append(")");
-
-            return result;
+		{
+			Debug.Assert(e.Arguments.Count == 3, "Substring should have three arguments");
+			return sqlgen.HandleFunctionDefaultGivenName(e, "SUBSTR");
         }
 
         private static ISqlFragment HandleCanonicalFunctionToLower(SqlGenerator sqlgen, DbFunctionExpression e)
@@ -2679,43 +2598,19 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
         #endregion
 
         #region Other Canonical Functions
-        private static ISqlFragment HandleCanonicalFunctionNewGuid(SqlGenerator sqlgen, DbFunctionExpression e)
-        {
-            return sqlgen.HandleFunctionDefaultGivenName(e, "GEN_UUID");
-        }
         #endregion
 
         #region Math Canonical Functions
-        private static ISqlFragment HandleCanonicalFunctionAbs(SqlGenerator sqlgen, DbFunctionExpression e)
-        {
-            return sqlgen.HandleFunctionDefaultGivenName(e, "ABS");
-        }
-
-        private static ISqlFragment HandleCanonicalFunctionCeiling(SqlGenerator sqlgen, DbFunctionExpression e)
-        {
-            return sqlgen.HandleFunctionDefaultGivenName(e, "CEILING");
-        }
-
-        private static ISqlFragment HandleCanonicalFunctionFloor(SqlGenerator sqlgen, DbFunctionExpression e)
-        {
-            return sqlgen.HandleFunctionDefaultGivenName(e, "FLOOR");
-        }
-
         private static ISqlFragment HandleCanonicalFunctionPower(SqlGenerator sqlgen, DbFunctionExpression e)
         {
             return sqlgen.HandleFunctionDefaultGivenName(e, "POWER");
         }
-
-        private static ISqlFragment HandleCanonicalFunctionRound(SqlGenerator sqlgen, DbFunctionExpression e)
-        {
-            return sqlgen.HandleFunctionDefaultGivenName(e, "ROUND");
-        }
-
-        private static ISqlFragment HandleCanonicalFunctionTruncate(SqlGenerator sqlgen, DbFunctionExpression e)
-        {
-            return sqlgen.HandleFunctionDefaultGivenName(e, "TRUNC");
-        }
         #endregion
+
+		private static ISqlFragment HandleCanonicalFunctionNotSupported(SqlGenerator sqlgen, DbFunctionExpression e)
+		{
+			throw new NotSupportedException(string.Format("Function '{0}' is not supported.", e.Function.Name));
+		}
 
         #endregion
 
