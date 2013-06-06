@@ -24,11 +24,15 @@
 * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
 * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+* 
+* Contributors:
+*	Jiri Cincura (jiri@cincura.net)
 ****************************************************************************/
 
 using System.Data.Common;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System;
 
 namespace NuoDb.Data.Client
@@ -457,7 +461,7 @@ namespace NuoDb.Data.Client
 
         public override Guid GetGuid(int i)
         {
-            throw new NotImplementedException();
+			return Guid.Parse(GetString(i));
         }
 
         public override short GetInt16(int i)
@@ -492,6 +496,12 @@ namespace NuoDb.Data.Client
 
         public override object GetValue(int i)
         {
+			if (statement.ExpectedColumnTypes != null)
+				if (statement.ExpectedColumnTypes.ElementAtOrDefault(i) == typeof(Guid))
+				{
+					return GetGuid(i);
+				}
+
             return getValue(i).Object;
         }
 
@@ -499,7 +509,7 @@ namespace NuoDb.Data.Client
         {
             int toRead = Math.Min(this.numberColumns, values.Length);
             for (int i = 0; i < toRead; i++)
-                values[i] = getValue(i).Object;
+                values[i] = GetValue(i);
             for (int i = toRead; i < values.Length; i++)
                 values[i] = null;
             return toRead;
