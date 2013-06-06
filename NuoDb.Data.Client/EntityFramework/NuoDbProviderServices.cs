@@ -51,7 +51,7 @@ namespace NuoDb.Data.Client.EntityFramework
             if (commandTree == null)
                 throw new ArgumentNullException("commandTree");
 
-            NuoDbCommand command = new NuoDbCommand();
+            NuoDbCommand command = new NuoDbCommand(PrepareTypeCoercions(commandTree));
 
             List<DbParameter> parameters;
             CommandType commandType;
@@ -131,6 +131,55 @@ namespace NuoDb.Data.Client.EntityFramework
 
 			return result;
         }
+
+		private static Type[] PrepareTypeCoercions(DbCommandTree commandTree)
+		{
+			var queryTree = commandTree as DbQueryCommandTree;
+			if (queryTree != null)
+			{
+				var projectExpression = queryTree.Query as DbProjectExpression;
+				if (projectExpression != null)
+				{
+					var resultsType = projectExpression.Projection.ResultType.EdmType;
+					var resultsAsStructuralType = resultsType as StructuralType;
+					if (resultsAsStructuralType != null)
+					{
+						var result = new Type[resultsAsStructuralType.Members.Count];
+						for (int i = 0; i < resultsAsStructuralType.Members.Count; i++)
+						{
+							var member = resultsAsStructuralType.Members[i];
+							result[i] = ((PrimitiveType)member.TypeUsage.EdmType).ClrEquivalentType;
+						}
+						return result;
+					}
+				}
+			}
+			var functionTree = commandTree as DbFunctionCommandTree;
+			if (functionTree != null)
+			{
+				if (functionTree.ResultType != null)
+				{
+					var elementType = MetadataHelpers.GetElementTypeUsage(functionTree.ResultType).EdmType;
+					if (MetadataHelpers.IsRowType(elementType))
+					{
+						var members = ((RowType)elementType).Members;
+						var result = new Type[members.Count];
+						for (int i = 0; i < members.Count; i++)
+						{
+							var member = members[i];
+							var primitiveType = (PrimitiveType)member.TypeUsage.EdmType;
+							result[i] = primitiveType.ClrEquivalentType;
+						}
+						return result;
+					}
+					else if (MetadataHelpers.IsPrimitiveType(elementType))
+					{
+						return new Type[] { ((PrimitiveType)elementType).ClrEquivalentType };
+					}
+				}
+			}
+			return null;
+		}
 
         protected override DbProviderManifest GetDbProviderManifest(string manifestToken)
         {

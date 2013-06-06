@@ -24,6 +24,9 @@
 * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
 * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+* 
+* Contributors:
+*	Jiri Cincura (jiri@cincura.net)
 ****************************************************************************/
 
 using System.Data.Common;
@@ -67,6 +70,12 @@ namespace NuoDb.Data.Client
         public NuoDbCommand()
         {
         }
+
+		internal NuoDbCommand(Type[] expectedColumnTypes)
+			: this()
+		{
+			ExpectedColumnTypes = expectedColumnTypes;
+		}
 
         protected override void Dispose(bool disposing)
         {
@@ -201,6 +210,8 @@ namespace NuoDb.Data.Client
                     throw new NotImplementedException();
             }
         }
+
+		internal Type[] ExpectedColumnTypes { get; private set; }
 
         protected override DbParameter CreateDbParameter()
         {
@@ -562,6 +573,9 @@ namespace NuoDb.Data.Client
             command.CommandType = this.CommandType;
             command.CommandTimeout = this.CommandTimeout;
             command.UpdatedRowSource = this.UpdatedRowSource;
+
+			if (this.ExpectedColumnTypes != null)
+				command.ExpectedColumnTypes = (Type[])this.ExpectedColumnTypes.Clone();
 
             foreach (NuoDbParameter p in this.Parameters)
             {
