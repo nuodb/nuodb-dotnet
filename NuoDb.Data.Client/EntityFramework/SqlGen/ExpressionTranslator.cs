@@ -31,7 +31,6 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 		private readonly DbModificationCommandTree commandTree;
 		private readonly List<DbParameter> parameters;
 		private readonly Dictionary<EdmMember, List<DbParameter>> memberValues;
-		private int parameterNameCount = 0;
 
 		#endregion
 
@@ -318,9 +317,6 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 		// generate parameter (name based on parameter ordinal)
 		internal NuoDbParameter CreateParameter(object value, TypeUsage type)
 		{
-			//string parameterName = string.Concat("@p", parameterNameCount.ToString(CultureInfo.InvariantCulture));
-			parameterNameCount++;
-
             NuoDbParameter parameter = new NuoDbParameter();
             parameter.ParameterName = "?"; // parameterName;
             //parameter.DbType = type;
