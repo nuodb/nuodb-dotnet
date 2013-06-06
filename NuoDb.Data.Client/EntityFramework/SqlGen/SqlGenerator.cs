@@ -190,8 +190,8 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
         }
 
         /// <summary>
-        /// Initializes the mapping from functions to T-SQL operators
-        /// for all functions that translate to T-SQL operators
+        /// Initializes the mapping from functions to SQL operators
+        /// for all functions that translate to SQL operators
         /// </summary>
         /// <returns></returns>
         private static Dictionary<string, string> InitializeFunctionNameToOperatorDictionary()
@@ -764,14 +764,14 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
             if (IsParentAJoin)
             {
                 SqlBuilder result = new SqlBuilder();
-                result.Append(GetTargetTSql(target));
+                result.Append(GetTargetSql(target));
 
                 return result;
             }
             else
             {
                 SqlSelectStatement result = new SqlSelectStatement();
-                result.From.Append(GetTargetTSql(target));
+                result.From.Append(GetTargetSql(target));
 
                 return result;
             }
@@ -782,9 +782,9 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
         /// Gets escaped TSql identifier describing this entity set.
         /// </summary>
         /// <returns></returns>
-        internal static string GetTargetTSql(EntitySetBase entitySetBase)
+        internal static string GetTargetSql(EntitySetBase entitySetBase)
         {
-            // construct escaped T-SQL referencing entity set
+            // construct escaped SQL referencing entity set
             StringBuilder builder = new StringBuilder(50);
             string definingQuery = MetadataHelpers.TryGetValueForMetadataProperty<string>(entitySetBase, "DefiningQuery");
             if (!string.IsNullOrEmpty(definingQuery))
