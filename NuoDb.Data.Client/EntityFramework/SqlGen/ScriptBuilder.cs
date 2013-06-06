@@ -54,12 +54,12 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 				ReferentialConstraint constraint = associationSet.ElementType.ReferentialConstraints.Single<ReferentialConstraint>();
 				AssociationSetEnd end = associationSet.AssociationSetEnds[constraint.FromRole.Name];
 				AssociationSetEnd end2 = associationSet.AssociationSetEnds[constraint.ToRole.Name];
-				result.AppendFormat("ALTER TABLE {0} ADD FOREIGN KEY ({1}) REFERENCES {2}({3}) ON DELETE {4};",
+				result.AppendFormat("ALTER TABLE {0} ADD FOREIGN KEY ({1}) REFERENCES {2}({3}){4};",
 					SqlGenerator.QuoteIdentifier(MetadataHelpers.GetTableName(end2.EntitySet)),
 					string.Join(", ", constraint.ToProperties.Select(fk => SqlGenerator.QuoteIdentifier(fk.Name))),
 					SqlGenerator.QuoteIdentifier(MetadataHelpers.GetTableName(end.EntitySet)),
 					string.Join(", ", constraint.FromProperties.Select(pk => SqlGenerator.QuoteIdentifier(pk.Name))),
-					end.CorrespondingAssociationEndMember.DeleteBehavior == OperationAction.Cascade ? "CASCADE" : "NO ACTION");
+					end.CorrespondingAssociationEndMember.DeleteBehavior == OperationAction.Cascade ? " ON DELETE CASCADE" : string.Empty);
 				yield return result.ToString();
 			}
 		}
