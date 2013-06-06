@@ -539,11 +539,15 @@ namespace NuoDb.Data.Client
             {
                 encodeTime((TimeSpan)value);
             }
-            else
-            {
-                System.Diagnostics.Trace.WriteLine(String.Format("Unsupported type of parameter: {0}, sending as a plain string", value.GetType().Name));
-                encodeString(value.ToString());
-            }
+			else if (value is Guid)
+			{
+				encodeGuid((Guid)value);
+			}
+			else
+			{
+				System.Diagnostics.Trace.WriteLine(String.Format("Unsupported type of parameter: {0}, sending as a plain string", value.GetType().Name));
+				encodeString(value.ToString());
+			}
         }
 
 		public virtual void encodeInt(int value)
@@ -1670,6 +1674,11 @@ namespace NuoDb.Data.Client
 				write((int)(value >> shift));
 			}
 
+		}
+
+		public virtual void encodeGuid(Guid guid)
+		{
+			encodeString(guid.ToString("B"));
 		}
 
 		public override void getMessage(CryptoInputStream stream)
