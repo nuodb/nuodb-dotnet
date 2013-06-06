@@ -651,13 +651,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
                     result = VisitBinaryExpression(" - ", e.Arguments[0], e.Arguments[1]);
                     break;
                 case DbExpressionKind.Modulo:
-                    //result = VisitBinaryExpression(" % ", e.Arguments[0], e.Arguments[1]);
-                    result = new SqlBuilder();
-                    result.Append(" MOD(");
-                    result.Append(e.Arguments[0].Accept(this));
-                    result.Append(", ");
-                    result.Append(e.Arguments[1].Accept(this));
-                    result.Append(")");
+                    result = VisitBinaryExpression(" % ", e.Arguments[0], e.Arguments[1]);
                     break;
                 case DbExpressionKind.Multiply:
                     result = VisitBinaryExpression(" * ", e.Arguments[0], e.Arguments[1]);
