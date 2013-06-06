@@ -39,90 +39,87 @@ using System.Data;
 
 namespace NuoDb.Data.Client.EntityFramework
 {
-    class NuoDbProviderServices : DbProviderServices
-    {
-        internal static object Instance = new NuoDbProviderServices();
+	class NuoDbProviderServices : DbProviderServices
+	{
+		internal static object Instance = new NuoDbProviderServices();
 
-        protected override DbCommandDefinition CreateDbCommandDefinition(DbProviderManifest providerManifest, System.Data.Common.CommandTrees.DbCommandTree commandTree)
-        {
-            if (providerManifest == null)
-                throw new ArgumentNullException("providerManifest");
+		protected override DbCommandDefinition CreateDbCommandDefinition(DbProviderManifest providerManifest, System.Data.Common.CommandTrees.DbCommandTree commandTree)
+		{
+			if (providerManifest == null)
+				throw new ArgumentNullException("providerManifest");
 
-            if (commandTree == null)
-                throw new ArgumentNullException("commandTree");
+			if (commandTree == null)
+				throw new ArgumentNullException("commandTree");
 
-            NuoDbCommand command = new NuoDbCommand(PrepareTypeCoercions(commandTree));
+			NuoDbCommand command = new NuoDbCommand(PrepareTypeCoercions(commandTree));
 
-            List<DbParameter> parameters;
-            CommandType commandType;
-            command.CommandText = SqlGenerator.GenerateSql(commandTree, out parameters, out commandType);
-            command.CommandType = commandType;
+			List<DbParameter> parameters;
+			CommandType commandType;
+			command.CommandText = SqlGenerator.GenerateSql(commandTree, out parameters, out commandType);
+			command.CommandType = commandType;
 
-            // Get the function (if any) implemented by the command tree since this influences our interpretation of parameters
-            EdmFunction function = null;
-            if (commandTree is DbFunctionCommandTree)
-            {
-                function = ((DbFunctionCommandTree)commandTree).EdmFunction;
-            }
+			// Get the function (if any) implemented by the command tree since this influences our interpretation of parameters
+			EdmFunction function = null;
+			if (commandTree is DbFunctionCommandTree)
+			{
+				function = ((DbFunctionCommandTree)commandTree).EdmFunction;
+			}
 
-            foreach (KeyValuePair<string, TypeUsage> queryParameter in commandTree.Parameters)
-            {
-                NuoDbParameter parameter;
+			foreach (KeyValuePair<string, TypeUsage> queryParameter in commandTree.Parameters)
+			{
+				NuoDbParameter parameter;
 
-                // Use the corresponding function parameter TypeUsage where available (currently, the SSDL facets and 
-                // type trump user-defined facets and type in the EntityCommand).
-                FunctionParameter functionParameter;
-                if (null != function && function.Parameters.TryGetValue(queryParameter.Key, false, out functionParameter))
-                {
-                    parameter = CreateSqlParameter(functionParameter.Name, functionParameter.TypeUsage, functionParameter.Mode, DBNull.Value);
-                }
-                else
-                {
-                    parameter = CreateSqlParameter(queryParameter.Key, queryParameter.Value, ParameterMode.In, DBNull.Value);
-                }
+				// Use the corresponding function parameter TypeUsage where available (currently, the SSDL facets and 
+				// type trump user-defined facets and type in the EntityCommand).
+				FunctionParameter functionParameter;
+				if (null != function && function.Parameters.TryGetValue(queryParameter.Key, false, out functionParameter))
+				{
+					parameter = CreateSqlParameter(functionParameter.Name, functionParameter.TypeUsage, functionParameter.Mode, DBNull.Value);
+				}
+				else
+				{
+					parameter = CreateSqlParameter(queryParameter.Key, queryParameter.Value, ParameterMode.In, DBNull.Value);
+				}
 
-                command.Parameters.Add(parameter);
-            }
+				command.Parameters.Add(parameter);
+			}
 
-            // Now add parameters added as part of SQL gen (note: this feature is only safe for DML SQL gen which
-            // does not support user parameters, where there is no risk of name collision)
-            if (null != parameters && 0 < parameters.Count)
-            {
-                if (!(commandTree is DbInsertCommandTree) &&
-                    !(commandTree is DbUpdateCommandTree) &&
-                    !(commandTree is DbDeleteCommandTree))
-                {
-                    throw new InvalidOperationException("SqlGenParametersNotPermitted");
-                }
+			// Now add parameters added as part of SQL gen (note: this feature is only safe for DML SQL gen which
+			// does not support user parameters, where there is no risk of name collision)
+			if (null != parameters && 0 < parameters.Count)
+			{
+				if (!(commandTree is DbInsertCommandTree) &&
+					!(commandTree is DbUpdateCommandTree) &&
+					!(commandTree is DbDeleteCommandTree))
+				{
+					throw new InvalidOperationException("SqlGenParametersNotPermitted");
+				}
 
-                foreach (DbParameter parameter in parameters)
-                {
-                    command.Parameters.Add(parameter);
-                }
-            }
+				foreach (DbParameter parameter in parameters)
+				{
+					command.Parameters.Add(parameter);
+				}
+			}
 
-            return CreateCommandDefinition(command);
-        }
+			return CreateCommandDefinition(command);
+		}
 
-        private NuoDbParameter CreateSqlParameter(string name, TypeUsage type, ParameterMode mode, object value)
-        {
-            NuoDbParameter result = new NuoDbParameter();
-            result.ParameterName = name;
-            result.Value = value;
+		internal static NuoDbParameter CreateSqlParameter(string name, TypeUsage type, ParameterMode mode, object value)
+		{
+			NuoDbParameter result = new NuoDbParameter();
+			result.ParameterName = name;
+			result.Value = value;
 
-			// .Direction
 			ParameterDirection direction = MetadataHelpers.ParameterModeToParameterDirection(mode);
 			if (result.Direction != direction)
 			{
 				result.Direction = direction;
 			}
 
-			// .Size
 			// output parameters are handled differently (we need to ensure there is space for return
 			// values where the user has not given a specific Size/MaxLength)
 			bool isOutParam = mode != ParameterMode.In;
 
-            // .IsNullable
 			bool isNullable = MetadataHelpers.IsNullable(type);
 			if (isOutParam || isNullable != result.IsNullable)
 			{
@@ -130,7 +127,7 @@ namespace NuoDb.Data.Client.EntityFramework
 			}
 
 			return result;
-        }
+		}
 
 		private static Type[] PrepareTypeCoercions(DbCommandTree commandTree)
 		{
@@ -181,26 +178,26 @@ namespace NuoDb.Data.Client.EntityFramework
 			return null;
 		}
 
-        protected override DbProviderManifest GetDbProviderManifest(string manifestToken)
-        {
-            return new NuoDbProviderManifest();
-        }
+		protected override DbProviderManifest GetDbProviderManifest(string manifestToken)
+		{
+			return new NuoDbProviderManifest();
+		}
 
-        protected override string GetDbProviderManifestToken(DbConnection connection)
-        {
-            if (connection == null)
-                throw new ArgumentNullException("connection");
+		protected override string GetDbProviderManifestToken(DbConnection connection)
+		{
+			if (connection == null)
+				throw new ArgumentNullException("connection");
 
-            if (!(connection is NuoDbConnection))
-                throw new ArgumentException("Connection is not a valid NuoDbConnection");
+			if (!(connection is NuoDbConnection))
+				throw new ArgumentException("Connection is not a valid NuoDbConnection");
 
-            NuoDbConnection conn = (NuoDbConnection)connection;
-            DataTable dsInfo = conn.GetSchema(DbMetaDataCollectionNames.DataSourceInformation);
-            if (dsInfo.Rows.Count == 0)
-                return "0";
-            string version = dsInfo.Rows[0].Field<string>("DataSourceInternalProductVersion");
-            return version;
-        }
+			NuoDbConnection conn = (NuoDbConnection)connection;
+			DataTable dsInfo = conn.GetSchema(DbMetaDataCollectionNames.DataSourceInformation);
+			if (dsInfo.Rows.Count == 0)
+				return "0";
+			string version = dsInfo.Rows[0].Field<string>("DataSourceInternalProductVersion");
+			return version;
+		}
 
 		protected override void DbCreateDatabase(DbConnection connection, int? commandTimeout, StoreItemCollection storeItemCollection)
 		{
@@ -221,5 +218,5 @@ namespace NuoDb.Data.Client.EntityFramework
 		{
 			throw new NotSupportedException("Deleting database is not supported in NuoDB driver.");
 		}
-    }
+	}
 }

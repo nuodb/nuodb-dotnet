@@ -314,17 +314,10 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 			this.memberValues = preserveMemberValues ? new Dictionary<EdmMember, List<DbParameter>>() : null;
 		}
 
-		// generate parameter (name based on parameter ordinal)
 		internal NuoDbParameter CreateParameter(object value, TypeUsage type)
 		{
-            NuoDbParameter parameter = new NuoDbParameter();
-            parameter.ParameterName = "?"; // parameterName;
-            //parameter.DbType = type;
-            parameter.Direction = ParameterDirection.Input;
-            parameter.Value = value;
-
+			var parameter = NuoDbProviderServices.CreateSqlParameter("?", type, ParameterMode.In, value);
 			parameters.Add(parameter);
-
 			return parameter;
 		}
 
