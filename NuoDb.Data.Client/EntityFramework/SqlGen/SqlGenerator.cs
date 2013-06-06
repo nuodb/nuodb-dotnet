@@ -3366,7 +3366,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
                     break;
 
                 case PrimitiveTypeKind.Binary:
-                    typeName = "BLOB SUB_TYPE BINARY";
+                    typeName = "BLOB";
                     break;
 
                 case PrimitiveTypeKind.String:
@@ -3395,7 +3395,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
                     {
                         if (int.Parse(length) > (isUnicode ? NuoDbProviderManifest.NVarcharMaxSize : NuoDbProviderManifest.VarcharMaxSize))
                         {
-                            typeName = "BLOB SUB_TYPE TEXT";
+                            typeName = "CLOB";
                         }
                         else
                         {
@@ -3414,7 +3414,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
                     break;
 
                 case PrimitiveTypeKind.Guid:
-                    typeName = "CHAR(16) CHARACTER SET OCTETS";
+                    typeName = "CHAR(38)";
                     break;
 
                 default:
