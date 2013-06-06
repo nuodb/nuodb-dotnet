@@ -275,8 +275,6 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
         bool shouldHandleBoolComparison = true;
         bool shouldCastParameter = true;
 
-        Dictionary<string, string> shortenedNames = new Dictionary<string, string>();
-
         #endregion
 
         #region Statics
@@ -1133,23 +1131,22 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
         public override ISqlFragment Visit(DbGroupByExpression e)
         {
             Symbol fromSymbol;
-            string varName = GetShortenedName(e.Input.VariableName);
             SqlSelectStatement innerQuery = VisitInputExpression(e.Input.Expression,
-                varName, e.Input.VariableType, out fromSymbol);
+				e.Input.VariableName, e.Input.VariableType, out fromSymbol);
 
             // GroupBy is compatible with Filter and OrderBy
             // but not with Project, GroupBy
             if (!IsCompatible(innerQuery, e.ExpressionKind))
             {
-                innerQuery = CreateNewSelectStatement(innerQuery, varName, e.Input.VariableType, out fromSymbol);
+				innerQuery = CreateNewSelectStatement(innerQuery, e.Input.VariableName, e.Input.VariableType, out fromSymbol);
             }
 
             selectStatementStack.Push(innerQuery);
             symbolTable.EnterScope();
 
-            AddFromSymbol(innerQuery, varName, fromSymbol);
+			AddFromSymbol(innerQuery, e.Input.VariableName, fromSymbol);
             // This line is not present for other relational nodes.
-            symbolTable.Add(GetShortenedName(e.Input.GroupVariableName), fromSymbol);
+            symbolTable.Add(e.Input.GroupVariableName, fromSymbol);
 
 
             // The enumerator is shared by both the keys and the aggregates,
@@ -1164,8 +1161,8 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
             if (needsInnerQuery)
             {
                 //Create the inner query
-                result = CreateNewSelectStatement(innerQuery, varName, e.Input.VariableType, false, out fromSymbol);
-                AddFromSymbol(result, varName, fromSymbol, false);
+				result = CreateNewSelectStatement(innerQuery, e.Input.VariableName, e.Input.VariableType, false, out fromSymbol);
+				AddFromSymbol(result, e.Input.VariableName, fromSymbol, false);
             }
             else
             {
@@ -1567,20 +1564,19 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
         public override ISqlFragment Visit(DbProjectExpression e)
         {
             Symbol fromSymbol;
-            string varName = GetShortenedName(e.Input.VariableName);
-            SqlSelectStatement result = VisitInputExpression(e.Input.Expression, varName, e.Input.VariableType, out fromSymbol);
+            SqlSelectStatement result = VisitInputExpression(e.Input.Expression, e.Input.VariableName, e.Input.VariableType, out fromSymbol);
 
             // Project is compatible with Filter
             // but not with Project, GroupBy
             if (!IsCompatible(result, e.ExpressionKind))
             {
-                result = CreateNewSelectStatement(result, varName, e.Input.VariableType, out fromSymbol);
+                result = CreateNewSelectStatement(result, e.Input.VariableName, e.Input.VariableType, out fromSymbol);
             }
 
             selectStatementStack.Push(result);
             symbolTable.EnterScope();
 
-            AddFromSymbol(result, varName, fromSymbol);
+            AddFromSymbol(result, e.Input.VariableName, fromSymbol);
 
             // Project is the only node that can have DbNewInstanceExpression as a child
             // so we have to check it here.
@@ -1627,7 +1623,6 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
         public override ISqlFragment Visit(DbPropertyExpression e)
         {
             SqlBuilder result;
-            string varName = e.Property.Name;
 
             ISqlFragment instanceSql = e.Instance.Accept(this);
 
@@ -1643,15 +1638,14 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
             JoinSymbol joinSymbol = instanceSql as JoinSymbol;
             if (joinSymbol != null)
             {
-                varName = GetShortenedName(varName);
-                Debug.Assert(joinSymbol.NameToExtent.ContainsKey(varName));
+				Debug.Assert(joinSymbol.NameToExtent.ContainsKey(e.Property.Name));
                 if (joinSymbol.IsNestedJoin)
                 {
-                    return new SymbolPair(joinSymbol, joinSymbol.NameToExtent[varName]);
+					return new SymbolPair(joinSymbol, joinSymbol.NameToExtent[e.Property.Name]);
                 }
                 else
                 {
-                    return joinSymbol.NameToExtent[varName];
+					return joinSymbol.NameToExtent[e.Property.Name];
                 }
             }
             // ---------------------------------------
@@ -1659,12 +1653,11 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
             SymbolPair symbolPair = instanceSql as SymbolPair;
             if (symbolPair != null)
             {
-                varName = GetShortenedName(varName);
                 JoinSymbol columnJoinSymbol = symbolPair.Column as JoinSymbol;
                 if (columnJoinSymbol != null)
                 {
-                    Debug.Assert(columnJoinSymbol.NameToExtent.ContainsKey(varName));
-                    symbolPair.Column = columnJoinSymbol.NameToExtent[varName];
+					Debug.Assert(columnJoinSymbol.NameToExtent.ContainsKey(e.Property.Name));
+					symbolPair.Column = columnJoinSymbol.NameToExtent[e.Property.Name];
                     return symbolPair;
                 }
                 else
@@ -1690,7 +1683,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 
             // At this point the column name cannot be renamed, so we do
             // not use a symbol.
-            result.Append(QuoteIdentifier(varName));
+            result.Append(QuoteIdentifier(e.Property.Name));
 
             return result;
         }
@@ -1757,16 +1750,15 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
         {
             Debug.Assert(e.Count is DbConstantExpression || e.Count is DbParameterReferenceExpression, "DbSkipExpression.Count is of invalid expression type");
 
-            string varName = GetShortenedName(e.Input.VariableName);
             Symbol fromSymbol;
-            SqlSelectStatement result = VisitInputExpression(e.Input.Expression, varName, e.Input.VariableType, out fromSymbol);
+			SqlSelectStatement result = VisitInputExpression(e.Input.Expression, e.Input.VariableName, e.Input.VariableType, out fromSymbol);
 
             if (!IsCompatible(result, e.ExpressionKind))
             {
                 TypeUsage inputType = MetadataHelpers.GetElementTypeUsage(e.ResultType);
 
-                result = CreateNewSelectStatement(result, varName, inputType, out fromSymbol);
-                AddFromSymbol(result, varName, fromSymbol, false);
+				result = CreateNewSelectStatement(result, e.Input.VariableName, inputType, out fromSymbol);
+				AddFromSymbol(result, e.Input.VariableName, fromSymbol, false);
             }
 
             ISqlFragment skipCount = HandleCountExpression(e.Count);
@@ -1775,7 +1767,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
             selectStatementStack.Push(result);
             symbolTable.EnterScope();
 
-            AddFromSymbol(result, varName, fromSymbol);
+			AddFromSymbol(result, e.Input.VariableName, fromSymbol);
 
             AddSortKeys(result.OrderBy, e.SortOrder);
 
@@ -1794,20 +1786,19 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
         public override ISqlFragment Visit(DbSortExpression e)
         {
             Symbol fromSymbol;
-            string varName = GetShortenedName(e.Input.VariableName);
-            SqlSelectStatement result = VisitInputExpression(e.Input.Expression, varName, e.Input.VariableType, out fromSymbol);
+			SqlSelectStatement result = VisitInputExpression(e.Input.Expression, e.Input.VariableName, e.Input.VariableType, out fromSymbol);
 
             // OrderBy is compatible with Filter
             // and nothing else
             if (!IsCompatible(result, e.ExpressionKind))
             {
-                result = CreateNewSelectStatement(result, varName, e.Input.VariableType, out fromSymbol);
+				result = CreateNewSelectStatement(result, e.Input.VariableName, e.Input.VariableType, out fromSymbol);
             }
 
             selectStatementStack.Push(result);
             symbolTable.EnterScope();
 
-            AddFromSymbol(result, varName, fromSymbol);
+			AddFromSymbol(result, e.Input.VariableName, fromSymbol);
 
             AddSortKeys(result.OrderBy, e.SortOrder);
 
@@ -1861,8 +1852,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
             }
             isVarRefSingle = true; // This will be reset by DbPropertyExpression or MethodExpression
 
-            string varName = GetShortenedName(e.VariableName);
-            Symbol result = symbolTable.Lookup(varName);
+			Symbol result = symbolTable.Lookup(e.VariableName);
             if (!CurrentSelectStatement.FromExtents.Contains(result))
             {
                 CurrentSelectStatement.OuterExtents[result] = true;
@@ -2269,7 +2259,6 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
             DbExpressionBinding input, int fromSymbolStart)
         {
             Symbol fromSymbol = null;
-            string varName = GetShortenedName(input.VariableName);
 
             if (result != fromExtentFragment)
             {
@@ -2287,7 +2276,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
                             || IsApplyExpression(input.Expression))
                         {
                             List<Symbol> extents = sqlSelectStatement.FromExtents;
-                            JoinSymbol newJoinSymbol = new JoinSymbol(varName, input.VariableType, extents);
+							JoinSymbol newJoinSymbol = new JoinSymbol(input.VariableName, input.VariableType, extents);
                             newJoinSymbol.IsNestedJoin = true;
                             newJoinSymbol.ColumnList = columns;
 
@@ -2306,7 +2295,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
                             {
                                 // Note: sqlSelectStatement.FromExtents will not do, since it might
                                 // just be an alias of joinSymbol, and we want an actual JoinSymbol.
-                                JoinSymbol newJoinSymbol = new JoinSymbol(varName, input.VariableType, oldJoinSymbol.ExtentList);
+								JoinSymbol newJoinSymbol = new JoinSymbol(input.VariableName, input.VariableType, oldJoinSymbol.ExtentList);
                                 // This indicates that the sqlSelectStatement is a blocking scope
                                 // i.e. it hides/renames extent columns
                                 newJoinSymbol.IsNestedJoin = true;
@@ -2333,11 +2322,11 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 
                 if (fromSymbol == null) // i.e. not a join symbol
                 {
-                    fromSymbol = new Symbol(varName, input.VariableType);
+					fromSymbol = new Symbol(input.VariableName, input.VariableType);
                 }
 
 
-                AddFromSymbol(result, varName, fromSymbol);
+				AddFromSymbol(result, input.VariableName, fromSymbol);
                 result.AllJoinExtents.Add(fromSymbol);
             }
             else // result == fromExtentFragment.  The child extents have been merged into the parent's.
@@ -2357,7 +2346,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
                     extents.Add(result.FromExtents[i]);
                 }
                 result.FromExtents.RemoveRange(fromSymbolStart, result.FromExtents.Count - fromSymbolStart);
-                fromSymbol = new JoinSymbol(varName, input.VariableType, extents);
+				fromSymbol = new JoinSymbol(input.VariableName, input.VariableType, extents);
                 result.FromExtents.Add(fromSymbol);
                 // this Join Symbol does not have its own select statement, so we
                 // do not set IsNestedJoin
@@ -2365,7 +2354,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 
                 // We do not call AddFromSymbol(), since we do not want to add
                 // "AS alias" to the FROM clause- it has been done when the extent was added earlier.
-                symbolTable.Add(varName, fromSymbol);
+				symbolTable.Add(input.VariableName, fromSymbol);
             }
         }
 
@@ -3678,21 +3667,20 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
         SqlSelectStatement VisitFilterExpression(DbExpressionBinding input, DbExpression predicate, bool negatePredicate)
         {
             Symbol fromSymbol;
-            string varName = GetShortenedName(input.VariableName);
             SqlSelectStatement result = VisitInputExpression(input.Expression,
-                varName, input.VariableType, out fromSymbol);
+				input.VariableName, input.VariableType, out fromSymbol);
 
             // Filter is compatible with OrderBy
             // but not with Project, another Filter or GroupBy
             if (!IsCompatible(result, DbExpressionKind.Filter))
             {
-                result = CreateNewSelectStatement(result, varName, input.VariableType, out fromSymbol);
+				result = CreateNewSelectStatement(result, input.VariableName, input.VariableType, out fromSymbol);
             }
 
             selectStatementStack.Push(result);
             symbolTable.EnterScope();
 
-            AddFromSymbol(result, varName, fromSymbol);
+			AddFromSymbol(result, input.VariableName, fromSymbol);
 
             if (negatePredicate)
             {
@@ -3845,36 +3833,6 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
                 return false;
             }
             return true;
-        }
-
-        /// <summary>
-        /// Shortens the name of variable (tables, etc.).
-        /// </summary>
-        /// <param name="name"></param>
-        /// <returns></returns>
-        internal string GetShortenedName(string name)
-        {
-            string shortened;
-            if (!this.shortenedNames.TryGetValue(name, out shortened))
-            {
-                shortened = BuildName(this.shortenedNames.Count);
-                this.shortenedNames[name] = shortened;
-            }
-            return shortened;
-        }
-
-        internal static string BuildName(int index)
-        {
-            const int offset = (int)'A';
-            const int length = (int)'Z' - offset;
-            if (index <= length)
-            {
-                return ((char)(offset + index)).ToString();
-            }
-            else
-            {
-                return BuildName(index / length) + BuildName(index % length);
-            }
         }
 
         #endregion
