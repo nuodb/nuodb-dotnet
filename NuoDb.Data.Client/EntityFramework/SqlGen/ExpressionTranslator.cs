@@ -216,12 +216,12 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 
 		public override void Visit(DbAndExpression expression)
 		{
-			VisitBinary(expression, " and ");
+			VisitBinary(expression, " AND ");
 		}
 
 		public override void Visit(DbOrExpression expression)
 		{
-			VisitBinary(expression, " or ");
+			VisitBinary(expression, " OR ");
 		}
 
 		public override void Visit(DbComparisonExpression expression)
@@ -237,12 +237,12 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 		public override void Visit(DbIsNullExpression expression)
 		{
 			expression.Argument.Accept(this);
-			commandText.Append(" is null");
+			commandText.Append(" IS NULL");
 		}
 
 		public override void Visit(DbNotExpression expression)
 		{
-			commandText.Append("not (");
+			commandText.Append("NOT (");
 			expression.Accept(this);
 			commandText.Append(")");
 		}
@@ -265,7 +265,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 
 		public override void Visit(DbNullExpression expression)
 		{
-			commandText.Append("null");
+			commandText.Append("NULL");
 		}
 
 		public override void Visit(DbNewInstanceExpression expression)
