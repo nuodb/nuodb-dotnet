@@ -199,7 +199,6 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
             Dictionary<string, string> functionNameToOperatorDictionary = new Dictionary<string, string>(StringComparer.Ordinal);
             functionNameToOperatorDictionary.Add("Concat", "||");
             functionNameToOperatorDictionary.Add("Contains", "CONTAINING");
-            functionNameToOperatorDictionary.Add("StartsWith", "STARTING WITH");
             return functionNameToOperatorDictionary;
         }
 
