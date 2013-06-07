@@ -160,13 +160,13 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 			functionHandlers.Add("CurrentUtcDateTime", HandleCanonicalFunctionNotSupported);
 			functionHandlers.Add("Day", HandleCanonicalFunctionNotSupported);
 			functionHandlers.Add("DayOfYear", HandleCanonicalFunctionNotSupported);
-			//functionHandlers.Add("DiffDays", (sqlgen, e) => HandleCanonicalFunctionDateTimeDiff(sqlgen, e, "DAY"));
 			functionHandlers.Add("DiffNanoseconds", HandleCanonicalFunctionNotSupported);
 			functionHandlers.Add("DiffMicroseconds", HandleCanonicalFunctionNotSupported);
 			functionHandlers.Add("DiffMilliseconds", HandleCanonicalFunctionNotSupported);
 			functionHandlers.Add("DiffSeconds", HandleCanonicalFunctionNotSupported);
 			functionHandlers.Add("DiffMinutes", HandleCanonicalFunctionNotSupported);
 			functionHandlers.Add("DiffHours", HandleCanonicalFunctionNotSupported);
+			functionHandlers.Add("DiffDays", HandleCanonicalFunctionDiffDays);
 			functionHandlers.Add("DiffMonths", HandleCanonicalFunctionNotSupported);
 			functionHandlers.Add("DiffYears", HandleCanonicalFunctionNotSupported);
 			functionHandlers.Add("GetTotalOffsetMinutes", HandleCanonicalFunctionNotSupported);
@@ -2485,19 +2485,15 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 			return result;
 		}
 
-		private static ISqlFragment HandleCanonicalFunctionDateTimeDiff(SqlGenerator sqlgen, DbFunctionExpression e, string diffPart)
+		private static ISqlFragment HandleCanonicalFunctionDiffDays(SqlGenerator sqlgen, DbFunctionExpression e)
 		{
-			if (diffPart == null)
-				throw new NotSupportedException();
-
 			SqlBuilder result = new SqlBuilder();
-			result.Append("DATEDIFF(");
-			result.Append(diffPart);
-			result.Append(", ");
-			Debug.Assert(e.Arguments.Count == 2, "Canonical datediff functions should have exactly two arguments");
-			result.Append(e.Arguments[1].Accept(sqlgen));
+			Debug.Assert(e.Arguments.Count == 2, "Canonical DiffDays functions should have exactly two arguments");
+			result.Append("(");
 			result.Append(", ");
 			result.Append(e.Arguments[0].Accept(sqlgen));
+			result.Append("-");
+			result.Append(e.Arguments[1].Accept(sqlgen));
 			result.Append(")");
 			return result;
 		}
