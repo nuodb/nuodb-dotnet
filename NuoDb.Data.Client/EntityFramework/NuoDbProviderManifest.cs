@@ -66,7 +66,7 @@ namespace NuoDb.Data.Client.EntityFramework
             get { return "NuoDB"; }
         }
 
-        public override System.Data.Metadata.Edm.TypeUsage GetEdmType(System.Data.Metadata.Edm.TypeUsage storeType)
+        public override TypeUsage GetEdmType(TypeUsage storeType)
         {
             string storeTypeName = storeType.EdmType.Name.ToLower();
             PrimitiveType edmPrimitiveType = base.StoreTypeNameToEdmPrimitiveType[storeTypeName];
@@ -100,7 +100,7 @@ namespace NuoDb.Data.Client.EntityFramework
             throw new NotImplementedException();
         }
 
-        public override System.Data.Metadata.Edm.TypeUsage GetStoreType(System.Data.Metadata.Edm.TypeUsage edmType)
+        public override TypeUsage GetStoreType(TypeUsage edmType)
         {
             if (edmType == null)
                 throw new ArgumentNullException("edmType");
