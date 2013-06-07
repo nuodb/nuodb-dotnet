@@ -773,8 +773,8 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 		internal static string GetTargetSql(EntitySetBase entitySetBase)
 		{
 			// construct escaped SQL referencing entity set
-			StringBuilder builder = new StringBuilder();
-			string definingQuery = MetadataHelpers.TryGetValueForMetadataProperty<string>(entitySetBase, "DefiningQuery");
+			var builder = new StringBuilder();
+			var definingQuery = MetadataHelpers.TryGetValueForMetadataProperty<string>(entitySetBase, "DefiningQuery");
 			if (!string.IsNullOrEmpty(definingQuery))
 			{
 				builder.Append("(");
@@ -783,17 +783,12 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 			}
 			else
 			{
-				string schemaName = MetadataHelpers.TryGetValueForMetadataProperty<string>(entitySetBase, "Schema");
-				if (!string.IsNullOrEmpty(schemaName))
-				{
-					builder.Append(QuoteIdentifier(schemaName));
-					builder.Append(".");
-				}
-				else
-				{
-					builder.Append(QuoteIdentifier(entitySetBase.EntityContainer.Name));
-					builder.Append(".");
-				}
+				var userSchemaName = MetadataHelpers.TryGetValueForMetadataProperty<string>(entitySetBase, "Schema");
+				var schemaName = string.IsNullOrEmpty(userSchemaName)
+					? entitySetBase.EntityContainer.Name
+					: userSchemaName;
+				builder.Append(QuoteIdentifier(schemaName));
+				builder.Append(".");
 				builder.Append(QuoteIdentifier(MetadataHelpers.GetTableName(entitySetBase)));
 			}
 			return builder.ToString();
