@@ -2476,7 +2476,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 		private static ISqlFragment HandleCanonicalFunctionAddDays(SqlGenerator sqlgen, DbFunctionExpression e)
 		{
 			SqlBuilder result = new SqlBuilder();
-			Debug.Assert(e.Arguments.Count == 2, "Canonical dateadd functions should have exactly two arguments");
+			Debug.Assert(e.Arguments.Count == 2, "Canonical AddDays functions should have exactly two arguments");
 			result.Append("(");
 			result.Append(e.Arguments[0].Accept(sqlgen));
 			result.Append("+");
