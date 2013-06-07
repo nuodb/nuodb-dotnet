@@ -143,40 +143,40 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 			#endregion
 
 			#region Date and Time Canonical Functions
-			functionHandlers.Add("AddNanoseconds", (sqlgen, e) => HandleCanonicalFunctionDateTimeAdd(sqlgen, e, null));
-			functionHandlers.Add("AddMicroseconds", (sqlgen, e) => HandleCanonicalFunctionDateTimeAdd(sqlgen, e, null));
-			functionHandlers.Add("AddMilliseconds", (sqlgen, e) => HandleCanonicalFunctionDateTimeAdd(sqlgen, e, "MILLISECOND"));
-			functionHandlers.Add("AddSeconds", (sqlgen, e) => HandleCanonicalFunctionDateTimeAdd(sqlgen, e, "SECOND"));
-			functionHandlers.Add("AddMinutes", (sqlgen, e) => HandleCanonicalFunctionDateTimeAdd(sqlgen, e, "MINUTE"));
-			functionHandlers.Add("AddHours", (sqlgen, e) => HandleCanonicalFunctionDateTimeAdd(sqlgen, e, "HOUR"));
-			functionHandlers.Add("AddDays", (sqlgen, e) => HandleCanonicalFunctionDateTimeAdd(sqlgen, e, "DAY"));
-			functionHandlers.Add("AddMonths", (sqlgen, e) => HandleCanonicalFunctionDateTimeAdd(sqlgen, e, "MONTH"));
-			functionHandlers.Add("AddYears", (sqlgen, e) => HandleCanonicalFunctionDateTimeAdd(sqlgen, e, "YEAR"));
+			//functionHandlers.Add("AddNanoseconds", (sqlgen, e) => HandleCanonicalFunctionDateTimeAdd(sqlgen, e, null));
+			//functionHandlers.Add("AddMicroseconds", (sqlgen, e) => HandleCanonicalFunctionDateTimeAdd(sqlgen, e, null));
+			//functionHandlers.Add("AddMilliseconds", (sqlgen, e) => HandleCanonicalFunctionDateTimeAdd(sqlgen, e, "MILLISECOND"));
+			//functionHandlers.Add("AddSeconds", (sqlgen, e) => HandleCanonicalFunctionDateTimeAdd(sqlgen, e, "SECOND"));
+			//functionHandlers.Add("AddMinutes", (sqlgen, e) => HandleCanonicalFunctionDateTimeAdd(sqlgen, e, "MINUTE"));
+			//functionHandlers.Add("AddHours", (sqlgen, e) => HandleCanonicalFunctionDateTimeAdd(sqlgen, e, "HOUR"));
+			//functionHandlers.Add("AddDays", (sqlgen, e) => HandleCanonicalFunctionDateTimeAdd(sqlgen, e, "DAY"));
+			//functionHandlers.Add("AddMonths", (sqlgen, e) => HandleCanonicalFunctionDateTimeAdd(sqlgen, e, "MONTH"));
+			//functionHandlers.Add("AddYears", (sqlgen, e) => HandleCanonicalFunctionDateTimeAdd(sqlgen, e, "YEAR"));
 			functionHandlers.Add("CreateDateTime", HandleCanonicalFunctionCreateDateTime);
-			functionHandlers.Add("CreateDateTimeOffset", HandleCanonicalFunctionCreateDateTimeOffset);
+			functionHandlers.Add("CreateDateTimeOffset", HandleCanonicalFunctionNotSupported);
 			functionHandlers.Add("CreateTime", HandleCanonicalFunctionCreateTime);
 			functionHandlers.Add("CurrentDateTime", HandleCanonicalFunctionCurrentDateTime);
-			functionHandlers.Add("CurrentDateTimeOffset", HandleCanonicalFunctionCurrentDateTimeOffset);
-			functionHandlers.Add("CurrentUtcDateTime", HandleCanonicalFunctionCurrentUtcDateTime);
-			functionHandlers.Add("Day", (sqlgen, e) => HandleCanonicalFunctionExtract(sqlgen, e, "DAY"));
-			functionHandlers.Add("DayOfYear", (sqlgen, e) => HandleCanonicalFunctionExtract(sqlgen, e, "YEARDAY"));
-			functionHandlers.Add("DiffNanoseconds", (sqlgen, e) => HandleCanonicalFunctionDateTimeDiff(sqlgen, e, null));
-			functionHandlers.Add("DiffMicroseconds", (sqlgen, e) => HandleCanonicalFunctionDateTimeDiff(sqlgen, e, null));
-			functionHandlers.Add("DiffMilliseconds", (sqlgen, e) => HandleCanonicalFunctionDateTimeDiff(sqlgen, e, "MILLISECOND"));
-			functionHandlers.Add("DiffSeconds", (sqlgen, e) => HandleCanonicalFunctionDateTimeDiff(sqlgen, e, "SECOND"));
-			functionHandlers.Add("DiffMinutes", (sqlgen, e) => HandleCanonicalFunctionDateTimeDiff(sqlgen, e, "MINUTE"));
-			functionHandlers.Add("DiffHours", (sqlgen, e) => HandleCanonicalFunctionDateTimeDiff(sqlgen, e, "HOUR"));
-			functionHandlers.Add("DiffDays", (sqlgen, e) => HandleCanonicalFunctionDateTimeDiff(sqlgen, e, "DAY"));
-			functionHandlers.Add("DiffMonths", (sqlgen, e) => HandleCanonicalFunctionDateTimeDiff(sqlgen, e, "MONTH"));
-			functionHandlers.Add("DiffYears", (sqlgen, e) => HandleCanonicalFunctionDateTimeDiff(sqlgen, e, "YEAR"));
-			functionHandlers.Add("GetTotalOffsetMinutes", HandleCanonicalFunctionGetTotalOffsetMinutes);
-			functionHandlers.Add("Hour", (sqlgen, e) => HandleCanonicalFunctionExtract(sqlgen, e, "HOUR"));
-			functionHandlers.Add("Millisecond", (sqlgen, e) => HandleCanonicalFunctionExtract(sqlgen, e, "MILLISECOND"));
-			functionHandlers.Add("Minute", (sqlgen, e) => HandleCanonicalFunctionExtract(sqlgen, e, "MINUTE"));
-			functionHandlers.Add("Month", (sqlgen, e) => HandleCanonicalFunctionExtract(sqlgen, e, "MONTH"));
-			functionHandlers.Add("Second", (sqlgen, e) => HandleCanonicalFunctionExtract(sqlgen, e, "SECOND"));
+			functionHandlers.Add("CurrentDateTimeOffset", HandleCanonicalFunctionNotSupported);
+			functionHandlers.Add("CurrentUtcDateTime", HandleCanonicalFunctionNotSupported);
+			functionHandlers.Add("Day", HandleCanonicalFunctionNotSupported);
+			functionHandlers.Add("DayOfYear", HandleCanonicalFunctionNotSupported);
+			//functionHandlers.Add("DiffNanoseconds", (sqlgen, e) => HandleCanonicalFunctionDateTimeDiff(sqlgen, e, null));
+			//functionHandlers.Add("DiffMicroseconds", (sqlgen, e) => HandleCanonicalFunctionDateTimeDiff(sqlgen, e, null));
+			//functionHandlers.Add("DiffMilliseconds", (sqlgen, e) => HandleCanonicalFunctionDateTimeDiff(sqlgen, e, "MILLISECOND"));
+			//functionHandlers.Add("DiffSeconds", (sqlgen, e) => HandleCanonicalFunctionDateTimeDiff(sqlgen, e, "SECOND"));
+			//functionHandlers.Add("DiffMinutes", (sqlgen, e) => HandleCanonicalFunctionDateTimeDiff(sqlgen, e, "MINUTE"));
+			//functionHandlers.Add("DiffHours", (sqlgen, e) => HandleCanonicalFunctionDateTimeDiff(sqlgen, e, "HOUR"));
+			//functionHandlers.Add("DiffDays", (sqlgen, e) => HandleCanonicalFunctionDateTimeDiff(sqlgen, e, "DAY"));
+			//functionHandlers.Add("DiffMonths", (sqlgen, e) => HandleCanonicalFunctionDateTimeDiff(sqlgen, e, "MONTH"));
+			//functionHandlers.Add("DiffYears", (sqlgen, e) => HandleCanonicalFunctionDateTimeDiff(sqlgen, e, "YEAR"));
+			functionHandlers.Add("GetTotalOffsetMinutes", HandleCanonicalFunctionNotSupported);
+			functionHandlers.Add("Hour", HandleCanonicalFunctionNotSupported);
+			functionHandlers.Add("Millisecond", HandleCanonicalFunctionNotSupported);
+			functionHandlers.Add("Minute", HandleCanonicalFunctionNotSupported);
+			functionHandlers.Add("Month", HandleCanonicalFunctionNotSupported);
+			functionHandlers.Add("Second", HandleCanonicalFunctionNotSupported);
 			functionHandlers.Add("TruncateTime", HandleCanonicalFunctionTruncateTime);
-			functionHandlers.Add("Year", (sqlgen, e) => HandleCanonicalFunctionExtract(sqlgen, e, "YEAR"));
+			functionHandlers.Add("Year", HandleCanonicalFunctionNotSupported);
 			#endregion
 
 			#region Bitwise Canonical Functions
@@ -2466,45 +2466,10 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 		#endregion
 
 		#region Date and Time Canonical Functions
-		private static ISqlFragment HandleCanonicalFunctionCurrentUtcDateTime(SqlGenerator sqlgen, DbFunctionExpression e)
-		{
-			throw new NotSupportedException();
-		}
-
-		private static ISqlFragment HandleCanonicalFunctionCurrentDateTimeOffset(SqlGenerator sqlgen, DbFunctionExpression e)
-		{
-			throw new NotSupportedException();
-		}
-
-		private static ISqlFragment HandleCanonicalFunctionGetTotalOffsetMinutes(SqlGenerator sqlgen, DbFunctionExpression e)
-		{
-			throw new NotSupportedException();
-		}
-
 		private static ISqlFragment HandleCanonicalFunctionCurrentDateTime(SqlGenerator sqlgen, DbFunctionExpression e)
 		{
 			SqlBuilder result = new SqlBuilder();
-			result.Append("CURRENT_TIMESTAMP");
-			return result;
-		}
-
-		/// <summary>
-		/// Handler for canonical funcitons for extracting date parts. 
-		/// For example:
-		///     Year(date) -> EXTRACT(YEAR from date)
-		/// </summary>
-		private static ISqlFragment HandleCanonicalFunctionExtract(SqlGenerator sqlgen, DbFunctionExpression e, string extractPart)
-		{
-			if (extractPart == null)
-				throw new NotSupportedException();
-
-			SqlBuilder result = new SqlBuilder();
-			result.Append("EXTRACT(");
-			result.Append(extractPart);
-			result.Append(" FROM ");
-			Debug.Assert(e.Arguments.Count == 1, "Canonical datepart functions should have exactly one argument");
-			result.Append(e.Arguments[0].Accept(sqlgen));
-			result.Append(")");
+			result.Append("NOW()");
 			return result;
 		}
 
@@ -2542,10 +2507,6 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 			return result;
 		}
 
-		/// <summary>
-		/// CCYY-MM-DD HH:NN:SS.nnnn
-		/// CreateDateTime(year, month, day, hour, minute, second)
-		/// </summary>
 		private static ISqlFragment HandleCanonicalFunctionCreateDateTime(SqlGenerator sqlgen, DbFunctionExpression e)
 		{
 			SqlBuilder result = new SqlBuilder();
@@ -2565,15 +2526,6 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 			return result;
 		}
 
-		private static ISqlFragment HandleCanonicalFunctionCreateDateTimeOffset(SqlGenerator sqlgen, DbFunctionExpression e)
-		{
-			throw new NotSupportedException();
-		}
-
-		/// <summary>
-		/// HH:NN:SS.nnnn
-		/// CreateTime(hour, minute, second)
-		/// </summary>
 		private static ISqlFragment HandleCanonicalFunctionCreateTime(SqlGenerator sqlgen, DbFunctionExpression e)
 		{
 			SqlBuilder result = new SqlBuilder();
