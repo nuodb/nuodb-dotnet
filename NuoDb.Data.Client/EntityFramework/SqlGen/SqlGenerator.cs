@@ -143,13 +143,13 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 			#endregion
 
 			#region Date and Time Canonical Functions
-			//functionHandlers.Add("AddNanoseconds", (sqlgen, e) => HandleCanonicalFunctionDateTimeAdd(sqlgen, e, null));
-			//functionHandlers.Add("AddMicroseconds", (sqlgen, e) => HandleCanonicalFunctionDateTimeAdd(sqlgen, e, null));
-			//functionHandlers.Add("AddMilliseconds", (sqlgen, e) => HandleCanonicalFunctionDateTimeAdd(sqlgen, e, "MILLISECOND"));
-			//functionHandlers.Add("AddSeconds", (sqlgen, e) => HandleCanonicalFunctionDateTimeAdd(sqlgen, e, "SECOND"));
-			//functionHandlers.Add("AddMinutes", (sqlgen, e) => HandleCanonicalFunctionDateTimeAdd(sqlgen, e, "MINUTE"));
-			//functionHandlers.Add("AddHours", (sqlgen, e) => HandleCanonicalFunctionDateTimeAdd(sqlgen, e, "HOUR"));
-			//functionHandlers.Add("AddDays", (sqlgen, e) => HandleCanonicalFunctionDateTimeAdd(sqlgen, e, "DAY"));
+			functionHandlers.Add("AddNanoseconds", HandleCanonicalFunctionNotSupported);
+			functionHandlers.Add("AddMicroseconds", HandleCanonicalFunctionNotSupported);
+			functionHandlers.Add("AddMilliseconds", HandleCanonicalFunctionNotSupported);
+			functionHandlers.Add("AddSeconds", HandleCanonicalFunctionNotSupported);
+			functionHandlers.Add("AddMinutes", HandleCanonicalFunctionNotSupported);
+			functionHandlers.Add("AddHours", HandleCanonicalFunctionNotSupported);
+			functionHandlers.Add("AddDays", (sqlgen, e) => HandleCanonicalFunctionAddDays(sqlgen, e));
 			functionHandlers.Add("AddMonths", HandleCanonicalFunctionNotSupported);
 			functionHandlers.Add("AddYears", HandleCanonicalFunctionNotSupported);
 			functionHandlers.Add("CreateDateTime", HandleCanonicalFunctionCreateDateTime);
@@ -2473,19 +2473,14 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 			return result;
 		}
 
-		private static ISqlFragment HandleCanonicalFunctionDateTimeAdd(SqlGenerator sqlgen, DbFunctionExpression e, string addPart)
+		private static ISqlFragment HandleCanonicalFunctionAddDays(SqlGenerator sqlgen, DbFunctionExpression e)
 		{
-			if (addPart == null)
-				throw new NotSupportedException();
-
 			SqlBuilder result = new SqlBuilder();
-			result.Append("DATEADD(");
-			result.Append(addPart);
-			result.Append(", ");
 			Debug.Assert(e.Arguments.Count == 2, "Canonical dateadd functions should have exactly two arguments");
-			result.Append(e.Arguments[1].Accept(sqlgen));
-			result.Append(", ");
+			result.Append("(");
 			result.Append(e.Arguments[0].Accept(sqlgen));
+			result.Append("+");
+			result.Append(e.Arguments[1].Accept(sqlgen));
 			result.Append(")");
 			return result;
 		}
