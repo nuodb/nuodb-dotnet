@@ -33,6 +33,7 @@ using System.Data.Common;
 using System.Xml;
 using System.Data.Metadata.Edm;
 using System;
+using System.Text;
 
 namespace NuoDb.Data.Client.EntityFramework
 {
@@ -203,5 +204,20 @@ namespace NuoDb.Data.Client.EntityFramework
                     throw new NotSupportedException(string.Format("There is no store type corresponding to the EDM type '{0}' of primitive type '{1}'.", edmType, primitiveType.PrimitiveTypeKind));
             }
         }
+
+		public override bool SupportsEscapingLikeArgument(out char escapeCharacter)
+		{
+			escapeCharacter = LikeEscapeCharacter;
+			return true;
+		}
+
+		public override string EscapeLikeArgument(string argument)
+		{
+			StringBuilder sb = new StringBuilder(argument);
+			sb.Replace(LikeEscapeCharacter.ToString(), LikeEscapeCharacter.ToString() + LikeEscapeCharacter.ToString());
+			sb.Replace("%", LikeEscapeCharacter + "%");
+			sb.Replace("_", LikeEscapeCharacter + "_");
+			return sb.ToString();
+		}
     }
 }
