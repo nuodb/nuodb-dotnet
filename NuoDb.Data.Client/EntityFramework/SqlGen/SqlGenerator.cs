@@ -151,7 +151,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 			//functionHandlers.Add("AddHours", (sqlgen, e) => HandleCanonicalFunctionDateTimeAdd(sqlgen, e, "HOUR"));
 			//functionHandlers.Add("AddDays", (sqlgen, e) => HandleCanonicalFunctionDateTimeAdd(sqlgen, e, "DAY"));
 			//functionHandlers.Add("AddMonths", (sqlgen, e) => HandleCanonicalFunctionDateTimeAdd(sqlgen, e, "MONTH"));
-			//functionHandlers.Add("AddYears", (sqlgen, e) => HandleCanonicalFunctionDateTimeAdd(sqlgen, e, "YEAR"));
+			functionHandlers.Add("AddYears", HandleCanonicalFunctionNotSupported);
 			functionHandlers.Add("CreateDateTime", HandleCanonicalFunctionCreateDateTime);
 			functionHandlers.Add("CreateDateTimeOffset", HandleCanonicalFunctionNotSupported);
 			functionHandlers.Add("CreateTime", HandleCanonicalFunctionCreateTime);
