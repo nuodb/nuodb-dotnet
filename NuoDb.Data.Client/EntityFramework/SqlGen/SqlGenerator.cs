@@ -205,12 +205,8 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 		#endregion
 
 		#region Constructor
-		/// <summary>
-		/// Basic constructor. 
-		/// </summary>
 		private SqlGenerator()
-		{
-		}
+		{ }
 		#endregion
 
 		#region Entry points
