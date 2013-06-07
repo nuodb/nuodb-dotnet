@@ -126,8 +126,8 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 			#region String Canonical Functions
 			functionHandlers.Add("Concat", HandleCanonicalConcatFunction);
 			functionHandlers.Add("Contains", HandleCanonicalContainsFunction);
-			functionHandlers.Add("EndsWith", HandleCanonicalEndsWithFunction);
-			functionHandlers.Add("IndexOf", HandleCanonicalFunctionNotSupported);
+			functionHandlers.Add("EndsWith", HandleCanonicalFunctionNotSupported);
+			functionHandlers.Add("IndexOf", HandleCanonicalIndexOfFunction);
 			functionHandlers.Add("Length", HandleCanonicalFunctionLength);
 			functionHandlers.Add("ToLower", HandleCanonicalFunctionToLower);
 			functionHandlers.Add("ToUpper", HandleCanonicalFunctionToUpper);
@@ -138,7 +138,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 			functionHandlers.Add("Right", HandleCanonicalFunctionNotSupported);
 			functionHandlers.Add("Reverse", HandleCanonicalFunctionNotSupported);
 			functionHandlers.Add("Replace", HandleCanonicalFunctionNotSupported);
-			functionHandlers.Add("StartsWith", HandleCanonicalStartsWithFunction);
+			functionHandlers.Add("StartsWith", HandleCanonicalFunctionNotSupported);
 			functionHandlers.Add("Substring", HandleCanonicalFunctionSubstring);
 			#endregion
 
@@ -2383,30 +2383,20 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 			return sqlgen.HandleSpecialFunctionToOperator(e, false);
 		}
 
-		private static ISqlFragment HandleCanonicalEndsWithFunction(SqlGenerator sqlgen, DbFunctionExpression e)
-		{
-#warning Maybe LIKE
-			// should we do this thinking for developer or should (s)he create own solution???
-			sqlgen.shouldHandleBoolComparison = false;
-			SqlBuilder result = new SqlBuilder();
-			result.Append("REVERSE(");
-			result.Append(e.Arguments[0].Accept(sqlgen));
-			result.Append(") STARTING WITH REVERSE(");
-			result.Append(e.Arguments[1].Accept(sqlgen));
-			result.Append(")");
-			return result;
-		}
-
 		private static ISqlFragment HandleCanonicalFunctionLength(SqlGenerator sqlgen, DbFunctionExpression e)
 		{
 			return sqlgen.HandleFunctionDefaultGivenName(e, "CHAR_LENGTH");
 		}
 
-		private static ISqlFragment HandleCanonicalStartsWithFunction(SqlGenerator sqlgen, DbFunctionExpression e)
+		private static ISqlFragment HandleCanonicalIndexOfFunction(SqlGenerator sqlgen, DbFunctionExpression e)
 		{
-#warning Maybe LIKE
-			sqlgen.shouldHandleBoolComparison = false;
-			return sqlgen.HandleSpecialFunctionToOperator(e, false);
+			SqlBuilder result = new SqlBuilder();
+			result.Append("POSITION(");
+			result.Append(e.Arguments[0].Accept(sqlgen));
+			result.Append(" IN ");
+			result.Append(e.Arguments[1].Accept(sqlgen));
+			result.Append(")");
+			return result;
 		}
 
 		private static ISqlFragment HandleCanonicalFunctionSubstring(SqlGenerator sqlgen, DbFunctionExpression e)
