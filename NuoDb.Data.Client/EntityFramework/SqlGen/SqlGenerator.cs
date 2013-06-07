@@ -330,8 +330,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 
 			// We expect function to always have these properties
 			string userCommandText = (string)function.MetadataProperties["CommandTextAttribute"].Value;
-			/// No schema in FB
-			//string userSchemaName = (string)function.MetadataProperties["Schema"].Value;
+			string userSchemaName = (string)function.MetadataProperties["Schema"].Value;
 			string userFuncName = (string)function.MetadataProperties["StoreFunctionNameAttribute"].Value;
 
 			if (String.IsNullOrEmpty(userCommandText))
@@ -340,26 +339,20 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 				commandType = CommandType.StoredProcedure;
 
 				// if the schema name is not explicitly given, it is assumed to be the metadata namespace
-				/// No schema in FB
-				//string schemaName = String.IsNullOrEmpty(userSchemaName) ?
-				//    function.NamespaceName : userSchemaName;
+				string schemaName = string.IsNullOrEmpty(userSchemaName)
+					? function.NamespaceName
+					: userSchemaName;
 
 				// if the function store name is not explicitly given, it is assumed to be the metadata name
-				string functionName = String.IsNullOrEmpty(userFuncName) ?
-					function.Name : userFuncName;
+				string functionName = string.IsNullOrEmpty(userFuncName)
+					? function.Name
+					: userFuncName;
 
 				// quote elements of function text
-				/// No schema in FB
-				//string quotedSchemaName = QuoteIdentifier(schemaName);
+				string quotedSchemaName = QuoteIdentifier(schemaName);
 				string quotedFunctionName = QuoteIdentifier(functionName);
 
-				// separator
-				/// No schema in FB
-				//const string schemaSeparator = ".";
-				// concatenate elements of function text
-
-				/// No schema in FB
-				string quotedFunctionText = /*quotedSchemaName + schemaSeparator + */quotedFunctionName;
+				string quotedFunctionText = quotedSchemaName + "." + quotedFunctionName;
 
 				return quotedFunctionText;
 			}
@@ -774,13 +767,13 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 
 
 		/// <summary>
-		/// Gets escaped TSql identifier describing this entity set.
+		/// Gets escaped Sql identifier describing this entity set.
 		/// </summary>
 		/// <returns></returns>
 		internal static string GetTargetSql(EntitySetBase entitySetBase)
 		{
 			// construct escaped SQL referencing entity set
-			StringBuilder builder = new StringBuilder(50);
+			StringBuilder builder = new StringBuilder();
 			string definingQuery = MetadataHelpers.TryGetValueForMetadataProperty<string>(entitySetBase, "DefiningQuery");
 			if (!string.IsNullOrEmpty(definingQuery))
 			{
@@ -790,18 +783,17 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 			}
 			else
 			{
-				/// No schema in FB
-				//string schemaName = MetadataHelpers.TryGetValueForMetadataProperty<string>(entitySetBase, "Schema");
-				//if (!string.IsNullOrEmpty(schemaName))
-				//{
-				//    builder.Append(QuoteIdentifier(schemaName));
-				//    builder.Append(".");
-				//}
-				//else
-				//{
-				//    builder.Append(QuoteIdentifier(entitySetBase.EntityContainer.Name));
-				//    builder.Append(".");
-				//}
+				string schemaName = MetadataHelpers.TryGetValueForMetadataProperty<string>(entitySetBase, "Schema");
+				if (!string.IsNullOrEmpty(schemaName))
+				{
+					builder.Append(QuoteIdentifier(schemaName));
+					builder.Append(".");
+				}
+				else
+				{
+					builder.Append(QuoteIdentifier(entitySetBase.EntityContainer.Name));
+					builder.Append(".");
+				}
 				builder.Append(QuoteIdentifier(MetadataHelpers.GetTableName(entitySetBase)));
 			}
 			return builder.ToString();
@@ -3411,8 +3403,8 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 			}
 			else
 			{
-				//result.Append(QuoteIdentifier((string)function.MetadataProperties["Schema"].Value ?? "dbo"));
-				//result.Append(".");
+				result.Append(QuoteIdentifier((string)function.MetadataProperties["Schema"].Value ?? "USER"));
+				result.Append(".");
 				result.Append(QuoteIdentifier(storeFunctionName));
 			}
 		}
