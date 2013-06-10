@@ -2899,7 +2899,6 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 		/// <returns>The escaped sql string.</returns>
 		private string EscapeSingleQuote(string s, bool isUnicode)
 		{
-			//return (isUnicode ? "_UTF8'" : "'") + s.Replace("'", "''") + "'";
 			return "'" + s.Replace("'", "''") + "'";
 		}
 
