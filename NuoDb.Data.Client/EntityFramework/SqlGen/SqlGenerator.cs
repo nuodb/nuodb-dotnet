@@ -649,12 +649,12 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 
 					case PrimitiveTypeKind.DateTime:
 						result.Append("'");
-						result.Append(((DateTime)e.Value).ToString("yyyy-MM-dd HH:mm:ss.fff", CultureInfo.InvariantCulture));
+						result.Append(((DateTime)e.Value).ToString("yyyy-MM-dd HH:mm:ss.fffffff", CultureInfo.InvariantCulture));
 						result.Append("'");
 						break;
 					case PrimitiveTypeKind.Time:
 						result.Append("'");
-						result.Append(((DateTime)e.Value).ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture));
+						result.Append(((DateTime)e.Value).ToString("HH:mm:ss.fffffff", CultureInfo.InvariantCulture));
 						result.Append("'");
 						break;
 
