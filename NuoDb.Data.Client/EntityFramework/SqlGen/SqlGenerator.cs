@@ -2959,7 +2959,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 					Debug.Assert(precision > 0, "decimal precision must be greater than zero");
 					scale = MetadataHelpers.GetFacetValueOrDefault<byte>(type, MetadataHelpers.ScaleFacetName, 0);
 					Debug.Assert(precision >= scale, "decimalPrecision must be greater or equal to decimalScale");
-					Debug.Assert(precision <= 18, "decimalPrecision must be less than or equal to 18");
+					Debug.Assert(precision <= 100, "decimalPrecision must be less than or equal to 100");
 					typeName = string.Format("DECIMAL({0},{1})", precision, scale);
 					break;
 
