@@ -2417,25 +2417,6 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 		#endregion
 
 		#region Bitwise Canonical Functions
-		private static ISqlFragment HandleCanonicalFunctionBitwiseAnd(SqlGenerator sqlgen, DbFunctionExpression e)
-		{
-			return sqlgen.HandleFunctionDefaultGivenName(e, "BIN_AND");
-		}
-
-		private static ISqlFragment HandleCanonicalFunctionBitwiseNot(SqlGenerator sqlgen, DbFunctionExpression e)
-		{
-			throw new NotSupportedException();
-		}
-
-		private static ISqlFragment HandleCanonicalFunctionBitwiseOr(SqlGenerator sqlgen, DbFunctionExpression e)
-		{
-			return sqlgen.HandleFunctionDefaultGivenName(e, "BIN_OR");
-		}
-
-		private static ISqlFragment HandleCanonicalFunctionBitwiseXor(SqlGenerator sqlgen, DbFunctionExpression e)
-		{
-			return sqlgen.HandleFunctionDefaultGivenName(e, "BIN_XOR");
-		}
 		#endregion
 
 		#region Date and Time Canonical Functions
