@@ -5,14 +5,15 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.Common;
+using System.Data.Common.CommandTrees;
+using System.Data.Metadata.Edm;
 using System.Diagnostics;
 using System.Globalization;
-using System.Text;
-using System.Data.Common;
-using System.Data.Metadata.Edm;
-using System.Data.Common.CommandTrees;
-using System.Data;
 using System.Linq;
+using System.Text;
+using NuoDb.Data.Client.Util;
 
 namespace NuoDb.Data.Client.EntityFramework.SqlGen
 {
@@ -649,9 +650,9 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 						break;
 
 					case PrimitiveTypeKind.Guid:
-						result.Append("CHAR_TO_UUID('");
-						result.Append(((Guid)e.Value).ToString());
-						result.Append("')");
+						result.Append("'");
+						result.Append(((Guid)e.Value).ToNuoDbString());
+						result.Append("'");
 						break;
 
 					default:
