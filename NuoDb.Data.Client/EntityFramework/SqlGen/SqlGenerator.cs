@@ -611,6 +611,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 						break;
 
 					case PrimitiveTypeKind.Decimal:
+						var sqlPrimitiveType = GetSqlPrimitiveType(e.ResultType);
 						string strDecimal = ((Decimal)e.Value).ToString(CultureInfo.InvariantCulture);
 
 						int pointPosition = strDecimal.IndexOf('.');
@@ -628,7 +629,9 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 
 						result.Append("CAST(");
 						result.Append(strDecimal);
-						result.Append(" AS DECIMAL(");
+						result.Append(" AS ");
+						result.Append(sqlPrimitiveType.Substring(0, sqlPrimitiveType.IndexOf('(')));
+						result.Append("(");
 						result.Append(precision.ToString(CultureInfo.InvariantCulture));
 						result.Append(",");
 						result.Append(maxScale.ToString(CultureInfo.InvariantCulture));
