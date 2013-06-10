@@ -571,7 +571,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 				switch (typeKind)
 				{
 					case PrimitiveTypeKind.Boolean:
-						result.Append((bool)e.Value ? "CAST(1 AS SMALLINT)" : "CAST(0 AS SMALLINT)");
+						result.Append((bool)e.Value ? "TRUE" : "FALSE");
 						break;
 
 					case PrimitiveTypeKind.Int16:
@@ -2924,7 +2924,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 			switch (primitiveType.PrimitiveTypeKind)
 			{
 				case PrimitiveTypeKind.Boolean:
-					typeName = "SMALLINT";
+					typeName = "BOOLEAN";
 					break;
 
 				case PrimitiveTypeKind.Int16:
