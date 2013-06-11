@@ -639,7 +639,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 						break;
 
 					case PrimitiveTypeKind.Binary:
-						result.Append(string.Format("x'{0}'", BitConverter.ToString((byte[])e.Value).Replace("-", string.Empty)));
+						result.Append(string.Format("0x{0}", BitConverter.ToString((byte[])e.Value).Replace("-", string.Empty)));
 						break;
 
 					case PrimitiveTypeKind.String:
