@@ -442,6 +442,14 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 				: entitySetBase.Name;
 		}
 
+		internal static string GetSchemaName(EntitySetBase entitySetBase)
+		{
+			var schemaName = MetadataHelpers.TryGetValueForMetadataProperty<string>(entitySetBase, "Schema");
+			return !string.IsNullOrEmpty(schemaName)
+				? schemaName
+				: entitySetBase.EntityContainer.Name;
+		}
+
 		private static bool IsStoreGeneratedPattern(EdmMember member, StoreGeneratedPattern pattern)
 		{
 			Facet item = null;
