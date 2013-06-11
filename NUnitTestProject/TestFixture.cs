@@ -695,6 +695,9 @@ namespace NUnitTestProject
         public void TestDataTypeBlob()
         {
             TestDataType("blob", "xxx", new byte[] { (byte)'x', (byte)'x', (byte)'x' });
+            TestDataType("blob", new byte[] { (byte)'x', (byte)'x', (byte)'x' }, new byte[] { (byte)'x', (byte)'x', (byte)'x' });
+            TestDataType("blob", "\x00\x01\x02", new byte[] { 0, 1, 2 });
+            TestDataType("blob", new byte[] { 3, 0, 2 }, new byte[] { 3, 0, 2 });
         }
 
         [Test]
@@ -751,7 +754,7 @@ namespace NUnitTestProject
                         double countRatio = (count[k] / count[0]);
                         double timeRatio = (times[k] / times[0]);
                         Console.WriteLine("{0} runs = {1} msec => {2} {3}", count[k], times[k], countRatio, timeRatio);
-                        Assert.IsTrue(timeRatio < (countRatio * 1.10), "Scalability at {2} rows is not linear! (time for {0} rows = {1}; time for {2} rows = {3} => ratio = {4} is greater than {5}",
+                        Assert.IsTrue(timeRatio < (countRatio * 1.50), "Scalability at {2} rows is not linear! (time for {0} rows = {1}; time for {2} rows = {3} => ratio = {4} is greater than {5}",
                             new object[] { count[0], times[0], count[k], times[k], timeRatio, countRatio });
 
                     }
