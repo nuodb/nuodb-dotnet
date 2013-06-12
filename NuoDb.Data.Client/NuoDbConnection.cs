@@ -18,6 +18,7 @@ namespace NuoDb.Data.Client
 	[DesignerCategory("")]
 	public sealed class NuoDbConnection : DbConnection, ICloneable
 	{
+		NuoDbConnectionStringBuilder _parsedConnectionString;
 		NuoDbConnectionInternal _internalConnection;
 
 		public NuoDbConnection()
@@ -78,6 +79,7 @@ namespace NuoDb.Data.Client
 			set
 			{
 				ConnectionString = value;
+				_parsedConnectionString = new NuoDbConnectionStringBuilder(ConnectionString);
 				if (InternalConnection != null)
 					InternalConnection.ConnectionString = ConnectionString;
 			}
@@ -110,14 +112,12 @@ namespace NuoDb.Data.Client
 
 		public override string DataSource
 		{
-#warning Should work without InternalConnection
-			get { return InternalConnection.DataSource; }
+			get { return _parsedConnectionString.Server; }
 		}
 
 		public override string Database
 		{
-#warning Should work without InternalConnection
-			get { return InternalConnection.Database; }
+			get { return _parsedConnectionString.Database; }
 		}
 
 		public override string ServerVersion
@@ -128,8 +128,7 @@ namespace NuoDb.Data.Client
 
 		public override ConnectionState State
 		{
-#warning Should work without InternalConnection
-			get { return InternalConnection.State; }
+			get { return _internalConnection != null ? _internalConnection.State : ConnectionState.Closed; }
 		}
 
 		protected override DbProviderFactory DbProviderFactory
