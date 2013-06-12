@@ -34,22 +34,6 @@ namespace NuoDb.Data.Client
 			ConnectionString = connectionString;
 		}
 
-		protected override void Dispose(bool disposing)
-		{
-			if (_disposed)
-				return;
-
-			_disposed = true;
-			if (disposing)
-			{
-				if (_internalConnection != null)
-				{
-					_internalConnection.Close();
-					_internalConnection = null;
-				}
-			}
-		}
-
 		public override void EnlistTransaction(System.Transactions.Transaction transaction)
 		{
 			CheckConnection();
@@ -73,15 +57,46 @@ namespace NuoDb.Data.Client
 
 		public override void Open()
 		{
-			_disposed = false;
-			_internalConnection = new NuoDbConnectionInternal();
-			_internalConnection.ConnectionString = _connectionString;
+			CheckDisposed();
+
+			if (_parsedConnectionString.PoolingOrDefault)
+			{
+				_internalConnection = ConnectionPoolManager.Instance.Get(_connectionString);
+			}
+			else
+			{
+				_internalConnection = new NuoDbConnectionInternal(_connectionString);
+			}
 			_internalConnection.Open();
 		}
 
 		public override void Close()
 		{
-			Dispose(true);
+			CheckDisposed();
+
+			CloseImpl();
+		}
+
+		public void CloseImpl()
+		{
+			if (_internalConnection != null)
+			{
+				ConnectionPoolManager.Instance.Release(_internalConnection);
+				_internalConnection.Close();
+				_internalConnection = null;
+			}
+		}
+
+		protected override void Dispose(bool disposing)
+		{
+			if (_disposed)
+				return;
+
+			_disposed = true;
+			if (disposing)
+			{
+				CloseImpl();
+			}
 		}
 
 		protected override DbCommand CreateDbCommand()
@@ -172,10 +187,15 @@ namespace NuoDb.Data.Client
 			return new NuoDbConnection(ConnectionString);
 		}
 
-		void CheckConnection(bool openedNeeded = true)
+		void CheckDisposed()
 		{
 			if (_disposed)
 				throw new ObjectDisposedException(this.GetType().Name);
+		}
+
+		void CheckConnection(bool openedNeeded = true)
+		{
+			CheckDisposed();
 			if (openedNeeded && State != ConnectionState.Open)
 				throw new InvalidOperationException("Open connection is needed.");
 			if (_internalConnection == null)
