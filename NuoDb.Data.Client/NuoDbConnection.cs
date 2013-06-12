@@ -80,8 +80,8 @@ namespace NuoDb.Data.Client
 			{
 				_connectionString = value;
 				_parsedConnectionString = new NuoDbConnectionStringBuilder(ConnectionString);
-				if (InternalConnection != null)
-					InternalConnection.ConnectionString = ConnectionString;
+				if (_internalConnection != null)
+					_internalConnection.ConnectionString = ConnectionString;
 			}
 		}
 
