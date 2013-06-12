@@ -554,24 +554,31 @@ namespace NuoDb.Data.Client
 
 			try
 			{
+				int tagItemsCount = 0;
 				Tag tag = new Tag("Connection");
 				tag.addAttribute("Service", "SQL2");
+				tagItemsCount++;
 				tag.addAttribute("Database", databaseName);
+				tagItemsCount++;
 				string userName = parsedConnectionString.User;
 				string password = parsedConnectionString.Password;
 				string cipher = DEFAULT_CIPHER;
 
 				tag.addAttribute("Server", hostName);
+				tagItemsCount++;
 				tag.addAttribute("User", userName);
+				tagItemsCount++;
 				if (parsedConnectionString.ContainsKey(NuoDbConnectionStringBuilder.SchemaKey))
 				{
 					tag.addAttribute("Schema", parsedConnectionString.Schema);
+					tagItemsCount++;
 				}
 				// see comment below ... for now these are the only two types that
 				// we can support in the client code
 				if ((!cipher.Equals("RC4")) && (!cipher.Equals("None")))
 					throw new NuoDbSqlException("Unknown cipher: " + cipher);
 				tag.addAttribute("Cipher", cipher);
+				tagItemsCount++;
 
 				this.OnStateChange(this.state, ConnectionState.Connecting);
 
@@ -641,7 +648,7 @@ namespace NuoDb.Data.Client
 									sqlContext.setTimeZoneId(tz.getID());
 								}
 				*/
-				int count = 3 + ((dbUUId == null) ? 1 : 2); // Add LastCommitInfo
+				int count = tagItemsCount - 1 + ((dbUUId == null) ? 1 : 2); // Add LastCommitInfo
 
 				if (password != null)
 				{
