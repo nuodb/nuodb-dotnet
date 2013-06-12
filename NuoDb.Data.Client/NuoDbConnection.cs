@@ -18,6 +18,7 @@ namespace NuoDb.Data.Client
 	[DesignerCategory("")]
 	public sealed class NuoDbConnection : DbConnection, ICloneable
 	{
+		string _connectionString;
 		NuoDbConnectionStringBuilder _parsedConnectionString;
 		NuoDbConnectionInternal _internalConnection;
 
@@ -74,10 +75,10 @@ namespace NuoDb.Data.Client
 
 		public override string ConnectionString
 		{
-			get { return ConnectionString; }
+			get { return _connectionString; }
 			set
 			{
-				ConnectionString = value;
+				_connectionString = value;
 				_parsedConnectionString = new NuoDbConnectionStringBuilder(ConnectionString);
 				if (InternalConnection != null)
 					InternalConnection.ConnectionString = ConnectionString;
