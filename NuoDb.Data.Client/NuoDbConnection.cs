@@ -539,7 +539,7 @@ namespace NuoDb.Data.Client
                         // group 5 is the property value not enclosed in quotes
                         if (keyPair.Groups[0].Success && keyPair.Groups[1].Success)
                         {
-                            string kKey = keyPair.Groups[1].Value.Trim();
+							string kKey = keyPair.Groups[1].Value.ToLowerInvariant().Trim();
                             string kValue = keyPair.Groups[3].Success ? keyPair.Groups[3].Value :
                                                 keyPair.Groups[4].Success ? keyPair.Groups[4].Value :
                                                     keyPair.Groups[5].Success ? keyPair.Groups[5].Value.Trim() : "";
