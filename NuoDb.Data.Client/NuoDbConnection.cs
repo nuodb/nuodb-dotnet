@@ -36,9 +36,17 @@ namespace NuoDb.Data.Client
 
 		protected override void Dispose(bool disposing)
 		{
+			if (_disposed)
+				return;
+
+			_disposed = true;
 			if (disposing)
 			{
-				Close();
+				if (_internalConnection != null)
+				{
+					_internalConnection.Close();
+					_internalConnection = null;
+				}
 			}
 		}
 
@@ -65,6 +73,7 @@ namespace NuoDb.Data.Client
 
 		public override void Open()
 		{
+			_disposed = false;
 			_internalConnection = new NuoDbConnectionInternal();
 			_internalConnection.ConnectionString = _connectionString;
 			_internalConnection.Open();
@@ -72,8 +81,7 @@ namespace NuoDb.Data.Client
 
 		public override void Close()
 		{
-			_internalConnection.Close();
-			_internalConnection = null;
+			Dispose(true);
 		}
 
 		protected override DbCommand CreateDbCommand()
