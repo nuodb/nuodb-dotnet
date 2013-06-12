@@ -650,6 +650,8 @@ namespace NuoDb.Data.Client
 
 				dataStream.encodeInt(count);
 
+				dataStream.encodeString("Server");
+				dataStream.encodeString(hostName);
 				dataStream.encodeString("Database");
 				dataStream.encodeString(databaseName);
 
