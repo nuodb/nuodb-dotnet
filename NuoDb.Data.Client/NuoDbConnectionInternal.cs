@@ -48,7 +48,7 @@ using System.Data;
 namespace NuoDb.Data.Client
 {
 	internal sealed class NuoDbConnectionInternal : IDisposable
-	{		
+	{
 		internal DbTransaction transaction;
 		internal const int PORT = 48004;
 		internal const string LAST_INFO_SEPARATOR = ";";
@@ -57,7 +57,7 @@ namespace NuoDb.Data.Client
 		NuoDbConnection owner;
 
 		private string connectionString;
-		private StringDictionary properties;
+		private NuoDbConnectionStringBuilder parsedConnectionString;
 
 		private static ProcessConnection processConnections = null;
 
@@ -419,7 +419,8 @@ namespace NuoDb.Data.Client
 #endif
 			if (state == ConnectionState.Open)
 				Close();
-			properties["database"] = databaseName;
+			parsedConnectionString.Database = databaseName;
+			ConnectionString = parsedConnectionString.ToString();
 		}
 
 		internal void RegisterCommand(int handle)
@@ -526,47 +527,13 @@ namespace NuoDb.Data.Client
 			set
 			{
 				connectionString = value;
-				properties = new StringDictionary();
-				if (connectionString != null && connectionString.Length > 0)
-				{
-					const string regex = "([\\w\\s\\d]+)\\s*=\\s*(\"([^\"]*)\"|'([^']*)'|([^\"';]*))";
-					MatchCollection tokens = Regex.Matches(connectionString, regex);
-					foreach (Match keyPair in tokens)
-					{
-						// each group is built from the expression between ( and ) in the regex
-						// group 0 is the entire match
-						// group 1 is the property name
-						// group 2 is the unprocessed property value (the OR of the three possible ways of specifying the property value)
-						// group 3 is the property value enclosed in ""
-						// group 4 is the property value enclosed in ''
-						// group 5 is the property value not enclosed in quotes
-						if (keyPair.Groups[0].Success && keyPair.Groups[1].Success)
-						{
-							string kKey = keyPair.Groups[1].Value.ToLowerInvariant().Trim();
-							string kValue = keyPair.Groups[3].Success ? keyPair.Groups[3].Value :
-												keyPair.Groups[4].Success ? keyPair.Groups[4].Value :
-													keyPair.Groups[5].Success ? keyPair.Groups[5].Value.Trim() :
-														string.Empty;
-							properties.Add(kKey, kValue);
-						}
-					}
-				}
+				parsedConnectionString = new NuoDbConnectionStringBuilder(connectionString);
 			}
-		}
-
-		public string DataSource
-		{
-			get { return properties["server"]; }
-		}
-
-		public string Database
-		{
-			get { return properties["database"]; }
 		}
 
 		private void doOpen(string hostName)
 		{
-			string databaseName = properties["database"];
+			string databaseName = parsedConnectionString.Database;
 
 			int index = hostName.IndexOf(':');
 			int port = PORT;
@@ -590,43 +557,19 @@ namespace NuoDb.Data.Client
 				Tag tag = new Tag("Connection");
 				tag.addAttribute("Service", "SQL2");
 				tag.addAttribute("Database", databaseName);
-				string userName = null;
-				string password = null;
+				string userName = parsedConnectionString.User;
+				string password = parsedConnectionString.Password;
 				string cipher = DEFAULT_CIPHER;
 
-				foreach (DictionaryEntry property in properties)
+				tag.addAttribute("User", userName);
+				if (parsedConnectionString.ContainsKey(NuoDbConnectionStringBuilder.SchemaKey))
 				{
-					string name = (string)property.Key;
-					string value = (string)property.Value;
-
-					if (name.Equals("user"))
-					{
-						userName = value;
-						tag.addAttribute("User", userName);
-					}
-					else if (name.Equals("password"))
-					{
-						password = value;
-					}
-					else if (name.Equals("schema"))
-					{
-						tag.addAttribute("Schema", value);
-					}
-					else if (name.Equals("cipher"))
-					{
-						cipher = value;
-					}
-					else
-					{
-						tag.addAttribute(name, value);
-					}
+					tag.addAttribute("Schema", parsedConnectionString.Schema);
 				}
 				// see comment below ... for now these are the only two types that
 				// we can support in the client code
-
 				if ((!cipher.Equals("RC4")) && (!cipher.Equals("None")))
 					throw new NuoDbSqlException("Unknown cipher: " + cipher);
-
 				tag.addAttribute("Cipher", cipher);
 
 				this.OnStateChange(this.state, ConnectionState.Connecting);
@@ -697,7 +640,7 @@ namespace NuoDb.Data.Client
 									sqlContext.setTimeZoneId(tz.getID());
 								}
 				*/
-				int count = properties.Count + ((dbUUId == null) ? 1 : 2); // Add LastCommitInfo
+				int count = 3 + ((dbUUId == null) ? 1 : 2); // Add LastCommitInfo
 
 				if (password != null)
 				{
@@ -706,21 +649,20 @@ namespace NuoDb.Data.Client
 
 				dataStream.encodeInt(count);
 
-				foreach (DictionaryEntry property in properties)
-				{
-					string name = (string)property.Key;
+				dataStream.encodeString("Database");
+				dataStream.encodeString(databaseName);
 
-					if (!name.Equals("password"))
-					{
-						string value = (string)property.Value;
-						dataStream.encodeString(name);
-						dataStream.encodeString(value);
-					}
+				dataStream.encodeString("User");
+				dataStream.encodeString(userName);
+
+				if (parsedConnectionString.ContainsKey(NuoDbConnectionStringBuilder.SchemaKey))
+				{
+					dataStream.encodeString("Schema");
+					dataStream.encodeString(parsedConnectionString.Schema);
 				}
 
 				// LastCommitInfo and DatabaseUUId are sent as properties. This avoids sending another
 				// message and keeps them from being protocol version sensitive
-
 				string lastCommitParam = getProcessConnection(databaseName).getLastCommitInfo();
 				dataStream.encodeString("LastCommitInfo");
 				dataStream.encodeString(lastCommitParam);
@@ -838,10 +780,14 @@ namespace NuoDb.Data.Client
 			if (state != ConnectionState.Closed)
 				throw new ArgumentException("", "");
 
-			if (!properties.ContainsKey("server"))
-				throw new ArgumentException("The connection string doesn't include the URL of the server", "ConnectionString");
-			if (!properties.ContainsKey("database"))
-				throw new ArgumentException("The connection string doesn't include the name of the database", "ConnectionString");
+			if (!parsedConnectionString.ContainsKey(NuoDbConnectionStringBuilder.ServerKey))
+				throw new ArgumentException("The connection string doesn't include the URL of the server.", "ConnectionString");
+			if (!parsedConnectionString.ContainsKey(NuoDbConnectionStringBuilder.DatabaseKey))
+				throw new ArgumentException("The connection string doesn't include the name of the database.", "ConnectionString");
+			if (!parsedConnectionString.ContainsKey(NuoDbConnectionStringBuilder.UserKey))
+				throw new ArgumentException("The connection string doesn't include the username.", "ConnectionString");
+			if (!parsedConnectionString.ContainsKey(NuoDbConnectionStringBuilder.PasswordKey))
+				throw new ArgumentException("The connection string doesn't include the password.", "ConnectionString");
 
 			NuoDbSqlException firstException = null;
 			if (lastBroker != null)
@@ -858,7 +804,7 @@ namespace NuoDb.Data.Client
 				}
 			}
 
-			string hostNames = properties["server"];
+			string hostNames = parsedConnectionString.Server;
 			string[] servers = hostNames.Split(',');
 			foreach (string hostName in servers)
 			{
@@ -901,7 +847,7 @@ namespace NuoDb.Data.Client
 
 		public DataTable GetSchema(string collectionName, string[] restrictionValues)
 		{
-			return GetSchemaHelper(this.connectionString, collectionName, restrictionValues);
+			return GetSchemaHelper(ConnectionString, collectionName, restrictionValues);
 		}
 
 		static internal DataTable GetSchemaHelper(string connectionString, string collectionName, string[] restrictionValues)
