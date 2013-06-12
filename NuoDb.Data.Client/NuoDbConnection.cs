@@ -542,7 +542,8 @@ namespace NuoDb.Data.Client
 							string kKey = keyPair.Groups[1].Value.ToLowerInvariant().Trim();
                             string kValue = keyPair.Groups[3].Success ? keyPair.Groups[3].Value :
                                                 keyPair.Groups[4].Success ? keyPair.Groups[4].Value :
-                                                    keyPair.Groups[5].Success ? keyPair.Groups[5].Value.Trim() : "";
+                                                    keyPair.Groups[5].Success ? keyPair.Groups[5].Value.Trim() : 
+														string.Empty;
                             properties.Add(kKey, kValue);
                         }
                     }
