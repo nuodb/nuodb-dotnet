@@ -356,11 +356,6 @@ namespace NuoDb.Data.Client
 			}
 		}
 
-		public int ConnectionTimeout
-		{
-			get { return 0; }
-		}
-
 		public void EnlistTransaction(System.Transactions.Transaction txn)
 		{
 #if DEBUG

@@ -18,14 +18,18 @@ namespace NuoDb.Data.Client
 	[DesignerCategory("")]
 	public sealed class NuoDbConnection : DbConnection, ICloneable
 	{
+		bool _disposed;
 		string _connectionString;
 		NuoDbConnectionStringBuilder _parsedConnectionString;
 		NuoDbConnectionInternal _internalConnection;
 
 		public NuoDbConnection()
-		{ }
+		{
+			_disposed = false;
+		}
 
 		public NuoDbConnection(string connectionString)
+			: this()
 		{
 			ConnectionString = connectionString;
 		}
@@ -40,17 +44,23 @@ namespace NuoDb.Data.Client
 
 		public override void EnlistTransaction(System.Transactions.Transaction transaction)
 		{
-			InternalConnection.EnlistTransaction(transaction);
+			CheckConnection();
+
+			_internalConnection.EnlistTransaction(transaction);
 		}
 
 		protected override DbTransaction BeginDbTransaction(IsolationLevel isolationLevel)
 		{
-			return InternalConnection.BeginDbTransaction(isolationLevel);
+			CheckConnection();
+
+			return _internalConnection.BeginDbTransaction(isolationLevel);
 		}
 
 		public override void ChangeDatabase(string databaseName)
 		{
-			InternalConnection.ChangeDatabase(databaseName);
+			CheckConnection();
+
+			_internalConnection.ChangeDatabase(databaseName);
 		}
 
 		public override void Open()
@@ -67,13 +77,13 @@ namespace NuoDb.Data.Client
 		}
 
 		protected override DbCommand CreateDbCommand()
-        {
-            return new NuoDbCommand(this);
+		{
+			return new NuoDbCommand(this);
 		}
 
 		public override int ConnectionTimeout
 		{
-			get { return InternalConnection.ConnectionTimeout; }
+			get { return 0; }
 		}
 
 		public override string ConnectionString
@@ -90,25 +100,31 @@ namespace NuoDb.Data.Client
 
 		public override DataTable GetSchema()
 		{
-			return InternalConnection.GetSchema();
+			CheckConnection();
+
+			return _internalConnection.GetSchema();
 		}
 
 		public override DataTable GetSchema(string collectionName)
 		{
-			return InternalConnection.GetSchema(collectionName);
+			CheckConnection();
+
+			return _internalConnection.GetSchema(collectionName);
 		}
 
 		public override DataTable GetSchema(string collectionName, string[] restrictionValues)
 		{
-			return InternalConnection.GetSchema(collectionName, restrictionValues);
+			CheckConnection();
+
+			return _internalConnection.GetSchema(collectionName, restrictionValues);
 		}
 
 		internal NuoDbConnectionInternal InternalConnection
 		{
 			get
 			{
-				if (_internalConnection == null)
-					throw new InvalidOperationException();
+				CheckConnection(false);
+
 				return _internalConnection;
 			}
 		}
@@ -125,8 +141,12 @@ namespace NuoDb.Data.Client
 
 		public override string ServerVersion
 		{
-#warning Should work without InternalConnection
-			get { return InternalConnection.ServerVersion; }
+			get
+			{
+				CheckConnection();
+
+				return _internalConnection.ServerVersion;
+			}
 		}
 
 		public override ConnectionState State
@@ -142,6 +162,16 @@ namespace NuoDb.Data.Client
 		public object Clone()
 		{
 			return new NuoDbConnection(ConnectionString);
+		}
+
+		void CheckConnection(bool openedNeeded = true)
+		{
+			if (_disposed)
+				throw new ObjectDisposedException(this.GetType().Name);
+			if (openedNeeded && State != ConnectionState.Open)
+				throw new InvalidOperationException("Open connection is needed.");
+			if (_internalConnection == null)
+				throw new InvalidOperationException();
 		}
 	}
 }
