@@ -75,6 +75,22 @@ namespace NuoDb.Data.Client
             set { this.SetValue("Schema", value); }
         }
 
+		[Category("Connection Pooling")]
+		[Description("")]
+		public bool Pooling
+		{
+			get { return this.GetBoolean("Pooling"); }
+			set { this.SetValue("Pooling", value); }
+		}
+
+		[Category("Connection Pooling")]
+		[Description("")]
+		public int ConnectionLifetime
+		{
+			get { return this.GetInt32("ConnectionLifetime"); }
+			set { this.SetValue("ConnectionLifetime", value); }
+		}
+
         public NuoDbConnectionStringBuilder()
 		{
 		}
@@ -86,10 +102,25 @@ namespace NuoDb.Data.Client
 
         private string GetString(string keyword)
         {
-            return Convert.ToString(this[keyword]);
+			return GetValue(keyword, Convert.ToString);
         }
 
-        private void SetValue(string keyword, string value)
+		private bool GetBoolean(string keyword)
+		{
+			return GetValue(keyword, Convert.ToBoolean);
+		}
+
+		private int GetInt32(string keyword)
+		{
+			return GetValue(keyword, Convert.ToInt32);
+		}
+
+		private T GetValue<T>(string keyword, Converter<object, T> converter)
+		{
+			return converter(this[keyword]);
+		}
+
+        private void SetValue<T>(string keyword, T value)
         {
             this[keyword] = value;
         }
