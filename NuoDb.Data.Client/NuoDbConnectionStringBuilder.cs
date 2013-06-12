@@ -84,6 +84,7 @@ namespace NuoDb.Data.Client
 		}
 
 		internal const string PoolingKey = "Pooling";
+		internal const bool PoolingDefault = true;
 		[Category("Connection Pooling")]
 		[Description("")]
 		public bool Pooling
@@ -91,14 +92,23 @@ namespace NuoDb.Data.Client
 			get { return this.GetBoolean(PoolingKey); }
 			set { this.SetValue(PoolingKey, value); }
 		}
+		internal bool PoolingOrDefault
+		{
+			get { return ContainsKey(PoolingKey) ? Pooling : PoolingDefault; }
+		}
 
 		internal const string ConnectionLifetimeKey = "ConnectionLifetime";
+		internal const int ConnectionLifetimeDefault = 60;
 		[Category("Connection Pooling")]
 		[Description("")]
 		public int ConnectionLifetime
 		{
 			get { return this.GetInt32(ConnectionLifetimeKey); }
 			set { this.SetValue(ConnectionLifetimeKey, value); }
+		}
+		internal int ConnectionLifetimeOrDefault
+		{
+			get { return ContainsKey(ConnectionLifetimeKey) ? ConnectionLifetime : ConnectionLifetimeDefault; }
 		}
 
 		public NuoDbConnectionStringBuilder()
@@ -134,6 +144,5 @@ namespace NuoDb.Data.Client
 		{
 			this[keyword] = value;
 		}
-
 	}
 }
