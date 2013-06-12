@@ -561,6 +561,7 @@ namespace NuoDb.Data.Client
 				string password = parsedConnectionString.Password;
 				string cipher = DEFAULT_CIPHER;
 
+				tag.addAttribute("Server", hostName);
 				tag.addAttribute("User", userName);
 				if (parsedConnectionString.ContainsKey(NuoDbConnectionStringBuilder.SchemaKey))
 				{
