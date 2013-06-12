@@ -192,11 +192,21 @@ namespace NuoDb.Data.Client.EntityFramework
 				throw new ArgumentException("Connection is not a valid NuoDbConnection");
 
 			NuoDbConnection conn = (NuoDbConnection)connection;
-			DataTable dsInfo = conn.GetSchema(DbMetaDataCollectionNames.DataSourceInformation);
-			if (dsInfo.Rows.Count == 0)
-				return "0";
-			string version = dsInfo.Rows[0].Field<string>("DataSourceInternalProductVersion");
-			return version;
+			var shouldClose = conn.State != ConnectionState.Open;
+			try
+			{
+				conn.Open();
+				DataTable dsInfo = conn.GetSchema(DbMetaDataCollectionNames.DataSourceInformation);
+				if (dsInfo.Rows.Count == 0)
+					return "0";
+				string version = dsInfo.Rows[0].Field<string>("DataSourceInternalProductVersion");
+				return version;
+			}
+			finally
+			{
+				if (shouldClose)
+					conn.Close();
+			}
 		}
 
 		protected override void DbCreateDatabase(DbConnection connection, int? commandTimeout, StoreItemCollection storeItemCollection)
