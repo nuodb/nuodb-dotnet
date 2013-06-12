@@ -31,10 +31,9 @@ namespace NuoDb.Data.Client
 
 		protected override void Dispose(bool disposing)
 		{
-			if (_internalConnection != null)
+			if (disposing)
 			{
-				_internalConnection.Dispose(disposing);
-				_internalConnection = null;
+				Close();
 			}
 		}
 
