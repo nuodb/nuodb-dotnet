@@ -55,12 +55,15 @@ namespace NuoDb.Data.Client
 
 		public override void Open()
 		{
-			throw new NotImplementedException();
+			_internalConnection = new NuoDbConnectionInternal();
+			_internalConnection.ConnectionString = _connectionString;
+			_internalConnection.Open();
 		}
 
 		public override void Close()
 		{
-			throw new NotImplementedException();
+			_internalConnection.Close();
+			_internalConnection = null;
 		}
 
 		protected override DbCommand CreateDbCommand()
