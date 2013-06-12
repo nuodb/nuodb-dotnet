@@ -877,7 +877,7 @@ namespace NuoDb.Data.Client
 			// batch of rows)
 			using (var tmConn = new NuoDbConnection(connectionString))
 			{
-				tmConn.InternalConnection.Open();
+				tmConn.Open();
 
 				if (collectionName == DbMetaDataCollectionNames.DataSourceInformation)
 				{
