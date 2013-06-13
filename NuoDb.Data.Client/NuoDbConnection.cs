@@ -18,6 +18,7 @@ namespace NuoDb.Data.Client
 	[DesignerCategory("")]
 	public sealed class NuoDbConnection : DbConnection, ICloneable
 	{
+#warning Implemenent StateChange
 		bool _disposed;
 		string _connectionString;
 		NuoDbConnectionStringBuilder _parsedConnectionString;
@@ -67,7 +68,16 @@ namespace NuoDb.Data.Client
 			{
 				_internalConnection = new NuoDbConnectionInternal(_connectionString);
 			}
-			_internalConnection.Open();
+			try
+			{
+				_internalConnection.Open();
+			}
+			catch
+			{
+				CloseImpl();
+
+				throw;
+			}
 		}
 
 		public override void Close()
