@@ -49,7 +49,7 @@ namespace NuoDb.Data.Client
 			{
 				lock (_syncRoot)
 				{
-					var connection = _available.Count() > 0
+					var connection = _available.Any()
 						? _available.Dequeue().Connection
 						: new NuoDbConnectionInternal(_connectionString);
 					_busy.Add(connection);
