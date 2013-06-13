@@ -107,10 +107,12 @@ namespace NuoDb.Data.Client
 			CloseImpl();
 		}
 
-		public void CloseImpl()
+		void CloseImpl()
 		{
 			if (_internalConnection != null)
 			{
+				if (_internalConnection.transaction != null)
+					_internalConnection.transaction.Rollback();
 				if (_pooled)
 					ConnectionPoolManager.Instance.Release(_internalConnection);
 				else
