@@ -96,6 +96,7 @@ namespace NuoDb.Data.Client
 					throw;
 				}
 			}
+			_internalConnection.Owner = this;
 
 			OnStateChange(_state, ConnectionState.Open);
 		}
