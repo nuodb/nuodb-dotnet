@@ -720,7 +720,7 @@ namespace NuoDb.Data.Client
 			catch (NuoDbSqlException e)
 			{
 #if DEBUG
-				System.Diagnostics.Trace.WriteLine("NuoDBConnection::Open(): exception " + e.ToString());
+				System.Diagnostics.Trace.WriteLine("NuoDBConnection::doOpen(): exception " + e.ToString());
 #endif
 				if (authenticating)
 				{
@@ -732,7 +732,7 @@ namespace NuoDb.Data.Client
 			catch (IOException exception)
 			{
 #if DEBUG
-				System.Diagnostics.Trace.WriteLine("NuoDBConnection::Open(): exception " + exception.ToString());
+				System.Diagnostics.Trace.WriteLine("NuoDBConnection::doOpen(): exception " + exception.ToString());
 #endif
 				if (socket != null && socket.Connected)
 				{
@@ -752,7 +752,7 @@ namespace NuoDb.Data.Client
 			catch (XmlException exception)
 			{
 #if DEBUG
-				System.Diagnostics.Trace.WriteLine("NuoDBConnection::Open(): exception " + exception.ToString());
+				System.Diagnostics.Trace.WriteLine("NuoDBConnection::doOpen(): exception " + exception.ToString());
 #endif
 				if (socket != null && socket.Connected)
 				{
