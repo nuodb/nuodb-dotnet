@@ -93,14 +93,17 @@ namespace NuoDb.Data.Client
 		internal void Dispose(bool disposing)
 		{
 #if DEBUG
-			System.Diagnostics.Trace.WriteLine("NuoDBConnection::DisposeImpl()");
+			System.Diagnostics.Trace.WriteLine("NuoDBConnection::Dispose()");
 #endif
-			try
+			if (disposing)
 			{
-				Close();
-			}
-			catch (Exception)
-			{
+				try
+				{
+					Close();
+				}
+				catch (Exception)
+				{
+				}
 			}
 		}
 
