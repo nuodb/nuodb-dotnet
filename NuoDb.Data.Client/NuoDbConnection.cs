@@ -23,11 +23,13 @@ namespace NuoDb.Data.Client
 		string _connectionString;
 		NuoDbConnectionStringBuilder _parsedConnectionString;
 		NuoDbConnectionInternal _internalConnection;
+		bool _pooled;
 
 		public NuoDbConnection()
 		{
 			_disposed = false;
 			_state = ConnectionState.Closed;
+			_pooled = false;
 		}
 
 		public NuoDbConnection(string connectionString)
@@ -68,21 +70,31 @@ namespace NuoDb.Data.Client
 
 			if (_parsedConnectionString.PoolingOrDefault)
 			{
-				_internalConnection = ConnectionPoolManager.Instance.Get(_connectionString);
+				_pooled = true;
+				try
+				{
+					_internalConnection = ConnectionPoolManager.Instance.Get(_connectionString);
+				}
+				catch
+				{
+					CloseImpl();
+
+					throw;
+				}
 			}
 			else
 			{
 				_internalConnection = new NuoDbConnectionInternal(_connectionString);
-			}
-			try
-			{
-				_internalConnection.Open();
-			}
-			catch
-			{
-				CloseImpl();
+				try
+				{
+					_internalConnection.Open();
+				}
+				catch
+				{
+					CloseImpl();
 
-				throw;
+					throw;
+				}
 			}
 
 			OnStateChange(_state, ConnectionState.Open);
@@ -99,12 +111,15 @@ namespace NuoDb.Data.Client
 		{
 			if (_internalConnection != null)
 			{
-				ConnectionPoolManager.Instance.Release(_internalConnection);
-				_internalConnection.Close();
+				if (_pooled)
+					ConnectionPoolManager.Instance.Release(_internalConnection);
+				else
+					_internalConnection.Close();
+				_pooled = false;
 				_internalConnection = null;
-
-				OnStateChange(_state, ConnectionState.Closed);
 			}
+
+			OnStateChange(_state, ConnectionState.Closed);
 		}
 
 		protected override void Dispose(bool disposing)

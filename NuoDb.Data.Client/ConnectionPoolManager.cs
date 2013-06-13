@@ -51,7 +51,7 @@ namespace NuoDb.Data.Client
 				{
 					var connection = _available.Any()
 						? _available.Dequeue().Connection
-						: new NuoDbConnectionInternal(_connectionString);
+						: InitializeNewConnection(_connectionString);
 					_busy.Add(connection);
 					return connection;
 				}
@@ -78,6 +78,13 @@ namespace NuoDb.Data.Client
 					release.AsParallel().ForAll(x => x.Connection.Dispose());
 					_available = new Queue<Item>(keep);
 				}
+			}
+
+			static NuoDbConnectionInternal InitializeNewConnection(string connectionString)
+			{
+				var result = new NuoDbConnectionInternal(connectionString);
+				result.Open();
+				return result;
 			}
 		}
 
