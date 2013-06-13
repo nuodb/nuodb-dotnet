@@ -113,6 +113,7 @@ namespace NuoDb.Data.Client
 
 		void Cleanup()
 		{
+			// should we remove empty pools?
 			_pools.Values.AsParallel().ForAll(p => p.CleanupPool());
 		}
 	}
