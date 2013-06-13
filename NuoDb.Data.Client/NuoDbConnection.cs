@@ -215,7 +215,7 @@ namespace NuoDb.Data.Client
 		void CheckConnection(bool openedNeeded = true)
 		{
 			CheckDisposed();
-			if (openedNeeded && State != ConnectionState.Open)
+			if (openedNeeded && _state != ConnectionState.Open)
 				throw new InvalidOperationException("Open connection is needed.");
 			if (_internalConnection == null)
 				throw new InvalidOperationException();
