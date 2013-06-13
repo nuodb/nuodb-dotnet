@@ -316,7 +316,7 @@ namespace NuoDb.Data.Client
 
                 while (true)
                 {
-                    EncodedDataStream dataStream = new RemEncodedStream(connection.protocolVersion);
+					EncodedDataStream dataStream = new RemEncodedStream(connection.InternalConnection.protocolVersion);
                     dataStream.startMessage(Protocol.ExecuteBatchPreparedStatement);
                     dataStream.encodeInt(command.handle);
                     int batchCount = 0;
@@ -357,7 +357,7 @@ namespace NuoDb.Data.Client
 #if DEBUG
                     System.Diagnostics.Trace.WriteLine("NuoDbBulkLoader::WriteToServer: sending a batch of " + batchCount + " rows");
 #endif
-                    this.connection.sendAndReceive(dataStream);
+					this.connection.InternalConnection.sendAndReceive(dataStream);
 
                     string firstViolationString = "";
                     int firstViolation = 0;
@@ -368,7 +368,7 @@ namespace NuoDb.Data.Client
                         int result = dataStream.getInt();
                         if (result == EXECUTE_FAILED)
                         {
-                            if (this.connection.protocolVersion >= Protocol.PROTOCOL_VERSION6)
+							if (this.connection.InternalConnection.protocolVersion >= Protocol.PROTOCOL_VERSION6)
                             {
                                 int status = dataStream.getInt();
                                 string s = dataStream.getString();
@@ -384,12 +384,12 @@ namespace NuoDb.Data.Client
                         }
                     }
 
-                    if (this.connection.protocolVersion >= Protocol.PROTOCOL_VERSION3)
+					if (this.connection.InternalConnection.protocolVersion >= Protocol.PROTOCOL_VERSION3)
                     {
                         long txnId = dataStream.getLong();
                         int nodeId = dataStream.getInt();
                         long commitSequence = dataStream.getLong();
-                        this.connection.setLastTransaction(txnId, nodeId, commitSequence);
+						this.connection.InternalConnection.setLastTransaction(txnId, nodeId, commitSequence);
                     }
 
                     if (handlers.Count != 0)
