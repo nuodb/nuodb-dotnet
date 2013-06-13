@@ -70,19 +70,18 @@ namespace NuoDb.Data.Client
 		private bool authenticating = false;
 		private string serverAddress;
 		private int serverPort;
-		private ConnectionState state = ConnectionState.Closed;
 		private string lastBroker;
 
 		private List<int> listResultSets = new List<int>();
 		private List<int> listCommands = new List<int>();
 
-		public event StateChangeEventHandler StateChange;
 
 		public NuoDbConnectionInternal()
 		{
 		}
 
 		public NuoDbConnectionInternal(string connectionString)
+			: this()
 		{
 			ConnectionString = connectionString;
 		}
@@ -94,12 +93,11 @@ namespace NuoDb.Data.Client
 		internal void Dispose(bool disposing)
 		{
 #if DEBUG
-			System.Diagnostics.Trace.WriteLine("NuoDBConnection::DisposeImpl() [state = " + state + "]");
+			System.Diagnostics.Trace.WriteLine("NuoDBConnection::DisposeImpl()");
 #endif
 			try
 			{
-				if (state == ConnectionState.Open)
-					Close();
+				Close();
 			}
 			catch (Exception)
 			{
@@ -412,8 +410,7 @@ namespace NuoDb.Data.Client
 #if DEBUG
 			System.Diagnostics.Trace.WriteLine("NuoDBConnection::ChangeDatabase(" + databaseName + ")");
 #endif
-			if (state == ConnectionState.Open)
-				Close();
+			Close();
 			parsedConnectionString.Database = databaseName;
 			ConnectionString = parsedConnectionString.ToString();
 		}
@@ -474,7 +471,6 @@ namespace NuoDb.Data.Client
 			{
 				return;
 			}
-			this.OnStateChange(this.state, ConnectionState.Closed);
 
 #if DEBUG
 			System.Diagnostics.Trace.WriteLine("NuoDBConnection::Close()");
@@ -574,8 +570,6 @@ namespace NuoDb.Data.Client
 					throw new NuoDbSqlException("Unknown cipher: " + cipher);
 				tag.addAttribute("Cipher", cipher);
 				tagItemsCount++;
-
-				this.OnStateChange(this.state, ConnectionState.Connecting);
 
 				string xml = tag.ToString();
 				CryptoSocket brokerSocket = new CryptoSocket(hostName, port);
@@ -719,15 +713,12 @@ namespace NuoDb.Data.Client
 					inputStream.encrypt(null);
 					outputStream.encrypt(null);
 				}
-
-				this.OnStateChange(this.state, ConnectionState.Open);
 			}
 			catch (NuoDbSqlException e)
 			{
 #if DEBUG
 				System.Diagnostics.Trace.WriteLine("NuoDBConnection::Open(): exception " + e.ToString());
 #endif
-				this.OnStateChange(this.state, ConnectionState.Closed);
 				if (authenticating)
 				{
 					throw new NuoDbSqlException("Authentication failed for database \"" + databaseName + "\"", e);
@@ -752,7 +743,6 @@ namespace NuoDb.Data.Client
 						// just ignore
 					}
 				}
-				this.OnStateChange(this.state, ConnectionState.Closed);
 
 				throw new NuoDbSqlException(exception.ToString());
 			}
@@ -773,7 +763,6 @@ namespace NuoDb.Data.Client
 						// just ignore
 					}
 				}
-				this.OnStateChange(this.state, ConnectionState.Closed);
 
 				throw new NuoDbSqlException(exception.ToString());
 			}
@@ -782,9 +771,6 @@ namespace NuoDb.Data.Client
 		[MethodImpl(MethodImplOptions.Synchronized)]
 		public void Open()
 		{
-			if (state != ConnectionState.Closed)
-				throw new ArgumentException("", "");
-
 			if (!parsedConnectionString.ContainsKey(NuoDbConnectionStringBuilder.ServerKey))
 				throw new ArgumentException("The connection string doesn't include the URL of the server.", "ConnectionString");
 			if (!parsedConnectionString.ContainsKey(NuoDbConnectionStringBuilder.DatabaseKey))
@@ -829,15 +815,6 @@ namespace NuoDb.Data.Client
 			if (firstException != null)
 				throw firstException;
 
-		}
-
-		private void OnStateChange(ConnectionState originalState, ConnectionState currentState)
-		{
-			this.state = currentState;
-			if (this.StateChange != null)
-			{
-				this.StateChange(this, new StateChangeEventArgs(originalState, currentState));
-			}
 		}
 
 		public DataTable GetSchema()
@@ -1675,11 +1652,6 @@ namespace NuoDb.Data.Client
 		public string ServerVersion
 		{
 			get { return "1.0"; }
-		}
-
-		public ConnectionState State
-		{
-			get { return state; }
 		}
 
 		internal void Commit()

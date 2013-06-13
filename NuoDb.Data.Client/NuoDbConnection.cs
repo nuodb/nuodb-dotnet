@@ -18,8 +18,8 @@ namespace NuoDb.Data.Client
 	[DesignerCategory("")]
 	public sealed class NuoDbConnection : DbConnection, ICloneable
 	{
-#warning Implemenent StateChange
 		bool _disposed;
+		ConnectionState _state;
 		string _connectionString;
 		NuoDbConnectionStringBuilder _parsedConnectionString;
 		NuoDbConnectionInternal _internalConnection;
@@ -27,6 +27,7 @@ namespace NuoDb.Data.Client
 		public NuoDbConnection()
 		{
 			_disposed = false;
+			_state = ConnectionState.Closed;
 		}
 
 		public NuoDbConnection(string connectionString)
@@ -60,6 +61,8 @@ namespace NuoDb.Data.Client
 		{
 			CheckDisposed();
 
+			OnStateChange(_state, ConnectionState.Connecting);
+
 			if (_parsedConnectionString.PoolingOrDefault)
 			{
 				_internalConnection = ConnectionPoolManager.Instance.Get(_connectionString);
@@ -78,6 +81,8 @@ namespace NuoDb.Data.Client
 
 				throw;
 			}
+
+			OnStateChange(_state, ConnectionState.Open);
 		}
 
 		public override void Close()
@@ -94,6 +99,8 @@ namespace NuoDb.Data.Client
 				ConnectionPoolManager.Instance.Release(_internalConnection);
 				_internalConnection.Close();
 				_internalConnection = null;
+
+				OnStateChange(_state, ConnectionState.Closed);
 			}
 		}
 
@@ -184,8 +191,10 @@ namespace NuoDb.Data.Client
 
 		public override ConnectionState State
 		{
-			get { return _internalConnection != null ? _internalConnection.State : ConnectionState.Closed; }
+			get { return _state; }
 		}
+
+		public override event StateChangeEventHandler StateChange;
 
 		protected override DbProviderFactory DbProviderFactory
 		{
@@ -210,6 +219,13 @@ namespace NuoDb.Data.Client
 				throw new InvalidOperationException("Open connection is needed.");
 			if (_internalConnection == null)
 				throw new InvalidOperationException();
+		}
+
+		void OnStateChange(ConnectionState originalState, ConnectionState currentState)
+		{
+			_state = currentState;
+			if (StateChange != null)
+				StateChange(this, new StateChangeEventArgs(originalState, currentState));
 		}
 	}
 }
