@@ -87,7 +87,7 @@ namespace NuoDb.Data.Client
 		ConnectionPoolManager()
 		{
 			_pools = new ConcurrentDictionary<string, ConnectionPool>();
-			_cleanupTimer = new Timer(CleanupCallback, null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(10));
+			_cleanupTimer = new Timer(CleanupCallback, null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1));
 		}
 
 		public NuoDbConnectionInternal Get(string connectionString)
