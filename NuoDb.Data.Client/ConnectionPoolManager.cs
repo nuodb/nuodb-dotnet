@@ -3,6 +3,7 @@
 ****************************************************************************/
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -80,47 +81,28 @@ namespace NuoDb.Data.Client
 			}
 		}
 
-		object _syncRoot = new object();
-		Dictionary<string, ConnectionPool> _pools;
+		ConcurrentDictionary<string, ConnectionPool> _pools;
 		Timer _cleanupTimer;
 
 		ConnectionPoolManager()
 		{
-			_syncRoot = new object();
-			_pools = new Dictionary<string, ConnectionPool>();
+			_pools = new ConcurrentDictionary<string, ConnectionPool>();
 			_cleanupTimer = new Timer(CleanupCallback, null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(10));
 		}
 
 		public NuoDbConnectionInternal Get(string connectionString)
 		{
-			lock (_syncRoot)
-			{
-				return GetPoolOrCreateNew(connectionString).GetConnection();
-			}
+			return _pools.GetOrAdd(connectionString, PrepareNewPool).GetConnection();
 		}
 
 		public void Release(NuoDbConnectionInternal connection)
 		{
-			lock (_syncRoot)
-			{
-				GetPoolOrCreateNew(connection.ConnectionString).ReleaseConnection(connection);
-			}
+			_pools.GetOrAdd(connection.ConnectionString, PrepareNewPool).ReleaseConnection(connection);
 		}
 
-		ConnectionPool GetPoolOrCreateNew(string connectionString)
-		{
-			var pool = default(ConnectionPool);
-			if (!_pools.TryGetValue(connectionString, out pool))
-			{
-				pool = PrepareNewPool(connectionString);
-			}
-			return pool;
-		}
-
-		ConnectionPool PrepareNewPool(string connectionString)
+		static ConnectionPool PrepareNewPool(string connectionString)
 		{
 			var pool = new ConnectionPool(connectionString);
-			_pools.Add(connectionString, pool);
 			return pool;
 		}
 
@@ -131,10 +113,7 @@ namespace NuoDb.Data.Client
 
 		void Cleanup()
 		{
-			lock (_syncRoot)
-			{
-				_pools.Values.AsParallel().ForAll(p => p.CleanupPool());
-			}
+			_pools.Values.AsParallel().ForAll(p => p.CleanupPool());
 		}
 	}
 }
