@@ -61,6 +61,9 @@ namespace NuoDb.Data.Client
 		{
 			CheckDisposed();
 
+			if (_state != ConnectionState.Closed)
+				throw new InvalidOperationException();
+
 			OnStateChange(_state, ConnectionState.Connecting);
 
 			if (_parsedConnectionString.PoolingOrDefault)
