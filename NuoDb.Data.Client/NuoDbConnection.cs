@@ -230,7 +230,7 @@ namespace NuoDb.Data.Client
 		void CheckDisposed()
 		{
 			if (_disposed)
-				throw new ObjectDisposedException(this.GetType().Name);
+				throw new ObjectDisposedException(typeof(NuoDbConnection).Name);
 		}
 
 		void CheckConnection(bool openedNeeded = true)
