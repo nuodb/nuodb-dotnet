@@ -18,15 +18,33 @@ namespace NuoDb.Data.Client
 
 		sealed class ConnectionPool
 		{
-			sealed class Item
+			sealed class Item : IDisposable
 			{
+				bool _disposed;
+
 				public DateTimeOffset Created { get; private set; }
 				public NuoDbConnectionInternal Connection { get; private set; }
 
+				public Item()
+				{
+					_disposed = false;
+				}
+
 				public Item(DateTimeOffset created, NuoDbConnectionInternal connection)
+					: this()
 				{
 					Created = created;
 					Connection = connection;
+				}
+
+				public void Dispose()
+				{
+					if (_disposed)
+						return;
+					_disposed = true;
+					Created = default(DateTime);
+					Connection.Dispose();
+					Connection = null;
 				}
 			}
 
