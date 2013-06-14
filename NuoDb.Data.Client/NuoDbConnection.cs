@@ -252,5 +252,10 @@ namespace NuoDb.Data.Client
 		{
 			return ConnectionPoolManager.Instance.GetPooledConnectionCount(connection.ConnectionString);
 		}
+
+		public static void ClearPool(NuoDbConnection connection)
+		{
+			ConnectionPoolManager.Instance.ClearPool(connection.ConnectionString);
+		}
 	}
 }

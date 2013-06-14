@@ -16,7 +16,7 @@ namespace NuoDb.Data.Client
 		static ConnectionPoolManager _instance = new ConnectionPoolManager();
 		public static ConnectionPoolManager Instance { get { return _instance; } }
 
-		sealed class ConnectionPool
+		sealed class ConnectionPool : IDisposable
 		{
 			sealed class Item : IDisposable
 			{
@@ -48,6 +48,7 @@ namespace NuoDb.Data.Client
 				}
 			}
 
+			bool _disposed;
 			object _syncRoot;
 			string _connectionString;
 			TimeSpan _lifeTime;
@@ -56,6 +57,7 @@ namespace NuoDb.Data.Client
 
 			public ConnectionPool(string connectionString)
 			{
+				_disposed = false;
 				_syncRoot = new object();
 				_connectionString = connectionString;
 				_lifeTime = TimeSpan.FromSeconds(new NuoDbConnectionStringBuilder(_connectionString).ConnectionLifetimeOrDefault);
@@ -63,8 +65,33 @@ namespace NuoDb.Data.Client
 				_busy = new List<NuoDbConnectionInternal>();
 			}
 
+			public void Dispose()
+			{
+				if (_disposed)
+					return;
+				_disposed = true;
+				lock (_syncRoot)
+				{
+					_connectionString = null;
+					_lifeTime = default(TimeSpan);
+					ClearConnectionsImpl();
+					_available = null;
+					_busy = null;
+				}
+			}
+
+			void ClearConnectionsImpl()
+			{
+				foreach (var item in _available)
+					item.Dispose();
+				foreach (var item in _busy)
+					item.Dispose();
+			}
+
 			public NuoDbConnectionInternal GetConnection()
 			{
+				CheckDisposed();
+
 				lock (_syncRoot)
 				{
 					var connection = _available.Any()
@@ -77,6 +104,8 @@ namespace NuoDb.Data.Client
 
 			public void ReleaseConnection(NuoDbConnectionInternal connection)
 			{
+				CheckDisposed();
+
 				lock (_syncRoot)
 				{
 					var removed = _busy.Remove(connection);
@@ -87,6 +116,8 @@ namespace NuoDb.Data.Client
 
 			public void CleanupPool()
 			{
+				CheckDisposed();
+
 				lock (_syncRoot)
 				{
 					var now = DateTimeOffset.UtcNow;
@@ -100,10 +131,30 @@ namespace NuoDb.Data.Client
 
 			public int GetPooledCount()
 			{
+				CheckDisposed();
+
 				lock (_syncRoot)
 				{
 					return _available.Count() + _busy.Count();
 				}
+			}
+
+			public void Clear()
+			{
+				CheckDisposed();
+
+				lock (_syncRoot)
+				{
+					ClearConnectionsImpl();
+					_available.Clear();
+					_busy.Clear();
+				}
+			}
+
+			void CheckDisposed()
+			{
+				if (_disposed)
+					throw new ObjectDisposedException(typeof(ConnectionPool).Name);
 			}
 
 			static NuoDbConnectionInternal InitializeNewConnection(string connectionString)
@@ -139,6 +190,15 @@ namespace NuoDb.Data.Client
 			return _pools.TryGetValue(connectionString, out pool)
 				? pool.GetPooledCount()
 				: 0;
+		}
+
+		public void ClearPool(string connectionString)
+		{
+			var pool = default(ConnectionPool);
+			if (_pools.TryGetValue(connectionString, out pool))
+			{
+				pool.Clear();
+			}
 		}
 
 		static ConnectionPool PrepareNewPool(string connectionString)
