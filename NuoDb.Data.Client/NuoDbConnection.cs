@@ -248,5 +248,9 @@ namespace NuoDb.Data.Client
 			if (StateChange != null)
 				StateChange(this, new StateChangeEventArgs(originalState, currentState));
 		}
+		public static int GetPooledConnectionCount(NuoDbConnection connection)
+		{
+			return ConnectionPoolManager.Instance.GetPooledConnectionCount(connection.ConnectionString);
+		}
 	}
 }

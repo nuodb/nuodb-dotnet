@@ -80,6 +80,14 @@ namespace NuoDb.Data.Client
 				}
 			}
 
+			public int GetPooledCount()
+			{
+				lock (_syncRoot)
+				{
+					return _available.Count() + _busy.Count();
+				}
+			}
+
 			static NuoDbConnectionInternal InitializeNewConnection(string connectionString)
 			{
 				var result = new NuoDbConnectionInternal(connectionString);
@@ -105,6 +113,14 @@ namespace NuoDb.Data.Client
 		public void Release(NuoDbConnectionInternal connection)
 		{
 			_pools.GetOrAdd(connection.ConnectionString, PrepareNewPool).ReleaseConnection(connection);
+		}
+
+		public int GetPooledConnectionCount(string connectionString)
+		{
+			var pool = default(ConnectionPool);
+			return _pools.TryGetValue(connectionString, out pool)
+				? pool.GetPooledCount()
+				: 0;
 		}
 
 		static ConnectionPool PrepareNewPool(string connectionString)
