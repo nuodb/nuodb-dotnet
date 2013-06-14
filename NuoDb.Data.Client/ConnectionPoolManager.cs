@@ -11,7 +11,7 @@ using System.Threading;
 
 namespace NuoDb.Data.Client
 {
-	internal sealed class ConnectionPoolManager
+	internal sealed class ConnectionPoolManager : IDisposable
 	{
 		static ConnectionPoolManager _instance = new ConnectionPoolManager();
 		public static ConnectionPoolManager Instance { get { return _instance; } }
@@ -165,27 +165,46 @@ namespace NuoDb.Data.Client
 			}
 		}
 
+		bool _disposed;
 		ConcurrentDictionary<string, ConnectionPool> _pools;
 		Timer _cleanupTimer;
 
 		ConnectionPoolManager()
 		{
+			_disposed = false;
 			_pools = new ConcurrentDictionary<string, ConnectionPool>();
 			_cleanupTimer = new Timer(CleanupCallback, null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1));
 		}
 
+		public void Dispose()
+		{
+			if (_disposed)
+				return;
+			_disposed = true;
+			_cleanupTimer.Dispose();
+			_cleanupTimer = null;
+			_pools.Values.AsParallel().ForAll(x => x.Dispose());
+			_pools = null;
+		}
+
 		public NuoDbConnectionInternal Get(string connectionString)
 		{
+			CheckDisposed();
+
 			return _pools.GetOrAdd(connectionString, PrepareNewPool).GetConnection();
 		}
 
 		public void Release(NuoDbConnectionInternal connection)
 		{
+			CheckDisposed();
+
 			_pools.GetOrAdd(connection.ConnectionString, PrepareNewPool).ReleaseConnection(connection);
 		}
 
 		public int GetPooledConnectionCount(string connectionString)
 		{
+			CheckDisposed();
+
 			var pool = default(ConnectionPool);
 			return _pools.TryGetValue(connectionString, out pool)
 				? pool.GetPooledCount()
@@ -194,6 +213,8 @@ namespace NuoDb.Data.Client
 
 		public void ClearPool(string connectionString)
 		{
+			CheckDisposed();
+
 			var pool = default(ConnectionPool);
 			if (_pools.TryGetValue(connectionString, out pool))
 			{
@@ -203,6 +224,8 @@ namespace NuoDb.Data.Client
 
 		public void ClearAllPools()
 		{
+			CheckDisposed();
+
 			_pools.Values.AsParallel().ForAll(p => p.Clear());
 		}
 
@@ -212,13 +235,24 @@ namespace NuoDb.Data.Client
 			return pool;
 		}
 
+		void CheckDisposed()
+		{
+			if (_disposed)
+				throw new ObjectDisposedException(typeof(ConnectionPoolManager).Name);
+		}
+
 		void CleanupCallback(object o)
 		{
+			// in case the timer ticks after dispose, just ignore it
+			if (_disposed)
+				return;
 			Cleanup();
 		}
 
 		void Cleanup()
 		{
+			CheckDisposed();
+
 			_pools.Values.AsParallel().ForAll(p => p.CleanupPool());
 		}
 	}
