@@ -201,6 +201,11 @@ namespace NuoDb.Data.Client
 			}
 		}
 
+		public void ClearAllPools()
+		{
+			_pools.Values.AsParallel().ForAll(p => p.Clear());
+		}
+
 		static ConnectionPool PrepareNewPool(string connectionString)
 		{
 			var pool = new ConnectionPool(connectionString);
@@ -214,7 +219,6 @@ namespace NuoDb.Data.Client
 
 		void Cleanup()
 		{
-			// should we remove empty pools?
 			_pools.Values.AsParallel().ForAll(p => p.CleanupPool());
 		}
 	}

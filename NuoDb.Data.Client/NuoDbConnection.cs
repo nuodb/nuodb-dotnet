@@ -248,6 +248,7 @@ namespace NuoDb.Data.Client
 			if (StateChange != null)
 				StateChange(this, new StateChangeEventArgs(originalState, currentState));
 		}
+
 		public static int GetPooledConnectionCount(NuoDbConnection connection)
 		{
 			return ConnectionPoolManager.Instance.GetPooledConnectionCount(connection.ConnectionString);
@@ -256,6 +257,11 @@ namespace NuoDb.Data.Client
 		public static void ClearPool(NuoDbConnection connection)
 		{
 			ConnectionPoolManager.Instance.ClearPool(connection.ConnectionString);
+		}
+
+		public static void ClearAllPools()
+		{
+			ConnectionPoolManager.Instance.ClearAllPools();
 		}
 	}
 }
