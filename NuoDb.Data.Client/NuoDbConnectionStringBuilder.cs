@@ -98,7 +98,7 @@ namespace NuoDb.Data.Client
 		}
 
 		internal const string ConnectionLifetimeKey = "ConnectionLifetime";
-		internal const int ConnectionLifetimeDefault = 60;
+		internal const int ConnectionLifetimeDefault = 10;
 		[Category("Connection Pooling")]
 		[Description("")]
 		public int ConnectionLifetime
