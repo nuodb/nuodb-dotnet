@@ -51,17 +51,12 @@
     </Type>
     <Type Name="smallint" PrimitiveTypeKind="Int16" />
     <Type Name="int" PrimitiveTypeKind="Int32" />
-    <Type Name="integer" PrimitiveTypeKind="Int32" />
+		<Type Name="integer" PrimitiveTypeKind="Int32" />
+		<Type Name="bigint" PrimitiveTypeKind="Int64" />
     <Type Name="boolean" PrimitiveTypeKind="Boolean" />
     <Type Name="float" PrimitiveTypeKind="Single" />
     <Type Name="real" PrimitiveTypeKind="Single" />
     <Type Name="double" PrimitiveTypeKind="Double" />
-    <Type Name="bigint" PrimitiveTypeKind="Decimal" >
-      <FacetDescriptions>
-        <Precision Constant="false" Minimum="1" Maximum="100" DefaultValue="9"/>
-        <Scale Constant="false" Minimum="0" Maximum="100" DefaultValue="0"/>
-      </FacetDescriptions>
-    </Type>
     <Type Name="decimal" PrimitiveTypeKind="Decimal" >
       <FacetDescriptions>
         <Precision Constant="false" Minimum="1" Maximum="100" DefaultValue="9"/>

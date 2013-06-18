@@ -82,7 +82,7 @@ namespace NuoDb.Data.Client.EntityFramework
                 else
                     return TypeUsage.CreateStringTypeUsage(edmPrimitiveType, false, false);
             }
-            else if (storeTypeName == "bigint" || storeTypeName == "decimal" || storeTypeName == "numeric")
+            else if (storeTypeName == "decimal" || storeTypeName == "numeric")
             {
                 Facet f;
                 byte precision = 0;
