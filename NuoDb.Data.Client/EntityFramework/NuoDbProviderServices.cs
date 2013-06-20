@@ -24,6 +24,9 @@
 * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
 * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+* 
+* Contributors:
+*  Jiri Cincura (jiri@cincura.net)
 ****************************************************************************/
 
 using System.Collections.Generic;
@@ -107,26 +110,26 @@ namespace NuoDb.Data.Client.EntityFramework
             result.ParameterName = name;
             result.Value = value;
 
-			// .Direction
-			ParameterDirection direction = MetadataHelpers.ParameterModeToParameterDirection(mode);
-			if (result.Direction != direction)
-			{
-				result.Direction = direction;
-			}
+            // .Direction
+            ParameterDirection direction = MetadataHelpers.ParameterModeToParameterDirection(mode);
+            if (result.Direction != direction)
+            {
+                result.Direction = direction;
+            }
 
-			// .Size
-			// output parameters are handled differently (we need to ensure there is space for return
-			// values where the user has not given a specific Size/MaxLength)
-			bool isOutParam = mode != ParameterMode.In;
+            // .Size
+            // output parameters are handled differently (we need to ensure there is space for return
+            // values where the user has not given a specific Size/MaxLength)
+            bool isOutParam = mode != ParameterMode.In;
 
             // .IsNullable
-			bool isNullable = MetadataHelpers.IsNullable(type);
-			if (isOutParam || isNullable != result.IsNullable)
-			{
-				result.IsNullable = isNullable;
-			}
+            bool isNullable = MetadataHelpers.IsNullable(type);
+            if (isOutParam || isNullable != result.IsNullable)
+            {
+                result.IsNullable = isNullable;
+            }
 
-			return result;
+            return result;
         }
 
         protected override DbProviderManifest GetDbProviderManifest(string manifestToken)
@@ -149,5 +152,27 @@ namespace NuoDb.Data.Client.EntityFramework
             string version = dsInfo.Rows[0].Field<string>("DataSourceInternalProductVersion");
             return version;
         }
+
+#if NET_40
+        protected override void DbCreateDatabase(DbConnection connection, int? commandTimeout, StoreItemCollection storeItemCollection)
+        {
+            throw new NotSupportedException("Creating database is not supported in NuoDB driver.");
+        }
+
+        protected override string DbCreateDatabaseScript(string providerManifestToken, StoreItemCollection storeItemCollection)
+        {
+            return ScriptBuilder.GenerateDatabaseScript(providerManifestToken, storeItemCollection);
+        }
+
+        protected override bool DbDatabaseExists(DbConnection connection, int? commandTimeout, StoreItemCollection storeItemCollection)
+        {
+            throw new NotSupportedException("Checking database existence is not supported in NuoDB driver.");
+        }
+
+        protected override void DbDeleteDatabase(DbConnection connection, int? commandTimeout, StoreItemCollection storeItemCollection)
+        {
+            throw new NotSupportedException("Deleting database is not supported in NuoDB driver.");
+        }
+#endif
     }
 }

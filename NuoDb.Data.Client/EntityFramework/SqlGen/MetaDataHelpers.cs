@@ -452,5 +452,23 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
             var tableName = MetadataHelpers.TryGetValueForMetadataProperty<string>(entitySetBase, "Table");
             return !string.IsNullOrEmpty(tableName) ? tableName : entitySetBase.Name;
         }
+
+        private static bool IsStoreGeneratedPattern(EdmMember member, StoreGeneratedPattern pattern)
+        {
+            Facet item = null;
+            return (member.TypeUsage.Facets.TryGetValue(StoreGeneratedPatternFacetName, false, out item) && ((StoreGeneratedPattern)item.Value) == pattern);
+        }
+        internal static bool IsStoreGeneratedComputed(EdmMember member)
+        {
+            return IsStoreGeneratedPattern(member, StoreGeneratedPattern.Computed);
+        }
+        internal static bool IsStoreGeneratedIdentity(EdmMember member)
+        {
+            return IsStoreGeneratedPattern(member, StoreGeneratedPattern.Identity);
+        }
+        internal static bool IsStoreGenerated(EdmMember member)
+        {
+            return IsStoreGeneratedComputed(member) || IsStoreGeneratedIdentity(member);
+        }
     }
 }
