@@ -1,22 +1,7 @@
-/*
- *  Firebird ADO.NET Data provider for .NET and Mono 
- * 
- *     The contents of this file are subject to the Initial 
- *     Developer's Public License Version 1.0 (the "License"); 
- *     you may not use this file except in compliance with the 
- *     License. You may obtain a copy of the License at 
- *     http://www.firebirdsql.org/index.php?op=doc&id=idpl
- *
- *     Software distributed under the License is distributed on 
- *     an "AS IS" basis, WITHOUT WARRANTY OF ANY KIND, either 
- *     express or implied.  See the License for the specific 
- *     language governing rights and limitations under the License.
- * 
- *  Copyright (c) 2008-2010 Jiri Cincura (jiri@cincura.net)
- *  All Rights Reserved.
- */
-
-#if (!(NET_35 && !ENTITY_FRAMEWORK))
+/****************************************************************************
+*	Author: Jiri Cincura (jiri@cincura.net)
+*	Adapted from Firebird ADO.NET Data provider
+****************************************************************************/
 
 using System;
 using System.Collections.Generic;
@@ -29,113 +14,6 @@ using System.Data.Common.CommandTrees;
 
 namespace NuoDb.Data.Client.EntityFramework.SqlGen
 {
-    /// <summary>
-    /// A SqlSelectStatement represents a canonical SQL SELECT statement.
-    /// It has fields for the 5 main clauses
-    /// <list type="number">
-    /// <item>SELECT</item>
-    /// <item>FROM</item>
-    /// <item>WHERE</item>
-    /// <item>GROUP BY</item>
-    /// <item>ORDER BY</item>
-    /// </list>
-    /// We do not have HAVING, since it does not correspond to anything in the CommandTree.
-    /// Each of the fields is a SqlBuilder, so we can keep appending SQL strings
-    /// or other fragments to build up the clause.
-    ///
-    /// We have a IsDistinct property to indicate that we want distict columns.
-    /// This is given out of band, since the input expression to the select clause
-    /// may already have some columns projected out, and we use append-only SqlBuilders.
-    /// The DISTINCT is inserted when we finally write the object into a string.
-    /// 
-    /// Also, we have a Top property, which is non-null if the number of results should
-    /// be limited to certain number. It is given out of band for the same reasons as DISTINCT.
-    ///
-    /// The FromExtents contains the list of inputs in use for the select statement.
-    /// There is usually just one element in this - Select statements for joins may
-    /// temporarily have more than one.
-    ///
-    /// If the select statement is created by a Join node, we maintain a list of
-    /// all the extents that have been flattened in the join in AllJoinExtents
-    /// <example>
-    /// in J(j1= J(a,b), c)
-    /// FromExtents has 2 nodes JoinSymbol(name=j1, ...) and Symbol(name=c)
-    /// AllJoinExtents has 3 nodes Symbol(name=a), Symbol(name=b), Symbol(name=c)
-    /// </example>
-    ///
-    /// If any expression in the non-FROM clause refers to an extent in a higher scope,
-    /// we add that extent to the OuterExtents list.  This list denotes the list
-    /// of extent aliases that may collide with the aliases used in this select statement.
-    /// It is set by <see cref="SqlGenerator.Visit(VariableReferenceExpression)"/>.
-    /// An extent is an outer extent if it is not one of the FromExtents.
-    /// </summary>
-    /// <remarks
-    /// ----------------------------------------
-    /// Select statements and select expressions
-    /// ----------------------------------------
-    /// 
-    /// Semantics:
-    /// 
-    /// A select statement is used to return data to the caller (PSQL module or the
-    /// client program). Select expressions retrieve parts of data that construct both
-    /// the final the result set or any of the intermediate sets. Select expressions
-    /// are also known as subqueries.
-    /// 
-    /// Syntax rules:
-    /// 
-    /// <select statement> ::=
-    /// <select expression> [FOR UPDATE] [WITH LOCK]
-    /// 
-    ///   <select expression> ::=
-    ///     <query specification> [UNION [{ALL | DISTINCT}] <query specification>]
-    /// 
-    ///   <query specification> ::=
-    ///     SELECT <select list>
-    ///     FROM <table expression list>
-    ///     WHERE <search condition>
-    ///     GROUP BY <group value list>
-    ///     HAVING <group condition>
-    ///     PLAN <plan item list>
-    ///     ORDER BY <sort value list>
-    ///     [LIMIT <value> [, <value>] ]
-    ///     [OFFSET <value> ROWS]
-    /// 
-    ///   <table expression> ::=
-    ///     <table name> | <joined table> | <derived table>
-    /// 
-    ///   <joined table> ::=
-    ///     {<cross join> | <qualified join>}
-    /// 
-    ///   <cross join> ::=
-    ///     <table expression> CROSS JOIN <table expression>
-    /// 
-    ///   <qualified join> ::=
-    ///     <table expression> [{INNER | {LEFT | RIGHT | FULL} [OUTER]}] JOIN <table expression>
-    ///     ON <join condition>
-    /// 
-    ///   <derived table> ::=
-    ///     '(' <select expression> ')'
-    /// 
-    /// Conclusions:
-    /// 
-    /// * FOR UPDATE mode and row locking can only be performed for a final dataset,
-    /// they cannot be applied to a subquery
-    /// * Unions are allowed inside any subquery
-    /// * Clauses FIRST, SKIP, PLAN, ORDER BY, ROWS are allowed for any subquery
-    /// 
-    /// Notes:
-    /// 
-    /// * INSERT statement accepts a select expression to create a dataset to be
-    /// inserted into a table. So its SELECT part supports all the features defined
-    /// above.
-    /// 
-    /// * UPDATE and DELETE statements are always based on an implicit cursor
-    /// iterating through its target table and limited with the WHERE clause. You
-    /// may also specify the final parts of the select expression syntax to limit
-    /// the number of affected rows or optimize the statement. The following clauses
-    /// are allowed at the end of the UPDATE/DELETE statements: PLAN, ORDER BY and
-    /// ROWS.
-    /// </remarks>
     internal sealed class SqlSelectStatement : ISqlFragment
     {
         #region · Fields ·
@@ -280,21 +158,6 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 
         #region · ISqlFragment Members ·
 
-        /// <summary>
-        /// Write out a SQL select statement as a string.
-        /// We have to
-        /// <list type="number">
-        /// <item>Check whether the aliases extents we use in this statement have
-        /// to be renamed.
-        /// We first create a list of all the aliases used by the outer extents.
-        /// For each of the FromExtents( or AllJoinExtents if it is non-null),
-        /// rename it if it collides with the previous list.
-        /// </item>
-        /// <item>Write each of the clauses (if it exists) as a string</item>
-        /// </list>
-        /// </summary>
-        /// <param name="writer"></param>
-        /// <param name="sqlGenerator"></param>
         public void WriteSql(SqlWriter writer, SqlGenerator sqlGenerator)
         {
             #region Check if FROM aliases need to be renamed
@@ -371,7 +234,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
             #endregion
 
             // Increase the indent, so that the Sql statement is nested by one tab.
-            writer.Indent += 1; // ++ can be confusing in this context
+			writer.Indent++;
 
             writer.Write("SELECT ");
             if (this.IsDistinct)
@@ -414,34 +277,24 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
                 this.OrderBy.WriteSql(writer, sqlGenerator);
             }
 
-            if (this.First != null && this.Skip != null)
-            {
-                writer.WriteLine();
-                writer.Write("LIMIT ");
-                this.Skip.WriteSql(writer, sqlGenerator);
-                writer.Write(", ");
-                this.First.WriteSql(writer, sqlGenerator);
-                writer.Write(" ");
-            }
-            else if (this.First != null)
+            if (this.First != null)
             {
                 writer.WriteLine();
                 writer.Write("LIMIT ");
                 this.First.WriteSql(writer, sqlGenerator);
                 writer.Write(" ");
             }
-            else if (this.Skip != null)
+            if (this.Skip != null)
             {
                 writer.WriteLine();
                 writer.Write("OFFSET ");
                 this.Skip.WriteSql(writer, sqlGenerator);
-                writer.Write(" ROWS ");
+                writer.Write(" ");
             }
 
-            --writer.Indent;
+			writer.Indent--;
         }
 
         #endregion
     }
 }
-#endif

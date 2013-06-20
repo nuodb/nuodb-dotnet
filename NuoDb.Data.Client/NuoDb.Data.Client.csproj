@@ -10,8 +10,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>NuoDb.Data.Client</RootNamespace>
     <AssemblyName>NuoDb.Data.Client</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -37,7 +38,11 @@
     <AssemblyOriginatorKeyFile>Key.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="EntityFramework">
+      <HintPath>..\libs\EntityFramework.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data.Entity" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -48,13 +53,16 @@
   <ItemGroup>
     <Compile Include="BatchProcessedEventArgs.cs" />
     <Compile Include="BatchProcessedEventHandler.cs" />
+    <Compile Include="ConnectionPoolManager.cs" />
+    <Compile Include="EntityFramework\NuoDbConnectionFactory.cs" />
     <Compile Include="EntityFramework\NuoDbProviderManifest.cs" />
     <Compile Include="EntityFramework\NuoDbProviderServices.cs" />
     <Compile Include="EntityFramework\SqlGen\DmlSqlGenerator.cs" />
     <Compile Include="EntityFramework\SqlGen\ExpressionTranslator.cs" />
     <Compile Include="EntityFramework\SqlGen\ISqlFragment.cs" />
     <Compile Include="EntityFramework\SqlGen\JoinSymbol.cs" />
-    <Compile Include="EntityFramework\SqlGen\MetaDataHelpers.cs" />
+    <Compile Include="EntityFramework\SqlGen\MetadataHelpers.cs" />
+    <Compile Include="EntityFramework\SqlGen\ScriptBuilder.cs" />
     <Compile Include="EntityFramework\SqlGen\SqlBuilder.cs" />
     <Compile Include="EntityFramework\SqlGen\SqlGenerator.cs" />
     <Compile Include="EntityFramework\SqlGen\SqlSelectStatement.cs" />
@@ -67,6 +75,9 @@
     <Compile Include="NuoDbBulkLoaderColumnMapping .cs" />
     <Compile Include="NuoDbBulkLoaderColumnMappingCollection.cs" />
     <Compile Include="NuoDbCommandBuilder.cs" />
+    <Compile Include="NuoDbConnection.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="NuoDbConnectionStringBuilder.cs" />
     <Compile Include="NuoDbDataAdapter.cs" />
     <Compile Include="NuoDbDataParameterCollection.cs" />
@@ -81,12 +92,13 @@
     <Compile Include="Security\RemoteGroup.cs" />
     <Compile Include="Security\RemotePassword.cs" />
     <Compile Include="NuoDbSqlCode.cs" />
+    <Compile Include="Util\Extensions.cs" />
     <Compile Include="Util\Op.cs" />
     <Compile Include="Util\StringUtils.cs" />
     <Compile Include="ValueBytes.cs" />
     <Compile Include="Xml\Attribute.cs" />
     <Compile Include="NuoDbCommand.cs" />
-    <Compile Include="NuoDbConnection.cs" />
+    <Compile Include="NuoDbConnectionInternal.cs" />
     <Compile Include="Net\CryptoInputStream.cs" />
     <Compile Include="Net\CryptoOutputStream.cs" />
     <Compile Include="Net\CryptoSocket.cs" />

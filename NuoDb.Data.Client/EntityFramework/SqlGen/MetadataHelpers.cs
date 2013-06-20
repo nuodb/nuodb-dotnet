@@ -1,22 +1,7 @@
-﻿/*
- *  Firebird ADO.NET Data provider for .NET and Mono 
- * 
- *     The contents of this file are subject to the Initial 
- *     Developer's Public License Version 1.0 (the "License"); 
- *     you may not use this file except in compliance with the 
- *     License. You may obtain a copy of the License at 
- *     http://www.firebirdsql.org/index.php?op=doc&id=idpl
- *
- *     Software distributed under the License is distributed on 
- *     an "AS IS" basis, WITHOUT WARRANTY OF ANY KIND, either 
- *     express or implied.  See the License for the specific 
- *     language governing rights and limitations under the License.
- * 
- *  Copyright (c) 2008-2010 Jiri Cincura (jiri@cincura.net)
- *  All Rights Reserved.
- */
-
-#if (!(NET_35 && !ENTITY_FRAMEWORK))
+﻿/****************************************************************************
+*	Author: Jiri Cincura (jiri@cincura.net)
+*	Adapted from Firebird ADO.NET Data provider
+****************************************************************************/
 
 using System;
 using System.Data;
@@ -448,6 +433,39 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
                     return default(ParameterDirection);
             }
         }
+
+		internal static string GetTableName(EntitySetBase entitySetBase)
+		{
+			var tableName = MetadataHelpers.TryGetValueForMetadataProperty<string>(entitySetBase, "Table");
+			return !string.IsNullOrEmpty(tableName)
+				? tableName
+				: entitySetBase.Name;
+		}
+
+		internal static string GetSchemaName(EntitySetBase entitySetBase)
+		{
+			var schemaName = MetadataHelpers.TryGetValueForMetadataProperty<string>(entitySetBase, "Schema");
+			return !string.IsNullOrEmpty(schemaName)
+				? schemaName
+				: entitySetBase.EntityContainer.Name;
+		}
+
+		private static bool IsStoreGeneratedPattern(EdmMember member, StoreGeneratedPattern pattern)
+		{
+			Facet item = null;
+			return (member.TypeUsage.Facets.TryGetValue(StoreGeneratedPatternFacetName, false, out item) && ((StoreGeneratedPattern)item.Value) == pattern);
+		}
+		internal static bool IsStoreGeneratedComputed(EdmMember member)
+		{
+			return IsStoreGeneratedPattern(member, StoreGeneratedPattern.Computed);
+		}
+		internal static bool IsStoreGeneratedIdentity(EdmMember member)
+		{
+			return IsStoreGeneratedPattern(member, StoreGeneratedPattern.Identity);
+		}
+		internal static bool IsStoreGenerated(EdmMember member)
+		{
+			return IsStoreGeneratedComputed(member) || IsStoreGeneratedIdentity(member);
+		}
     }
 }
-#endif

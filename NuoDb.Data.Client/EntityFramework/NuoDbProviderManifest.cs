@@ -24,12 +24,16 @@
 * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
 * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+* 
+* Contributors:
+*	Jiri Cincura (jiri@cincura.net)
 ****************************************************************************/
 
 using System.Data.Common;
 using System.Xml;
 using System.Data.Metadata.Edm;
 using System;
+using System.Text;
 
 namespace NuoDb.Data.Client.EntityFramework
 {
@@ -63,7 +67,7 @@ namespace NuoDb.Data.Client.EntityFramework
             get { return "NuoDB"; }
         }
 
-        public override System.Data.Metadata.Edm.TypeUsage GetEdmType(System.Data.Metadata.Edm.TypeUsage storeType)
+        public override TypeUsage GetEdmType(TypeUsage storeType)
         {
             string storeTypeName = storeType.EdmType.Name.ToLower();
             PrimitiveType edmPrimitiveType = base.StoreTypeNameToEdmPrimitiveType[storeTypeName];
@@ -78,7 +82,7 @@ namespace NuoDb.Data.Client.EntityFramework
                 else
                     return TypeUsage.CreateStringTypeUsage(edmPrimitiveType, false, false);
             }
-            else if (storeTypeName == "bigint" || storeTypeName == "decimal" || storeTypeName == "numeric")
+            else if (storeTypeName == "decimal" || storeTypeName == "numeric")
             {
                 Facet f;
                 byte precision = 0;
@@ -97,7 +101,7 @@ namespace NuoDb.Data.Client.EntityFramework
             throw new NotImplementedException();
         }
 
-        public override System.Data.Metadata.Edm.TypeUsage GetStoreType(System.Data.Metadata.Edm.TypeUsage edmType)
+        public override TypeUsage GetStoreType(TypeUsage edmType)
         {
             if (edmType == null)
                 throw new ArgumentNullException("edmType");
@@ -193,10 +197,27 @@ namespace NuoDb.Data.Client.EntityFramework
                         return TypeUsage.CreateBinaryTypeUsage(storePrimitiveType, isFixedLength);
                     }
 
-                case PrimitiveTypeKind.Guid:
+				case PrimitiveTypeKind.Guid:
+					return TypeUsage.CreateDefaultTypeUsage(StoreTypeNameToStorePrimitiveType["guid_char"]);
+
                 default:
                     throw new NotSupportedException(string.Format("There is no store type corresponding to the EDM type '{0}' of primitive type '{1}'.", edmType, primitiveType.PrimitiveTypeKind));
             }
         }
+
+		public override bool SupportsEscapingLikeArgument(out char escapeCharacter)
+		{
+			escapeCharacter = LikeEscapeCharacter;
+			return true;
+		}
+
+		public override string EscapeLikeArgument(string argument)
+		{
+			StringBuilder sb = new StringBuilder(argument);
+			sb.Replace(LikeEscapeCharacter.ToString(), LikeEscapeCharacter.ToString() + LikeEscapeCharacter.ToString());
+			sb.Replace("%", LikeEscapeCharacter + "%");
+			sb.Replace("_", LikeEscapeCharacter + "_");
+			return sb.ToString();
+		}
     }
 }

@@ -1,22 +1,7 @@
-/*
- *  Firebird ADO.NET Data provider for .NET and Mono 
- * 
- *     The contents of this file are subject to the Initial 
- *     Developer's Public License Version 1.0 (the "License"); 
- *     you may not use this file except in compliance with the 
- *     License. You may obtain a copy of the License at 
- *     http://www.firebirdsql.org/index.php?op=doc&id=idpl
- *
- *     Software distributed under the License is distributed on 
- *     an "AS IS" basis, WITHOUT WARRANTY OF ANY KIND, either 
- *     express or implied.  See the License for the specific 
- *     language governing rights and limitations under the License.
- * 
- *  Copyright (c) 2008-2010 Jiri Cincura (jiri@cincura.net)
- *  All Rights Reserved.
- */
-
-#if (!(NET_35 && !ENTITY_FRAMEWORK))
+/****************************************************************************
+*	Author: Jiri Cincura (jiri@cincura.net)
+*	Adapted from Firebird ADO.NET Data provider
+****************************************************************************/
 
 using System;
 using System.Collections.Generic;
@@ -88,7 +73,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 
                 EntitySetBase table = ((DbScanExpression)tree.Target.Expression).Target;
                 // hope this column isn't indexed to not waste power
-                EdmMember someColumn = table.ElementType.Members.Last(x => !IsStoreGenerated(x));
+                EdmMember someColumn = table.ElementType.Members.Last(x => !MetadataHelpers.IsStoreGenerated(x));
                 commandText.AppendFormat("{0} = {0}", GenerateMemberSql(someColumn));
             }
             commandText.AppendLine();
@@ -177,21 +162,6 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
             return SqlGenerator.QuoteIdentifier(member.Name);
         }
 
-        private static bool IsStoreGenerated(EdmMember member)
-        {
-            Facet item = null;
-            if (member.TypeUsage.Facets.TryGetValue(MetadataHelpers.StoreGeneratedPatternFacetName, false, out item) &&
-                (((StoreGeneratedPattern)item.Value) == StoreGeneratedPattern.Computed || ((StoreGeneratedPattern)item.Value) == StoreGeneratedPattern.Identity))
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
         #endregion
     }
 }
-#endif

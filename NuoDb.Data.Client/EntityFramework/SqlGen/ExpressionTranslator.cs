@@ -1,22 +1,7 @@
-﻿/*
- *  Firebird ADO.NET Data provider for .NET and Mono 
- * 
- *     The contents of this file are subject to the Initial 
- *     Developer's Public License Version 1.0 (the "License"); 
- *     you may not use this file except in compliance with the 
- *     License. You may obtain a copy of the License at 
- *     http://www.firebirdsql.org/index.php?op=doc&id=idpl
- *
- *     Software distributed under the License is distributed on 
- *     an "AS IS" basis, WITHOUT WARRANTY OF ANY KIND, either 
- *     express or implied.  See the License for the specific 
- *     language governing rights and limitations under the License.
- * 
- *  Copyright (c) 2008-2010 Jiri Cincura (jiri@cincura.net)
- *  All Rights Reserved.
- */
-
-#if (!(NET_35 && !ENTITY_FRAMEWORK))
+﻿/****************************************************************************
+*	Author: Jiri Cincura (jiri@cincura.net)
+*	Adapted from Firebird ADO.NET Data provider
+****************************************************************************/
 
 using System;
 using System.Collections.Generic;
@@ -46,7 +31,6 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 		private readonly DbModificationCommandTree commandTree;
 		private readonly List<DbParameter> parameters;
 		private readonly Dictionary<EdmMember, List<DbParameter>> memberValues;
-		private int parameterNameCount = 0;
 
 		#endregion
 
@@ -232,12 +216,12 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 
 		public override void Visit(DbAndExpression expression)
 		{
-			VisitBinary(expression, " and ");
+			VisitBinary(expression, " AND ");
 		}
 
 		public override void Visit(DbOrExpression expression)
 		{
-			VisitBinary(expression, " or ");
+			VisitBinary(expression, " OR ");
 		}
 
 		public override void Visit(DbComparisonExpression expression)
@@ -253,12 +237,12 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 		public override void Visit(DbIsNullExpression expression)
 		{
 			expression.Argument.Accept(this);
-			commandText.Append(" is null");
+			commandText.Append(" IS NULL");
 		}
 
 		public override void Visit(DbNotExpression expression)
 		{
-			commandText.Append("not (");
+			commandText.Append("NOT (");
 			expression.Accept(this);
 			commandText.Append(")");
 		}
@@ -271,7 +255,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 
 		public override void Visit(DbScanExpression expression)
 		{
-			commandText.Append(SqlGenerator.GetTargetTSql(expression.Target));
+			commandText.Append(SqlGenerator.GetTargetSql(expression.Target));
 		}
 
 		public override void Visit(DbPropertyExpression expression)
@@ -281,7 +265,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 
 		public override void Visit(DbNullExpression expression)
 		{
-			commandText.Append("null");
+			commandText.Append("NULL");
 		}
 
 		public override void Visit(DbNewInstanceExpression expression)
@@ -330,20 +314,10 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 			this.memberValues = preserveMemberValues ? new Dictionary<EdmMember, List<DbParameter>>() : null;
 		}
 
-		// generate parameter (name based on parameter ordinal)
 		internal NuoDbParameter CreateParameter(object value, TypeUsage type)
 		{
-			//string parameterName = string.Concat("@p", parameterNameCount.ToString(CultureInfo.InvariantCulture));
-			parameterNameCount++;
-
-            NuoDbParameter parameter = new NuoDbParameter();
-            parameter.ParameterName = "?"; // parameterName;
-            //parameter.DbType = type;
-            parameter.Direction = ParameterDirection.Input;
-            parameter.Value = value;
-
+			var parameter = NuoDbProviderServices.CreateSqlParameter("?", type, ParameterMode.In, value);
 			parameters.Add(parameter);
-
 			return parameter;
 		}
 
@@ -396,4 +370,3 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 		#endregion
 	}
 }
-#endif

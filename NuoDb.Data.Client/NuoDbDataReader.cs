@@ -24,11 +24,15 @@
 * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
 * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+* 
+* Contributors:
+*	Jiri Cincura (jiri@cincura.net)
 ****************************************************************************/
 
 using System.Data.Common;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System;
 
 namespace NuoDb.Data.Client
@@ -57,7 +61,7 @@ namespace NuoDb.Data.Client
             this.statement = statement;
 
             if(this.handle != -1)
-                this.connection.RegisterResultSet(this.handle);
+				this.connection.InternalConnection.RegisterResultSet(this.handle);
 
             this.numberColumns = this.pendingRows != null ? this.pendingRows.getInt() : 0;
             this.values = new Value[numberColumns];
@@ -90,12 +94,12 @@ namespace NuoDb.Data.Client
         public override void Close()
         {
             if (closed || handle == -1 || connection == null || (connection as IDbConnection).State == ConnectionState.Closed ||
-                !connection.IsResultSetRegistered(handle))
+				!connection.InternalConnection.IsResultSetRegistered(handle))
             {
                 return;
             }
 
-            connection.CloseResultSet(handle);
+			connection.InternalConnection.CloseResultSet(handle);
 
             statement = null;
             closed = true;
@@ -117,7 +121,7 @@ namespace NuoDb.Data.Client
             EncodedDataStream dataStream = new EncodedDataStream();
             dataStream.startMessage(Protocol.GetMetaData);
             dataStream.encodeInt(handle);
-            connection.sendAndReceive(dataStream);
+			connection.InternalConnection.sendAndReceive(dataStream);
             int numberColumns = dataStream.getInt();
 
             metadata = new DataTable("SchemaTable");
@@ -194,7 +198,7 @@ namespace NuoDb.Data.Client
                 row["ColumnName"] = dataStream.getString();
                 string collationSequence = dataStream.getString();
                 row["DataTypeName"] = dataStream.getString();
-                row["ProviderType"] = NuoDbConnection.mapJavaSqlToDbType(dataStream.getInt());
+                row["ProviderType"] = NuoDbConnectionInternal.mapJavaSqlToDbType(dataStream.getInt());
                 row["ColumnSize"] = dataStream.getInt();
                 row["NumericPrecision"] = dataStream.getInt();
                 row["NumericScale"] = dataStream.getInt();
@@ -203,7 +207,7 @@ namespace NuoDb.Data.Client
                 {
                     row["ProviderType"] = DbType.Decimal;
                 }
-                row["DataType"] = Type.GetType(NuoDbConnection.mapNuoDbToNetType((string)row["DataTypeName"], (int)row["NumericPrecision"], (int)row["NumericScale"]));
+                row["DataType"] = Type.GetType(NuoDbConnectionInternal.mapNuoDbToNetType((string)row["DataTypeName"], (int)row["NumericPrecision"], (int)row["NumericScale"]));
                 int flags = dataStream.getInt();
 		        const int rsmdSearchable = (1 << 1);
 		        const int rsmdAutoIncrement = (1 << 2);
@@ -304,10 +308,10 @@ namespace NuoDb.Data.Client
                     return true;
                 }
 
-                pendingRows = new RemEncodedStream(connection.protocolVersion);
+				pendingRows = new RemEncodedStream(connection.InternalConnection.protocolVersion);
                 pendingRows.startMessage(Protocol.Next);
                 pendingRows.encodeInt(handle);
-                connection.sendAndReceive(pendingRows);
+				connection.InternalConnection.sendAndReceive(pendingRows);
             }
         }
 
@@ -445,7 +449,7 @@ namespace NuoDb.Data.Client
             DataRow[] rows = GetSchemaTable().Select(String.Format("ColumnOrdinal = {0}", i));
             if (rows != null && rows.Length > 0)
             {
-                return Type.GetType(NuoDbConnection.mapDbTypeToNetType((int)rows[0]["ProviderType"]));
+                return Type.GetType(NuoDbConnectionInternal.mapDbTypeToNetType((int)rows[0]["ProviderType"]));
             }
             throw new ArgumentOutOfRangeException("columnOrdinal", "Cannot find the requested column in the table metadata");
         }
@@ -457,7 +461,7 @@ namespace NuoDb.Data.Client
 
         public override Guid GetGuid(int i)
         {
-            throw new NotImplementedException();
+			return Guid.Parse(GetString(i));
         }
 
         public override short GetInt16(int i)
@@ -492,6 +496,12 @@ namespace NuoDb.Data.Client
 
         public override object GetValue(int i)
         {
+			if (statement.ExpectedColumnTypes != null)
+				if (statement.ExpectedColumnTypes.ElementAtOrDefault(i) == typeof(Guid))
+				{
+					return GetGuid(i);
+				}
+
             return getValue(i).Object;
         }
 
@@ -499,7 +509,7 @@ namespace NuoDb.Data.Client
         {
             int toRead = Math.Min(this.numberColumns, values.Length);
             for (int i = 0; i < toRead; i++)
-                values[i] = getValue(i).Object;
+                values[i] = GetValue(i);
             for (int i = toRead; i < values.Length; i++)
                 values[i] = null;
             return toRead;
