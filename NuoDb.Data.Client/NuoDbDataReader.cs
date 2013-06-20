@@ -500,11 +500,12 @@ namespace NuoDb.Data.Client
 
         public override object GetValue(int i)
         {
-            if (statement.ExpectedColumnTypes != null)
-                if (statement.ExpectedColumnTypes.ElementAtOrDefault(i) == typeof(Guid))
-                {
-                    return GetGuid(i);
-                }
+            if (statement != null &&
+                statement.ExpectedColumnTypes != null &&
+                statement.ExpectedColumnTypes.ElementAtOrDefault(i) == typeof(Guid))
+            {
+                return GetGuid(i);
+            }
 
             return getValue(i).Object;
         }
