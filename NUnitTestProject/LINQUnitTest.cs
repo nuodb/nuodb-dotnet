@@ -640,6 +640,7 @@ namespace NUnitTestProject
         {
             var x = context.HOCKEY.First(player => player.NAME.StartsWith("MAX "));
             Assert.IsNotNull(x);
+            Assert.AreEqual(x.NAME.Substring(0, 4), "MAX ");
 
             Console.WriteLine("First player with 'MAX':");
             Console.WriteLine(x.NAME + " " + x.POSITION);
@@ -945,6 +946,38 @@ namespace NUnitTestProject
             }
 
             Assert.AreEqual(4, count);
+        }
+
+        [Test]
+        public void LINQTestContains1()
+        {
+            var x = from player in context.HOCKEY
+                    where player.NAME.Contains(" MA")
+                    select player; 
+            Assert.IsNotNull(x);
+
+            Console.WriteLine("Player with MA in last name:");
+            foreach(var p in x)
+            {
+                Console.WriteLine(p.NAME + " " + p.POSITION);
+                Assert.IsTrue(p.NAME.Contains(" MA"));
+            }
+        }
+
+        [Test]
+        public void LINQTestStartsWith1()
+        {
+            var x = from player in context.HOCKEY
+                    where player.NAME.StartsWith("MAX")
+                    select player;
+            Assert.IsNotNull(x);
+
+            Console.WriteLine("Player with MAX in name:");
+            foreach (var p in x)
+            {
+                Console.WriteLine(p.NAME + " " + p.POSITION);
+                Assert.IsTrue(p.NAME.StartsWith("MAX"));
+            }
         }
 
         [Test]

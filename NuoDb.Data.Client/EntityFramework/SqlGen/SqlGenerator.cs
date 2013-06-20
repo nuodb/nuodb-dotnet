@@ -1,20 +1,7 @@
-/*
- *  Firebird ADO.NET Data provider for .NET and Mono 
- * 
- *     The contents of this file are subject to the Initial 
- *     Developer's Public License Version 1.0 (the "License"); 
- *     you may not use this file except in compliance with the 
- *     License. You may obtain a copy of the License at 
- *     http://www.firebirdsql.org/index.php?op=doc&id=idpl
- *
- *     Software distributed under the License is distributed on 
- *     an "AS IS" basis, WITHOUT WARRANTY OF ANY KIND, either 
- *     express or implied.  See the License for the specific 
- *     language governing rights and limitations under the License.
- * 
- *  Author: Jiri Cincura (jiri@cincura.net)
- *  All Rights Reserved.
- */
+/****************************************************************************
+*  Author: Jiri Cincura (jiri@cincura.net)
+*  Adapted from Firebird ADO.NET Data provider
+****************************************************************************/
 
 using System;
 using System.Collections.Generic;
@@ -25,190 +12,10 @@ using System.Data.Common;
 using System.Data.Metadata.Edm;
 using System.Data.Common.CommandTrees;
 using System.Data;
-using System.Linq;
+using NuoDb.Data.Client.Util;
 
 namespace NuoDb.Data.Client.EntityFramework.SqlGen
 {
-    /// <summary>
-    /// Translates the command object into a SQL string that can be executed on
-    /// SQL Server 2005.
-    /// </summary>
-    /// <remarks>
-    /// The translation is implemented as a visitor <see cref="DbExpressionVisitor{T}"/>
-    /// over the query tree.  It makes a single pass over the tree, collecting the sql
-    /// fragments for the various nodes in the tree <see cref="ISqlFragment"/>.
-    ///
-    /// The major operations are
-    /// <list type="bullet">
-    /// <item>Select statement minimization.  Multiple nodes in the query tree
-    /// that can be part of a single SQL select statement are merged. e.g. a
-    /// Filter node that is the input of a Project node can typically share the
-    /// same SQL statement.</item>
-    /// <item>Alpha-renaming.  As a result of the statement minimization above, there
-    /// could be name collisions when using correlated subqueries
-    /// <example>
-    /// <code>
-    /// Filter(
-    ///     b = Project( c.x
-    ///         c = Extent(foo)
-    ///         )
-    ///     exists (
-    ///         Filter(
-    ///             c = Extent(foo)
-    ///             b.x = c.x
-    ///             )
-    ///     )
-    /// )
-    /// </code>
-    /// The first Filter, Project and Extent will share the same SQL select statement.
-    /// The alias for the Project i.e. b, will be replaced with c.
-    /// If the alias c for the Filter within the exists clause is not renamed,
-    /// we will get <c>c.x = c.x</c>, which is incorrect.
-    /// Instead, the alias c within the second filter should be renamed to c1, to give
-    /// <c>c.x = c1.x</c> i.e. b is renamed to c, and c is renamed to c1.
-    /// </example>
-    /// </item>
-    /// <item>Join flattening.  In the query tree, a list of join nodes is typically
-    /// represented as a tree of Join nodes, each with 2 children. e.g.
-    /// <example>
-    /// <code>
-    /// a = Join(InnerJoin
-    ///     b = Join(CrossJoin
-    ///         c = Extent(foo)
-    ///         d = Extent(foo)
-    ///         )
-    ///     e = Extent(foo)
-    ///     on b.c.x = e.x
-    ///     )
-    /// </code>
-    /// If translated directly, this will be translated to
-    /// <code>
-    /// FROM ( SELECT c.*, d.*
-    ///         FROM foo as c
-    ///         CROSS JOIN foo as d) as b
-    /// INNER JOIN foo as e on b.x' = e.x
-    /// </code>
-    /// It would be better to translate this as
-    /// <code>
-    /// FROM foo as c
-    /// CROSS JOIN foo as d
-    /// INNER JOIN foo as e on c.x = e.x
-    /// </code>
-    /// This allows the optimizer to choose an appropriate join ordering for evaluation.
-    /// </example>
-    /// </item>
-    /// <item>Select * and column renaming.  In the example above, we noticed that
-    /// in some cases we add <c>SELECT * FROM ...</c> to complete the SQL
-    /// statement. i.e. there is no explicit PROJECT list.
-    /// In this case, we enumerate all the columns available in the FROM clause
-    /// This is particularly problematic in the case of Join trees, since the columns
-    /// from the extents joined might have the same name - this is illegal.  To solve
-    /// this problem, we will have to rename columns if they are part of a SELECT *
-    /// for a JOIN node - we do not need renaming in any other situation.
-    /// <see cref="SqlGenerator.AddDefaultColumns"/>.
-    /// </item>
-    /// </list>
-    ///
-    /// <para>
-    /// Renaming issues.
-    /// When rows or columns are renamed, we produce names that are unique globally
-    /// with respect to the query.  The names are derived from the original names,
-    /// with an integer as a suffix. e.g. CustomerId will be renamed to CustomerId1,
-    /// CustomerId2 etc.
-    ///
-    /// Since the names generated are globally unique, they will not conflict when the
-    /// columns of a JOIN SELECT statement are joined with another JOIN. 
-    ///
-    /// </para>
-    ///
-    /// <para>
-    /// Record flattening.
-    /// SQL server does not have the concept of records.  However, a join statement
-    /// produces records.  We have to flatten the record accesses into a simple
-    /// <c>alias.column</c> form.  <see cref="SqlGenerator.Visit(DbPropertyExpression)"/>
-    /// </para>
-    ///
-    /// <para>
-    /// Building the SQL.
-    /// There are 2 phases
-    /// <list type="numbered">
-    /// <item>Traverse the tree, producing a sql builder <see cref="SqlBuilder"/></item>
-    /// <item>Write the SqlBuilder into a string, renaming the aliases and columns
-    /// as needed.</item>
-    /// </list>
-    ///
-    /// In the first phase, we traverse the tree.  We cannot generate the SQL string
-    /// right away, since
-    /// <list type="bullet">
-    /// <item>The WHERE clause has to be visited before the from clause.</item>
-    /// <item>extent aliases and column aliases need to be renamed.  To minimize
-    /// renaming collisions, all the names used must be known, before any renaming
-    /// choice is made.</item>
-    /// </list>
-    /// To defer the renaming choices, we use symbols <see cref="Symbol"/>.  These
-    /// are renamed in the second phase.
-    ///
-    /// Since visitor methods cannot transfer information to child nodes through
-    /// parameters, we use some global stacks,
-    /// <list type="bullet">
-    /// <item>A stack for the current SQL select statement.  This is needed by
-    /// <see cref="SqlGenerator.Visit(DbVariableReferenceExpression)"/> to create a
-    /// list of free variables used by a select statement.  This is needed for
-    /// alias renaming.
-    /// </item>
-    /// <item>A stack for the join context.  When visiting a <see cref="DbScanExpression"/>,
-    /// we need to know whether we are inside a join or not.  If we are inside
-    /// a join, we do not create a new SELECT statement.</item>
-    /// </list>
-    /// </para>
-    ///
-    /// <para>
-    /// Global state.
-    /// To enable renaming, we maintain
-    /// <list type="bullet">
-    /// <item>The set of all extent aliases used.</item>
-    /// <item>The set of all column aliases used.</item>
-    /// </list>
-    ///
-    /// Finally, we have a symbol table to lookup variable references.  All references
-    /// to the same extent have the same symbol.
-    /// </para>
-    ///
-    /// <para>
-    /// Sql select statement sharing.
-    ///
-    /// Each of the relational operator nodes
-    /// <list type="bullet">
-    /// <item>Project</item>
-    /// <item>Filter</item>
-    /// <item>GroupBy</item>
-    /// <item>Sort/OrderBy</item>
-    /// </list>
-    /// can add its non-input (e.g. project, predicate, sort order etc.) to
-    /// the SQL statement for the input, or create a new SQL statement.
-    /// If it chooses to reuse the input's SQL statement, we play the following
-    /// symbol table trick to accomplish renaming.  The symbol table entry for
-    /// the alias of the current node points to the symbol for the input in
-    /// the input's SQL statement.
-    /// <example>
-    /// <code>
-    /// Project(b.x
-    ///     b = Filter(
-    ///         c = Extent(foo)
-    ///         c.x = 5)
-    ///     )
-    /// </code>
-    /// The Extent node creates a new SqlSelectStatement.  This is added to the
-    /// symbol table by the Filter as {c, Symbol(c)}.  Thus, <c>c.x</c> is resolved to
-    /// <c>Symbol(c).x</c>.
-    /// Looking at the project node, we add {b, Symbol(c)} to the symbol table if the
-    /// SQL statement is reused, and {b, Symbol(b)}, if there is no reuse.
-    ///
-    /// Thus, <c>b.x</c> is resolved to <c>Symbol(c).x</c> if there is reuse, and to
-    /// <c>Symbol(b).x</c> if there is no reuse.
-    /// </example>
-    /// </para>
-    /// </remarks>
     internal sealed class SqlGenerator : DbExpressionVisitor<ISqlFragment>
     {
         #region Visitor parameter stacks
@@ -275,8 +82,6 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
         bool shouldHandleBoolComparison = true;
         bool shouldCastParameter = true;
 
-        Dictionary<string, string> shortenedNames = new Dictionary<string, string>();
-
         #endregion
 
         #region Statics
@@ -306,87 +111,87 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
             Dictionary<string, FunctionHandler> functionHandlers = new Dictionary<string, FunctionHandler>(StringComparer.Ordinal);
 
             #region Other Canonical Functions
-            functionHandlers.Add("NewGuid", HandleCanonicalFunctionNewGuid);
+            functionHandlers.Add("NewGuid", HandleCanonicalFunctionNotSupported);
             #endregion
 
             #region Math Canonical Functions
-            functionHandlers.Add("Abs", HandleCanonicalFunctionAbs);
-            functionHandlers.Add("Ceiling", HandleCanonicalFunctionCeiling);
-            functionHandlers.Add("Floor", HandleCanonicalFunctionFloor);
+            functionHandlers.Add("Abs", HandleCanonicalFunctionNotSupported);
+            functionHandlers.Add("Ceiling", HandleCanonicalFunctionNotSupported);
+            functionHandlers.Add("Floor", HandleCanonicalFunctionNotSupported);
             functionHandlers.Add("Power", HandleCanonicalFunctionPower);
             functionHandlers.Add("Round", HandleCanonicalFunctionRound);
-            functionHandlers.Add("Truncate", HandleCanonicalFunctionTruncate);
+            functionHandlers.Add("Truncate", HandleCanonicalFunctionNotSupported);
             #endregion
 
             #region String Canonical Functions
-            functionHandlers.Add("Concat", HandleConcatFunction);
-            functionHandlers.Add("Contains", HandleContainsFunction);
-            functionHandlers.Add("EndsWith", HandleEndsWithFunction);
-            functionHandlers.Add("IndexOf", HandleCanonicalFunctionIndexOf);
+            functionHandlers.Add("Concat", HandleCanonicalConcatFunction);
+            functionHandlers.Add("Contains", HandleCanonicalContainsFunction);
+            functionHandlers.Add("EndsWith", HandleCanonicalFunctionNotSupported);
+            functionHandlers.Add("IndexOf", HandleCanonicalIndexOfFunction);
             functionHandlers.Add("Length", HandleCanonicalFunctionLength);
             functionHandlers.Add("ToLower", HandleCanonicalFunctionToLower);
             functionHandlers.Add("ToUpper", HandleCanonicalFunctionToUpper);
-            functionHandlers.Add("Trim", HandleCanonicalFunctionTrim);
-            functionHandlers.Add("LTrim", HandleCanonicalFunctionLTrim);
-            functionHandlers.Add("RTrim", HandleCanonicalFunctionRTrim);
-            functionHandlers.Add("Left", HandleCanonicalFunctionLeft);
-            functionHandlers.Add("Right", HandleCanonicalFunctionRight);
-            functionHandlers.Add("Reverse", HandleCanonicalFunctionReverse);
-            functionHandlers.Add("Replace", HandleCanonicalFunctionReplace);
-            functionHandlers.Add("StartsWith", HandleStartsWithFunction);
+            functionHandlers.Add("Trim", HandleCanonicalFunctionNotSupported);
+            functionHandlers.Add("LTrim", HandleCanonicalFunctionNotSupported);
+            functionHandlers.Add("RTrim", HandleCanonicalFunctionNotSupported);
+            functionHandlers.Add("Left", HandleCanonicalFunctionNotSupported);
+            functionHandlers.Add("Right", HandleCanonicalFunctionNotSupported);
+            functionHandlers.Add("Reverse", HandleCanonicalFunctionNotSupported);
+            functionHandlers.Add("Replace", HandleCanonicalFunctionNotSupported);
+            functionHandlers.Add("StartsWith", HandleCanonicalFunctionNotSupported);
             functionHandlers.Add("Substring", HandleCanonicalFunctionSubstring);
             #endregion
 
             #region Date and Time Canonical Functions
-            functionHandlers.Add("AddNanoseconds", (sqlgen, e) => HandleCanonicalFunctionDateTimeAdd(sqlgen, e, null)); // not supported
-            functionHandlers.Add("AddMicroseconds", (sqlgen, e) => HandleCanonicalFunctionDateTimeAdd(sqlgen, e, null)); // not supported
-            functionHandlers.Add("AddMilliseconds", (sqlgen, e) => HandleCanonicalFunctionDateTimeAdd(sqlgen, e, "MILLISECOND"));
-            functionHandlers.Add("AddSeconds", (sqlgen, e) => HandleCanonicalFunctionDateTimeAdd(sqlgen, e, "SECOND"));
-            functionHandlers.Add("AddMinutes", (sqlgen, e) => HandleCanonicalFunctionDateTimeAdd(sqlgen, e, "MINUTE"));
-            functionHandlers.Add("AddHours", (sqlgen, e) => HandleCanonicalFunctionDateTimeAdd(sqlgen, e, "HOUR"));
-            functionHandlers.Add("AddDays", (sqlgen, e) => HandleCanonicalFunctionDateTimeAdd(sqlgen, e, "DAY"));
-            functionHandlers.Add("AddMonths", (sqlgen, e) => HandleCanonicalFunctionDateTimeAdd(sqlgen, e, "MONTH"));
-            functionHandlers.Add("AddYears", (sqlgen, e) => HandleCanonicalFunctionDateTimeAdd(sqlgen, e, "YEAR"));
+            functionHandlers.Add("AddNanoseconds", HandleCanonicalFunctionNotSupported);
+            functionHandlers.Add("AddMicroseconds", HandleCanonicalFunctionNotSupported);
+            functionHandlers.Add("AddMilliseconds", HandleCanonicalFunctionNotSupported);
+            functionHandlers.Add("AddSeconds", HandleCanonicalFunctionNotSupported);
+            functionHandlers.Add("AddMinutes", HandleCanonicalFunctionNotSupported);
+            functionHandlers.Add("AddHours", HandleCanonicalFunctionNotSupported);
+            functionHandlers.Add("AddDays", HandleCanonicalFunctionAddDays);
+            functionHandlers.Add("AddMonths", HandleCanonicalFunctionNotSupported);
+            functionHandlers.Add("AddYears", HandleCanonicalFunctionNotSupported);
             functionHandlers.Add("CreateDateTime", HandleCanonicalFunctionCreateDateTime);
-            functionHandlers.Add("CreateDateTimeOffset", HandleCanonicalFunctionCreateDateTimeOffset); // not supported
+            functionHandlers.Add("CreateDateTimeOffset", HandleCanonicalFunctionNotSupported);
             functionHandlers.Add("CreateTime", HandleCanonicalFunctionCreateTime);
             functionHandlers.Add("CurrentDateTime", HandleCanonicalFunctionCurrentDateTime);
-            functionHandlers.Add("CurrentDateTimeOffset", HandleCanonicalFunctionCurrentDateTimeOffset); // not supported
-            functionHandlers.Add("CurrentUtcDateTime", HandleCanonicalFunctionCurrentUtcDateTime); // not supported
-            functionHandlers.Add("Day", (sqlgen, e) => HandleCanonicalFunctionExtract(sqlgen, e, "DAY"));
-            functionHandlers.Add("DayOfYear", (sqlgen, e) => HandleCanonicalFunctionExtract(sqlgen, e, "YEARDAY"));
-            functionHandlers.Add("DiffNanoseconds", (sqlgen, e) => HandleCanonicalFunctionDateTimeDiff(sqlgen, e, null)); // not supported
-            functionHandlers.Add("DiffMicroseconds", (sqlgen, e) => HandleCanonicalFunctionDateTimeDiff(sqlgen, e, null)); // not supported
-            functionHandlers.Add("DiffMilliseconds", (sqlgen, e) => HandleCanonicalFunctionDateTimeDiff(sqlgen, e, "MILLISECOND"));
-            functionHandlers.Add("DiffSeconds", (sqlgen, e) => HandleCanonicalFunctionDateTimeDiff(sqlgen, e, "SECOND"));
-            functionHandlers.Add("DiffMinutes", (sqlgen, e) => HandleCanonicalFunctionDateTimeDiff(sqlgen, e, "MINUTE"));
-            functionHandlers.Add("DiffHours", (sqlgen, e) => HandleCanonicalFunctionDateTimeDiff(sqlgen, e, "HOUR"));
-            functionHandlers.Add("DiffDays", (sqlgen, e) => HandleCanonicalFunctionDateTimeDiff(sqlgen, e, "DAY"));
-            functionHandlers.Add("DiffMonths", (sqlgen, e) => HandleCanonicalFunctionDateTimeDiff(sqlgen, e, "MONTH"));
-            functionHandlers.Add("DiffYears", (sqlgen, e) => HandleCanonicalFunctionDateTimeDiff(sqlgen, e, "YEAR"));
-            functionHandlers.Add("GetTotalOffsetMinutes", HandleCanonicalFunctionGetTotalOffsetMinutes); // not supported
-            functionHandlers.Add("Hour", (sqlgen, e) => HandleCanonicalFunctionExtract(sqlgen, e, "HOUR"));
-            functionHandlers.Add("Millisecond", (sqlgen, e) => HandleCanonicalFunctionExtract(sqlgen, e, "MILLISECOND"));
-            functionHandlers.Add("Minute", (sqlgen, e) => HandleCanonicalFunctionExtract(sqlgen, e, "MINUTE"));
-            functionHandlers.Add("Month", (sqlgen, e) => HandleCanonicalFunctionExtract(sqlgen, e, "MONTH"));
-            functionHandlers.Add("Second", (sqlgen, e) => HandleCanonicalFunctionExtract(sqlgen, e, "SECOND"));
+            functionHandlers.Add("CurrentDateTimeOffset", HandleCanonicalFunctionNotSupported);
+            functionHandlers.Add("CurrentUtcDateTime", HandleCanonicalFunctionNotSupported);
+            functionHandlers.Add("Day", HandleCanonicalFunctionNotSupported);
+            functionHandlers.Add("DayOfYear", HandleCanonicalFunctionNotSupported);
+            functionHandlers.Add("DiffNanoseconds", HandleCanonicalFunctionNotSupported);
+            functionHandlers.Add("DiffMicroseconds", HandleCanonicalFunctionNotSupported);
+            functionHandlers.Add("DiffMilliseconds", HandleCanonicalFunctionNotSupported);
+            functionHandlers.Add("DiffSeconds", HandleCanonicalFunctionNotSupported);
+            functionHandlers.Add("DiffMinutes", HandleCanonicalFunctionNotSupported);
+            functionHandlers.Add("DiffHours", HandleCanonicalFunctionNotSupported);
+            functionHandlers.Add("DiffDays", HandleCanonicalFunctionDiffDays);
+            functionHandlers.Add("DiffMonths", HandleCanonicalFunctionNotSupported);
+            functionHandlers.Add("DiffYears", HandleCanonicalFunctionNotSupported);
+            functionHandlers.Add("GetTotalOffsetMinutes", HandleCanonicalFunctionNotSupported);
+            functionHandlers.Add("Hour", HandleCanonicalFunctionNotSupported);
+            functionHandlers.Add("Millisecond", HandleCanonicalFunctionNotSupported);
+            functionHandlers.Add("Minute", HandleCanonicalFunctionNotSupported);
+            functionHandlers.Add("Month", HandleCanonicalFunctionNotSupported);
+            functionHandlers.Add("Second", HandleCanonicalFunctionNotSupported);
             functionHandlers.Add("TruncateTime", HandleCanonicalFunctionTruncateTime);
-            functionHandlers.Add("Year", (sqlgen, e) => HandleCanonicalFunctionExtract(sqlgen, e, "YEAR"));
+            functionHandlers.Add("Year", HandleCanonicalFunctionNotSupported);
             #endregion
 
             #region Bitwise Canonical Functions
-            functionHandlers.Add("BitwiseAnd", HandleCanonicalFunctionBitwiseAnd);
-            functionHandlers.Add("BitwiseNot", HandleCanonicalFunctionBitwiseNot); // not supported
-            functionHandlers.Add("BitwiseOr", HandleCanonicalFunctionBitwiseOr);
-            functionHandlers.Add("BitwiseXor", HandleCanonicalFunctionBitwiseXor);
+            functionHandlers.Add("BitwiseAnd", HandleCanonicalFunctionNotSupported);
+            functionHandlers.Add("BitwiseNot", HandleCanonicalFunctionNotSupported);
+            functionHandlers.Add("BitwiseOr", HandleCanonicalFunctionNotSupported);
+            functionHandlers.Add("BitwiseXor", HandleCanonicalFunctionNotSupported);
             #endregion
 
             return functionHandlers;
         }
 
         /// <summary>
-        /// Initializes the mapping from functions to T-SQL operators
-        /// for all functions that translate to T-SQL operators
+        /// Initializes the mapping from functions to SQL operators
+        /// for all functions that translate to SQL operators
         /// </summary>
         /// <returns></returns>
         private static Dictionary<string, string> InitializeFunctionNameToOperatorDictionary()
@@ -401,12 +206,8 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
         #endregion
 
         #region Constructor
-        /// <summary>
-        /// Basic constructor. 
-        /// </summary>
         private SqlGenerator()
-        {
-        }
+        { }
         #endregion
 
         #region Entry points
@@ -530,8 +331,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 
             // We expect function to always have these properties
             string userCommandText = (string)function.MetadataProperties["CommandTextAttribute"].Value;
-            /// No schema in FB
-            //string userSchemaName = (string)function.MetadataProperties["Schema"].Value;
+            string userSchemaName = (string)function.MetadataProperties["Schema"].Value;
             string userFuncName = (string)function.MetadataProperties["StoreFunctionNameAttribute"].Value;
 
             if (String.IsNullOrEmpty(userCommandText))
@@ -540,26 +340,18 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
                 commandType = CommandType.StoredProcedure;
 
                 // if the schema name is not explicitly given, it is assumed to be the metadata namespace
-                /// No schema in FB
-                //string schemaName = String.IsNullOrEmpty(userSchemaName) ?
-                //    function.NamespaceName : userSchemaName;
+                string schemaName = String.IsNullOrEmpty(userSchemaName) ?
+                   function.NamespaceName : userSchemaName;
 
                 // if the function store name is not explicitly given, it is assumed to be the metadata name
                 string functionName = String.IsNullOrEmpty(userFuncName) ?
                     function.Name : userFuncName;
 
                 // quote elements of function text
-                /// No schema in FB
-                //string quotedSchemaName = QuoteIdentifier(schemaName);
+                string quotedSchemaName = QuoteIdentifier(schemaName);
                 string quotedFunctionName = QuoteIdentifier(functionName);
 
-                // separator
-                /// No schema in FB
-                //const string schemaSeparator = ".";
-                // concatenate elements of function text
-
-                /// No schema in FB
-                string quotedFunctionText = /*quotedSchemaName + schemaSeparator + */quotedFunctionName;
+                string quotedFunctionText = quotedSchemaName + "." + quotedFunctionName;
 
                 return quotedFunctionText;
             }
@@ -653,13 +445,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
                     result = VisitBinaryExpression(" - ", e.Arguments[0], e.Arguments[1]);
                     break;
                 case DbExpressionKind.Modulo:
-                    //result = VisitBinaryExpression(" % ", e.Arguments[0], e.Arguments[1]);
-                    result = new SqlBuilder();
-                    result.Append(" MOD(");
-                    result.Append(e.Arguments[0].Accept(this));
-                    result.Append(", ");
-                    result.Append(e.Arguments[1].Accept(this));
-                    result.Append(")");
+                    result = VisitBinaryExpression(" % ", e.Arguments[0], e.Arguments[1]);
                     break;
                 case DbExpressionKind.Multiply:
                     result = VisitBinaryExpression(" * ", e.Arguments[0], e.Arguments[1]);
@@ -777,20 +563,20 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
             SqlBuilder result = new SqlBuilder();
 
             PrimitiveTypeKind typeKind;
-            // Model Types can be (at the time of this implementation):
-            //      Binary, Boolean, Byte, DateTime, Decimal, Double, Guid, Int16, Int32, Int64, Single, String
             if (MetadataHelpers.TryGetPrimitiveTypeKind(e.ResultType, out typeKind))
             {
                 switch (typeKind)
                 {
                     case PrimitiveTypeKind.Boolean:
-                        result.Append((bool)e.Value ? "CAST(1 AS SMALLINT)" : "CAST(0 AS SMALLINT)");
+                        result.Append((bool)e.Value ? "TRUE" : "FALSE");
                         break;
 
                     case PrimitiveTypeKind.Int16:
                         result.Append("CAST(");
                         result.Append(e.Value.ToString());
-                        result.Append(" AS SMALLINT)");
+                        result.Append(" AS ");
+                        result.Append(GetSqlPrimitiveType(e.ResultType));
+                        result.Append(")");
                         break;
 
                     case PrimitiveTypeKind.Int32:
@@ -801,22 +587,29 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
                     case PrimitiveTypeKind.Int64:
                         result.Append("CAST(");
                         result.Append(e.Value.ToString());
-                        result.Append(" AS BIGINT)");
+                        result.Append(" AS ");
+                        result.Append(GetSqlPrimitiveType(e.ResultType));
+                        result.Append(")");
                         break;
 
                     case PrimitiveTypeKind.Double:
                         result.Append("CAST(");
                         result.Append(((Double)e.Value).ToString(CultureInfo.InvariantCulture));
-                        result.Append(" AS DOUBLE PRECISION)");
+                        result.Append(" AS ");
+                        result.Append(GetSqlPrimitiveType(e.ResultType));
+                        result.Append(")");
                         break;
 
                     case PrimitiveTypeKind.Single:
                         result.Append("CAST(");
                         result.Append(((Single)e.Value).ToString(CultureInfo.InvariantCulture));
-                        result.Append(" AS FLOAT)");
+                        result.Append(" AS ");
+                        result.Append(GetSqlPrimitiveType(e.ResultType));
+                        result.Append(")");
                         break;
 
                     case PrimitiveTypeKind.Decimal:
+                        var sqlPrimitiveType = GetSqlPrimitiveType(e.ResultType);
                         string strDecimal = ((Decimal)e.Value).ToString(CultureInfo.InvariantCulture);
 
                         int pointPosition = strDecimal.IndexOf('.');
@@ -834,7 +627,9 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 
                         result.Append("CAST(");
                         result.Append(strDecimal);
-                        result.Append(" AS DECIMAL(");
+                        result.Append(" AS ");
+                        result.Append(sqlPrimitiveType.Substring(0, sqlPrimitiveType.IndexOf('(')));
+                        result.Append("(");
                         result.Append(precision.ToString(CultureInfo.InvariantCulture));
                         result.Append(",");
                         result.Append(maxScale.ToString(CultureInfo.InvariantCulture));
@@ -842,7 +637,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
                         break;
 
                     case PrimitiveTypeKind.Binary:
-                        result.Append(string.Format("x'{0}'", BitConverter.ToString((byte[])e.Value).Replace("-", string.Empty)));
+                        result.Append(string.Format("0x{0}", BitConverter.ToString((byte[])e.Value).Replace("-", string.Empty)));
                         break;
 
                     case PrimitiveTypeKind.String:
@@ -852,18 +647,18 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 
                     case PrimitiveTypeKind.DateTime:
                         result.Append("'");
-                        result.Append(((DateTime)e.Value).ToString("yyyy-MM-dd HH:mm:ss.fff", CultureInfo.InvariantCulture));
+                        result.Append(((DateTime)e.Value).ToString("yyyy-MM-dd HH:mm:ss.fffffff", CultureInfo.InvariantCulture));
                         result.Append("'");
                         break;
                     case PrimitiveTypeKind.Time:
                         result.Append("'");
-                        result.Append(((DateTime)e.Value).ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture));
+                        result.Append(((DateTime)e.Value).ToString("HH:mm:ss.fffffff", CultureInfo.InvariantCulture));
                         result.Append("'");
                         break;
 
                     case PrimitiveTypeKind.Guid:
-                        result.Append("CHAR_TO_UUID('");
-                        result.Append(((Guid)e.Value).ToString());
+                        result.Append("'");
+                        result.Append(((Guid)e.Value).ToNuoDbString());
                         result.Append("')");
                         break;
 
@@ -965,14 +760,14 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
             if (IsParentAJoin)
             {
                 SqlBuilder result = new SqlBuilder();
-                result.Append(GetTargetTSql(target));
+                result.Append(GetTargetSql(target));
 
                 return result;
             }
             else
             {
                 SqlSelectStatement result = new SqlSelectStatement();
-                result.From.Append(GetTargetTSql(target));
+                result.From.Append(GetTargetSql(target));
 
                 return result;
             }
@@ -980,14 +775,14 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 
 
         /// <summary>
-        /// Gets escaped TSql identifier describing this entity set.
+        /// Gets escaped Sql identifier describing this entity set.
         /// </summary>
         /// <returns></returns>
-        internal static string GetTargetTSql(EntitySetBase entitySetBase)
+        internal static string GetTargetSql(EntitySetBase entitySetBase)
         {
-            // construct escaped T-SQL referencing entity set
-            StringBuilder builder = new StringBuilder(50);
-            string definingQuery = MetadataHelpers.TryGetValueForMetadataProperty<string>(entitySetBase, "DefiningQuery");
+            // construct escaped SQL referencing entity set
+            var builder = new StringBuilder();
+            var definingQuery = MetadataHelpers.TryGetValueForMetadataProperty<string>(entitySetBase, "DefiningQuery");
             if (!string.IsNullOrEmpty(definingQuery))
             {
                 builder.Append("(");
@@ -996,19 +791,12 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
             }
             else
             {
-                /// No schema in FB
-                //string schemaName = MetadataHelpers.TryGetValueForMetadataProperty<string>(entitySetBase, "Schema");
-                //if (!string.IsNullOrEmpty(schemaName))
-                //{
-                //    builder.Append(QuoteIdentifier(schemaName));
-                //    builder.Append(".");
-                //}
-                //else
-                //{
-                //    builder.Append(QuoteIdentifier(entitySetBase.EntityContainer.Name));
-                //    builder.Append(".");
-                //}
-
+                var userSchemaName = MetadataHelpers.TryGetValueForMetadataProperty<string>(entitySetBase, "Schema");
+                var schemaName = string.IsNullOrEmpty(userSchemaName)
+                    ? entitySetBase.EntityContainer.Name
+                    : userSchemaName;
+                builder.Append(QuoteIdentifier(schemaName));
+                builder.Append(".");
                 builder.Append(QuoteIdentifier(MetadataHelpers.GetTableName(entitySetBase)));
             }
             return builder.ToString();
@@ -1134,23 +922,22 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
         public override ISqlFragment Visit(DbGroupByExpression e)
         {
             Symbol fromSymbol;
-            string varName = GetShortenedName(e.Input.VariableName);
             SqlSelectStatement innerQuery = VisitInputExpression(e.Input.Expression,
-                varName, e.Input.VariableType, out fromSymbol);
+                e.Input.VariableName, e.Input.VariableType, out fromSymbol);
 
             // GroupBy is compatible with Filter and OrderBy
             // but not with Project, GroupBy
             if (!IsCompatible(innerQuery, e.ExpressionKind))
             {
-                innerQuery = CreateNewSelectStatement(innerQuery, varName, e.Input.VariableType, out fromSymbol);
+                innerQuery = CreateNewSelectStatement(innerQuery, e.Input.VariableName, e.Input.VariableType, out fromSymbol);
             }
 
             selectStatementStack.Push(innerQuery);
             symbolTable.EnterScope();
 
-            AddFromSymbol(innerQuery, varName, fromSymbol);
+            AddFromSymbol(innerQuery, e.Input.VariableName, fromSymbol);
             // This line is not present for other relational nodes.
-            symbolTable.Add(GetShortenedName(e.Input.GroupVariableName), fromSymbol);
+            symbolTable.Add(e.Input.GroupVariableName, fromSymbol);
 
 
             // The enumerator is shared by both the keys and the aggregates,
@@ -1165,8 +952,8 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
             if (needsInnerQuery)
             {
                 //Create the inner query
-                result = CreateNewSelectStatement(innerQuery, varName, e.Input.VariableType, false, out fromSymbol);
-                AddFromSymbol(result, varName, fromSymbol, false);
+                result = CreateNewSelectStatement(innerQuery, e.Input.VariableName, e.Input.VariableType, false, out fromSymbol);
+                AddFromSymbol(result, e.Input.VariableName, fromSymbol, false);
             }
             else
             {
@@ -1568,20 +1355,19 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
         public override ISqlFragment Visit(DbProjectExpression e)
         {
             Symbol fromSymbol;
-            string varName = GetShortenedName(e.Input.VariableName);
-            SqlSelectStatement result = VisitInputExpression(e.Input.Expression, varName, e.Input.VariableType, out fromSymbol);
+            SqlSelectStatement result = VisitInputExpression(e.Input.Expression, e.Input.VariableName, e.Input.VariableType, out fromSymbol);
 
             // Project is compatible with Filter
             // but not with Project, GroupBy
             if (!IsCompatible(result, e.ExpressionKind))
             {
-                result = CreateNewSelectStatement(result, varName, e.Input.VariableType, out fromSymbol);
+                result = CreateNewSelectStatement(result, e.Input.VariableName, e.Input.VariableType, out fromSymbol);
             }
 
             selectStatementStack.Push(result);
             symbolTable.EnterScope();
 
-            AddFromSymbol(result, varName, fromSymbol);
+            AddFromSymbol(result, e.Input.VariableName, fromSymbol);
 
             // Project is the only node that can have DbNewInstanceExpression as a child
             // so we have to check it here.
@@ -1628,7 +1414,6 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
         public override ISqlFragment Visit(DbPropertyExpression e)
         {
             SqlBuilder result;
-            string varName = e.Property.Name;
 
             ISqlFragment instanceSql = e.Instance.Accept(this);
 
@@ -1644,15 +1429,14 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
             JoinSymbol joinSymbol = instanceSql as JoinSymbol;
             if (joinSymbol != null)
             {
-                varName = GetShortenedName(varName);
-                Debug.Assert(joinSymbol.NameToExtent.ContainsKey(varName));
+                Debug.Assert(joinSymbol.NameToExtent.ContainsKey(e.Property.Name));
                 if (joinSymbol.IsNestedJoin)
                 {
-                    return new SymbolPair(joinSymbol, joinSymbol.NameToExtent[varName]);
+                    return new SymbolPair(joinSymbol, joinSymbol.NameToExtent[e.Property.Name]);
                 }
                 else
                 {
-                    return joinSymbol.NameToExtent[varName];
+                    return joinSymbol.NameToExtent[e.Property.Name];
                 }
             }
             // ---------------------------------------
@@ -1660,12 +1444,11 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
             SymbolPair symbolPair = instanceSql as SymbolPair;
             if (symbolPair != null)
             {
-                varName = GetShortenedName(varName);
                 JoinSymbol columnJoinSymbol = symbolPair.Column as JoinSymbol;
                 if (columnJoinSymbol != null)
                 {
-                    Debug.Assert(columnJoinSymbol.NameToExtent.ContainsKey(varName));
-                    symbolPair.Column = columnJoinSymbol.NameToExtent[varName];
+                    Debug.Assert(columnJoinSymbol.NameToExtent.ContainsKey(e.Property.Name));
+                    symbolPair.Column = columnJoinSymbol.NameToExtent[e.Property.Name];
                     return symbolPair;
                 }
                 else
@@ -1691,7 +1474,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 
             // At this point the column name cannot be renamed, so we do
             // not use a symbol.
-            result.Append(QuoteIdentifier(varName));
+            result.Append(QuoteIdentifier(e.Property.Name));
 
             return result;
         }
@@ -1758,16 +1541,15 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
         {
             Debug.Assert(e.Count is DbConstantExpression || e.Count is DbParameterReferenceExpression, "DbSkipExpression.Count is of invalid expression type");
 
-            string varName = GetShortenedName(e.Input.VariableName);
             Symbol fromSymbol;
-            SqlSelectStatement result = VisitInputExpression(e.Input.Expression, varName, e.Input.VariableType, out fromSymbol);
+            SqlSelectStatement result = VisitInputExpression(e.Input.Expression, e.Input.VariableName, e.Input.VariableType, out fromSymbol);
 
             if (!IsCompatible(result, e.ExpressionKind))
             {
                 TypeUsage inputType = MetadataHelpers.GetElementTypeUsage(e.ResultType);
 
-                result = CreateNewSelectStatement(result, varName, inputType, out fromSymbol);
-                AddFromSymbol(result, varName, fromSymbol, false);
+                result = CreateNewSelectStatement(result, e.Input.VariableName, inputType, out fromSymbol);
+                AddFromSymbol(result, e.Input.VariableName, fromSymbol, false);
             }
 
             ISqlFragment skipCount = HandleCountExpression(e.Count);
@@ -1776,7 +1558,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
             selectStatementStack.Push(result);
             symbolTable.EnterScope();
 
-            AddFromSymbol(result, varName, fromSymbol);
+            AddFromSymbol(result, e.Input.VariableName, fromSymbol);
 
             AddSortKeys(result.OrderBy, e.SortOrder);
 
@@ -1795,20 +1577,19 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
         public override ISqlFragment Visit(DbSortExpression e)
         {
             Symbol fromSymbol;
-            string varName = GetShortenedName(e.Input.VariableName);
-            SqlSelectStatement result = VisitInputExpression(e.Input.Expression, varName, e.Input.VariableType, out fromSymbol);
+            SqlSelectStatement result = VisitInputExpression(e.Input.Expression, e.Input.VariableName, e.Input.VariableType, out fromSymbol);
 
             // OrderBy is compatible with Filter
             // and nothing else
             if (!IsCompatible(result, e.ExpressionKind))
             {
-                result = CreateNewSelectStatement(result, varName, e.Input.VariableType, out fromSymbol);
+                result = CreateNewSelectStatement(result, e.Input.VariableName, e.Input.VariableType, out fromSymbol);
             }
 
             selectStatementStack.Push(result);
             symbolTable.EnterScope();
 
-            AddFromSymbol(result, varName, fromSymbol);
+            AddFromSymbol(result, e.Input.VariableName, fromSymbol);
 
             AddSortKeys(result.OrderBy, e.SortOrder);
 
@@ -1862,8 +1643,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
             }
             isVarRefSingle = true; // This will be reset by DbPropertyExpression or MethodExpression
 
-            string varName = GetShortenedName(e.VariableName);
-            Symbol result = symbolTable.Lookup(varName);
+            Symbol result = symbolTable.Lookup(e.VariableName);
             if (!CurrentSelectStatement.FromExtents.Contains(result))
             {
                 CurrentSelectStatement.OuterExtents[result] = true;
@@ -2082,7 +1862,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
                 Debug.Assert(isScalarElement);
                 resultSql.Append(" SELECT CAST(NULL AS ");
                 resultSql.Append(GetSqlPrimitiveType(collectionType.TypeUsage));
-                resultSql.Append(") AS X FROM (SELECT 1 FROM SYSTEM.TABLES) AS Y WHERE 1=0");
+                resultSql.Append(") AS X FROM DUAL AS Y WHERE 1=0");
             }
 
             foreach (DbExpression arg in e.Arguments)
@@ -2094,7 +1874,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
                 if (isScalarElement)
                 {
                     // create a 'from' statement that guarantees that only one row is returned
-                    resultSql.Append(" AS X FROM SYSTEM.TABLES AS T WHERE T.TABLENAME='TABLES' AND T.SCHEMA='SYSTEM'");
+                    resultSql.Append(" AS X FROM DUAL");
                 }
                 separator = " UNION ALL ";
             }
@@ -2270,7 +2050,6 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
             DbExpressionBinding input, int fromSymbolStart)
         {
             Symbol fromSymbol = null;
-            string varName = GetShortenedName(input.VariableName);
 
             if (result != fromExtentFragment)
             {
@@ -2288,7 +2067,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
                             || IsApplyExpression(input.Expression))
                         {
                             List<Symbol> extents = sqlSelectStatement.FromExtents;
-                            JoinSymbol newJoinSymbol = new JoinSymbol(varName, input.VariableType, extents);
+                            JoinSymbol newJoinSymbol = new JoinSymbol(input.VariableName, input.VariableType, extents);
                             newJoinSymbol.IsNestedJoin = true;
                             newJoinSymbol.ColumnList = columns;
 
@@ -2307,7 +2086,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
                             {
                                 // Note: sqlSelectStatement.FromExtents will not do, since it might
                                 // just be an alias of joinSymbol, and we want an actual JoinSymbol.
-                                JoinSymbol newJoinSymbol = new JoinSymbol(varName, input.VariableType, oldJoinSymbol.ExtentList);
+                                JoinSymbol newJoinSymbol = new JoinSymbol(input.VariableName, input.VariableType, oldJoinSymbol.ExtentList);
                                 // This indicates that the sqlSelectStatement is a blocking scope
                                 // i.e. it hides/renames extent columns
                                 newJoinSymbol.IsNestedJoin = true;
@@ -2334,11 +2113,11 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 
                 if (fromSymbol == null) // i.e. not a join symbol
                 {
-                    fromSymbol = new Symbol(varName, input.VariableType);
+                    fromSymbol = new Symbol(input.VariableName, input.VariableType);
                 }
 
 
-                AddFromSymbol(result, varName, fromSymbol);
+                AddFromSymbol(result, input.VariableName, fromSymbol);
                 result.AllJoinExtents.Add(fromSymbol);
             }
             else // result == fromExtentFragment.  The child extents have been merged into the parent's.
@@ -2358,7 +2137,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
                     extents.Add(result.FromExtents[i]);
                 }
                 result.FromExtents.RemoveRange(fromSymbolStart, result.FromExtents.Count - fromSymbolStart);
-                fromSymbol = new JoinSymbol(varName, input.VariableType, extents);
+                fromSymbol = new JoinSymbol(input.VariableName, input.VariableType, extents);
                 result.FromExtents.Add(fromSymbol);
                 // this Join Symbol does not have its own select statement, so we
                 // do not set IsNestedJoin
@@ -2366,7 +2145,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 
                 // We do not call AddFromSymbol(), since we do not want to add
                 // "AS alias" to the FROM clause- it has been done when the extent was added earlier.
-                symbolTable.Add(varName, fromSymbol);
+                symbolTable.Add(input.VariableName, fromSymbol);
             }
         }
 
@@ -2601,44 +2380,15 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
         }
 
         #region String Canonical Functions
-        private static ISqlFragment HandleConcatFunction(SqlGenerator sqlgen, DbFunctionExpression e)
+        private static ISqlFragment HandleCanonicalConcatFunction(SqlGenerator sqlgen, DbFunctionExpression e)
         {
             return sqlgen.HandleSpecialFunctionToOperator(e, false);
         }
 
-        private static ISqlFragment HandleContainsFunction(SqlGenerator sqlgen, DbFunctionExpression e)
+        private static ISqlFragment HandleCanonicalContainsFunction(SqlGenerator sqlgen, DbFunctionExpression e)
         {
             sqlgen.shouldHandleBoolComparison = false;
             return sqlgen.HandleSpecialFunctionToOperator(e, false);
-        }
-
-        private static ISqlFragment HandleEndsWithFunction(SqlGenerator sqlgen, DbFunctionExpression e)
-        {
-            // should we do this thinking for developer or should (s)he create own solution???
-            sqlgen.shouldHandleBoolComparison = false;
-            SqlBuilder result = new SqlBuilder();
-            result.Append("REVERSE(");
-            result.Append(e.Arguments[0].Accept(sqlgen));
-            result.Append(") STARTING WITH REVERSE(");
-            result.Append(e.Arguments[1].Accept(sqlgen));
-            result.Append(")");
-            return result;
-        }
-
-        private static ISqlFragment HandleCanonicalFunctionIndexOf(SqlGenerator sqlgen, DbFunctionExpression e)
-        {
-            // convert [IndexOf('string', field) > 0] into [field CONTAINING 'string']
-            sqlgen.shouldHandleBoolComparison = false;
-            SqlBuilder result = new SqlBuilder();
-            Debug.Assert(e.Arguments.Count > 0 && e.Arguments.Count <= 2, "There should be 1 or 2 arguments for operator");
-
-            if (e.Arguments.Count > 1)
-            {
-                result.Append(e.Arguments[1].Accept(sqlgen));
-            }
-            result.Append(" CONTAINING ");
-            result.Append(e.Arguments[0].Accept(sqlgen));
-            return result;
         }
 
         private static ISqlFragment HandleCanonicalFunctionLength(SqlGenerator sqlgen, DbFunctionExpression e)
@@ -2646,83 +2396,21 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
             return sqlgen.HandleFunctionDefaultGivenName(e, "CHAR_LENGTH");
         }
 
-        private static ISqlFragment HandleCanonicalFunctionTrim(SqlGenerator sqlgen, DbFunctionExpression e)
-        {
-            return TrimHelper(sqlgen, e, "BOTH");
-        }
-
-        private static ISqlFragment HandleCanonicalFunctionLTrim(SqlGenerator sqlgen, DbFunctionExpression e)
-        {
-            return TrimHelper(sqlgen, e, "LEADING");
-        }
-
-        private static ISqlFragment HandleCanonicalFunctionRTrim(SqlGenerator sqlgen, DbFunctionExpression e)
-        {
-            return TrimHelper(sqlgen, e, "TRAILING");
-        }
-
-        /// <summary>
-        /// TRIM ( [ [ <trim specification> ] [ <trim character> ] FROM ] <value expression> )
-        /// <trim specification> ::=  LEADING  | TRAILING  | BOTH
-        /// </summary>
-        private static ISqlFragment TrimHelper(SqlGenerator sqlgen, DbFunctionExpression e, string what)
+        private static ISqlFragment HandleCanonicalIndexOfFunction(SqlGenerator sqlgen, DbFunctionExpression e)
         {
             SqlBuilder result = new SqlBuilder();
-
-            result.Append("TRIM(");
-            result.Append(what);
-            result.Append(" FROM ");
-
-            Debug.Assert(e.Arguments.Count == 1, "Trim should have one argument");
+            result.Append("POSITION(");
             result.Append(e.Arguments[0].Accept(sqlgen));
-
+            result.Append(" IN ");
+            result.Append(e.Arguments[1].Accept(sqlgen));
             result.Append(")");
-
             return result;
-        }
-
-        private static ISqlFragment HandleCanonicalFunctionLeft(SqlGenerator sqlgen, DbFunctionExpression e)
-        {
-            return sqlgen.HandleFunctionDefaultGivenName(e, "LEFT");
-        }
-
-        private static ISqlFragment HandleCanonicalFunctionRight(SqlGenerator sqlgen, DbFunctionExpression e)
-        {
-            return sqlgen.HandleFunctionDefaultGivenName(e, "RIGHT");
-        }
-
-        private static ISqlFragment HandleCanonicalFunctionReverse(SqlGenerator sqlgen, DbFunctionExpression e)
-        {
-            return sqlgen.HandleFunctionDefaultGivenName(e, "REVERSE");
-        }
-
-        private static ISqlFragment HandleCanonicalFunctionReplace(SqlGenerator sqlgen, DbFunctionExpression e)
-        {
-            return sqlgen.HandleFunctionDefaultGivenName(e, "REPLACE");
-        }
-
-        private static ISqlFragment HandleStartsWithFunction(SqlGenerator sqlgen, DbFunctionExpression e)
-        {
-            sqlgen.shouldHandleBoolComparison = false;
-            return sqlgen.HandleSpecialFunctionToOperator(e, false);
         }
 
         private static ISqlFragment HandleCanonicalFunctionSubstring(SqlGenerator sqlgen, DbFunctionExpression e)
         {
-            SqlBuilder result = new SqlBuilder();
-
-            result.Append("SUBSTRING(");
-
             Debug.Assert(e.Arguments.Count == 3, "Substring should have three arguments");
-            result.Append(e.Arguments[0].Accept(sqlgen));
-            result.Append(", ");
-            result.Append(e.Arguments[1].Accept(sqlgen));
-            result.Append(", ");
-            result.Append(e.Arguments[2].Accept(sqlgen));
-
-            result.Append(")");
-
-            return result;
+            return sqlgen.HandleFunctionDefaultGivenName(e, "SUBSTR");
         }
 
         private static ISqlFragment HandleCanonicalFunctionToLower(SqlGenerator sqlgen, DbFunctionExpression e)
@@ -2736,109 +2424,39 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
         }
         #endregion
 
-        #region Bitwise Canonical Functions
-        private static ISqlFragment HandleCanonicalFunctionBitwiseAnd(SqlGenerator sqlgen, DbFunctionExpression e)
-        {
-            return sqlgen.HandleFunctionDefaultGivenName(e, "BIN_AND");
-        }
-
-        private static ISqlFragment HandleCanonicalFunctionBitwiseNot(SqlGenerator sqlgen, DbFunctionExpression e)
-        {
-            throw new NotSupportedException();
-        }
-
-        private static ISqlFragment HandleCanonicalFunctionBitwiseOr(SqlGenerator sqlgen, DbFunctionExpression e)
-        {
-            return sqlgen.HandleFunctionDefaultGivenName(e, "BIN_OR");
-        }
-
-        private static ISqlFragment HandleCanonicalFunctionBitwiseXor(SqlGenerator sqlgen, DbFunctionExpression e)
-        {
-            return sqlgen.HandleFunctionDefaultGivenName(e, "BIN_XOR");
-        }
-        #endregion
-
         #region Date and Time Canonical Functions
-        private static ISqlFragment HandleCanonicalFunctionCurrentUtcDateTime(SqlGenerator sqlgen, DbFunctionExpression e)
-        {
-            throw new NotSupportedException();
-        }
-
-        private static ISqlFragment HandleCanonicalFunctionCurrentDateTimeOffset(SqlGenerator sqlgen, DbFunctionExpression e)
-        {
-            throw new NotSupportedException();
-        }
-
-        private static ISqlFragment HandleCanonicalFunctionGetTotalOffsetMinutes(SqlGenerator sqlgen, DbFunctionExpression e)
-        {
-            throw new NotSupportedException();
-        }
 
         private static ISqlFragment HandleCanonicalFunctionCurrentDateTime(SqlGenerator sqlgen, DbFunctionExpression e)
         {
             SqlBuilder result = new SqlBuilder();
-            result.Append("CURRENT_TIMESTAMP");
+            result.Append("NOW()");
             return result;
         }
 
-        /// <summary>
-        /// Handler for canonical funcitons for extracting date parts. 
-        /// For example:
-        ///     Year(date) -> EXTRACT(YEAR from date)
-        /// </summary>
-        private static ISqlFragment HandleCanonicalFunctionExtract(SqlGenerator sqlgen, DbFunctionExpression e, string extractPart)
+        private static ISqlFragment HandleCanonicalFunctionAddDays(SqlGenerator sqlgen, DbFunctionExpression e)
         {
-            if (extractPart == null)
-                throw new NotSupportedException();
-
             SqlBuilder result = new SqlBuilder();
-            result.Append("EXTRACT(");
-            result.Append(extractPart);
-            result.Append(" FROM ");
-            Debug.Assert(e.Arguments.Count == 1, "Canonical datepart functions should have exactly one argument");
+            Debug.Assert(e.Arguments.Count == 2, "Canonical AddDays functions should have exactly two arguments");
+            result.Append("(");
             result.Append(e.Arguments[0].Accept(sqlgen));
-            result.Append(")");
-            return result;
-        }
-
-        private static ISqlFragment HandleCanonicalFunctionDateTimeAdd(SqlGenerator sqlgen, DbFunctionExpression e, string addPart)
-        {
-            if (addPart == null)
-                throw new NotSupportedException();
-
-            SqlBuilder result = new SqlBuilder();
-            result.Append("DATEADD(");
-            result.Append(addPart);
-            result.Append(", ");
-            Debug.Assert(e.Arguments.Count == 2, "Canonical dateadd functions should have exactly two arguments");
+            result.Append("+");
             result.Append(e.Arguments[1].Accept(sqlgen));
-            result.Append(", ");
-            result.Append(e.Arguments[0].Accept(sqlgen));
             result.Append(")");
             return result;
         }
 
-        private static ISqlFragment HandleCanonicalFunctionDateTimeDiff(SqlGenerator sqlgen, DbFunctionExpression e, string diffPart)
+        private static ISqlFragment HandleCanonicalFunctionDiffDays(SqlGenerator sqlgen, DbFunctionExpression e)
         {
-            if (diffPart == null)
-                throw new NotSupportedException();
-
             SqlBuilder result = new SqlBuilder();
-            result.Append("DATEDIFF(");
-            result.Append(diffPart);
-            result.Append(", ");
-            Debug.Assert(e.Arguments.Count == 2, "Canonical datediff functions should have exactly two arguments");
-            result.Append(e.Arguments[1].Accept(sqlgen));
-            result.Append(", ");
+            Debug.Assert(e.Arguments.Count == 2, "Canonical DiffDays functions should have exactly two arguments");
+            result.Append("(");
             result.Append(e.Arguments[0].Accept(sqlgen));
+            result.Append("-");
+            result.Append(e.Arguments[1].Accept(sqlgen));
             result.Append(")");
             return result;
         }
 
-        /// <summary>
-        /// CCYY-MM-DD HH:NN:SS.nnnn
-        /// CreateDateTime(year, month, day, hour, minute, second)
-        /// </summary>
         private static ISqlFragment HandleCanonicalFunctionCreateDateTime(SqlGenerator sqlgen, DbFunctionExpression e)
         {
             SqlBuilder result = new SqlBuilder();
@@ -2858,15 +2476,6 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
             return result;
         }
 
-        private static ISqlFragment HandleCanonicalFunctionCreateDateTimeOffset(SqlGenerator sqlgen, DbFunctionExpression e)
-        {
-            throw new NotSupportedException();
-        }
-
-        /// <summary>
-        /// HH:NN:SS.nnnn
-        /// CreateTime(hour, minute, second)
-        /// </summary>
         private static ISqlFragment HandleCanonicalFunctionCreateTime(SqlGenerator sqlgen, DbFunctionExpression e)
         {
             SqlBuilder result = new SqlBuilder();
@@ -2890,29 +2499,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
         }
         #endregion
 
-        #region Other Canonical Functions
-        private static ISqlFragment HandleCanonicalFunctionNewGuid(SqlGenerator sqlgen, DbFunctionExpression e)
-        {
-            return sqlgen.HandleFunctionDefaultGivenName(e, "GEN_UUID");
-        }
-        #endregion
-
         #region Math Canonical Functions
-        private static ISqlFragment HandleCanonicalFunctionAbs(SqlGenerator sqlgen, DbFunctionExpression e)
-        {
-            return sqlgen.HandleFunctionDefaultGivenName(e, "ABS");
-        }
-
-        private static ISqlFragment HandleCanonicalFunctionCeiling(SqlGenerator sqlgen, DbFunctionExpression e)
-        {
-            return sqlgen.HandleFunctionDefaultGivenName(e, "CEILING");
-        }
-
-        private static ISqlFragment HandleCanonicalFunctionFloor(SqlGenerator sqlgen, DbFunctionExpression e)
-        {
-            return sqlgen.HandleFunctionDefaultGivenName(e, "FLOOR");
-        }
-
         private static ISqlFragment HandleCanonicalFunctionPower(SqlGenerator sqlgen, DbFunctionExpression e)
         {
             return sqlgen.HandleFunctionDefaultGivenName(e, "POWER");
@@ -2922,15 +2509,14 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
         {
             return sqlgen.HandleFunctionDefaultGivenName(e, "ROUND");
         }
+        #endregion
 
-        private static ISqlFragment HandleCanonicalFunctionTruncate(SqlGenerator sqlgen, DbFunctionExpression e)
+        private static ISqlFragment HandleCanonicalFunctionNotSupported(SqlGenerator sqlgen, DbFunctionExpression e)
         {
-            return sqlgen.HandleFunctionDefaultGivenName(e, "TRUNC");
+            throw new NotSupportedException(string.Format("Function '{0}' is not supported.", e.Function.Name));
         }
-        #endregion
 
         #endregion
-
 
         #endregion
 
@@ -3319,7 +2905,6 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
         /// <returns>The escaped sql string.</returns>
         private string EscapeSingleQuote(string s, bool isUnicode)
         {
-            //return (isUnicode ? "_UTF8'" : "'") + s.Replace("'", "''") + "'";
             return "'" + s.Replace("'", "''") + "'";
         }
 
@@ -3345,7 +2930,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
             switch (primitiveType.PrimitiveTypeKind)
             {
                 case PrimitiveTypeKind.Boolean:
-                    typeName = "SMALLINT";
+                    typeName = "BOOLEAN";
                     break;
 
                 case PrimitiveTypeKind.Int16:
@@ -3373,12 +2958,12 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
                     Debug.Assert(precision > 0, "decimal precision must be greater than zero");
                     scale = MetadataHelpers.GetFacetValueOrDefault<byte>(type, MetadataHelpers.ScaleFacetName, 0);
                     Debug.Assert(precision >= scale, "decimalPrecision must be greater or equal to decimalScale");
-                    Debug.Assert(precision <= 18, "decimalPrecision must be less than or equal to 18");
+                    Debug.Assert(precision <= 100, "decimalPrecision must be less than or equal to 100");
                     typeName = string.Format("DECIMAL({0},{1})", precision, scale);
                     break;
 
                 case PrimitiveTypeKind.Binary:
-                    typeName = "BLOB SUB_TYPE BINARY";
+                    typeName = "BLOB";
                     break;
 
                 case PrimitiveTypeKind.String:
@@ -3407,7 +2992,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
                     {
                         if (int.Parse(length) > (isUnicode ? NuoDbProviderManifest.NVarcharMaxSize : NuoDbProviderManifest.VarcharMaxSize))
                         {
-                            typeName = "BLOB SUB_TYPE TEXT";
+                            typeName = "CLOB";
                         }
                         else
                         {
@@ -3426,7 +3011,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
                     break;
 
                 case PrimitiveTypeKind.Guid:
-                    typeName = "CHAR(16) CHARACTER SET OCTETS";
+                    typeName = "CHAR(38)";
                     break;
 
                 default:
@@ -3679,21 +3264,20 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
         SqlSelectStatement VisitFilterExpression(DbExpressionBinding input, DbExpression predicate, bool negatePredicate)
         {
             Symbol fromSymbol;
-            string varName = GetShortenedName(input.VariableName);
             SqlSelectStatement result = VisitInputExpression(input.Expression,
-                varName, input.VariableType, out fromSymbol);
+                input.VariableName, input.VariableType, out fromSymbol);
 
             // Filter is compatible with OrderBy
             // but not with Project, another Filter or GroupBy
             if (!IsCompatible(result, DbExpressionKind.Filter))
             {
-                result = CreateNewSelectStatement(result, varName, input.VariableType, out fromSymbol);
+                result = CreateNewSelectStatement(result, input.VariableName, input.VariableType, out fromSymbol);
             }
 
             selectStatementStack.Push(result);
             symbolTable.EnterScope();
 
-            AddFromSymbol(result, varName, fromSymbol);
+            AddFromSymbol(result, input.VariableName, fromSymbol);
 
             if (negatePredicate)
             {
@@ -3790,8 +3374,8 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
             }
             else
             {
-                //result.Append(QuoteIdentifier((string)function.MetadataProperties["Schema"].Value ?? "dbo"));
-                //result.Append(".");
+                result.Append(QuoteIdentifier((string)function.MetadataProperties["Schema"].Value ?? "USER"));
+                result.Append(".");
                 result.Append(QuoteIdentifier(storeFunctionName));
             }
         }
@@ -3846,36 +3430,6 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
                 return false;
             }
             return true;
-        }
-
-        /// <summary>
-        /// Shortens the name of variable (tables, etc.).
-        /// </summary>
-        /// <param name="name"></param>
-        /// <returns></returns>
-        internal string GetShortenedName(string name)
-        {
-            string shortened;
-            if (!this.shortenedNames.TryGetValue(name, out shortened))
-            {
-                shortened = BuildName(this.shortenedNames.Count);
-                this.shortenedNames[name] = shortened;
-            }
-            return shortened;
-        }
-
-        internal static string BuildName(int index)
-        {
-            const int offset = (int)'A';
-            const int length = (int)'Z' - offset;
-            if (index <= length)
-            {
-                return ((char)(offset + index)).ToString();
-            }
-            else
-            {
-                return BuildName(index / length) + BuildName(index % length);
-            }
         }
 
         #endregion
