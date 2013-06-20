@@ -24,12 +24,16 @@
 * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
 * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+* 
+* Contributors:
+*  Jiri Cincura (jiri@cincura.net) 
 ****************************************************************************/
 
 using System.Data.Common;
 using System.Collections.Generic;
 using System.Data;
 using System;
+using System.Linq;
 
 namespace NuoDb.Data.Client
 {
@@ -56,7 +60,7 @@ namespace NuoDb.Data.Client
             this.pendingRows = dataStream;
             this.statement = statement;
 
-            if(this.handle != -1)
+            if (this.handle != -1)
                 this.connection.RegisterResultSet(this.handle);
 
             this.numberColumns = this.pendingRows != null ? this.pendingRows.getInt() : 0;
@@ -182,8 +186,8 @@ namespace NuoDb.Data.Client
             metadata.Columns.Add("IsIdentity", typeof(bool));
 
             metadata.BeginLoadData();
-			for (int n = 0; n < numberColumns; ++n)
-			{
+            for (int n = 0; n < numberColumns; ++n)
+            {
                 DataRow row = metadata.NewRow();
                 row["ColumnOrdinal"] = n;
                 // data fields must be read in this exact order!
@@ -205,14 +209,14 @@ namespace NuoDb.Data.Client
                 }
                 row["DataType"] = Type.GetType(NuoDbConnection.mapNuoDbToNetType((string)row["DataTypeName"], (int)row["NumericPrecision"], (int)row["NumericScale"]));
                 int flags = dataStream.getInt();
-		        const int rsmdSearchable = (1 << 1);
-		        const int rsmdAutoIncrement = (1 << 2);
-		        const int rsmdCaseSensitive = (1 << 3);
-		        const int rsmdCurrency = (1 << 4);
-		        const int rsmdDefinitelyWritable = (1 << 5);
-		        const int rsmdWritable = (1 << 6);
-		        const int rsmdReadOnly = (1 << 7);
-		        const int rsmdSigned = (1 << 8);
+                const int rsmdSearchable = (1 << 1);
+                const int rsmdAutoIncrement = (1 << 2);
+                const int rsmdCaseSensitive = (1 << 3);
+                const int rsmdCurrency = (1 << 4);
+                const int rsmdDefinitelyWritable = (1 << 5);
+                const int rsmdWritable = (1 << 6);
+                const int rsmdReadOnly = (1 << 7);
+                const int rsmdSigned = (1 << 8);
                 const int rsmdNullable = (1 << 9);
                 row["IsAutoIncrement"] = (flags & rsmdAutoIncrement) != 0;
                 row["IsReadOnly"] = (flags & rsmdReadOnly) != 0;
@@ -223,15 +227,15 @@ namespace NuoDb.Data.Client
                 metadata.Rows.Add(row);
 
 #if DEBUG
-                System.Diagnostics.Trace.WriteLine("-> " + row["ColumnName"] + ", " + 
-                                                            row["DataTypeName"] + "(" + row["NumericPrecision"] + "," + row["NumericScale"] + ") " + 
+                System.Diagnostics.Trace.WriteLine("-> " + row["ColumnName"] + ", " +
+                                                            row["DataTypeName"] + "(" + row["NumericPrecision"] + "," + row["NumericScale"] + ") " +
                                                             row["DataType"]);
 #endif
-			}
+            }
             metadata.EndLoadData();
             // fill in the IsPrimary column
             Dictionary<string, DataTable> schemas = new Dictionary<string, DataTable>();
-            foreach(DataRow row in metadata.Rows)
+            foreach (DataRow row in metadata.Rows)
             {
                 string key = row["BaseSchemaName"] + "|" + row["BaseTableName"];
                 DataTable indexInfo = null;
@@ -313,10 +317,10 @@ namespace NuoDb.Data.Client
 
         public override int RecordsAffected
         {
-            get 
+            get
             {
                 // DataReader is used only for SELECT statements
-                return -1; 
+                return -1;
             }
         }
 
@@ -457,7 +461,11 @@ namespace NuoDb.Data.Client
 
         public override Guid GetGuid(int i)
         {
-            throw new NotImplementedException();
+#if NET_40
+            return Guid.Parse(GetString(i));
+#else
+            return new Guid(GetString(i));
+#endif
         }
 
         public override short GetInt16(int i)
@@ -492,6 +500,12 @@ namespace NuoDb.Data.Client
 
         public override object GetValue(int i)
         {
+            if (statement.ExpectedColumnTypes != null)
+                if (statement.ExpectedColumnTypes.ElementAtOrDefault(i) == typeof(Guid))
+                {
+                    return GetGuid(i);
+                }
+
             return getValue(i).Object;
         }
 
@@ -499,7 +513,7 @@ namespace NuoDb.Data.Client
         {
             int toRead = Math.Min(this.numberColumns, values.Length);
             for (int i = 0; i < toRead; i++)
-                values[i] = getValue(i).Object;
+                values[i] = GetValue(i);
             for (int i = toRead; i < values.Length; i++)
                 values[i] = null;
             return toRead;
@@ -512,9 +526,9 @@ namespace NuoDb.Data.Client
 
         public override object this[string name]
         {
-            get 
-            { 
-                return getValue(findColumn(name)).Object;
+            get
+            {
+                return GetValue(findColumn(name));
             }
         }
 

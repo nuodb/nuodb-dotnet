@@ -24,6 +24,9 @@
 * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
 * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+* 
+* Contributors:
+*  Jiri Cincura (jiri@cincura.net)
 ****************************************************************************/
 
 using System.Data.Common;
@@ -157,7 +160,7 @@ namespace NuoDb.Data.Client.EntityFramework
                             maxLength = (int)f.Value;
 
                         PrimitiveType storePrimitiveType = StoreTypeNameToStorePrimitiveType[isFixedLength ? "char" : "varchar"];
-                        if(maxLength != Int32.MinValue)
+                        if (maxLength != Int32.MinValue)
                             return TypeUsage.CreateStringTypeUsage(storePrimitiveType, isUnicode, isFixedLength, maxLength);
 
                         return TypeUsage.CreateStringTypeUsage(storePrimitiveType, isUnicode, isFixedLength);
@@ -194,6 +197,8 @@ namespace NuoDb.Data.Client.EntityFramework
                     }
 
                 case PrimitiveTypeKind.Guid:
+                    return TypeUsage.CreateDefaultTypeUsage(StoreTypeNameToStorePrimitiveType["guid_char"]);
+
                 default:
                     throw new NotSupportedException(string.Format("There is no store type corresponding to the EDM type '{0}' of primitive type '{1}'.", edmType, primitiveType.PrimitiveTypeKind));
             }

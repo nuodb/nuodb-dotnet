@@ -24,6 +24,9 @@
 * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
 * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+* 
+* Contributors:
+*  Jiri Cincura (jiri@cincura.net)
 ****************************************************************************/
 
 using System.Data.Common;
@@ -50,6 +53,7 @@ namespace NuoDb.Data.Client
         private bool isPreparedWithKeys = false;
         private bool isDesignTimeVisible = false;
         private UpdateRowSource updatedRowSource = UpdateRowSource.Both;
+        internal Type[] ExpectedColumnTypes { get; private set; }
 
         public NuoDbCommand(string query, DbConnection conn)
         {
@@ -66,6 +70,12 @@ namespace NuoDb.Data.Client
 
         public NuoDbCommand()
         {
+        }
+
+        internal NuoDbCommand(Type[] expectedColumnTypes)
+            : this()
+        {
+            ExpectedColumnTypes = expectedColumnTypes;
         }
 
         protected override void Dispose(bool disposing)
@@ -153,7 +163,7 @@ namespace NuoDb.Data.Client
             {
                 object param = ((NuoDbParameter)parameters[n]).Value;
 #if DEBUG
-                System.Diagnostics.Trace.WriteLine("param " + n + "="+param);
+                System.Diagnostics.Trace.WriteLine("param " + n + "=" + param);
 #endif
                 dataStream.encodeDotNetObject(param);
             }
@@ -562,6 +572,9 @@ namespace NuoDb.Data.Client
             command.CommandType = this.CommandType;
             command.CommandTimeout = this.CommandTimeout;
             command.UpdatedRowSource = this.UpdatedRowSource;
+
+            if (this.ExpectedColumnTypes != null)
+                command.ExpectedColumnTypes = (Type[])this.ExpectedColumnTypes.Clone();
 
             foreach (NuoDbParameter p in this.Parameters)
             {
