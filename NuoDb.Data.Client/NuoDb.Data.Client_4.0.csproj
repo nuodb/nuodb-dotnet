@@ -89,6 +89,7 @@
     <Compile Include="Security\RemoteGroup.cs" />
     <Compile Include="Security\RemotePassword.cs" />
     <Compile Include="NuoDbSqlCode.cs" />
+    <Compile Include="Util\Extensions.cs" />
     <Compile Include="Util\Op.cs" />
     <Compile Include="Util\StringUtils.cs" />
     <Compile Include="ValueBytes.cs" />

@@ -28,6 +28,7 @@
 
 using System;
 using NuoDb.Data.Client.Net;
+using NuoDb.Data.Client.Util;
 
 namespace NuoDb.Data.Client
 {
@@ -1677,7 +1678,7 @@ namespace NuoDb.Data.Client
 
         public virtual void encodeGuid(Guid guid)
         {
-            encodeString(guid.ToString("B"));
+            encodeString(guid.ToNuoDbString());
         }
 
         public override void getMessage(CryptoInputStream stream)
