@@ -55,16 +55,33 @@
     </Property>
 
     <DirectoryRef Id="INSTALLFOLDER">
-      <Component Id="Install_DotNetDriver" Guid="A04B6218-AD90-40E5-8001-918CF0D3EAF2">
-        <File Id="NuoDb.Data.Client.dll"
-              KeyPath="yes"
-              Source="../NuoDb.Data.Client/bin/$(var.Configuration)/NuoDb.Data.Client.dll"/>
-        <RegistryValue Id="R_DT_AssemblyFolders"
-                        Root="HKLM"
-                        Key="SOFTWARE\Microsoft\.NETFramework\AssemblyFolders\[ProductName]"
-                        Value="[$Install_DotNetDriver]"
-                        Type="string"/>
-      </Component>
+      <Directory Id="NET35" Name="NET 3.5">
+        <Component Id="Install_DotNetDriver_35" Guid="A04B6218-AD90-40E5-8001-918CF0D3EAF2">
+          <File Id="NuoDb.Data.Client.35.dll"
+                KeyPath="yes"
+                Source="../NuoDb.Data.Client/bin/$(var.Configuration)35/NuoDb.Data.Client.dll"/>
+          <RegistryValue Id="R_DT_AssemblyFolders_35"
+                          Root="HKLM"
+                          Key="SOFTWARE\Microsoft\.NETFramework\AssemblyFolders\[ProductName]_35"
+                          Value="[$Install_DotNetDriver_35]"
+                          Type="string"/>
+        </Component>
+      </Directory>
+
+      <Directory Id="NET40" Name="NET 4.0">
+        <Component Id="Install_DotNetDriver_40" Guid="7EB79C05-04AE-4BD0-B934-E00104F00FC4">
+          <File Id="NuoDb.Data.Client.40.dll"
+                KeyPath="yes"
+                Source="../NuoDb.Data.Client/bin/$(var.Configuration)40/NuoDb.Data.Client.dll"/>
+          <RegistryValue Id="R_DT_AssemblyFolders_40"
+                          Root="HKLM"
+                          Key="SOFTWARE\Microsoft\.NETFramework\AssemblyFolders\[ProductName]_40"
+                          Value="[$Install_DotNetDriver_40]"
+                          Type="string"/>
+          <File Source="../NuoDb.Data.Client/bin/$(var.Configuration)40/EntityFramework.dll"/>
+          <File Source="../NuoDb.Data.Client/bin/$(var.Configuration)40/EntityFramework.xml"/>
+        </Component>
+      </Directory>
 
       <Component Id="Install_VSPackage" Guid="B7AFEE82-BFBA-4631-B239-12A8EC52DF2C">
         <File Id="NuoDb.VisualStudio.DataTools.vsix"
@@ -94,16 +111,26 @@
         </Directory>
       </Directory>
 
-      <Directory Id="GAC" Name="GAC">
-        <Component Id="Register_GAC" Guid="36FCC7E2-FCC8-431B-8C94-EB9E92B84CE6">
-          <File Id="NuoDb.Data.Client.dll_GAC"
+      <Directory Id="GAC35" Name="GAC35">
+        <Component Id="Register_GAC_35" Guid="36FCC7E2-FCC8-431B-8C94-EB9E92B84CE6">
+          <File Id="NuoDb.Data.Client.35.dll_GAC"
                 Name="NuoDb.Data.Client.dll"
                 Assembly=".net"
                 KeyPath="yes"
-                Source="../NuoDb.Data.Client/bin/$(var.Configuration)/NuoDb.Data.Client.dll"/>
+                Source="../NuoDb.Data.Client/bin/$(var.Configuration)35/NuoDb.Data.Client.dll"/>
         </Component>
+      </Directory>
+      <Directory Id="GAC40" Name="GAC40">
+        <Component Id="Register_GAC_40" Guid="14603834-DF9E-46ED-9A44-285043C96350">
+          <File Id="NuoDb.Data.Client.40.dll_GAC"
+                Name="NuoDb.Data.Client.dll"
+                Assembly=".net"
+                KeyPath="yes"
+                Source="../NuoDb.Data.Client/bin/$(var.Configuration)40/NuoDb.Data.Client.dll"/>
+        </Component>
+      </Directory>
 
-        <Component Id="Register_DotNetProvider_40" Guid="DE4E60BA-8202-4BB5-9AB7-88248CD6B368">
+      <Component Id="Register_DotNetProvider_40" Guid="DE4E60BA-8202-4BB5-9AB7-88248CD6B368">
           <RegistryKey Root="HKLM" Key="Software\NuoDB">
             <RegistryValue KeyPath="yes" Name=".NET 4.0" Value="1" Type="integer"/>
           </RegistryKey>
@@ -139,7 +166,7 @@
                       File="[DOTNET_40_CONFIG]"
                       ElementPath="MachineConfigDbProviderFactories40"
                       Name="type"
-                      Value="NuoDb.Data.Client.NuoDbProviderFactory, NuoDb.Data.Client, Version=!(bind.FileVersion.NuoDb.Data.Client.dll), Culture=neutral, PublicKeyToken=e49f105b7fb49b38"
+                      Value="NuoDb.Data.Client.NuoDbProviderFactory, NuoDb.Data.Client, Version=!(bind.FileVersion.NuoDb.Data.Client.40.dll), Culture=neutral, PublicKeyToken=e49f105b7fb49b38"
                       Sequence="2" />
 
           <util:XmlConfig Id="MachineConfigDbProviderFactories_Uninstall40"
@@ -189,7 +216,7 @@
                       File="[DOTNET_20_CONFIG]"
                       ElementPath="MachineConfigDbProviderFactories20"
                       Name="type"
-                      Value="NuoDb.Data.Client.NuoDbProviderFactory, NuoDb.Data.Client, Version=!(bind.FileVersion.NuoDb.Data.Client.dll), Culture=neutral, PublicKeyToken=e49f105b7fb49b38"
+                      Value="NuoDb.Data.Client.NuoDbProviderFactory, NuoDb.Data.Client, Version=!(bind.FileVersion.NuoDb.Data.Client.35.dll), Culture=neutral, PublicKeyToken=e49f105b7fb49b38"
                       Sequence="2" />
 
           <util:XmlConfig Id="MachineConfigDbProviderFactories_Uninstall20"
@@ -239,7 +266,7 @@
                       File="[DOTNET64_40_CONFIG]"
                       ElementPath="MachineConfigDbProviderFactories40_x64"
                       Name="type"
-                      Value="NuoDb.Data.Client.NuoDbProviderFactory, NuoDb.Data.Client, Version=!(bind.FileVersion.NuoDb.Data.Client.dll), Culture=neutral, PublicKeyToken=e49f105b7fb49b38"
+                      Value="NuoDb.Data.Client.NuoDbProviderFactory, NuoDb.Data.Client, Version=!(bind.FileVersion.NuoDb.Data.Client.40.dll), Culture=neutral, PublicKeyToken=e49f105b7fb49b38"
                       Sequence="2" />
 
           <util:XmlConfig Id="MachineConfigDbProviderFactories_Uninstall40_x64"
@@ -289,7 +316,7 @@
                       File="[DOTNET64_20_CONFIG]"
                       ElementPath="MachineConfigDbProviderFactories20_x64"
                       Name="type"
-                      Value="NuoDb.Data.Client.NuoDbProviderFactory, NuoDb.Data.Client, Version=!(bind.FileVersion.NuoDb.Data.Client.dll), Culture=neutral, PublicKeyToken=e49f105b7fb49b38"
+                      Value="NuoDb.Data.Client.NuoDbProviderFactory, NuoDb.Data.Client, Version=!(bind.FileVersion.NuoDb.Data.Client.35.dll), Culture=neutral, PublicKeyToken=e49f105b7fb49b38"
                       Sequence="2" />
 
           <util:XmlConfig Id="MachineConfigDbProviderFactories_Uninstall20_x64"
@@ -335,8 +362,13 @@
       </Component>
     </ComponentGroup>
 
+    <ComponentGroup Id="Install_DotNetDriver">
+      <ComponentRef Id="Install_DotNetDriver_35" />
+      <ComponentRef Id="Install_DotNetDriver_40" />
+    </ComponentGroup>
     <ComponentGroup Id="Register_DotNetDriver">
-      <ComponentRef Id="Register_GAC"/>
+      <ComponentRef Id="Register_GAC_35"/>
+      <ComponentRef Id="Register_GAC_40"/>
       <ComponentRef Id="Register_DotNetProvider_20"/>
       <ComponentRef Id="Register_DotNetProvider_40"/>
       <ComponentRef Id="Register_DotNet64Provider_20"/>
