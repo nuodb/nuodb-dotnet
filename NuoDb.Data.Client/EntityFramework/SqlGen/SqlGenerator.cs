@@ -732,8 +732,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
         /// <returns></returns>
         public override ISqlFragment Visit(DbExceptExpression e)
         {
-            throw new NotSupportedException("The EXCEPT statement is not supported in NuoDB.");
-            //return VisitSetOpExpression(e.Left, e.Right, "EXCEPT");
+            return VisitSetOpExpression(e.Left, e.Right, "EXCEPT");
         }
 
         /// <summary>
@@ -1071,8 +1070,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
         /// <returns></returns>
         public override ISqlFragment Visit(DbIntersectExpression e)
         {
-            throw new NotSupportedException("The INTERSECT statement is not supported in NuoDB.");
-            //return VisitSetOpExpression(e.Left, e.Right, "INTERSECT");
+            return VisitSetOpExpression(e.Left, e.Right, "INTERSECT");
         }
 
         /// <summary>
