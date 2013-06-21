@@ -4,6 +4,7 @@ using NuoDb.Data.Client;
 using System.Data.Common;
 using System.Data;
 using System.Collections;
+using System.Threading;
 
 namespace NUnitTestProject
 {
@@ -15,7 +16,7 @@ namespace NUnitTestProject
         static string password = "goalie";
         static string database = "test";
         static string schema = "hockey";
-        static internal string connectionString = "Server=  " + host + "; Database=\"" + database + "\"; User = " + user + " ;Password   = '" + password + "';Schema=\"" + schema + "\";Something Else";
+        static internal string connectionString = "Server=  " + host + "; Database=\"" + database + "\"; User = " + user + " ;Password   = '" + password + "';Schema=\"" + schema + "\"";
 
         [TestFixtureSetUp]
         public static void Init()
@@ -1267,5 +1268,65 @@ namespace NUnitTestProject
             Console.WriteLine("Batch of {0} rows inserted, current count is {1}\n", e.BatchSize, e.TotalSize);
         }
 
+        [Test]
+        public void TestConnectionPooling()
+        {
+            NuoDbConnectionStringBuilder builder = new NuoDbConnectionStringBuilder(connectionString);
+            builder.Pooling = true;
+            builder.ConnectionLifetime = 2;
+            String newConnString = builder.ConnectionString;
+            int pooledItems = 0;
+            NuoDbConnection.ClearAllPools();
+            using (NuoDbConnection cnn = new NuoDbConnection(newConnString))
+            {
+                cnn.Open();
+
+                // 1 busy
+                pooledItems = NuoDbConnection.GetPooledConnectionCount(cnn);
+                Assert.AreEqual(1, pooledItems);
+
+                using (NuoDbConnection cnn2 = new NuoDbConnection(newConnString))
+                {
+                    cnn2.Open();
+
+                    // 2 busy
+                    pooledItems = NuoDbConnection.GetPooledConnectionCount(cnn);
+                    Assert.AreEqual(2, pooledItems);
+                }
+
+                // 1 available, 1 busy
+                pooledItems = NuoDbConnection.GetPooledConnectionCount(cnn);
+                Assert.AreEqual(2, pooledItems);
+
+                Thread.Sleep(3000);
+
+                // 1 busy
+                pooledItems = NuoDbConnection.GetPooledConnectionCount(cnn);
+                Assert.AreEqual(1, pooledItems);
+            }
+
+            // 1 available
+            pooledItems = NuoDbConnection.GetPooledConnectionCount(newConnString);
+            Assert.AreEqual(1, pooledItems);
+
+            using (NuoDbConnection cnn = new NuoDbConnection(newConnString))
+            {
+                cnn.Open();
+
+                // 1 busy
+                pooledItems = NuoDbConnection.GetPooledConnectionCount(cnn);
+                Assert.AreEqual(1, pooledItems);
+            }
+
+            // 1 available
+            pooledItems = NuoDbConnection.GetPooledConnectionCount(newConnString);
+            Assert.AreEqual(1, pooledItems);
+
+            Thread.Sleep(3000);
+
+            // empty pool
+            pooledItems = NuoDbConnection.GetPooledConnectionCount(newConnString);
+            Assert.AreEqual(0, pooledItems);
+        }
     }
 }

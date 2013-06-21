@@ -49,7 +49,7 @@ namespace NuoDb.Data.Client
 
         public override void Commit()
         {
-            connection.Commit();
+            connection.InternalConnection.Commit();
         }
 
         protected override DbConnection DbConnection
@@ -64,7 +64,7 @@ namespace NuoDb.Data.Client
 
         public override void Rollback()
         {
-            connection.Rollback();
+            connection.InternalConnection.Rollback();
         }
 
         #region ISinglePhaseNotification Members

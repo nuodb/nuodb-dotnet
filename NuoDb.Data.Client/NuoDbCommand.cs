@@ -93,14 +93,14 @@ namespace NuoDb.Data.Client
         public void Close()
         {
             if (handle == -1 || connection == null || (connection as IDbConnection).State == ConnectionState.Closed ||
-                !connection.IsCommandRegistered(handle))
+                !connection.InternalConnection.IsCommandRegistered(handle))
             {
                 return;
             }
 #if DEBUG
             System.Diagnostics.Trace.WriteLine("NuoDbCommand::Close()");
 #endif
-            connection.CloseCommand(handle);
+            connection.InternalConnection.CloseCommand(handle);
             handle = -1;
         }
 
@@ -121,22 +121,22 @@ namespace NuoDb.Data.Client
             generatedKeys = null;
 
             // From v2 - v6, gen keys were sent before last commit info
-            if (connection.protocolVersion >= Protocol.PROTOCOL_VERSION2 && connection.protocolVersion < Protocol.PROTOCOL_VERSION7 && generatingKeys)
+            if (connection.InternalConnection.protocolVersion >= Protocol.PROTOCOL_VERSION2 && connection.InternalConnection.protocolVersion < Protocol.PROTOCOL_VERSION7 && generatingKeys)
             {
                 generatedKeys = createResultSet(dataStream, true);
             }
 
             // from v3 -v6, last commit info was not being sent if there was a gen key result set
-            if ((connection.protocolVersion >= Protocol.PROTOCOL_VERSION3 && !generatingKeys) || connection.protocolVersion >= Protocol.PROTOCOL_VERSION7)
+            if ((connection.InternalConnection.protocolVersion >= Protocol.PROTOCOL_VERSION3 && !generatingKeys) || connection.InternalConnection.protocolVersion >= Protocol.PROTOCOL_VERSION7)
             {
                 long transactionId = dataStream.getLong();
                 int nodeId = dataStream.getInt();
                 long commitSequence = dataStream.getLong();
-                connection.setLastTransaction(transactionId, nodeId, commitSequence);
+                connection.InternalConnection.setLastTransaction(transactionId, nodeId, commitSequence);
             }
 
             // from v7 gen key result set is sent after last commit info (if at all)
-            if (connection.protocolVersion >= Protocol.PROTOCOL_VERSION7 && generatingKeys)
+            if (connection.InternalConnection.protocolVersion >= Protocol.PROTOCOL_VERSION7 && generatingKeys)
             {
                 generatedKeys = createResultSet(dataStream, true);
             }
@@ -240,9 +240,9 @@ namespace NuoDb.Data.Client
         {
             get
             {
-                if (connection == null)
+                if (connection == null || connection.State != ConnectionState.Open)
                     return null;
-                return connection.transaction;
+                return connection.InternalConnection.transaction;
             }
             set
             {
@@ -278,7 +278,7 @@ namespace NuoDb.Data.Client
             }
             // if the connection has been closed and reopened, the statement identified by this handle 
             // has been closed on the server, and we must re-create it
-            if (handle == -1 || !connection.IsCommandRegistered(handle))
+            if (handle == -1 || !connection.InternalConnection.IsCommandRegistered(handle))
             {
                 if (parameters.Count > 0)
                 {
@@ -286,11 +286,11 @@ namespace NuoDb.Data.Client
                 }
                 else
                 {
-                    EncodedDataStream dataStream = new RemEncodedStream(connection.protocolVersion);
+                    EncodedDataStream dataStream = new RemEncodedStream(connection.InternalConnection.protocolVersion);
                     dataStream.startMessage(Protocol.CreateStatement);
-                    connection.sendAndReceive(dataStream);
+                    connection.InternalConnection.sendAndReceive(dataStream);
                     handle = dataStream.getInt();
-                    connection.RegisterCommand(handle);
+                    connection.InternalConnection.RegisterCommand(handle);
                 }
             }
         }
@@ -314,14 +314,14 @@ namespace NuoDb.Data.Client
             EnsureStatement(false);
 
             bool readColumnNames = true;
-            EncodedDataStream dataStream = new RemEncodedStream(connection.protocolVersion);
+            EncodedDataStream dataStream = new RemEncodedStream(connection.InternalConnection.protocolVersion);
             if (isPrepared)
             {
                 dataStream.startMessage(Protocol.ExecutePreparedQuery);
                 dataStream.encodeInt(handle);
                 putParameters(dataStream);
 
-                if (connection.protocolVersion >= Protocol.PROTOCOL_VERSION8)
+                if (connection.InternalConnection.protocolVersion >= Protocol.PROTOCOL_VERSION8)
                 {
 
                     /*                    if (columnNames != null)
@@ -342,7 +342,7 @@ namespace NuoDb.Data.Client
                 dataStream.encodeInt(handle);
                 dataStream.encodeString(sqlText);
             }
-            connection.sendAndReceive(dataStream);
+            connection.InternalConnection.sendAndReceive(dataStream);
             return createResultSet(dataStream, readColumnNames);
         }
 
@@ -359,7 +359,7 @@ namespace NuoDb.Data.Client
             checkConnection();
             EnsureStatement(generatingKeys);
 
-            EncodedDataStream dataStream = new RemEncodedStream(connection.protocolVersion);
+            EncodedDataStream dataStream = new RemEncodedStream(connection.InternalConnection.protocolVersion);
             if (isPrepared)
             {
                 dataStream.startMessage(Protocol.ExecutePreparedUpdate);
@@ -378,11 +378,11 @@ namespace NuoDb.Data.Client
                 dataStream.encodeInt(handle);
                 dataStream.encodeString(sqlText);
             }
-            connection.sendAndReceive(dataStream);
+            connection.InternalConnection.sendAndReceive(dataStream);
             updateRecordsUpdated(dataStream);
 
             // V2 txn ID obsolete as of V3 and no longer sending as of V7
-            if (connection.protocolVersion >= Protocol.PROTOCOL_VERSION2 && connection.protocolVersion < Protocol.PROTOCOL_VERSION7)
+            if (connection.InternalConnection.protocolVersion >= Protocol.PROTOCOL_VERSION2 && connection.InternalConnection.protocolVersion < Protocol.PROTOCOL_VERSION7)
             {
                 long txId = dataStream.getLong();
             }
@@ -521,7 +521,7 @@ namespace NuoDb.Data.Client
                 sqlString.Append(curParamName);
             }
 
-            EncodedDataStream dataStream = new RemEncodedStream(connection.protocolVersion);
+            EncodedDataStream dataStream = new RemEncodedStream(connection.InternalConnection.protocolVersion);
             if (generatingKeys)
             {
                 dataStream.startMessage(Protocol.PrepareStatementKeys);
@@ -530,9 +530,9 @@ namespace NuoDb.Data.Client
             else
                 dataStream.startMessage(Protocol.PrepareStatement);
             dataStream.encodeString(sqlString.ToString());
-            connection.sendAndReceive(dataStream);
+            connection.InternalConnection.sendAndReceive(dataStream);
             handle = dataStream.getInt();
-            connection.RegisterCommand(handle);
+            connection.InternalConnection.RegisterCommand(handle);
             int numberParameters = dataStream.getInt();
             // a prepared DDL command fails to execute
             if (numberParameters != 0 || CommandText.TrimStart(null).Substring(0, 6).ToUpper().Equals("SELECT"))

@@ -44,6 +44,11 @@ namespace NuoDb.VisualStudio.DataTools
         private System.Windows.Forms.TextBox textBoxDatabase;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.TextBox textBoxSchema;
+        private System.Windows.Forms.CheckBox checkBoxConnectionPooling;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.TextBox textBoxIdleTimeout;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Label label1;
 
         public DbConnectionStringBuilder ConnectionStringBuilder
@@ -77,6 +82,15 @@ namespace NuoDb.VisualStudio.DataTools
                 obj = ConnectionProperties["Schema"];
                 if (obj is string)
                     this.textBoxSchema.Text = (string)obj;
+                obj = ConnectionProperties["Pooling"];
+                if (obj is bool)
+                    this.checkBoxConnectionPooling.Checked = (bool)obj;
+                else
+                    this.checkBoxConnectionPooling.Checked = true;
+                this.textBoxIdleTimeout.Enabled = this.checkBoxConnectionPooling.Checked;
+                obj = ConnectionProperties["ConnectionLifetime"];
+                if (obj is int)
+                    this.textBoxIdleTimeout.Text = Convert.ToString((int)obj);
             }
             catch (Exception ex)
             {
@@ -106,6 +120,15 @@ namespace NuoDb.VisualStudio.DataTools
             {
                 this.ConnectionProperties["Schema"] = this.textBoxSchema.Text;
             }
+            else if (sender.Equals(this.checkBoxConnectionPooling))
+            {
+                this.ConnectionProperties["Pooling"] = this.checkBoxConnectionPooling.Checked;
+                this.textBoxIdleTimeout.Enabled = this.checkBoxConnectionPooling.Checked;
+            }
+            else if (sender.Equals(this.textBoxIdleTimeout))
+            {
+                this.ConnectionProperties["ConnectionLifetime"] = Convert.ToInt32(this.textBoxIdleTimeout.Text);
+            }
         }
 
         private void InitializeComponent()
@@ -120,6 +143,12 @@ namespace NuoDb.VisualStudio.DataTools
             this.textBoxDatabase = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
             this.textBoxSchema = new System.Windows.Forms.TextBox();
+            this.checkBoxConnectionPooling = new System.Windows.Forms.CheckBox();
+            this.label6 = new System.Windows.Forms.Label();
+            this.textBoxIdleTimeout = new System.Windows.Forms.TextBox();
+            this.label7 = new System.Windows.Forms.Label();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
             // textBoxServer
@@ -208,10 +237,59 @@ namespace NuoDb.VisualStudio.DataTools
             this.textBoxSchema.TabIndex = 9;
             this.textBoxSchema.TextChanged += new System.EventHandler(this.SetProperty);
             // 
+            // checkBoxConnectionPooling
+            // 
+            this.checkBoxConnectionPooling.AutoSize = true;
+            this.checkBoxConnectionPooling.Location = new System.Drawing.Point(16, 0);
+            this.checkBoxConnectionPooling.Name = "checkBoxConnectionPooling";
+            this.checkBoxConnectionPooling.Size = new System.Drawing.Size(154, 17);
+            this.checkBoxConnectionPooling.TabIndex = 10;
+            this.checkBoxConnectionPooling.Text = "Enable Connection Pooling";
+            this.checkBoxConnectionPooling.UseVisualStyleBackColor = true;
+            this.checkBoxConnectionPooling.CheckedChanged += new System.EventHandler(this.SetProperty);
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(16, 179);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(65, 13);
+            this.label6.TabIndex = 11;
+            this.label6.Text = "Idle Timeout";
+            // 
+            // textBoxIdleTimeout
+            // 
+            this.textBoxIdleTimeout.Location = new System.Drawing.Point(100, 179);
+            this.textBoxIdleTimeout.Name = "textBoxIdleTimeout";
+            this.textBoxIdleTimeout.Size = new System.Drawing.Size(133, 20);
+            this.textBoxIdleTimeout.TabIndex = 12;
+            this.textBoxIdleTimeout.TextChanged += new System.EventHandler(this.SetProperty);
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(239, 179);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(47, 13);
+            this.label7.TabIndex = 11;
+            this.label7.Text = "seconds";
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.checkBoxConnectionPooling);
+            this.groupBox1.Location = new System.Drawing.Point(3, 149);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(297, 74);
+            this.groupBox1.TabIndex = 13;
+            this.groupBox1.TabStop = false;
+            // 
             // NuoDbDataConnectionUIControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.textBoxIdleTimeout);
+            this.Controls.Add(this.label7);
+            this.Controls.Add(this.label6);
             this.Controls.Add(this.textBoxSchema);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.textBoxDatabase);
@@ -222,9 +300,12 @@ namespace NuoDb.VisualStudio.DataTools
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.textBoxServer);
+            this.Controls.Add(this.groupBox1);
             this.Margin = new System.Windows.Forms.Padding(0);
             this.Name = "NuoDbDataConnectionUIControl";
-            this.Size = new System.Drawing.Size(300, 154);
+            this.Size = new System.Drawing.Size(300, 233);
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 

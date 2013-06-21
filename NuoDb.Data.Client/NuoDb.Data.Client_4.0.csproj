@@ -54,6 +54,7 @@
   <ItemGroup>
     <Compile Include="BatchProcessedEventArgs.cs" />
     <Compile Include="BatchProcessedEventHandler.cs" />
+    <Compile Include="ConnectionPoolManager.cs" />
     <Compile Include="EntityFramework\NuoDbConnectionFactory.cs" />
     <Compile Include="EntityFramework\NuoDbProviderManifest.cs" />
     <Compile Include="EntityFramework\NuoDbProviderServices.cs" />
@@ -75,6 +76,7 @@
     <Compile Include="NuoDbBulkLoaderColumnMapping .cs" />
     <Compile Include="NuoDbBulkLoaderColumnMappingCollection.cs" />
     <Compile Include="NuoDbCommandBuilder.cs" />
+    <Compile Include="NuoDbConnection.cs" />
     <Compile Include="NuoDbConnectionStringBuilder.cs" />
     <Compile Include="NuoDbDataAdapter.cs" />
     <Compile Include="NuoDbDataParameterCollection.cs" />
@@ -95,7 +97,7 @@
     <Compile Include="ValueBytes.cs" />
     <Compile Include="Xml\Attribute.cs" />
     <Compile Include="NuoDbCommand.cs" />
-    <Compile Include="NuoDbConnection.cs" />
+    <Compile Include="NuoDbConnectionInternal.cs" />
     <Compile Include="Net\CryptoInputStream.cs" />
     <Compile Include="Net\CryptoOutputStream.cs" />
     <Compile Include="Net\CryptoSocket.cs" />
