@@ -3,7 +3,7 @@
      xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
   <Product Name="ADO.NET Driver for NuoDB" Language="1033" 
            Version="!(bind.FileVersion.NuoDb.Data.Client.35.dll)" Manufacturer="NuoDB Inc."
-           Id="CC79454E-5300-4C38-ADCD-12D0C716F73A" UpgradeCode="01d136dd-8f3c-4e8a-8343-d76b584caec2">
+           Id="BF714762-FA34-43FD-AEA2-3CE04639D052" UpgradeCode="01d136dd-8f3c-4e8a-8343-d76b584caec2">
     <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
     <UIRef Id="WixUI_InstallDir" />
     <WixVariable Id="WixUILicenseRtf" Value="License.rtf" />
