@@ -75,8 +75,11 @@ namespace NuoDb.Data.Client
         private List<int> listResultSets = new List<int>();
         private List<int> listCommands = new List<int>();
 
+        public DateTimeOffset Created { get; private set; }
+
         public NuoDbConnectionInternal()
         {
+            Created = DateTimeOffset.UtcNow;
         }
 
         public NuoDbConnectionInternal(string connectionString)

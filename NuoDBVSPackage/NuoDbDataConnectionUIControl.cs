@@ -49,6 +49,9 @@ namespace NuoDb.VisualStudio.DataTools
         private System.Windows.Forms.TextBox textBoxIdleTimeout;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.TextBox textBoxMaxAge;
+        private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Label label1;
 
         public DbConnectionStringBuilder ConnectionStringBuilder
@@ -91,6 +94,9 @@ namespace NuoDb.VisualStudio.DataTools
                 obj = ConnectionProperties["ConnectionLifetime"];
                 if (obj is int)
                     this.textBoxIdleTimeout.Text = Convert.ToString((int)obj);
+                obj = ConnectionProperties["MaxLifetime"];
+                if (obj is int)
+                    this.textBoxMaxAge.Text = Convert.ToString((int)obj);
             }
             catch (Exception ex)
             {
@@ -129,6 +135,10 @@ namespace NuoDb.VisualStudio.DataTools
             {
                 this.ConnectionProperties["ConnectionLifetime"] = Convert.ToInt32(this.textBoxIdleTimeout.Text);
             }
+            else if (sender.Equals(this.textBoxMaxAge))
+            {
+                this.ConnectionProperties["MaxLifetime"] = Convert.ToInt32(this.textBoxMaxAge.Text);
+            }
         }
 
         private void InitializeComponent()
@@ -144,10 +154,13 @@ namespace NuoDb.VisualStudio.DataTools
             this.label5 = new System.Windows.Forms.Label();
             this.textBoxSchema = new System.Windows.Forms.TextBox();
             this.checkBoxConnectionPooling = new System.Windows.Forms.CheckBox();
-            this.label6 = new System.Windows.Forms.Label();
-            this.textBoxIdleTimeout = new System.Windows.Forms.TextBox();
-            this.label7 = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.textBoxIdleTimeout = new System.Windows.Forms.TextBox();
+            this.textBoxMaxAge = new System.Windows.Forms.TextBox();
+            this.label6 = new System.Windows.Forms.Label();
+            this.label7 = new System.Windows.Forms.Label();
+            this.label9 = new System.Windows.Forms.Label();
+            this.label8 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -240,7 +253,7 @@ namespace NuoDb.VisualStudio.DataTools
             // checkBoxConnectionPooling
             // 
             this.checkBoxConnectionPooling.AutoSize = true;
-            this.checkBoxConnectionPooling.Location = new System.Drawing.Point(16, 0);
+            this.checkBoxConnectionPooling.Location = new System.Drawing.Point(13, 0);
             this.checkBoxConnectionPooling.Name = "checkBoxConnectionPooling";
             this.checkBoxConnectionPooling.Size = new System.Drawing.Size(154, 17);
             this.checkBoxConnectionPooling.TabIndex = 10;
@@ -248,48 +261,77 @@ namespace NuoDb.VisualStudio.DataTools
             this.checkBoxConnectionPooling.UseVisualStyleBackColor = true;
             this.checkBoxConnectionPooling.CheckedChanged += new System.EventHandler(this.SetProperty);
             // 
-            // label6
+            // groupBox1
             // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(16, 179);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(65, 13);
-            this.label6.TabIndex = 11;
-            this.label6.Text = "Idle Timeout";
+            this.groupBox1.Controls.Add(this.textBoxIdleTimeout);
+            this.groupBox1.Controls.Add(this.textBoxMaxAge);
+            this.groupBox1.Controls.Add(this.label6);
+            this.groupBox1.Controls.Add(this.label7);
+            this.groupBox1.Controls.Add(this.label9);
+            this.groupBox1.Controls.Add(this.label8);
+            this.groupBox1.Controls.Add(this.checkBoxConnectionPooling);
+            this.groupBox1.Location = new System.Drawing.Point(3, 149);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(297, 94);
+            this.groupBox1.TabIndex = 11;
+            this.groupBox1.TabStop = false;
             // 
             // textBoxIdleTimeout
             // 
-            this.textBoxIdleTimeout.Location = new System.Drawing.Point(100, 179);
+            this.textBoxIdleTimeout.Location = new System.Drawing.Point(100, 29);
             this.textBoxIdleTimeout.Name = "textBoxIdleTimeout";
             this.textBoxIdleTimeout.Size = new System.Drawing.Size(133, 20);
             this.textBoxIdleTimeout.TabIndex = 12;
             this.textBoxIdleTimeout.TextChanged += new System.EventHandler(this.SetProperty);
             // 
+            // textBoxMaxAge
+            // 
+            this.textBoxMaxAge.Location = new System.Drawing.Point(100, 57);
+            this.textBoxMaxAge.Name = "textBoxMaxAge";
+            this.textBoxMaxAge.Size = new System.Drawing.Size(133, 20);
+            this.textBoxMaxAge.TabIndex = 13;
+            this.textBoxMaxAge.TextChanged += new System.EventHandler(this.SetProperty);
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(10, 29);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(65, 13);
+            this.label6.TabIndex = 12;
+            this.label6.Text = "Idle Timeout";
+            // 
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(239, 179);
+            this.label7.Location = new System.Drawing.Point(239, 29);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(47, 13);
-            this.label7.TabIndex = 11;
+            this.label7.TabIndex = 12;
             this.label7.Text = "seconds";
             // 
-            // groupBox1
+            // label9
             // 
-            this.groupBox1.Controls.Add(this.checkBoxConnectionPooling);
-            this.groupBox1.Location = new System.Drawing.Point(3, 149);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(297, 74);
-            this.groupBox1.TabIndex = 13;
-            this.groupBox1.TabStop = false;
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(239, 57);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(47, 13);
+            this.label9.TabIndex = 13;
+            this.label9.Text = "seconds";
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(10, 57);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(73, 13);
+            this.label8.TabIndex = 13;
+            this.label8.Text = "Maximum Age";
             // 
             // NuoDbDataConnectionUIControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.textBoxIdleTimeout);
-            this.Controls.Add(this.label7);
-            this.Controls.Add(this.label6);
             this.Controls.Add(this.textBoxSchema);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.textBoxDatabase);
@@ -303,7 +345,7 @@ namespace NuoDb.VisualStudio.DataTools
             this.Controls.Add(this.groupBox1);
             this.Margin = new System.Windows.Forms.Padding(0);
             this.Name = "NuoDbDataConnectionUIControl";
-            this.Size = new System.Drawing.Size(300, 233);
+            this.Size = new System.Drawing.Size(300, 273);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.ResumeLayout(false);

@@ -85,7 +85,7 @@ namespace NuoDb.Data.Client
 
         internal const string PoolingKey = "Pooling";
         internal const bool PoolingDefault = true;
-        [Category("Connection Pooling")]
+        [Category("Pooling")]
         [Description("Indicates whether the connections should be recycled instead of discarded as soon as they are closed")]
         public bool Pooling
         {
@@ -99,7 +99,7 @@ namespace NuoDb.Data.Client
 
         internal const string ConnectionLifetimeKey = "ConnectionLifetime";
         internal const int ConnectionLifetimeDefault = 10;
-        [Category("Connection Pooling")]
+        [Category("Pooling")]
         [Description("Specifies the number of seconds that a connection can stay in the pool of available connections before being discarded")]
         public int ConnectionLifetime
         {
@@ -109,6 +109,20 @@ namespace NuoDb.Data.Client
         internal int ConnectionLifetimeOrDefault
         {
             get { return ContainsKey(ConnectionLifetimeKey) ? ConnectionLifetime : ConnectionLifetimeDefault; }
+        }
+
+        internal const string MaxLifetimeKey = "MaxLifetime";
+        internal const int MaxLifetimeDefault = 10000;
+        [Category("Pooling")]
+        [Description("Specifies the maximum number of seconds that a connection can live before being discarded")]
+        public int MaxLifetime
+        {
+            get { return this.GetInt32(MaxLifetimeKey); }
+            set { this.SetValue(MaxLifetimeKey, value); }
+        }
+        internal int MaxLifetimeOrDefault
+        {
+            get { return ContainsKey(MaxLifetimeKey) ? MaxLifetime : MaxLifetimeDefault; }
         }
 
         public NuoDbConnectionStringBuilder()

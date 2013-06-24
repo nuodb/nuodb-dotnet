@@ -40,7 +40,7 @@ namespace NuoDb.VisualStudio.DataTools
 
         public override string[] GetBasicProperties()
         {
-            return new string[] { "Server", "User", "Password", "Database", "Pooling", "ConnectionLifetime" };
+            return new string[] { "Server", "User", "Password", "Database", "Pooling", "ConnectionLifetime", "MaxLifetime" };
         }
 
         protected override void InitializeProperties()
@@ -54,6 +54,7 @@ namespace NuoDb.VisualStudio.DataTools
             this.AddProperty("Schema", typeof(System.String));
             this.AddProperty("Pooling", typeof(System.Boolean));
             this.AddProperty("ConnectionLifetime", typeof(System.Int32));
+            this.AddProperty("MaxLifetime", typeof(System.Int32));
         }
 
     }

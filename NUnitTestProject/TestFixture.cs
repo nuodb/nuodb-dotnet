@@ -1328,5 +1328,46 @@ namespace NUnitTestProject
             pooledItems = NuoDbConnection.GetPooledConnectionCount(newConnString);
             Assert.AreEqual(0, pooledItems);
         }
+
+        [Test]
+        public void TestConnectionPoolingMaxAge()
+        {
+            NuoDbConnectionStringBuilder builder = new NuoDbConnectionStringBuilder(connectionString);
+            builder.Pooling = true;
+            builder.ConnectionLifetime = 2;
+            builder.MaxLifetime = 3;
+            String newConnString = builder.ConnectionString;
+            int pooledItems = 0;
+            NuoDbConnection.ClearAllPools();
+            using (NuoDbConnection cnn = new NuoDbConnection(newConnString))
+            {
+                cnn.Open();
+
+                // 1 busy
+                pooledItems = NuoDbConnection.GetPooledConnectionCount(cnn);
+                Assert.AreEqual(1, pooledItems);
+
+                Thread.Sleep(2000);
+            }
+
+            // 1 available
+            pooledItems = NuoDbConnection.GetPooledConnectionCount(newConnString);
+            Assert.AreEqual(1, pooledItems);
+
+            using (NuoDbConnection cnn = new NuoDbConnection(newConnString))
+            {
+                cnn.Open();
+
+                // 1 busy
+                pooledItems = NuoDbConnection.GetPooledConnectionCount(cnn);
+                Assert.AreEqual(1, pooledItems);
+
+                Thread.Sleep(2000);
+            }
+
+            // 0 available, the connection is too old to be recycled
+            pooledItems = NuoDbConnection.GetPooledConnectionCount(newConnString);
+            Assert.AreEqual(0, pooledItems);
+        }
     }
 }

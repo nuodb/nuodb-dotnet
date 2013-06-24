@@ -83,7 +83,7 @@ namespace NuoDb.Data.Client
             bool _disposed;
             object _syncRoot;
             string _connectionString;
-            TimeSpan _lifeTime;
+            TimeSpan _lifeTime, _maxLifeTime;
             Queue<Item> _available;
             List<NuoDbConnectionInternal> _busy;
 
@@ -92,7 +92,9 @@ namespace NuoDb.Data.Client
                 _disposed = false;
                 _syncRoot = new object();
                 _connectionString = connectionString;
-                _lifeTime = TimeSpan.FromSeconds(new NuoDbConnectionStringBuilder(_connectionString).ConnectionLifetimeOrDefault);
+                NuoDbConnectionStringBuilder connBuilder = new NuoDbConnectionStringBuilder(_connectionString);
+                _lifeTime = TimeSpan.FromSeconds(connBuilder.ConnectionLifetimeOrDefault);
+                _maxLifeTime = TimeSpan.FromSeconds(connBuilder.MaxLifetimeOrDefault);
                 _available = new Queue<Item>();
                 _busy = new List<NuoDbConnectionInternal>();
             }
@@ -117,7 +119,14 @@ namespace NuoDb.Data.Client
                 {
                     var removed = _busy.Remove(connection);
                     if (removed)
-                        _available.Enqueue(new Item(DateTimeOffset.UtcNow, connection));
+                    {
+                        DateTimeOffset now = DateTimeOffset.UtcNow;
+                        // if it's too old to be recycled, dispose it; otherwise, put in the pool of available connections
+                        if (connection.Created.Add(_maxLifeTime) < now)
+                            connection.Dispose();
+                        else
+                            _available.Enqueue(new Item(now, connection));
+                    }
                 }
             }
 
@@ -125,16 +134,17 @@ namespace NuoDb.Data.Client
             {
                 CheckDisposed();
 
+                Item[] available, keep;
+                var now = DateTimeOffset.UtcNow;
                 lock (_syncRoot)
                 {
-                    var now = DateTimeOffset.UtcNow;
-                    var available = _available.ToArray();
-                    var keep = available.Where(x => x.Created.Add(_lifeTime) > now);
-                    var release = available.Except(keep);
-                    foreach (var x in release)
-                        x.Connection.Dispose();
+                    available = _available.ToArray();
+                    keep = available.Where(x => x.Created.Add(_lifeTime) > now).ToArray();
                     _available = new Queue<Item>(keep);
                 }
+                var release = available.Except(keep);
+                foreach (var x in release)
+                    x.Connection.Dispose();
             }
 
             public int GetPooledCount()
