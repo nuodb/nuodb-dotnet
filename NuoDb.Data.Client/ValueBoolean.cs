@@ -31,133 +31,133 @@ using System;
 namespace NuoDb.Data.Client
 {
 
-	//
-	//
-	// ValueBoolean
-	//
-	//
-	class ValueBoolean : Value
-	{
-		internal bool value;
+    //
+    //
+    // ValueBoolean
+    //
+    //
+    class ValueBoolean : Value
+    {
+        internal bool value;
 
-		public ValueBoolean()
-		{
-		}
+        public ValueBoolean()
+        {
+        }
 
-		public ValueBoolean(bool value)
-		{
-			this.value = value;
-		}
+        public ValueBoolean(bool value)
+        {
+            this.value = value;
+        }
 
-		public ValueBoolean(object value)
-		{
-			if (value is bool?)
-			{
-				this.value = (bool) value;
-			}
-			else if (IsNumeric(value))
-			{
-				this.value = Convert.ToInt64(value) == 0 ? false : true;
-			}
-			else
-			{
-				this.value = Convert.ToBoolean(value.ToString());
-			}
-		}
+        public ValueBoolean(object value)
+        {
+            if (value is bool?)
+            {
+                this.value = (bool)value;
+            }
+            else if (IsNumeric(value))
+            {
+                this.value = Convert.ToInt64(value) == 0 ? false : true;
+            }
+            else
+            {
+                this.value = Convert.ToBoolean(value.ToString());
+            }
+        }
 
         public override int Type
-		{
-			get
-			{
-				return typeBoolean; // C semantics
-			}
-		}
+        {
+            get
+            {
+                return typeBoolean; // C semantics
+            }
+        }
 
-		internal override void encodeValue(EncodedDataStream dataStream)
-		{
-			dataStream.encodeBoolean(value);
-		}
+        internal override void encodeValue(EncodedDataStream dataStream)
+        {
+            dataStream.encodeBoolean(value);
+        }
 
         public override string String
-		{
-			get
-			{
-				return Convert.ToString(value);
-			}
-		}
+        {
+            get
+            {
+                return Convert.ToString(value);
+            }
+        }
 
         public override bool Boolean
-		{
-			get
-			{
-				return value;
-			}
-		}
+        {
+            get
+            {
+                return value;
+            }
+        }
 
         public override object Object
-		{
-			get
-			{
-				return value;
-			}
-		}
+        {
+            get
+            {
+                return value;
+            }
+        }
 
-/*        public override byte[] AsBytes
-		{
-			get
-			{
-				return Convert.ToBytes(value);
-			}
-		}
-*/
+        /*        public override byte[] AsBytes
+                {
+                    get
+                    {
+                        return Convert.ToBytes(value);
+                    }
+                }
+        */
         public override byte Byte
-		{
-			get
-			{
-				return (byte)(value ? 1 : 0);
-			}
-		}
+        {
+            get
+            {
+                return (byte)(value ? 1 : 0);
+            }
+        }
 
         public override short Short
-		{
-			get
-			{
-				return Byte;
-			}
-		}
+        {
+            get
+            {
+                return Byte;
+            }
+        }
 
         public override int Int
-		{
-			get
-			{
-				return Byte;
-			}
-		}
+        {
+            get
+            {
+                return Byte;
+            }
+        }
 
         public override long Long
-		{
-			get
-			{
-				return Byte;
-			}
-		}
+        {
+            get
+            {
+                return Byte;
+            }
+        }
 
         public override float Float
-		{
-			get
-			{
-				return Byte;
-			}
-		}
+        {
+            get
+            {
+                return Byte;
+            }
+        }
 
         public override double Double
-		{
-			get
-			{
-				return Byte;
-			}
-		}
-	}
+        {
+            get
+            {
+                return Byte;
+            }
+        }
+    }
 
 
 }

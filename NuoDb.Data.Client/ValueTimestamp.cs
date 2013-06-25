@@ -31,98 +31,98 @@ using System;
 namespace NuoDb.Data.Client
 {
 
-	//
-	//
-	// ValueTimestamp
-	//
-	//
-	class ValueTimestamp : Value
-	{
-		internal DateTime value;
+    //
+    //
+    // ValueTimestamp
+    //
+    //
+    class ValueTimestamp : Value
+    {
+        internal DateTime value;
 
-		public ValueTimestamp()
-		{
-		}
+        public ValueTimestamp()
+        {
+        }
 
-		public ValueTimestamp(DateTime val)
-		{
-			value = val;
-		}
+        public ValueTimestamp(DateTime val)
+        {
+            value = val;
+        }
 
-		public ValueTimestamp(object val)
-		{
-			if (val is DateTime)
-			{
-				value = (DateTime)val;
-			}
-			else
-			{
-				throw new System.ArgumentException("Unable to convert: " + val.GetType().Name + " into a Timestamp");
-			}
-		}
+        public ValueTimestamp(object val)
+        {
+            if (val is DateTime)
+            {
+                value = (DateTime)val;
+            }
+            else
+            {
+                throw new System.ArgumentException("Unable to convert: " + val.GetType().Name + " into a Timestamp");
+            }
+        }
 
-		internal override void encodeValue(EncodedDataStream dataStream)
-		{
-			dataStream.encodeTimestamp(value);
-		}
+        internal override void encodeValue(EncodedDataStream dataStream)
+        {
+            dataStream.encodeTimestamp(value);
+        }
 
         public override int Type
-		{
-			get
-			{
-				return typeTimestamp; // C semantics
-			}
-		}
+        {
+            get
+            {
+                return typeTimestamp; // C semantics
+            }
+        }
 
         public override string String
-		{
-			get
-			{
-				return value.ToString();
-			}
-		}
+        {
+            get
+            {
+                return value.ToString();
+            }
+        }
 
         public override DateTime Date
-		{
-			get
-			{
-				return value.Date;
-			}
-		}
+        {
+            get
+            {
+                return value.Date;
+            }
+        }
 
-/*        public override DateTime Timestamp
-		{
-			get
-			{
-				return value;
-			}
-		}
-        */
+        /*        public override DateTime Timestamp
+                {
+                    get
+                    {
+                        return value;
+                    }
+                }
+                */
         public override object Object
-		{
-			get
-			{
-				return value;
-			}
-		}
+        {
+            get
+            {
+                return value;
+            }
+        }
 
-/*		public override sbyte[] AsBytes
-		{
-			get
-			{
-				return Conversions.toBytes(value.TimeOfDay);
-			}
-		}
+        /*		public override sbyte[] AsBytes
+                {
+                    get
+                    {
+                        return Conversions.toBytes(value.TimeOfDay);
+                    }
+                }
         
-        public override TimeSpan Time
-		{
-			get
-			{
-				return value.TimeOfDay;
-			}
-		}
-        */
-	}
+                public override TimeSpan Time
+                {
+                    get
+                    {
+                        return value.TimeOfDay;
+                    }
+                }
+                */
+    }
 
 
 }

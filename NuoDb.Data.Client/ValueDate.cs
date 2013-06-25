@@ -31,83 +31,83 @@ using System;
 namespace NuoDb.Data.Client
 {
 
-	//
-	//
-	// ValueDate
-	//
-	//
-	class ValueDate : Value
-	{
-		internal DateTime value;
+    //
+    //
+    // ValueDate
+    //
+    //
+    class ValueDate : Value
+    {
+        internal DateTime value;
 
-		public ValueDate()
-		{
-		}
+        public ValueDate()
+        {
+        }
 
-		public ValueDate(DateTime val)
-		{
-			value = val;
-		}
+        public ValueDate(DateTime val)
+        {
+            value = val;
+        }
 
-		public ValueDate(object val)
-		{
+        public ValueDate(object val)
+        {
             if (val is DateTime)
-			{
-				value = (DateTime)val;
-			}
-			else
-			{
-				throw new System.ArgumentException("Unable to convert: " + val.GetType().Name + " into a Date");
-			}
-		}
+            {
+                value = (DateTime)val;
+            }
+            else
+            {
+                throw new System.ArgumentException("Unable to convert: " + val.GetType().Name + " into a Date");
+            }
+        }
 
         public override int Type
-		{
-			get
-			{
-				return typeDate; // C semantics
-			}
-		}
+        {
+            get
+            {
+                return typeDate; // C semantics
+            }
+        }
 
         public override string String
-		{
-			get
-			{
+        {
+            get
+            {
                 return value.ToString(dateFormat);
-			}
-		}
+            }
+        }
 
         public override DateTime Date
-		{
-			get
-			{
-				return value;
-			}
-		}
+        {
+            get
+            {
+                return value;
+            }
+        }
 
         public override object Object
-		{
-			get
-			{
-				return Date;
-			}
-		}
+        {
+            get
+            {
+                return Date;
+            }
+        }
 
-		internal override void encodeValue(EncodedDataStream dataStream)
-		{
-			dataStream.encodeDate(value);
-		}
+        internal override void encodeValue(EncodedDataStream dataStream)
+        {
+            dataStream.encodeDate(value);
+        }
 
-/*		public override byte[] AsBytes
-		{
-			get
-			{
-				return Conversions.toBytes(value.Time);
-			}
-		}
-*/
+        /*		public override byte[] AsBytes
+                {
+                    get
+                    {
+                        return Conversions.toBytes(value.Time);
+                    }
+                }
+        */
 
-	}
+    }
 
 
 }

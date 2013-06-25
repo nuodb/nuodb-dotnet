@@ -32,82 +32,82 @@ namespace NuoDb.Data.Client
 {
 
 
-	//
-	//
-	// ValueTime
-	//
-	//
-	class ValueTime : Value
-	{
-		internal DateTime value;
+    //
+    //
+    // ValueTime
+    //
+    //
+    class ValueTime : Value
+    {
+        internal DateTime value;
 
-		public ValueTime()
-		{
-		}
+        public ValueTime()
+        {
+        }
 
-		public ValueTime(DateTime val)
-		{
-			value = val;
-		}
+        public ValueTime(DateTime val)
+        {
+            value = val;
+        }
 
-		public ValueTime(object val)
-		{
-			if (val is DateTime)
-			{
-				value = (DateTime)val;
-			}
-			else
-			{
-				throw new System.ArgumentException("Unable to convert: " + val.GetType().Name + " into a Time");
-			}
-		}
+        public ValueTime(object val)
+        {
+            if (val is DateTime)
+            {
+                value = (DateTime)val;
+            }
+            else
+            {
+                throw new System.ArgumentException("Unable to convert: " + val.GetType().Name + " into a Time");
+            }
+        }
 
         public override int Type
-		{
-			get
-			{
-				return typeTimeType; // C semantics
-			}
-		}
+        {
+            get
+            {
+                return typeTimeType; // C semantics
+            }
+        }
 
-/*        public override DateTime Time
-		{
-			get
-			{
-				return value;
-			}
-		}
-        */
+        /*        public override DateTime Time
+                {
+                    get
+                    {
+                        return value;
+                    }
+                }
+                */
         public override object Object
-		{
-			get
-			{
-				return value.TimeOfDay;
-			}
-		}
+        {
+            get
+            {
+                return value.TimeOfDay;
+            }
+        }
 
-		internal override void encodeValue(EncodedDataStream dataStream)
-		{
-			dataStream.encodeTime(value);
-		}
+        internal override void encodeValue(EncodedDataStream dataStream)
+        {
+            dataStream.encodeTime(value);
+        }
 
         public override string String
-		{
-			get
-			{
-				return value.ToString(timeFormat);
-			}
-		}
+        {
+            get
+            {
+                return value.ToString(timeFormat);
+            }
+        }
 
-/*		public override sbyte[] AsBytes
-		{
-			get
-			{
-				return Conversions.toBytes(value.Time);
-			}
-		}
-*/
-	}
+        /*		public override sbyte[] AsBytes
+                {
+                    get
+                    {
+                        return Conversions.toBytes(value.Time);
+                    }
+                }
+        */
+    }
 
 
 }

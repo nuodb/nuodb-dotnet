@@ -31,129 +31,129 @@ using System;
 namespace NuoDb.Data.Client
 {
 
-	class ValueByte : Value
-	{
-		private byte value;
+    class ValueByte : Value
+    {
+        private byte value;
 
-		public ValueByte()
-		{
-		}
+        public ValueByte()
+        {
+        }
 
-		public ValueByte(byte val)
-		{
-			value = val;
-		}
+        public ValueByte(byte val)
+        {
+            value = val;
+        }
 
-		public ValueByte(object val, int scl)
-		{
-			if (IsNumeric(val))
-			{
-				value = Convert.ToByte(val);
-			}
-			else if (val is bool?)
-			{
-				value = (byte)(true.Equals(val) ? 1 : 0);
-			}
-			else
-			{
-				value = Convert.ToByte(val.ToString());
-			}
-		}
+        public ValueByte(object val, int scl)
+        {
+            if (IsNumeric(val))
+            {
+                value = Convert.ToByte(val);
+            }
+            else if (val is bool?)
+            {
+                value = (byte)(true.Equals(val) ? 1 : 0);
+            }
+            else
+            {
+                value = Convert.ToByte(val.ToString());
+            }
+        }
 
         public override int Type
-		{
-			get
-			{
-				return typeShort;
-			}
-		}
+        {
+            get
+            {
+                return typeShort;
+            }
+        }
 
         public override int Scale
-		{
-			get
-			{
-				return 0;
-			}
-		}
+        {
+            get
+            {
+                return 0;
+            }
+        }
 
-		internal override void encodeValue(EncodedDataStream dataStream)
-		{
-			dataStream.encodeInt(value);
-		}
+        internal override void encodeValue(EncodedDataStream dataStream)
+        {
+            dataStream.encodeInt(value);
+        }
 
         public override string String
-		{
-			get
-			{
-				return getString(value, 0);
-			}
-		}
+        {
+            get
+            {
+                return getString(value, 0);
+            }
+        }
 
         public override short Short
-		{
-			get
-			{
-				return value;
-			}
-		}
+        {
+            get
+            {
+                return value;
+            }
+        }
 
         public override int Int
-		{
-			get
-			{
-				return value;
-			}
-		}
+        {
+            get
+            {
+                return value;
+            }
+        }
 
         public override long Long
-		{
-			get
-			{
-				return value;
-			}
-		}
+        {
+            get
+            {
+                return value;
+            }
+        }
 
         public override double Double
-		{
-			get
-			{
-				return Int;
-			}
-		}
+        {
+            get
+            {
+                return Int;
+            }
+        }
 
         public override float Float
-		{
-			get
-			{
-				return Int;
-			}
-		}
+        {
+            get
+            {
+                return Int;
+            }
+        }
 
         public override decimal BigDecimal
-		{
-			get
-			{
+        {
+            get
+            {
                 return new Decimal(value);
             }
-		}
+        }
 
         public override object Object
-		{
-			get
-			{
-				return value;
-			}
-		}
+        {
+            get
+            {
+                return value;
+            }
+        }
 
-/*		public override sbyte[] AsBytes
-		{
-			get
-			{
-				return Conversions.toBytes(value);
-			}
-		}
- */
-	}
+        /*		public override sbyte[] AsBytes
+                {
+                    get
+                    {
+                        return Conversions.toBytes(value);
+                    }
+                }
+         */
+    }
 
 
 }

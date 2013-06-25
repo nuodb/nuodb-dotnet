@@ -31,102 +31,102 @@ using System;
 namespace NuoDb.Data.Client
 {
 
-	//
-	//
-	// ValueDouble
-	//
-	//
-	class ValueDouble : Value
-	{
-		internal double value;
+    //
+    //
+    // ValueDouble
+    //
+    //
+    class ValueDouble : Value
+    {
+        internal double value;
 
-		public ValueDouble()
-		{
-		}
+        public ValueDouble()
+        {
+        }
 
-		public ValueDouble(double val)
-		{
-			value = val;
-		}
+        public ValueDouble(double val)
+        {
+            value = val;
+        }
 
-		public ValueDouble(object val)
-		{
-			if (IsNumeric(val))
-			{
-				value = (double)val;
-			}
-			else if (val is bool)
-			{
-				value = true.Equals(val)?1.0:0.0;
-			}
-			else
-			{
-				value = Convert.ToDouble(val.ToString());
-			}
-		}
+        public ValueDouble(object val)
+        {
+            if (IsNumeric(val))
+            {
+                value = (double)val;
+            }
+            else if (val is bool)
+            {
+                value = true.Equals(val) ? 1.0 : 0.0;
+            }
+            else
+            {
+                value = Convert.ToDouble(val.ToString());
+            }
+        }
 
         public override int Type
-		{
-			get
-			{
-				return typeDouble;
-			}
-		}
+        {
+            get
+            {
+                return typeDouble;
+            }
+        }
 
         public override string String
-		{
-			get
-			{
-				return Convert.ToString(value);
-			}
-		}
+        {
+            get
+            {
+                return Convert.ToString(value);
+            }
+        }
 
         public override double Double
-		{
-			get
-			{
-				return value;
-			}
-		}
+        {
+            get
+            {
+                return value;
+            }
+        }
 
         public override long Long
-		{
-			get
-			{
-				return (long) value;
-			}
-		}
+        {
+            get
+            {
+                return (long)value;
+            }
+        }
 
         public override object Object
-		{
-			get
-			{
-				return Double;
-			}
-		}
+        {
+            get
+            {
+                return Double;
+            }
+        }
 
-		internal override void encodeValue(EncodedDataStream dataStream)
-		{
-			dataStream.encodeDouble(value);
-		}
+        internal override void encodeValue(EncodedDataStream dataStream)
+        {
+            dataStream.encodeDouble(value);
+        }
 
         public override decimal BigDecimal
-		{
-			get
-			{
-				return new decimal(value);
-			}
-		}
+        {
+            get
+            {
+                return new decimal(value);
+            }
+        }
 
-/*		public override byte[] AsBytes
-		{
-			get
-			{
-				return Conversions.toBytes(value);
-			}
-		}
- */
-	}
+        /*		public override byte[] AsBytes
+                {
+                    get
+                    {
+                        return Conversions.toBytes(value);
+                    }
+                }
+         */
+    }
 
 
 }

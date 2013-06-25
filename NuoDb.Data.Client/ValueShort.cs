@@ -31,153 +31,153 @@ using System;
 namespace NuoDb.Data.Client
 {
 
-	//
-	//
-	//
-	// ValueShort
-	//
-	//
-	class ValueShort : Value
-	{
-		internal short value;
-		internal short scale;
+    //
+    //
+    //
+    // ValueShort
+    //
+    //
+    class ValueShort : Value
+    {
+        internal short value;
+        internal short scale;
 
-		public ValueShort()
-		{
-		}
+        public ValueShort()
+        {
+        }
 
-		public ValueShort(short val, int scl)
-		{
-			value = val;
-			scale = (short) scl;
-		}
+        public ValueShort(short val, int scl)
+        {
+            value = val;
+            scale = (short)scl;
+        }
 
-		public ValueShort(object val, int scl)
-		{
-			if (IsNumeric(val))
-			{
-				value = (short)val;
-			}
-			else if (val is bool)
-			{
-				value = (short)(true.Equals(val)?1:0);
-			}
-			else
-			{
-				value = Convert.ToInt16(val.ToString());
-			}
-			scale = (short) scl;
-		}
+        public ValueShort(object val, int scl)
+        {
+            if (IsNumeric(val))
+            {
+                value = (short)val;
+            }
+            else if (val is bool)
+            {
+                value = (short)(true.Equals(val) ? 1 : 0);
+            }
+            else
+            {
+                value = Convert.ToInt16(val.ToString());
+            }
+            scale = (short)scl;
+        }
 
         public override int Type
-		{
-			get
-			{
-				return typeShort; // C semantics
-			}
-		}
+        {
+            get
+            {
+                return typeShort; // C semantics
+            }
+        }
 
         public override int Scale
-		{
-			get
-			{
-				return scale;
-			}
-		}
+        {
+            get
+            {
+                return scale;
+            }
+        }
 
-		internal override void encodeValue(EncodedDataStream dataStream)
-		{
-			dataStream.encodeInt(Short);
-		}
+        internal override void encodeValue(EncodedDataStream dataStream)
+        {
+            dataStream.encodeInt(Short);
+        }
 
         public override bool Boolean
-		{
-			get
-			{
-				return value != 0; // we don't want to rescale
-			}
-		}
+        {
+            get
+            {
+                return value != 0; // we don't want to rescale
+            }
+        }
 
         public override string String
-		{
-			get
-			{
-				return getString(value, scale);
-			}
-		}
+        {
+            get
+            {
+                return getString(value, scale);
+            }
+        }
 
         public override short Short
-		{
-			get
-			{
-				return scale == 0 ? value : (short)reScale(value, scale, 0);
-			}
-		}
+        {
+            get
+            {
+                return scale == 0 ? value : (short)reScale(value, scale, 0);
+            }
+        }
 
         public override int Int
-		{
-			get
-			{
-				return Short;
-			}
-		}
+        {
+            get
+            {
+                return Short;
+            }
+        }
 
         public override long Long
-		{
-			get
-			{
-				return Short;
-			}
-		}
+        {
+            get
+            {
+                return Short;
+            }
+        }
 
         public override double Double
-		{
-			get
-			{
-				return Int;
-			}
-		}
+        {
+            get
+            {
+                return Int;
+            }
+        }
 
         public override float Float
-		{
-			get
-			{
-				return Int;
-			}
-		}
+        {
+            get
+            {
+                return Int;
+            }
+        }
 
         public override decimal BigDecimal
-		{
-			get
-			{
+        {
+            get
+            {
                 Decimal d = new Decimal(value);
-                if(scale > 0)
-                    for(int i = 0; i < scale; i++)
+                if (scale > 0)
+                    for (int i = 0; i < scale; i++)
                         d = Decimal.Multiply(d, 10m);
-                else if(scale < 0)
-                    for(int i = 0; i < -scale; i++)
+                else if (scale < 0)
+                    for (int i = 0; i < -scale; i++)
                         d = Decimal.Divide(d, 10m);
                 return d;
-			}
-		}
+            }
+        }
 
         public override object Object
-		{
-			get
-			{
-				return Short;
-			}
-		}
+        {
+            get
+            {
+                return Short;
+            }
+        }
 
-/*		public override byte[] AsBytes
-		{
-			get
-			{
-				return Conversions.toBytes(Short);
-			}
-		}
- */
-	}
+        /*		public override byte[] AsBytes
+                {
+                    get
+                    {
+                        return Conversions.toBytes(Short);
+                    }
+                }
+         */
+    }
 
 
 }

@@ -31,43 +31,44 @@ namespace NuoDb.Data.Client
 {
 
     /// <summary>
-	/// RemEncodedStream  - EncodedDataStream class that can encodes types  based on connection protocol version
-	/// 
-	/// 
-	/// </summary>
-	internal class RemEncodedStream : EncodedDataStream
-	{
+    /// RemEncodedStream  - EncodedDataStream class that can encodes types  based on connection protocol version
+    /// 
+    /// 
+    /// </summary>
+    internal class RemEncodedStream : EncodedDataStream
+    {
 
-		internal int protocolVersion;
+        internal int protocolVersion;
 
-		public RemEncodedStream(int protocolVersion) : base()
-		{
-			this.protocolVersion = protocolVersion;
-		}
+        public RemEncodedStream(int protocolVersion)
+            : base()
+        {
+            this.protocolVersion = protocolVersion;
+        }
 
-		public override void encodeDate(DateTime date)
-		{
-			if (protocolVersion >= Protocol.PROTOCOL_VERSION9)
-			{
-				base.encodeScaledDate(date);
-			}
-			else
-			{
-				base.encodeDate(date);
-			}
-		}
+        public override void encodeDate(DateTime date)
+        {
+            if (protocolVersion >= Protocol.PROTOCOL_VERSION9)
+            {
+                base.encodeScaledDate(date);
+            }
+            else
+            {
+                base.encodeDate(date);
+            }
+        }
 
-		public override void encodeTime(DateTime time)
-		{
-			if (protocolVersion >= Protocol.PROTOCOL_VERSION9)
-			{
-				base.encodeScaledTime(time);
-			}
-			else
-			{
-				base.encodeTime(time);
-			}
-		}
+        public override void encodeTime(DateTime time)
+        {
+            if (protocolVersion >= Protocol.PROTOCOL_VERSION9)
+            {
+                base.encodeScaledTime(time);
+            }
+            else
+            {
+                base.encodeTime(time);
+            }
+        }
 
         public override void encodeTime(TimeSpan time)
         {
@@ -80,19 +81,19 @@ namespace NuoDb.Data.Client
                 base.encodeTime(time);
             }
         }
-        
+
         public override void encodeTimestamp(DateTime timestamp)
-		{
-			if (protocolVersion >= Protocol.PROTOCOL_VERSION9)
-			{
-				base.encodeScaledTimestamp(timestamp);
-			}
-			else
-			{
-				base.encodeTimestamp(timestamp);
-			}
-		}
- 
-	}
+        {
+            if (protocolVersion >= Protocol.PROTOCOL_VERSION9)
+            {
+                base.encodeScaledTimestamp(timestamp);
+            }
+            else
+            {
+                base.encodeTimestamp(timestamp);
+            }
+        }
+
+    }
 
 }

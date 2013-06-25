@@ -29,38 +29,38 @@
 namespace NuoDb.Data.Client
 {
 
-	//
-	//
-	// ValueNumber
-	//
-	//
-	class ValueNumber : Value
-	{
-		private readonly decimal value;
+    //
+    //
+    // ValueNumber
+    //
+    //
+    class ValueNumber : Value
+    {
+        private readonly decimal value;
 
-		public ValueNumber(decimal x)
-		{
-			value = x;
-		}
+        public ValueNumber(decimal x)
+        {
+            value = x;
+        }
 
-		public override int Type
-		{
-			get
-			{
-				return typeNumber;
-			}
-		}
+        public override int Type
+        {
+            get
+            {
+                return typeNumber;
+            }
+        }
 
         public override int Scale
-		{
-			get
-			{
+        {
+            get
+            {
                 return 0; // value.scale();
-			}
-		}
+            }
+        }
 
-		internal override void encodeValue(EncodedDataStream dataStream)
-		{
+        internal override void encodeValue(EncodedDataStream dataStream)
+        {
             decimal d = value;
             int scale = 0;
             while ((d % 1) != 0)
@@ -69,50 +69,50 @@ namespace NuoDb.Data.Client
                 d *= 10;
             }
             dataStream.encodeLong((long)d, scale);
-		}
+        }
 
         public override string String
-		{
-			get
-			{
-				return value.ToString();
-			}
-		}
+        {
+            get
+            {
+                return value.ToString();
+            }
+        }
 
         public override long Long
-		{
-			get
-			{
-				return (long)value;
-			}
-		}
+        {
+            get
+            {
+                return (long)value;
+            }
+        }
 
         public override decimal BigDecimal
-		{
-			get
-			{
-				return value;
-			}
-		}
+        {
+            get
+            {
+                return value;
+            }
+        }
 
         public override object Object
-		{
-			get
-			{
-				return value;
-			}
-		}
+        {
+            get
+            {
+                return value;
+            }
+        }
 
-/*		public override sbyte[] AsBytes
-		{
-			get
-			{
-				RemConnection.throwRuntimeNotYetImplemented();
-				return null;
-			}
-		}
- */
-	}
+        /*		public override sbyte[] AsBytes
+                {
+                    get
+                    {
+                        RemConnection.throwRuntimeNotYetImplemented();
+                        return null;
+                    }
+                }
+         */
+    }
 
 
 }

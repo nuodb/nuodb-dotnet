@@ -32,178 +32,178 @@ namespace NuoDb.Data.Client
 {
 
 
-	//
-	//
-	// ValueString
-	//
-	//
-	class ValueString : Value
-	{
-		internal string value;
+    //
+    //
+    // ValueString
+    //
+    //
+    class ValueString : Value
+    {
+        internal string value;
 
-		public ValueString()
-		{
-		}
+        public ValueString()
+        {
+        }
 
-		public ValueString(string val)
-		{
-			value = val;
-		}
+        public ValueString(string val)
+        {
+            value = val;
+        }
 
-		public ValueString(object val)
-		{
-			if (val is string)
-			{
-				value = (string) val;
-			}
-			else
-			{
-				value = val.ToString();
-			}
-		}
+        public ValueString(object val)
+        {
+            if (val is string)
+            {
+                value = (string)val;
+            }
+            else
+            {
+                value = val.ToString();
+            }
+        }
 
         public override int Type
-		{
-			get
-			{
-				return typeString; // C semantics
-			}
-		}
+        {
+            get
+            {
+                return typeString; // C semantics
+            }
+        }
 
-		internal override void encodeValue(EncodedDataStream dataStream)
-		{
-			dataStream.encodeString(value);
-		}
+        internal override void encodeValue(EncodedDataStream dataStream)
+        {
+            dataStream.encodeString(value);
+        }
 
         public override string String
-		{
-			get
-			{
-				return value;
-			}
-		}
+        {
+            get
+            {
+                return value;
+            }
+        }
 
         public override byte Byte
-		{
-			get
-			{
-				try
-				{
-					return Convert.ToByte(value);
-				}
-				catch (FormatException e)
-				{
-					throw new NuoDbSqlException("Unable to convert string: " + value, e);
-				}
-			}
-		}
+        {
+            get
+            {
+                try
+                {
+                    return Convert.ToByte(value);
+                }
+                catch (FormatException e)
+                {
+                    throw new NuoDbSqlException("Unable to convert string: " + value, e);
+                }
+            }
+        }
 
         public override short Short
-		{
-			get
-			{
-				try
-				{
-					return Convert.ToInt16(value);
-				}
-				catch (FormatException e)
-				{
-					throw new NuoDbSqlException("Unable to convert string: " + value, e);
-				}
-			}
-		}
+        {
+            get
+            {
+                try
+                {
+                    return Convert.ToInt16(value);
+                }
+                catch (FormatException e)
+                {
+                    throw new NuoDbSqlException("Unable to convert string: " + value, e);
+                }
+            }
+        }
 
         public override int Int
-		{
-			get
-			{
-				try
-				{
-					return Convert.ToInt32(value);
-    
-				}
-				catch (FormatException e)
-				{
-					throw new NuoDbSqlException("Unable to convert string: " + value, e);
-				}
-			}
-		}
+        {
+            get
+            {
+                try
+                {
+                    return Convert.ToInt32(value);
+
+                }
+                catch (FormatException e)
+                {
+                    throw new NuoDbSqlException("Unable to convert string: " + value, e);
+                }
+            }
+        }
 
         public override long Long
-		{
-			get
-			{
-				try
-				{
-					return Convert.ToInt64(value);
-				}
-				catch (FormatException e)
-				{
-					throw new NuoDbSqlException("Unable to convert string: " + value, e);
-				}
-			}
-		}
+        {
+            get
+            {
+                try
+                {
+                    return Convert.ToInt64(value);
+                }
+                catch (FormatException e)
+                {
+                    throw new NuoDbSqlException("Unable to convert string: " + value, e);
+                }
+            }
+        }
 
         public override float Float
-		{
-			get
-			{
-				try
-				{
-					return Convert.ToSingle(value);
-				}
-				catch (FormatException e)
-				{
-					throw new NuoDbSqlException("Unable to convert string: " + value, e);
-				}
-			}
-		}
+        {
+            get
+            {
+                try
+                {
+                    return Convert.ToSingle(value);
+                }
+                catch (FormatException e)
+                {
+                    throw new NuoDbSqlException("Unable to convert string: " + value, e);
+                }
+            }
+        }
 
         public override double Double
-		{
-			get
-			{
-				try
-				{
-					return Convert.ToDouble(value);
-				}
-				catch (FormatException e)
-				{
-					throw new NuoDbSqlException("Unable to convert string: " + value, e);
-				}
-			}
-		}
+        {
+            get
+            {
+                try
+                {
+                    return Convert.ToDouble(value);
+                }
+                catch (FormatException e)
+                {
+                    throw new NuoDbSqlException("Unable to convert string: " + value, e);
+                }
+            }
+        }
 
         public override object Object
-		{
-			get
-			{
-				return String;
-			}
-		}
+        {
+            get
+            {
+                return String;
+            }
+        }
 
-/*		public override byte[] AsBytes
-		{
-			get
-			{
-				return Conversions.toBytes(value);
-			}
-		}
-*/
+        /*		public override byte[] AsBytes
+                {
+                    get
+                    {
+                        return Conversions.toBytes(value);
+                    }
+                }
+        */
         public override DateTime Date
-		{
-			get
-			{
-				try
-				{
-					return DateTime.Parse(value);
-				}
-				catch (FormatException e)
-				{
-					throw new NuoDbSqlException(String.Format("Unable to parse \"{0}\" into a Date", value), e);
-				}
-			}
-		}
+        {
+            get
+            {
+                try
+                {
+                    return DateTime.Parse(value);
+                }
+                catch (FormatException e)
+                {
+                    throw new NuoDbSqlException(String.Format("Unable to parse \"{0}\" into a Date", value), e);
+                }
+            }
+        }
 
         /*		public override Timestamp Timestamp
                 {
@@ -237,12 +237,12 @@ namespace NuoDb.Data.Client
                 }
         */
         public override bool Boolean
-		{
-			get
-			{
-				return value == null ? false : value.ToLower().Equals("true");
-			}
-		}
-	}
+        {
+            get
+            {
+                return value == null ? false : value.ToLower().Equals("true");
+            }
+        }
+    }
 
 }

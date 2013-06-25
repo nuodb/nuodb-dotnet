@@ -31,28 +31,28 @@ namespace NuoDb.Data.Client
 {
 
 
-	class ValueNull : Value
-	{
-		internal override void encodeValue(EncodedDataStream dataStream)
-		{
-			dataStream.encodeNull();
-		}
+    class ValueNull : Value
+    {
+        internal override void encodeValue(EncodedDataStream dataStream)
+        {
+            dataStream.encodeNull();
+        }
 
         public override DateTime Date
-		{
-			get
-			{
-				return nullDate;
-			}
-		}
+        {
+            get
+            {
+                return nullDate;
+            }
+        }
 
         public override string String
-		{
-			get
-			{
-				return null;
-			}
-		}
+        {
+            get
+            {
+                return null;
+            }
+        }
 
         /*		public override Timestamp Timestamp
                 {
@@ -71,77 +71,77 @@ namespace NuoDb.Data.Client
                 }
                 */
         public override object Object
-		{
-			get
-			{
-				return null;
-			}
-		}
+        {
+            get
+            {
+                return null;
+            }
+        }
 
         public override decimal BigDecimal
-		{
-			get
-			{
-				return Decimal.Zero;
-			}
-		}
+        {
+            get
+            {
+                return Decimal.Zero;
+            }
+        }
 
-/*		public override byte[] AsBytes
-		{
-			get
-			{
-				return null;
-			}
-		}
-        */
-		public override byte Byte
-		{
-			get
-			{
-				return 0;
-			}
-		}
+        /*		public override byte[] AsBytes
+                {
+                    get
+                    {
+                        return null;
+                    }
+                }
+                */
+        public override byte Byte
+        {
+            get
+            {
+                return 0;
+            }
+        }
 
-		public override short Short
-		{
-			get
-			{
-				return 0;
-			}
-		}
+        public override short Short
+        {
+            get
+            {
+                return 0;
+            }
+        }
 
-		public override int Int
-		{
-			get
-			{
-				return 0;
-			}
-		}
+        public override int Int
+        {
+            get
+            {
+                return 0;
+            }
+        }
 
-		public override long Long
-		{
-			get
-			{
-				return 0;
-			}
-		}
+        public override long Long
+        {
+            get
+            {
+                return 0;
+            }
+        }
 
-		public override float Float
-		{
-			get
-			{
-				return 0;
-			}
-		}
+        public override float Float
+        {
+            get
+            {
+                return 0;
+            }
+        }
 
-		public override double Double
-		{
-			get
-			{
-				return 0;
-			}
-		}
+        public override double Double
+        {
+            get
+            {
+                return 0;
+            }
+        }
 
-	}
+    }
 
 }

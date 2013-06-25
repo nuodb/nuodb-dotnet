@@ -31,136 +31,136 @@ using System;
 namespace NuoDb.Data.Client
 {
 
-	//
-	//
-	// ValueLong
-	//
-	//
-	class ValueLong : Value
-	{
-		internal long value;
-		internal short scale;
+    //
+    //
+    // ValueLong
+    //
+    //
+    class ValueLong : Value
+    {
+        internal long value;
+        internal short scale;
 
-		public ValueLong()
-		{
-		}
+        public ValueLong()
+        {
+        }
 
-		public ValueLong(long val, int scl)
-		{
-			value = val;
-			scale = (short) scl;
-		}
+        public ValueLong(long val, int scl)
+        {
+            value = val;
+            scale = (short)scl;
+        }
 
-		public ValueLong(object val, int scl)
-		{
-			if (IsNumeric(val))
-			{
-				value = (long)val;
-			}
-			else if (val is bool)
-			{
-				value = true.Equals(val) ? 1 : 0;
-			}
-			else
-			{
-				value = Convert.ToInt64(val.ToString());
-			}
-			scale = (short) scl;
-		}
+        public ValueLong(object val, int scl)
+        {
+            if (IsNumeric(val))
+            {
+                value = (long)val;
+            }
+            else if (val is bool)
+            {
+                value = true.Equals(val) ? 1 : 0;
+            }
+            else
+            {
+                value = Convert.ToInt64(val.ToString());
+            }
+            scale = (short)scl;
+        }
 
         public override int Type
-		{
-			get
-			{
-				return typeLong; // C semantics
-			}
-		}
+        {
+            get
+            {
+                return typeLong; // C semantics
+            }
+        }
 
         public override int Scale
-		{
-			get
-			{
-				return scale;
-			}
-		}
+        {
+            get
+            {
+                return scale;
+            }
+        }
 
         internal override void encodeValue(EncodedDataStream dataStream)
-		{
-			dataStream.encodeLong(Long);
-		}
+        {
+            dataStream.encodeLong(Long);
+        }
 
         public override string String
-		{
-			get
-			{
-				return getString(value, scale);
-			}
-		}
+        {
+            get
+            {
+                return getString(value, scale);
+            }
+        }
 
         public override bool Boolean
-		{
-			get
-			{
-				return value != 0; // we don't want to rescale
-			}
-		}
+        {
+            get
+            {
+                return value != 0; // we don't want to rescale
+            }
+        }
 
         public override byte Byte
-		{
-			get
-			{
-				if ((Long > sbyte.MaxValue) || (Long < sbyte.MinValue))
-				{
-					throw new NuoDbSqlException(String.Format("Overflow for type byte: {0} ", Long));
-				}
-				return (byte) Long;
-			}
-		}
+        {
+            get
+            {
+                if ((Long > sbyte.MaxValue) || (Long < sbyte.MinValue))
+                {
+                    throw new NuoDbSqlException(String.Format("Overflow for type byte: {0} ", Long));
+                }
+                return (byte)Long;
+            }
+        }
 
         public override short Short
-		{
-			get
-			{
-				return (short) Long;
-			}
-		}
+        {
+            get
+            {
+                return (short)Long;
+            }
+        }
 
         public override int Int
-		{
-			get
-			{
-				return (int) Long;
-			}
-		}
+        {
+            get
+            {
+                return (int)Long;
+            }
+        }
 
         public override double Double
-		{
-			get
-			{
-				return Int;
-			}
-		}
+        {
+            get
+            {
+                return Int;
+            }
+        }
 
         public override float Float
-		{
-			get
-			{
-				return Int;
-			}
-		}
+        {
+            get
+            {
+                return Int;
+            }
+        }
 
         public override long Long
-		{
-			get
-			{
-				return scale == 0 ? value : reScale(value, scale, 0);
-			}
-		}
+        {
+            get
+            {
+                return scale == 0 ? value : reScale(value, scale, 0);
+            }
+        }
 
         public override decimal BigDecimal
-		{
-			get
-			{
+        {
+            get
+            {
                 Decimal d = new Decimal(value);
                 if (scale > 0)
                     for (int i = 0; i < scale; i++)
@@ -170,25 +170,25 @@ namespace NuoDb.Data.Client
                         d = Decimal.Divide(d, 10m);
                 return d;
             }
-		}
+        }
 
         public override object Object
-		{
-			get
-			{
-				return Long;
-			}
-		}
+        {
+            get
+            {
+                return Long;
+            }
+        }
 
-/*		public override byte[] AsBytes
-		{
-			get
-			{
-				return Conversions.toBytes(Long);
-			}
-		}
- */
-	}
+        /*		public override byte[] AsBytes
+                {
+                    get
+                    {
+                        return Conversions.toBytes(Long);
+                    }
+                }
+         */
+    }
 
 
 }
