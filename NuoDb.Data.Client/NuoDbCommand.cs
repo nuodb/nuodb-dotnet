@@ -116,6 +116,7 @@ namespace NuoDb.Data.Client
             int count = dataStream.getInt();
             updateCount = (count >= -1) ? count : 0;
         }
+
         private void updateLastCommitInfo(EncodedDataStream dataStream, bool generatingKeys)
         {
             generatedKeys = null;
@@ -394,10 +395,12 @@ namespace NuoDb.Data.Client
 
         public override object ExecuteScalar()
         {
-            IDataReader reader = ExecuteReader(CommandBehavior.SingleRow);
-            if (!reader.Read() || reader.FieldCount < 1)
-                return null;
-            return reader.GetValue(0);
+            using (IDataReader reader = ExecuteReader(CommandBehavior.SingleRow))
+            {
+                if (!reader.Read() || reader.FieldCount < 1)
+                    return null;
+                return reader.GetValue(0);
+            }
         }
 
         public override void Prepare()
