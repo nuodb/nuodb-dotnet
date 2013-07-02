@@ -22,6 +22,7 @@ namespace NUnitEFCodeFirstTestProject
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<HockeyEntity>().ToTable("HOCKEY", "HOCKEY");
+            modelBuilder.Entity<PersonEntity>().ToTable("PERSON", "HOCKEY");
         }
     }
 }

@@ -204,11 +204,22 @@ namespace NUnitEFCodeFirstTestProject
                 DbCommand insertCommand = new NuoDbCommand("Insert into Person (Id, Name) Values (?,?)", connection);
                 insertCommand.Prepare();
 
-                insertCommand.Parameters[0].Value = "{F571197E-7A4F-4961-9363-7411EACCA841}";
-                insertCommand.Parameters[1].Value = "PATRICE BERGERON";
+                insertCommand.Parameters[0].Value = new Guid("{F571197E-7A4F-4961-9363-7411EACCA841}");
+                insertCommand.Parameters[1].Value = "Klaus Müller";
 
                 insertCommand.ExecuteNonQuery();
 
+            }
+        }
+
+        internal static int GetTableRows()
+        {
+            using (NuoDbConnection connection = new NuoDbConnection(connectionString))
+            {
+                DbCommand command = new NuoDbCommand("select count(*) from hockey", connection);
+
+                connection.Open();
+                return (int)command.ExecuteScalar();
             }
         }
     }
