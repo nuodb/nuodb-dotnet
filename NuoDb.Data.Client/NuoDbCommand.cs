@@ -54,6 +54,9 @@ namespace NuoDb.Data.Client
         private bool isDesignTimeVisible = false;
         private UpdateRowSource updatedRowSource = UpdateRowSource.Both;
         internal Type[] ExpectedColumnTypes { get; private set; }
+        private Func<CommandBehavior, DbDataReader> funcExecuteReader;
+        private Func<int> funcExecuteUpdate;
+        private Func<object> funcExecuteScalar;
 
         public NuoDbCommand(string query, DbConnection conn)
         {
@@ -295,6 +298,70 @@ namespace NuoDb.Data.Client
                 }
             }
         }
+
+        #region Asynchronous methods
+        public IAsyncResult BeginExecuteScalar()
+        {
+            return BeginExecuteScalar(null, null);
+        }
+
+        public IAsyncResult BeginExecuteScalar(AsyncCallback callback, object objectState)
+        {
+            if (funcExecuteScalar == null)
+                funcExecuteScalar = new Func<object>(ExecuteScalar);
+            return funcExecuteScalar.BeginInvoke(callback, objectState);
+        }
+
+        public object EndExecuteScalar(IAsyncResult asyncResult)
+        {
+            return funcExecuteScalar.EndInvoke(asyncResult);
+        }
+
+        public IAsyncResult BeginExecuteReader()
+        {
+            return BeginExecuteReader(CommandBehavior.Default, null, null);
+        }
+
+        public IAsyncResult BeginExecuteReader(CommandBehavior behavior)
+        {
+            return BeginExecuteReader(behavior, null, null);
+        }
+
+        public IAsyncResult BeginExecuteReader(AsyncCallback callback, object objectState)
+        {
+            return BeginExecuteReader(CommandBehavior.Default, callback, objectState);
+        }
+
+        public IAsyncResult BeginExecuteReader(CommandBehavior behavior, AsyncCallback callback, object objectState)
+        {
+            if (funcExecuteReader == null)
+                funcExecuteReader = new Func<CommandBehavior, DbDataReader>(ExecuteReader);
+            return funcExecuteReader.BeginInvoke(behavior, callback, objectState);
+        }
+
+        public DbDataReader EndExecuteReader(IAsyncResult asyncResult)
+        {
+            return funcExecuteReader.EndInvoke(asyncResult);
+        }
+
+        public IAsyncResult BeginExecuteNonQuery()
+        {
+            return BeginExecuteNonQuery(null, null);
+        }
+
+        public IAsyncResult BeginExecuteNonQuery(AsyncCallback callback, object objectState)
+        {
+            if (funcExecuteUpdate == null)
+                funcExecuteUpdate = new Func<int>(ExecuteNonQuery);
+            return funcExecuteUpdate.BeginInvoke(callback, objectState);
+        }
+
+        public int EndExecuteNonQuery(IAsyncResult asyncResult)
+        {
+            return funcExecuteUpdate.EndInvoke(asyncResult);
+        }
+
+        #endregion
 
         protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior)
         {

@@ -1369,5 +1369,140 @@ namespace NUnitTestProject
             pooledItems = NuoDbConnection.GetPooledConnectionCount(newConnString);
             Assert.AreEqual(0, pooledItems);
         }
+
+        [Test]
+        public void TestAsynchronousReader1()
+        {
+            using (NuoDbConnection connection = new NuoDbConnection(connectionString))
+            {
+                NuoDbCommand command = new NuoDbCommand("select * from hockey", connection);
+
+                connection.Open();
+                IAsyncResult result = command.BeginExecuteReader();
+
+                using (DbDataReader reader = command.EndExecuteReader(result))
+                {
+                    while (reader.Read())
+                    {
+                        Console.WriteLine("\t{0}\t{1}\t{2}\t{3}", reader[0], reader[1], reader[2], reader["id"]);
+                    }
+                }
+            }
+        }
+
+        [Test]
+        public void TestAsynchronousReader2()
+        {
+            NuoDbConnection connection = new NuoDbConnection(connectionString);
+            NuoDbCommand command = new NuoDbCommand("select * from hockey", connection);
+
+            connection.Open();
+
+            AsyncCallback callback = new AsyncCallback(HandleCallback);
+            IAsyncResult result = command.BeginExecuteReader(callback, command);
+        }
+
+        void HandleCallback(IAsyncResult result)
+        {
+            NuoDbCommand command = (NuoDbCommand)result.AsyncState;
+            using (DbDataReader reader = command.EndExecuteReader(result))
+            {
+                while (reader.Read())
+                {
+                    Console.WriteLine("\t{0}\t{1}\t{2}\t{3}", reader[0], reader[1], reader[2], reader["id"]);
+                }
+            }
+            command.Close();
+            command.Connection.Close();
+        }
+
+        [Test]
+        public void TestAsynchronousScalar1()
+        {
+            using (NuoDbConnection connection = new NuoDbConnection(connectionString))
+            {
+                NuoDbCommand countCommand = (NuoDbCommand)connection.CreateCommand();
+                countCommand.CommandText = "select count(*) from hockey";
+
+                connection.Open();
+
+                IAsyncResult result = countCommand.BeginExecuteScalar();
+
+                int count = (int)countCommand.EndExecuteScalar(result);
+            }
+        }
+
+        [Test]
+        public void TestAsynchronousScalar2()
+        {
+            NuoDbConnection connection = new NuoDbConnection(connectionString);
+            NuoDbCommand countCommand = (NuoDbCommand)connection.CreateCommand();
+            countCommand.CommandText = "select count(*) from hockey";
+
+            connection.Open();
+
+            AsyncCallback callback = new AsyncCallback(HandleCallback2);
+            IAsyncResult result = countCommand.BeginExecuteScalar(callback, countCommand);
+        }
+
+        [Test]
+        public void TestAsynchronousScalar3()
+        {
+            NuoDbConnection connection = new NuoDbConnection(connectionString);
+            NuoDbCommand countCommand = (NuoDbCommand)connection.CreateCommand();
+            countCommand.CommandText = "select count(*) from hockey";
+
+            connection.Open();
+            AsyncCallback callback = new AsyncCallback(HandleCallback2);
+            for(int i=0;i<20;i++)
+                countCommand.BeginExecuteScalar(callback, countCommand);
+        }
+
+        void HandleCallback2(IAsyncResult result)
+        {
+            NuoDbCommand command = (NuoDbCommand)result.AsyncState;
+            int count = (int)command.EndExecuteScalar(result);
+        }
+
+        [Test]
+        public void TestAsynchronousUpdate1()
+        {
+            using (NuoDbConnection connection = new NuoDbConnection(connectionString))
+            {
+                connection.Open();
+                Utils.DropTable(connection, "temp");
+
+                NuoDbCommand createCommand = new NuoDbCommand("create table temp (col string)", connection);
+                IAsyncResult result = createCommand.BeginExecuteNonQuery();
+
+                int count = createCommand.EndExecuteNonQuery(result);
+            }
+        }
+
+
+        [Test]
+        public void TestAsynchronousUpdate2()
+        {
+            NuoDbConnection connection = new NuoDbConnection(connectionString);
+            connection.Open();
+            Utils.DropTable(connection, "temp");
+
+            NuoDbCommand countCommand = (NuoDbCommand)connection.CreateCommand();
+            countCommand.CommandText = "create table temp (col string)";
+
+            AsyncCallback callback = new AsyncCallback(HandleCallback3);
+            IAsyncResult result = countCommand.BeginExecuteNonQuery(callback, countCommand);
+        }
+
+        void HandleCallback3(IAsyncResult result)
+        {
+            NuoDbCommand command = (NuoDbCommand)result.AsyncState;
+            int count = command.EndExecuteNonQuery(result);
+
+            Utils.DropTable(command.Connection as NuoDbConnection, "temp");
+            command.Close();
+            command.Connection.Close();
+        }
+
     }
 }
