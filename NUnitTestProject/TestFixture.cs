@@ -16,11 +16,19 @@ namespace NUnitTestProject
         static string password = "goalie";
         static string database = "test";
         static string schema = "hockey";
-        static internal string connectionString = "Server=  " + host + "; Database=\"" + database + "\"; User = " + user + " ;Password   = '" + password + "';Schema=\"" + schema + "\"";
+        static internal string connectionString;
 
         [TestFixtureSetUp]
         public static void Init()
         {
+            NuoDbConnectionStringBuilder builder = new NuoDbConnectionStringBuilder();
+            builder.Server = host;
+            builder.Database = database;
+            builder.User = user;
+            builder.Password = password;
+            builder.Schema = schema;
+            connectionString = builder.ConnectionString;
+
             Utils.CreateHockeyTable();
         }
 

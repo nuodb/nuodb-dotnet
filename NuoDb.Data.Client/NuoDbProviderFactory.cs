@@ -29,12 +29,18 @@
 using System.Data.Common;
 using System.Security;
 using System.Security.Permissions;
+#if !__MonoCS__
 using NuoDb.Data.Client.EntityFramework;
+#endif
 using System;
 
 namespace NuoDb.Data.Client
 {
+#if !__MonoCS__
     public class NuoDbProviderFactory : DbProviderFactory, IServiceProvider
+#else
+    public class NuoDbProviderFactory : DbProviderFactory
+#endif
     {
         public static readonly NuoDbProviderFactory Instance = new NuoDbProviderFactory();
 
@@ -83,7 +89,7 @@ namespace NuoDb.Data.Client
             return null;
         }
 
-
+#if !__MonoCS__
         #region IServiceProvider Members
 
         public object GetService(Type serviceType)
@@ -99,5 +105,6 @@ namespace NuoDb.Data.Client
         }
 
         #endregion
+#endif
     }
 }
