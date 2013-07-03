@@ -3,6 +3,8 @@
 *  Adapted from Firebird ADO.NET Data provider
 ****************************************************************************/
 
+#if !__MonoCS__
+
 using System;
 using System.Data;
 using System.Data.Common;
@@ -467,3 +469,5 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
         }
     }
 }
+
+#endif

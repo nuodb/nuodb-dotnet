@@ -29,6 +29,8 @@
 *  Author: Jiri Cincura (jiri@cincura.net)
 ****************************************************************************/
 
+#if !__MonoCS__
+
 using System;
 using System.Configuration;
 using System.Data.Common;
@@ -58,3 +60,5 @@ namespace NuoDb.Data.Client.EntityFramework
         }
     }
 }
+
+#endif
