@@ -19,6 +19,7 @@
         <Edition>Ultimate</Edition>
         <Edition>Premium</Edition>
         <Edition>Pro</Edition>
+        <Edition>VSLS</Edition>
         <Edition>VWDExpress</Edition>
         <Edition>IntegratedShell</Edition>
       </VisualStudio>
@@ -26,6 +27,7 @@
         <Edition>Ultimate</Edition>
         <Edition>Premium</Edition>
         <Edition>Pro</Edition>
+        <Edition>VSLS</Edition>
         <Edition>VWDExpress</Edition>
         <Edition>IntegratedShell</Edition>
       </VisualStudio>
@@ -33,6 +35,15 @@
         <Edition>Ultimate</Edition>
         <Edition>Premium</Edition>
         <Edition>Pro</Edition>
+        <Edition>VSLS</Edition>
+        <Edition>VWDExpress</Edition>
+        <Edition>IntegratedShell</Edition>
+      </VisualStudio>
+      <VisualStudio Version="11.3">
+        <Edition>Ultimate</Edition>
+        <Edition>Premium</Edition>
+        <Edition>Pro</Edition>
+        <Edition>VSLS</Edition>
         <Edition>VWDExpress</Edition>
         <Edition>IntegratedShell</Edition>
       </VisualStudio>
