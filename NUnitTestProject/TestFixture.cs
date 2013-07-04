@@ -16,7 +16,7 @@ namespace NUnitTestProject
         static string password = "goalie";
         static string database = "test";
         static string schema = "hockey";
-        static internal string connectionString = "Server=  " + host + "; Database=\"" + database + "\"; User = " + user + " ;Password   = '" + password + "';Schema=\"" + schema + "\"";
+        static internal string connectionString = "Server=  " + host + "; Database=\"" + database + "\"; User = " + user + " ;Password   = " + password + ";Schema=\"" + schema + "\"";
 
         [TestFixtureSetUp]
         public static void Init()
