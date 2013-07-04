@@ -661,7 +661,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
                     case PrimitiveTypeKind.Guid:
                         result.Append("'");
                         result.Append(((Guid)e.Value).ToNuoDbString());
-                        result.Append("')");
+                        result.Append("'");
                         break;
 
                     default:
