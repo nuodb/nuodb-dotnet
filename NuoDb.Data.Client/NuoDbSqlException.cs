@@ -27,10 +27,12 @@
 ****************************************************************************/
 
 using System;
+using System.Data.Common;
 
 namespace NuoDb.Data.Client
 {
-    public class NuoDbSqlException : Exception
+    [Serializable]
+    public class NuoDbSqlException : DbException
     {
         private NuoDbSqlCode code;
 
