@@ -52,6 +52,7 @@ namespace NuoDb.Data.Client
         private volatile bool closed = false;
         private volatile int currentRow = 0;
         private volatile bool afterLast_Renamed = false;
+        private int recordsAffected = 0;
 
         public NuoDbDataReader(NuoDbConnection connection, int handle, EncodedDataStream dataStream, NuoDbCommand statement, bool readColumnNames)
         {
@@ -184,6 +185,9 @@ namespace NuoDb.Data.Client
             // true: The column is an identity column.
             // false: The column is not an identity column.
             metadata.Columns.Add("IsIdentity", typeof(bool));
+            // true: The column is an expression column.
+            // false: The column is not an expression column.
+            metadata.Columns.Add("IsExpression", typeof(bool));
 
             metadata.BeginLoadData();
             for (int n = 0; n < numberColumns; ++n)
@@ -223,7 +227,7 @@ namespace NuoDb.Data.Client
                 row["AllowDBNull"] = (flags & rsmdNullable) != 0;
                 // for the moment, set the column to be a normal one; later we will look for primary indexes
                 row["IsKey"] = row["IsIdentity"] = row["IsUnique"] = false;
-                row["IsLong"] = row["IsRowVersion"] = false;
+                row["IsLong"] = row["IsRowVersion"] = row["IsExpression"] = false;
                 metadata.Rows.Add(row);
 
 #if DEBUG
@@ -315,12 +319,19 @@ namespace NuoDb.Data.Client
             }
         }
 
+        internal int UpdatedRecords
+        {
+            set
+            {
+                recordsAffected = value;
+            }
+        }
+
         public override int RecordsAffected
         {
             get
             {
-                // DataReader is used only for SELECT statements
-                return -1;
+                return recordsAffected;
             }
         }
 
