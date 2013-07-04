@@ -1,4 +1,5 @@
 TestResults
+TestResult.xml
 bin
 obj
 *.suo
