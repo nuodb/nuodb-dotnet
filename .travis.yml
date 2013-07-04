@@ -24,7 +24,9 @@ script:
  - sudo gacutil -i NuoDb.Data.Client/bin/Release40/NuoDb.Data.Client.dll
  - xbuild /p:TargetFrameworkProfile="" /p:Configuration=Release ConsoleSample/ConsoleSample.csproj
  - ConsoleSample/bin/Release/ConsoleSample.exe test
-
+ - xbuild /p:TargetFrameworkProfile="" /p:Configuration=Release NUnitTestProject/Mono.NUnitTestProject.csproj
+ - mono NUnitTestProject/bin/Release/NUnitTestProject.exe
+ 
 notifications:
   recipients:
     - buck.robert.j@gmail.com
