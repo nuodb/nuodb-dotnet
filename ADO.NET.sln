@@ -28,6 +28,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NUnitTestProject", "NUnitTe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuoDb.Data.Client_4.0", "NuoDb.Data.Client\NuoDb.Data.Client_4.0.csproj", "{3A992E63-061C-47EE-862A-452334D70D90}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NUnitEFCodeFirstTestProject", "NUnitEFCodeFirstTestProject\NUnitEFCodeFirstTestProject.csproj", "{52F5C65F-9A64-416B-A888-AC04264E7D7C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -130,6 +132,18 @@ Global
 		{3A992E63-061C-47EE-862A-452334D70D90}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{3A992E63-061C-47EE-862A-452334D70D90}.Release|Win32.ActiveCfg = Release|Any CPU
 		{3A992E63-061C-47EE-862A-452334D70D90}.Release|x86.ActiveCfg = Release|Any CPU
+		{52F5C65F-9A64-416B-A888-AC04264E7D7C}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{52F5C65F-9A64-416B-A888-AC04264E7D7C}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{52F5C65F-9A64-416B-A888-AC04264E7D7C}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{52F5C65F-9A64-416B-A888-AC04264E7D7C}.Debug|Win32.ActiveCfg = Debug|x86
+		{52F5C65F-9A64-416B-A888-AC04264E7D7C}.Debug|x86.ActiveCfg = Debug|x86
+		{52F5C65F-9A64-416B-A888-AC04264E7D7C}.Debug|x86.Build.0 = Debug|x86
+		{52F5C65F-9A64-416B-A888-AC04264E7D7C}.Release|Any CPU.ActiveCfg = Release|x86
+		{52F5C65F-9A64-416B-A888-AC04264E7D7C}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{52F5C65F-9A64-416B-A888-AC04264E7D7C}.Release|Mixed Platforms.Build.0 = Release|x86
+		{52F5C65F-9A64-416B-A888-AC04264E7D7C}.Release|Win32.ActiveCfg = Release|x86
+		{52F5C65F-9A64-416B-A888-AC04264E7D7C}.Release|x86.ActiveCfg = Release|x86
+		{52F5C65F-9A64-416B-A888-AC04264E7D7C}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
