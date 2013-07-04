@@ -104,7 +104,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NuoDb.Data.Client\NuoDb.Data.Client_4.0.csproj">
+    <ProjectReference Include="..\NuoDb.Data.Client\Mono.NuoDb.Data.Client_4.0.csproj">
       <Project>{3A992E63-061C-47EE-862A-452334D70D90}</Project>
       <Name>NuoDb.Data.Client_4.0</Name>
     </ProjectReference>
