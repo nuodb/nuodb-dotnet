@@ -52,7 +52,7 @@ namespace NuoDb.Data.Client
         private volatile bool closed = false;
         private volatile int currentRow = 0;
         private volatile bool afterLast_Renamed = false;
-        private int recordsAffected = 0;
+        private int recordsAffected = -1;
 
         public NuoDbDataReader(NuoDbConnection connection, int handle, EncodedDataStream dataStream, NuoDbCommand statement, bool readColumnNames)
         {

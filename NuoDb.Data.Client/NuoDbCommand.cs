@@ -371,9 +371,10 @@ namespace NuoDb.Data.Client
                 System.Diagnostics.Trace.WriteLine("The statement is not a SELECT: redirecting to ExecuteNonQuery");
 #endif
                 // If the command was already prepared, it will be prepared again, in order to enable the generatingKeys option
-                ExecuteUpdate(true);
-
-                return generatedKeys != null ? generatedKeys : new NuoDbDataReader(connection, -1, null, this, false);
+                int count = ExecuteUpdate(true);
+                NuoDbDataReader reader = generatedKeys != null ? generatedKeys : new NuoDbDataReader(connection, -1, null, this, false);
+                reader.UpdatedRecords = count;
+                return reader;
             }
 #if DEBUG
             System.Diagnostics.Trace.WriteLine("NuoDbCommand.ExecuteDbDataReader(" + CommandText + ", " + behavior + ")");
