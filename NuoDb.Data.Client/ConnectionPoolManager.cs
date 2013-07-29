@@ -121,9 +121,14 @@ namespace NuoDb.Data.Client
                     if (removed)
                     {
                         DateTimeOffset now = DateTimeOffset.UtcNow;
-                        // if it's too old to be recycled, dispose it; otherwise, put in the pool of available connections
-                        if (connection.Created.Add(_maxLifeTime) < now)
+                        // if it's broken or too old to be recycled, dispose it; otherwise, put in the pool of available connections
+                        if (connection.networkErrorOccurred || connection.Created.Add(_maxLifeTime) < now)
+                        {
+#if DEBUG
+                            System.Diagnostics.Trace.WriteLine("ReleaseConnection: discarding connection");
+#endif
                             connection.Dispose();
+                        }
                         else
                             _available.Enqueue(new Item(now, connection));
                     }

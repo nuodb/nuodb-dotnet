@@ -52,6 +52,7 @@ namespace NuoDb.Data.Client
         internal const int PORT = 48004;
         internal const string LAST_INFO_SEPARATOR = ";";
         internal const string DEFAULT_CIPHER = "RC4";
+        internal bool networkErrorOccurred = false;
 
         NuoDbConnection owner;
 
@@ -111,6 +112,7 @@ namespace NuoDb.Data.Client
         [MethodImpl(MethodImplOptions.Synchronized)]
         internal void sendAsync(EncodedDataStream stream)
         {
+            networkErrorOccurred = false;
             if (protocolVersion < Protocol.PROTOCOL_VERSION8)
             {
                 sendAndReceive(stream);
@@ -127,6 +129,7 @@ namespace NuoDb.Data.Client
             }
             catch (IOException exception)
             {
+                networkErrorOccurred = true;
                 throw new NuoDbSqlException(exception);
             }
         }
@@ -134,6 +137,7 @@ namespace NuoDb.Data.Client
         [MethodImpl(MethodImplOptions.Synchronized)]
         internal void sendAndReceive(EncodedDataStream stream)
         {
+            networkErrorOccurred = false;
             try
             {
                 lock (this)
@@ -165,6 +169,7 @@ namespace NuoDb.Data.Client
             }
             catch (IOException exception)
             {
+                networkErrorOccurred = true;
                 throw new NuoDbSqlException(exception);
             }
         }
@@ -528,6 +533,7 @@ namespace NuoDb.Data.Client
 
         private void doOpen(string hostName)
         {
+            networkErrorOccurred = false;
             string databaseName = parsedConnectionString.Database;
 
             int index = hostName.IndexOf(':');
@@ -732,6 +738,7 @@ namespace NuoDb.Data.Client
 #if DEBUG
                 System.Diagnostics.Trace.WriteLine("NuoDBConnection::doOpen(): exception " + exception.ToString());
 #endif
+                networkErrorOccurred = true;
                 if (socket != null && socket.Connected)
                 {
                     try
