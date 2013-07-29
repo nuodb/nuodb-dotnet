@@ -34,7 +34,7 @@ namespace NuoDb.Data.Client
 {
     public class NuoDbParameter : DbParameter, ICloneable
     {
-        private string name;
+        private string name = "";
         private object value;
         private ParameterDirection direction = ParameterDirection.Input;
         private DbType dbType;

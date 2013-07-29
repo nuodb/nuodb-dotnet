@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.Data.Common;
@@ -8,13 +6,11 @@ using Microsoft.VisualStudio.TextManager.Interop;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.OLE.Interop;
 
-using IServiceProvider = System.IServiceProvider;
 using IOleServiceProvider = Microsoft.VisualStudio.OLE.Interop.IServiceProvider;
 using Microsoft.VisualStudio;
 using System.Drawing;
 using System.IO;
 using Microsoft.VisualStudio.Data;
-using System.Text.RegularExpressions;
 using System.Data;
 using System.Globalization;
 
@@ -653,209 +649,205 @@ namespace NuoDb.VisualStudio.DataTools.Editors
         internal void ExecuteSQL()
         {
             ResultsWindow.Clear();
-            string sql = CommandWindow.Text.Trim();
+            string sql = CommandWindow.Text.Trim().Replace("\r", "");
             if (sql.Length == 0)
                 return;
-            // ensure that the command is properly terminated, or the last statement will be ignored by the regex
-            if (!sql.EndsWith(";"))
-                sql += ";";
-            
+
 #if DEBUG
-            System.Diagnostics.Trace.WriteLine("SQLEditor.ExecuteSQL: " + sql );
+            System.Diagnostics.Trace.WriteLine("SQLEditor.ExecuteSQL: " + sql);
 #endif
-            Regex regex = new Regex(@"([^;'""]+|""[^""]*""|'[^']*'|`[^`]*`)*[;]");
-            MatchCollection coll = regex.Matches(sql);
-            foreach (Match m in coll)
+            char[] quotes = new char[] { '\'', '\"', '`' };
+            string delimiter = ";";
+            int pos = -1;
+            // to avoid searching too many times for tokens that are far away or non present at all, keep them in global variables
+            int nextString = -1, nextComment1 = -1, nextComment2 = -1, nextDelimiter = -1;
+            StringBuilder currentCmd = new StringBuilder();
+            while (pos < sql.Length)
             {
-                string cmd = m.Value.TrimEnd(new char[] { ';' }).Trim();
-                if (cmd.Length == 0)
-                    continue;
+                // update the position of the tokens, if the cursor went past them
+                if (nextString <= pos) nextString = sql.IndexOfAny(quotes, pos+1);
+                if (nextString == -1) nextString = Int32.MaxValue;
+                if (nextComment1 <= pos) nextComment1 = sql.IndexOf("--", pos+1);
+                if (nextComment1 == -1) nextComment1 = Int32.MaxValue;
+                if (nextComment2 <= pos) nextComment2 = sql.IndexOf("/*", pos + 1);
+                if (nextComment2 == -1) nextComment2 = Int32.MaxValue;
+                if (nextDelimiter <= pos) nextDelimiter = sql.IndexOf(delimiter, pos + 1);
+                if (nextDelimiter == -1) nextDelimiter = Int32.MaxValue;
+                int nextSpecialPos = Math.Min(nextString, Math.Min(nextDelimiter, Math.Min(nextComment1, nextComment2)));
+                // if nothing has been found, take the rest of the string and consider it terminated by a delimiter
+                if (nextSpecialPos == Int32.MaxValue) nextSpecialPos = nextDelimiter = sql.Length;
 
-                // the command could be preceded by comments (between -- and a new line)
-                cmd = cmd.Replace("\r", "");
-                string[] lines = cmd.Split(new char[] { '\n' });
-                StringBuilder sqlCmd = new StringBuilder(cmd.Length);
-                foreach (string line in lines)
+                currentCmd.Append(sql.Substring(pos+1, nextSpecialPos - pos - 1));
+                // check if the partial command we identified is a special "delimiter change instruction"
+                if (currentCmd.Length > 10 && currentCmd.ToString().Trim().StartsWith("delimiter ", StringComparison.InvariantCultureIgnoreCase))
                 {
-                    StringBuilder sqlString = new StringBuilder(line.Length);
-                    int state = 0;
-                    bool inSingleQuotes = false, inDoubleQuotes = false, inSmartQuotes = false;
-                    foreach (char c in line)
-                    {
-                        if (c == '\'' && !(inDoubleQuotes || inSmartQuotes))
-                        {
-                            inSingleQuotes = !inSingleQuotes;
-                            state = 0;
-                            sqlString.Append(c);
-                            continue;
-                        }
-                        else if (c == '\"' && !(inSingleQuotes || inSmartQuotes))
-                        {
-                            inDoubleQuotes = !inDoubleQuotes;
-                            state = 0;
-                            sqlString.Append(c);
-                            continue;
-                        }
-                        else if (c == '`' && !(inSingleQuotes || inDoubleQuotes))
-                        {
-                            inSmartQuotes = !inSmartQuotes;
-                            state = 0;
-                            sqlString.Append(c);
-                            continue;
-                        }
-                        if (inSingleQuotes || inDoubleQuotes || inSmartQuotes)
-                        {
-                            sqlString.Append(c);
-                            continue;
-                        }
-
-                        if (state == 0 && c == '-')
-                            state = 1;
-                        else if (state == 1)
-                        {
-                            if (c == '-')
-                            {
-                                // comment found
-                                state = 2;
-                                break;
-                            }
-                            else
-                            {
-                                sqlString.Append('-');
-                                sqlString.Append(c);
-                                state = 0;
-                            }
-                        }
-                        else
-                            sqlString.Append(c);
-                    }
-                    if (state == 1)
-                        sqlString.Append('-');
-
-                    sqlCmd.AppendLine(sqlString.ToString());
-                }
-                cmd = sqlCmd.ToString().Trim();
-                if (cmd.Length == 0)
+                    // re-synchronize the position by searching for "delimiter" in the original string - we did a Trim on the cmd string
+                    pos = sql.IndexOf("delimiter ", pos, StringComparison.InvariantCultureIgnoreCase) + 10;
+                    int endOfLine = sql.IndexOf('\n', pos + 1);
+                    if (endOfLine == -1) endOfLine = sql.Length;
+                    // take as a delimiter what is between the keyword and the end of the line, and put the cursor back to that position
+                    delimiter = sql.Substring(pos, endOfLine - pos);
+                    pos = endOfLine;
+                    currentCmd.Clear();
+                    nextDelimiter = -1; // force a new search for the delimiter, the old value was referring to a different kind
                     continue;
-
-                CommandWindow.SetCaret(m.Index);
-#if DEBUG
-                System.Diagnostics.Trace.WriteLine(cmd);
-#endif
-                DbCommand dbCmd = _connection.CreateCommand();
-                dbCmd.CommandText = cmd;
-                if (cmd.Substring(0, 6).ToUpper().Equals("SELECT"))
-                {
-                    DbDataReader reader = dbCmd.ExecuteReader();
-                    DataTable schema = reader.GetSchemaTable();
-
-                    int lineLength = 0;
-                    bool[] columnIsRightAligned = new bool[reader.FieldCount];
-                    int[] columnWidths = new int[reader.FieldCount];
-                    string[] columnTitles = new string[reader.FieldCount];
-                    foreach (DataRow row in schema.Rows)
-                    {
-                        int colNumber = (int)row["ColumnOrdinal"];
-                        bool rightAlign = true;
-                        int length = 0;
-                        DbType type = (DbType)row["ProviderType"];
-                        switch (type)
-                        {
-                            case DbType.Boolean:
-                                length = 5; // False
-                                break;
-                            case DbType.Byte:
-                                length = 4; // -128
-                                break;
-                            case DbType.Int16:
-                                length = 6; // -32767
-                                break;
-                            case DbType.Int32:
-                                length = 10; // -134217728
-                                break;
-                            case DbType.Int64:
-                                length = 19; // -576460752303423488
-                                break;
-                            case DbType.Single:
-                                length = 14; // -3.4028234E-38
-                                break;
-                            case DbType.Double:
-                                length = 25; // -2.2250738585072009E−308
-                                break;
-                            case DbType.Decimal:
-                                length = (int)row["NumericPrecision"];
-                                break;
-                            case DbType.Date:
-                                length = 10; // 2000-12-31
-                                break;
-                            case DbType.Time:
-                                length = 18; // 10:00:00.234GMT+11
-                                break;
-                            case DbType.DateTime:
-                                length = 29; // 2000-12-31T10:00:00.234GMT+11
-                                break;
-                            default:
-                                rightAlign = false;
-                                length = (int)row["ColumnSize"];
-                                break;
-                        }
-                        length = Math.Min(length, 80);
-
-                        string label = row["ColumnName"].ToString();
-                        if (label == null || label.Length == 0)
-                            label = row["BaseColumnName"].ToString();
-                        if (label == null || label.Length == 0)
-                            label = String.Format("Column{0}", row["ColumnOrdinal"]);
-                        length = Math.Max(length, label.Length);
-                        columnWidths[colNumber] = length;
-                        string padLeft = String.Format("{0," + ((length - label.Length) / 2) + "}", "");
-                        string padRight = String.Format("{0," + (length - padLeft.Length - label.Length) + "}", "");
-                        columnTitles[colNumber] = padLeft + label + padRight;
-                        columnIsRightAligned[colNumber] = rightAlign;
-
-                        lineLength += length + 1;
-                    }
-                    StringBuilder outputRow = new StringBuilder(lineLength);
-                    for (int i = 0; i < columnTitles.Length; i++)
-                    {
-                        outputRow.Append(columnTitles[i]).Append(" ");
-                    }
-                    outputRow.AppendLine();
-                    ResultsWindow.AppendText(outputRow.ToString());
-                    outputRow.Clear();
-                    for (int i = 0; i < columnWidths.Length; i++)
-                    {
-                        outputRow.Append(String.Format("{0," + columnWidths[i] + "}", "").Replace(' ', '-')).Append(" ");
-                    }
-                    outputRow.AppendLine();
-                    ResultsWindow.AppendText(outputRow.ToString());
-                    while (reader.Read())
-                    {
-                        outputRow.Clear();
-                        for (int i = 0; i < reader.FieldCount; i++)
-                        {
-                            string col = reader.GetString(i);
-                            if (col == null)
-                                col = "<null>";
-                            if (col.Length > columnWidths[i])
-                                if(columnWidths[i] > 5)
-                                    col = col.Substring(0, columnWidths[i] - 5) + "[...]";
-                                else
-                                    col = col.Substring(0, columnWidths[i]);
-                            outputRow.Append(String.Format("{0," + (columnIsRightAligned[i] ? "" : "-") + columnWidths[i] + "}", col)).Append(" ");
-                        }
-                        outputRow.AppendLine();
-                        ResultsWindow.AppendText(outputRow.ToString());
-                    }
-                    reader.Close();
                 }
                 else
                 {
-                    int affectedRows = dbCmd.ExecuteNonQuery();
-                    StringBuilder outputRow = new StringBuilder();
-                    outputRow.AppendLine(String.Format("{0} row(s) updated", affectedRows));
+                    pos = nextSpecialPos;
+                }
+
+                // test the delimiter before any other marker, as it could have been changed to be equal to a special
+                // string like // or --
+                if (nextSpecialPos == nextDelimiter)
+                {
+                    // command is ended, run it
+                    string cmd = currentCmd.ToString().Trim();
+                    currentCmd.Clear();
+                    CommandWindow.SetCaret(pos);
+#if DEBUG
+                    System.Diagnostics.Trace.WriteLine(cmd);
+#endif
+                    ExecuteCommand(cmd);
+                    pos += delimiter.Length;
+                }
+                else if (nextSpecialPos == nextComment1)
+                {
+                    // skip the rest of the line
+                    int endOfLine = sql.IndexOf('\n', pos);
+                    pos = (endOfLine == -1) ? sql.Length : endOfLine;
+                }
+                else if (nextSpecialPos == nextComment2)
+                {
+                    // skip until */
+                    int endOfLine = sql.IndexOf("*/", pos);
+                    pos = (endOfLine == -1) ? sql.Length : endOfLine + 1;
+                }
+                else if (nextSpecialPos == nextString)
+                {
+                    char quote = sql[pos];
+                    int endOfString = sql.IndexOf(quote, pos+1);
+                    pos = (endOfString == -1) ? sql.Length : endOfString;
+                    currentCmd.Append(sql.Substring(nextSpecialPos, pos - nextSpecialPos + 1));
+                }
+            }
+        }
+
+        private void ExecuteCommand(string cmd)
+        {
+            DbCommand dbCmd = _connection.CreateCommand();
+            dbCmd.CommandText = cmd;
+            if (cmd.Trim().StartsWith("SELECT", StringComparison.InvariantCultureIgnoreCase))
+            {
+                DbDataReader reader = dbCmd.ExecuteReader();
+                DataTable schema = reader.GetSchemaTable();
+
+                int lineLength = 0;
+                bool[] columnIsRightAligned = new bool[reader.FieldCount];
+                int[] columnWidths = new int[reader.FieldCount];
+                string[] columnTitles = new string[reader.FieldCount];
+                foreach (DataRow row in schema.Rows)
+                {
+                    int colNumber = (int)row["ColumnOrdinal"];
+                    bool rightAlign = true;
+                    int length = 0;
+                    DbType type = (DbType)row["ProviderType"];
+                    switch (type)
+                    {
+                        case DbType.Boolean:
+                            length = 5; // False
+                            break;
+                        case DbType.Byte:
+                            length = 4; // -128
+                            break;
+                        case DbType.Int16:
+                            length = 6; // -32767
+                            break;
+                        case DbType.Int32:
+                            length = 10; // -134217728
+                            break;
+                        case DbType.Int64:
+                            length = 19; // -576460752303423488
+                            break;
+                        case DbType.Single:
+                            length = 14; // -3.4028234E-38
+                            break;
+                        case DbType.Double:
+                            length = 25; // -2.2250738585072009E−308
+                            break;
+                        case DbType.Decimal:
+                            length = (int)row["NumericPrecision"];
+                            break;
+                        case DbType.Date:
+                            length = 10; // 2000-12-31
+                            break;
+                        case DbType.Time:
+                            length = 18; // 10:00:00.234GMT+11
+                            break;
+                        case DbType.DateTime:
+                            length = 29; // 2000-12-31T10:00:00.234GMT+11
+                            break;
+                        default:
+                            rightAlign = false;
+                            length = (int)row["ColumnSize"];
+                            break;
+                    }
+                    length = Math.Min(length, 80);
+
+                    string label = row["ColumnName"].ToString();
+                    if (label == null || label.Length == 0)
+                        label = row["BaseColumnName"].ToString();
+                    if (label == null || label.Length == 0)
+                        label = String.Format("Column{0}", row["ColumnOrdinal"]);
+                    length = Math.Max(length, label.Length);
+                    columnWidths[colNumber] = length;
+                    string padLeft = String.Format("{0," + ((length - label.Length) / 2) + "}", "");
+                    string padRight = String.Format("{0," + (length - padLeft.Length - label.Length) + "}", "");
+                    columnTitles[colNumber] = padLeft + label + padRight;
+                    columnIsRightAligned[colNumber] = rightAlign;
+
+                    lineLength += length + 1;
+                }
+                StringBuilder outputRow = new StringBuilder(lineLength);
+                for (int i = 0; i < columnTitles.Length; i++)
+                {
+                    outputRow.Append(columnTitles[i]).Append(" ");
+                }
+                outputRow.AppendLine();
+                ResultsWindow.AppendText(outputRow.ToString());
+                outputRow.Clear();
+                for (int i = 0; i < columnWidths.Length; i++)
+                {
+                    outputRow.Append(String.Format("{0," + columnWidths[i] + "}", "").Replace(' ', '-')).Append(" ");
+                }
+                outputRow.AppendLine();
+                ResultsWindow.AppendText(outputRow.ToString());
+                while (reader.Read())
+                {
+                    outputRow.Clear();
+                    for (int i = 0; i < reader.FieldCount; i++)
+                    {
+                        string col = reader.GetString(i);
+                        if (col == null)
+                            col = "<null>";
+                        if (col.Length > columnWidths[i])
+                            if (columnWidths[i] > 5)
+                                col = col.Substring(0, columnWidths[i] - 5) + "[...]";
+                            else
+                                col = col.Substring(0, columnWidths[i]);
+                        outputRow.Append(String.Format("{0," + (columnIsRightAligned[i] ? "" : "-") + columnWidths[i] + "}", col)).Append(" ");
+                    }
+                    outputRow.AppendLine();
                     ResultsWindow.AppendText(outputRow.ToString());
                 }
+                reader.Close();
+            }
+            else
+            {
+                int affectedRows = dbCmd.ExecuteNonQuery();
+                StringBuilder outputRow = new StringBuilder();
+                outputRow.AppendLine(String.Format("{0} row(s) updated", affectedRows));
+                ResultsWindow.AppendText(outputRow.ToString());
             }
         }
 

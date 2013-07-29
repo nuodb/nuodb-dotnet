@@ -91,6 +91,29 @@
               </Selection>
             </Children>
           </StaticNode>
+          
+          <StaticNode nid="StoredProcedures">
+            <DisplayName resource="DataView_Node_StoredProcedures" />
+            <Children>
+              <Selection type="StoredProcedure">
+                <SelectionNode nid="StoredProcedure">
+                  <DisplayName>{StoredProcedure.Name}</DisplayName>
+                  <Icon name="StoredProcedure"/>
+                  <Children>
+                    <Selection type="StoredProcedureParameter" restrictions="null,{StoredProcedure.Schema},{StoredProcedure.Name}">
+                      <SelectionNode>
+                        <Icon when="{Direction} = 1" name="InputParameter"/>
+                        <Icon when="{Direction} = 2" name="InputOutputParameter"/>
+                        <Icon when="{Direction} = 3" name="Column"/>
+                        <Icon when="{Direction} = 4" name="OutputParameter"/>
+                      </SelectionNode>
+                    </Selection>
+                  </Children>
+                </SelectionNode>
+              </Selection>
+            </Children>
+          </StaticNode>
+
         </Children>
       </StaticConnectionNode>
     </DataView>

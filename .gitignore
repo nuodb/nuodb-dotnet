@@ -7,3 +7,5 @@ obj
 WebApplicationSample/WebApplicationSample.csproj.user
 /*.sdf
 /*.opensdf
+
+*.user

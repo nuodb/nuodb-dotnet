@@ -40,7 +40,6 @@ using NuoDb.Data.Client.Xml;
 using NuoDb.Data.Client.Net;
 using NuoDb.Data.Client.Security;
 using NuoDb.Data.Client.Util;
-using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System;
 using System.Data;
@@ -817,6 +816,18 @@ namespace NuoDb.Data.Client
 
         static internal DataTable GetSchemaHelper(string connectionString, string collectionName, string[] restrictionValues)
         {
+            using (var tmConn = new NuoDbConnection(connectionString))
+            {
+                tmConn.Open();
+
+                return GetSchemaHelper(tmConn, collectionName, restrictionValues);
+            }
+        }
+
+        /* Be careful when using this version of the API: the active result set in the provided connection will be reset 
+         * when the metadata will be retrieved */
+        static internal DataTable GetSchemaHelper(NuoDbConnection tmConn, string collectionName, string[] restrictionValues)
+        {
 #if DEBUG
             System.Diagnostics.Trace.Write("NuoDBConnection::GetSchema(\"" + collectionName + "\", {");
             if (restrictionValues != null)
@@ -832,232 +843,641 @@ namespace NuoDb.Data.Client
             DataTable table = new DataTable(collectionName);
             table.Locale = System.Globalization.CultureInfo.CurrentCulture;
 
-            // we must create a new connection to retrieve the schema resultsets without closing the active one
-            // (e.g. invoking DataReader.GetSchemaTable on a newly created resultset will prevent fecthing the second
-            // batch of rows)
-            using (var tmConn = new NuoDbConnection(connectionString))
+            if (collectionName == DbMetaDataCollectionNames.DataSourceInformation)
             {
-                tmConn.Open();
+                // see http://msdn.microsoft.com/en-us/library/ms254501.aspx
+                table.Columns.Add("CompositeIdentifierSeparatorPattern", typeof(string));
+                table.Columns.Add("DataSourceProductName", typeof(string));
+                table.Columns.Add("DataSourceProductVersion", typeof(string));
+                table.Columns.Add("DataSourceProductVersionNormalized", typeof(string));
+                table.Columns.Add("DataSourceInternalProductVersion", typeof(string));
+                table.Columns.Add("GroupByBehavior", typeof(GroupByBehavior));
+                table.Columns.Add("IdentifierPattern", typeof(string));
+                table.Columns.Add("IdentifierCase", typeof(IdentifierCase));
+                table.Columns.Add("OrderByColumnsInSelect", typeof(bool));
+                table.Columns.Add("ParameterMarkerFormat", typeof(string));
+                table.Columns.Add("ParameterMarkerPattern", typeof(string));
+                table.Columns.Add("ParameterNameMaxLength", typeof(int));
+                table.Columns.Add("ParameterNamePattern", typeof(string));
+                table.Columns.Add("QuotedIdentifierPattern", typeof(string));  // Regex
+                table.Columns.Add("QuotedIdentifierCase", typeof(int));
+                table.Columns.Add("StatementSeparatorPattern", typeof(string));
+                table.Columns.Add("StringLiteralPattern", typeof(string));  // Regex
+                table.Columns.Add("SupportedJoinOperators", typeof(SupportedJoinOperators));
 
-                if (collectionName == DbMetaDataCollectionNames.DataSourceInformation)
+                table.BeginLoadData();
+                DataRow row = table.NewRow();
+                int databaseMajorVersion = 0, databaseMinorVersion = 0;
+                try
                 {
-                    // see http://msdn.microsoft.com/en-us/library/ms254501.aspx
-                    table.Columns.Add("CompositeIdentifierSeparatorPattern", typeof(string));
-                    table.Columns.Add("DataSourceProductName", typeof(string));
-                    table.Columns.Add("DataSourceProductVersion", typeof(string));
-                    table.Columns.Add("DataSourceProductVersionNormalized", typeof(string));
-                    table.Columns.Add("DataSourceInternalProductVersion", typeof(string));
-                    table.Columns.Add("GroupByBehavior", typeof(GroupByBehavior));
-                    table.Columns.Add("IdentifierPattern", typeof(string));
-                    table.Columns.Add("IdentifierCase", typeof(IdentifierCase));
-                    table.Columns.Add("OrderByColumnsInSelect", typeof(bool));
-                    table.Columns.Add("ParameterMarkerFormat", typeof(string));
-                    table.Columns.Add("ParameterMarkerPattern", typeof(string));
-                    table.Columns.Add("ParameterNameMaxLength", typeof(int));
-                    table.Columns.Add("ParameterNamePattern", typeof(string));
-                    table.Columns.Add("QuotedIdentifierPattern", typeof(string));  // Regex
-                    table.Columns.Add("QuotedIdentifierCase", typeof(int));
-                    table.Columns.Add("StatementSeparatorPattern", typeof(string));
-                    table.Columns.Add("StringLiteralPattern", typeof(string));  // Regex
-                    table.Columns.Add("SupportedJoinOperators", typeof(SupportedJoinOperators));
-
-                    table.BeginLoadData();
-                    DataRow row = table.NewRow();
-                    int databaseMajorVersion = 0, databaseMinorVersion = 0;
-                    try
+                    tmConn.InternalConnection.dataStream.startMessage(Protocol.GetDatabaseMetaData);
+                    tmConn.InternalConnection.sendAndReceive(tmConn.InternalConnection.dataStream);
+                    for (int item; (item = tmConn.InternalConnection.dataStream.getInt()) != Protocol.DbmbFini; )
                     {
-                        tmConn.InternalConnection.dataStream.startMessage(Protocol.GetDatabaseMetaData);
-                        tmConn.InternalConnection.sendAndReceive(tmConn.InternalConnection.dataStream);
-                        for (int item; (item = tmConn.InternalConnection.dataStream.getInt()) != Protocol.DbmbFini; )
+                        switch (item)
                         {
-                            switch (item)
-                            {
-                                case Protocol.DbmbProductName:
-                                    row["DataSourceProductName"] = tmConn.InternalConnection.dataStream.getString();
-                                    break;
+                            case Protocol.DbmbProductName:
+                                row["DataSourceProductName"] = tmConn.InternalConnection.dataStream.getString();
+                                break;
 
-                                case Protocol.DbmbProductVersion:
-                                    row["DataSourceProductVersion"] = tmConn.InternalConnection.dataStream.getString();
-                                    break;
+                            case Protocol.DbmbProductVersion:
+                                row["DataSourceProductVersion"] = tmConn.InternalConnection.dataStream.getString();
+                                break;
 
-                                case Protocol.DbmbDatabaseMinorVersion:
-                                    databaseMinorVersion = tmConn.InternalConnection.dataStream.getInt();
-                                    break;
+                            case Protocol.DbmbDatabaseMinorVersion:
+                                databaseMinorVersion = tmConn.InternalConnection.dataStream.getInt();
+                                break;
 
-                                case Protocol.DbmbDatabaseMajorVersion:
-                                    databaseMajorVersion = tmConn.InternalConnection.dataStream.getInt();
-                                    break;
+                            case Protocol.DbmbDatabaseMajorVersion:
+                                databaseMajorVersion = tmConn.InternalConnection.dataStream.getInt();
+                                break;
 
-                                case Protocol.DbmbDefaultTransactionIsolation:
-                                    int defaultTransactionIsolation = tmConn.InternalConnection.dataStream.getInt();
-                                    break;
+                            case Protocol.DbmbDefaultTransactionIsolation:
+                                int defaultTransactionIsolation = tmConn.InternalConnection.dataStream.getInt();
+                                break;
 
-                                default:
-                                    tmConn.InternalConnection.dataStream.decode();
-                                    break;
-                            }
+                            default:
+                                tmConn.InternalConnection.dataStream.decode();
+                                break;
                         }
                     }
-                    catch (Exception)
-                    {
-                    }
+                }
+                catch (Exception)
+                {
+                }
 
-                    row["DataSourceInternalProductVersion"] = String.Format("{0:D3}.{1:D3}", databaseMajorVersion, databaseMinorVersion);
-                    // The regular expression to match the composite separators in a composite identifier. 
-                    // For example, "\." (for SQL Server) or "@|\." (for Oracle).
-                    // A composite identifier is typically what is used for a database object name, 
-                    // for example: pubs.dbo.authors or pubs@dbo.authors.
-                    row["CompositeIdentifierSeparatorPattern"] = "\\.";
-                    // A normalized version for the data source, such that it can be compared with String.Compare(). 
-                    // The format of this is consistent for all versions of the provider to prevent version 10 from sorting between version 1 and version 2.
-                    //row["DataSourceProductVersionNormalized"] = ??
-                    // Specifies the relationship between the columns in a GROUP BY clause and the non-aggregated columns in the select list.
-                    row["GroupByBehavior"] = GroupByBehavior.Unknown;
-                    // A regular expression that matches an identifier and has a match value of the identifier. For example "[A-Za-z0-9_#$]".
-                    row["IdentifierPattern"] = "(^\\[\\p{Lo}\\p{Lu}\\p{Ll}_@#][\\p{Lo}\\p{Lu}\\p{Ll}\\p{Nd}@$#_]*$)|(^\"[^\"\\0]|\"\"+\"$)";
-                    // Indicates whether non-quoted identifiers are treated as case sensitive or not.
-                    row["IdentifierCase"] = IdentifierCase.Insensitive;
-                    // Specifies whether columns in an ORDER BY clause must be in the select list. 
-                    // A value of true indicates that they are required to be in the select list, 
-                    // a value of false indicates that they are not required to be in the select list.
-                    row["OrderByColumnsInSelect"] = false;
-                    // For data sources that do not expect named parameters and expect the use of the ‘?’ character, the format string
-                    // can be specified as simply '?', which would ignore the parameter name.
-                    row["ParameterMarkerFormat"] = "?";
-                    // if the data source doesn't support named parameters, this would simply be "?".
-                    row["ParameterMarkerPattern"] = "?";
-                    // If the data source does not support named parameters, this property returns zero.
-                    row["ParameterNameMaxLength"] = 0;
-                    // A regular expression that matches the valid parameter names
-                    row["ParameterNamePattern"] = "";
-                    // A regular expression that matches a quoted identifier and has a match value of the identifier itself without the quotes. 
-                    // For example, if the data source used double-quotes to identify quoted identifiers, this would be: "(([^\"]|\"\")*)".
-                    row["QuotedIdentifierPattern"] = "\"([^\"]*)\"";
-                    // Indicates whether quoted identifiers are treated as case sensitive or not.
-                    row["QuotedIdentifierCase"] = IdentifierCase.Sensitive;
-                    // A regular expression that matches the statement separator.
-                    row["StatementSeparatorPattern"] = ";";
-                    // A regular expression that matches a string literal and has a match value of the literal itself. 
-                    // For example, if the data source used single-quotes to identify strings, this would be: "('([^']|'')*')"'
-                    row["StringLiteralPattern"] = "'([^']*)'";
-                    // Specifies what types of SQL join statements are supported by the data source.
-                    row["SupportedJoinOperators"] = SupportedJoinOperators.None;
+                row["DataSourceInternalProductVersion"] = String.Format("{0:D3}.{1:D3}", databaseMajorVersion, databaseMinorVersion);
+                // The regular expression to match the composite separators in a composite identifier. 
+                // For example, "\." (for SQL Server) or "@|\." (for Oracle).
+                // A composite identifier is typically what is used for a database object name, 
+                // for example: pubs.dbo.authors or pubs@dbo.authors.
+                row["CompositeIdentifierSeparatorPattern"] = "\\.";
+                // A normalized version for the data source, such that it can be compared with String.Compare(). 
+                // The format of this is consistent for all versions of the provider to prevent version 10 from sorting between version 1 and version 2.
+                //row["DataSourceProductVersionNormalized"] = ??
+                // Specifies the relationship between the columns in a GROUP BY clause and the non-aggregated columns in the select list.
+                row["GroupByBehavior"] = GroupByBehavior.Unknown;
+                // A regular expression that matches an identifier and has a match value of the identifier. For example "[A-Za-z0-9_#$]".
+                row["IdentifierPattern"] = "(^\\[\\p{Lo}\\p{Lu}\\p{Ll}_@#][\\p{Lo}\\p{Lu}\\p{Ll}\\p{Nd}@$#_]*$)|(^\"[^\"\\0]|\"\"+\"$)";
+                // Indicates whether non-quoted identifiers are treated as case sensitive or not.
+                row["IdentifierCase"] = IdentifierCase.Insensitive;
+                // Specifies whether columns in an ORDER BY clause must be in the select list. 
+                // A value of true indicates that they are required to be in the select list, 
+                // a value of false indicates that they are not required to be in the select list.
+                row["OrderByColumnsInSelect"] = false;
+                // For data sources that do not expect named parameters and expect the use of the ‘?’ character, the format string
+                // can be specified as simply '?', which would ignore the parameter name.
+                row["ParameterMarkerFormat"] = "?";
+                // if the data source doesn't support named parameters, this would simply be "?".
+                row["ParameterMarkerPattern"] = "?";
+                // If the data source does not support named parameters, this property returns zero.
+                row["ParameterNameMaxLength"] = 0;
+                // A regular expression that matches the valid parameter names
+                row["ParameterNamePattern"] = "";
+                // A regular expression that matches a quoted identifier and has a match value of the identifier itself without the quotes. 
+                // For example, if the data source used double-quotes to identify quoted identifiers, this would be: "(([^\"]|\"\")*)".
+                row["QuotedIdentifierPattern"] = "\"([^\"]*)\"";
+                // Indicates whether quoted identifiers are treated as case sensitive or not.
+                row["QuotedIdentifierCase"] = IdentifierCase.Sensitive;
+                // A regular expression that matches the statement separator.
+                row["StatementSeparatorPattern"] = ";";
+                // A regular expression that matches a string literal and has a match value of the literal itself. 
+                // For example, if the data source used single-quotes to identify strings, this would be: "('([^']|'')*')"'
+                row["StringLiteralPattern"] = "'([^']*)'";
+                // Specifies what types of SQL join statements are supported by the data source.
+                row["SupportedJoinOperators"] = SupportedJoinOperators.None;
+                table.Rows.Add(row);
+                table.EndLoadData();
+            }
+            else if (collectionName == DbMetaDataCollectionNames.ReservedWords)
+            {
+                table.Columns.Add("ReservedWord", typeof(string));
+                table.Columns.Add("MaximumVersion", typeof(string));
+                table.Columns.Add("MinimumVersion", typeof(string));
+
+                string[] words = { "select", "Add field", "Drop field", "Alter table", "Alter field",
+                                    "Alter user", "And", "Or", "Not", "Create Index", "Upgrade", "Unique",
+                                    "Table key", "Table unique key", "Primary Key", "Create Table",
+                                    "Upgrade Table", "Rename Table", "Create View", "Upgrade View",
+                                    "Drop View", "Create Schema", "Drop Schema", "Integer", "Smallint",
+                                    "Bigint", "Tinyint", "float", "double", "Blob", "bytes", "boolean",
+                                    "binary", "varbinary", "string", "char", "text", "date", "timestamp",
+                                    "time", "varchar", "numeric", "Decimal Number", "Enum", "Delete", "Repair",
+                                    "Field", "Not Null", "Default Value", "searchable", "not searchable",
+                                    "collation", "character_set", "Foreign Key", "Identifier", "record number",
+                                    "Insert", "Replace", "Name", "Number", "Order", "Descending", "limit",
+                                    "Quoted String", "Select Clause", "Distinct", "Gtr", "Geq", "Eql",
+                                    "Leq", "Lss", "Neq", "in list", "in select", "exists", "Between", "Like",
+                                    "starts with", "Containing", "Matching", "Regular expression", "Null",
+                                    "True", "False", "Execute", "Parameter", "Count", "sum", "min", "max",
+                                    "avg", "Drop Index", "Drop primary key", "Drop foreign key", "Drop Table",
+                                    "If Exists", "Describe", "Statement", "for_select", "for_insert", "while",
+                                    "if then else", "variable", "declaration", "throw", "assignment",
+                                    "Start transaction", "read only", "read write", "read committed", "write committed",
+                                    "read uncommitted", "repeatableread", "serializable", "Commit", "Rollback",
+                                    "Savepoint", "Rollack Savepoint", "Release Savepoint", "Table", "Derived Table",
+                                    "Assign", "Update", "list", "Constant", "Function", "Grant", "Grant role", "Alter",
+                                    "Read", "Identity", "Check", "Constraint", "value constraint", "auto increment",
+                                    "generated", "always", "Domain", "is null", "is active_role", "start with", "reindex",
+                                    "cursor", "alias", "push_namespace", "pop_namespace", "set_namespace", "coalesce",
+                                    "nod_nullif", "case", "case_search", "add", "subtract", "multiply", "divide", "modulus",
+                                    "negate", "plus", "cast", "concatenation", "create user", "drop user", "create role",
+                                    "upgrade role", "drop role", "revoke", "revoke role", "assume", "revert", "negate",
+                                    "priv insert", "priv delete", "priv execute", "priv select", "priv update", "priv grant",
+                                    "priv all", "characters", "octets", "role", "view", "procedure", "user", "zone", "admin",
+                                    "default role", "create sequence", "upgrade sequence", "drop sequence", "next value",
+                                    "create trigger", "upgrade trigger", "alter trigger", "drop trigger", "create procedure",
+                                    "upgrade procedure", "alter procedure", "drop procedure", "pre-insert", "post-insert",
+                                    "pre-update", "post-update", "pre-delete", "post-delete", "pre-commit", "post-commit",
+                                    "active", "inactive", "position", "select-expr", "create filterset", "upgrade filterset",
+                                    "drop filterset", "enable filterset", "disable filterset", "table filter", "left outer",
+                                    "right outer", "full outer", "inner", "join", "join_term", "trigger class", "enable trigger class",
+                                    "disable trigger class", "create zone", "upgrade zone", "drop zone", "range", "ip address",
+                                    "node_name", "wildcard", "create domain", "upgrade domain", "alter domain", "upgrade schema",
+                                    "delete cascade", "index segment", "for update", "write committed", "read committed", 
+                                    "consistent read", "set dialect", "set names", "restrict", "cascade", "characters", "octets",
+                                    "create event", "collate", "truncate", "restart", "nameless constraint", "drop constraint",
+                                    "drop unique constraint", "drop domain", "with check option", "not real", "lower", "upper",
+                                    "substr", "substring index", "charlength", "default keyword", "sqrt", "power", "Scientific Notation Number",
+                                    "Explain", "msleep", "KillStatement", "now" };
+                table.BeginLoadData();
+                foreach (string keyword in words)
+                {
+                    DataRow row = table.NewRow();
+                    row["ReservedWord"] = keyword;
                     table.Rows.Add(row);
-                    table.EndLoadData();
                 }
-                else if (collectionName == DbMetaDataCollectionNames.ReservedWords)
-                {
-                    table.Columns.Add("ReservedWord", typeof(string));
-                    table.Columns.Add("MaximumVersion", typeof(string));
-                    table.Columns.Add("MinimumVersion", typeof(string));
+                table.EndLoadData();
 
-                    string[] words = { "select", "Add field", "Drop field", "Alter table", "Alter field",
-                                       "Alter user", "And", "Or", "Not", "Create Index", "Upgrade", "Unique",
-                                       "Table key", "Table unique key", "Primary Key", "Create Table",
-                                       "Upgrade Table", "Rename Table", "Create View", "Upgrade View",
-                                       "Drop View", "Create Schema", "Drop Schema", "Integer", "Smallint",
-                                       "Bigint", "Tinyint", "float", "double", "Blob", "bytes", "boolean",
-                                       "binary", "varbinary", "string", "char", "text", "date", "timestamp",
-                                       "time", "varchar", "numeric", "Decimal Number", "Enum", "Delete", "Repair",
-                                       "Field", "Not Null", "Default Value", "searchable", "not searchable",
-                                       "collation", "character_set", "Foreign Key", "Identifier", "record number",
-                                       "Insert", "Replace", "Name", "Number", "Order", "Descending", "limit",
-                                       "Quoted String", "Select Clause", "Distinct", "Gtr", "Geq", "Eql",
-                                       "Leq", "Lss", "Neq", "in list", "in select", "exists", "Between", "Like",
-                                       "starts with", "Containing", "Matching", "Regular expression", "Null",
-                                       "True", "False", "Execute", "Parameter", "Count", "sum", "min", "max",
-                                       "avg", "Drop Index", "Drop primary key", "Drop foreign key", "Drop Table",
-                                       "If Exists", "Describe", "Statement", "for_select", "for_insert", "while",
-                                       "if then else", "variable", "declaration", "throw", "assignment",
-                                       "Start transaction", "read only", "read write", "read committed", "write committed",
-                                       "read uncommitted", "repeatableread", "serializable", "Commit", "Rollback",
-                                       "Savepoint", "Rollack Savepoint", "Release Savepoint", "Table", "Derived Table",
-                                       "Assign", "Update", "list", "Constant", "Function", "Grant", "Grant role", "Alter",
-                                       "Read", "Identity", "Check", "Constraint", "value constraint", "auto increment",
-                                       "generated", "always", "Domain", "is null", "is active_role", "start with", "reindex",
-                                       "cursor", "alias", "push_namespace", "pop_namespace", "set_namespace", "coalesce",
-                                       "nod_nullif", "case", "case_search", "add", "subtract", "multiply", "divide", "modulus",
-                                       "negate", "plus", "cast", "concatenation", "create user", "drop user", "create role",
-                                       "upgrade role", "drop role", "revoke", "revoke role", "assume", "revert", "negate",
-                                       "priv insert", "priv delete", "priv execute", "priv select", "priv update", "priv grant",
-                                       "priv all", "characters", "octets", "role", "view", "procedure", "user", "zone", "admin",
-                                       "default role", "create sequence", "upgrade sequence", "drop sequence", "next value",
-                                       "create trigger", "upgrade trigger", "alter trigger", "drop trigger", "create procedure",
-                                       "upgrade procedure", "alter procedure", "drop procedure", "pre-insert", "post-insert",
-                                       "pre-update", "post-update", "pre-delete", "post-delete", "pre-commit", "post-commit",
-                                       "active", "inactive", "position", "select-expr", "create filterset", "upgrade filterset",
-                                       "drop filterset", "enable filterset", "disable filterset", "table filter", "left outer",
-                                       "right outer", "full outer", "inner", "join", "join_term", "trigger class", "enable trigger class",
-                                       "disable trigger class", "create zone", "upgrade zone", "drop zone", "range", "ip address",
-                                       "node_name", "wildcard", "create domain", "upgrade domain", "alter domain", "upgrade schema",
-                                       "delete cascade", "index segment", "for update", "write committed", "read committed", 
-                                       "consistent read", "set dialect", "set names", "restrict", "cascade", "characters", "octets",
-                                       "create event", "collate", "truncate", "restart", "nameless constraint", "drop constraint",
-                                       "drop unique constraint", "drop domain", "with check option", "not real", "lower", "upper",
-                                       "substr", "substring index", "charlength", "default keyword", "sqrt", "power", "Scientific Notation Number",
-                                       "Explain", "msleep", "KillStatement", "now" };
-                    table.BeginLoadData();
-                    foreach (string keyword in words)
+            }
+            else if (collectionName == DbMetaDataCollectionNames.DataTypes)
+            {
+                table.Columns.Add("TypeName", typeof(string));  // The provider-specific data type name.
+                table.Columns.Add("ProviderDbType", typeof(int)); // The provider-specific type value that should be used when specifying 
+                //a parameter's type. For example, SqlDbType.Money or OracleType.Blob.
+                table.Columns.Add("ColumnSize", typeof(long));
+                table.Columns.Add("CreateFormat", typeof(string));
+                table.Columns.Add("CreateParameters", typeof(string));
+                table.Columns.Add("DataType", typeof(string));  // The name of the .NET Framework type of the data type.
+                table.Columns.Add("IsAutoincrementable", typeof(bool));
+                table.Columns.Add("IsBestMatch", typeof(bool));
+                table.Columns.Add("IsCaseSensitive", typeof(bool));
+                table.Columns.Add("IsFixedLength", typeof(bool));
+                table.Columns.Add("IsFixedPrecisionScale", typeof(bool));
+                table.Columns.Add("IsLong", typeof(bool));
+                table.Columns.Add("IsNullable", typeof(bool));
+                table.Columns.Add("IsSearchable", typeof(bool));
+                table.Columns.Add("IsSearchableWithLike", typeof(bool));
+                table.Columns.Add("IsUnsigned", typeof(bool));
+                table.Columns.Add("MaximumScale", typeof(short));
+                table.Columns.Add("MinimumScale", typeof(short));
+                table.Columns.Add("IsConcurrencyType", typeof(bool));
+                table.Columns.Add("IsLiteralsSupported", typeof(bool));
+                table.Columns.Add("LiteralPrefix", typeof(string));
+                table.Columns.Add("LitteralSuffix", typeof(string));
+                table.Columns.Add("NativeDataType", typeof(string));    // NativeDataType is an OLE DB specific column for exposing the OLE DB type of the data type .
+
+                table.ReadXml(XmlReader.Create(typeof(NuoDbConnectionInternal).Assembly.GetManifestResourceStream("NuoDb.Data.Client.DataTypes.xml")));
+            }
+            else if (collectionName == "Tables")
+            {
+                table.Columns.Add("TABLE_CATALOG", typeof(string));
+                table.Columns.Add("TABLE_SCHEMA", typeof(string));
+                table.Columns.Add("TABLE_NAME", typeof(string));
+                table.Columns.Add("TABLE_TYPE", typeof(string));
+                table.Columns.Add("REMARKS", typeof(string));
+                table.Columns.Add("VIEW_DEF", typeof(string));
+
+                tmConn.InternalConnection.dataStream.startMessage(Protocol.GetTables);
+                tmConn.InternalConnection.dataStream.encodeNull(); // catalog is always null
+                for (int i = 1; i < 3; i++)
+                    if (restrictionValues != null && restrictionValues.Length > i)
+                        tmConn.InternalConnection.dataStream.encodeString(restrictionValues[i]);
+                    else
+                        tmConn.InternalConnection.dataStream.encodeNull();
+                if (restrictionValues == null || restrictionValues.Length < 4 || restrictionValues[3] == null)
+                    tmConn.InternalConnection.dataStream.encodeInt(0);
+                else
+                {
+                    tmConn.InternalConnection.dataStream.encodeInt(1);
+                    tmConn.InternalConnection.dataStream.encodeString(restrictionValues[3]);
+                }
+
+                tmConn.InternalConnection.sendAndReceive(tmConn.InternalConnection.dataStream);
+                int handle = tmConn.InternalConnection.dataStream.getInt();
+
+                if (handle != -1)
+                {
+                    using (NuoDbDataReader reader = new NuoDbDataReader(tmConn, handle, tmConn.InternalConnection.dataStream, null, true))
                     {
-                        DataRow row = table.NewRow();
-                        row["ReservedWord"] = keyword;
-                        table.Rows.Add(row);
+                        table.BeginLoadData();
+                        while (reader.Read())
+                        {
+#if DEBUG
+                            System.Diagnostics.Trace.WriteLine("-> " + reader["TABLE_NAME"] + ", " + reader["TABLE_TYPE"]);
+#endif
+                            DataRow row = table.NewRow();
+                            row["TABLE_SCHEMA"] = reader["TABLE_SCHEM"];
+                            row["TABLE_NAME"] = reader["TABLE_NAME"];
+                            row["TABLE_TYPE"] = reader["TABLE_TYPE"];
+                            row["REMARKS"] = reader["REMARKS"];
+                            row["VIEW_DEF"] = reader["VIEW_DEF"];
+                            table.Rows.Add(row);
+                        }
+                        table.EndLoadData();
                     }
-                    table.EndLoadData();
-
                 }
-                else if (collectionName == DbMetaDataCollectionNames.DataTypes)
-                {
-                    table.Columns.Add("TypeName", typeof(string));  // The provider-specific data type name.
-                    table.Columns.Add("ProviderDbType", typeof(int)); // The provider-specific type value that should be used when specifying 
-                    //a parameter's type. For example, SqlDbType.Money or OracleType.Blob.
-                    table.Columns.Add("ColumnSize", typeof(long));
-                    table.Columns.Add("CreateFormat", typeof(string));
-                    table.Columns.Add("CreateParameters", typeof(string));
-                    table.Columns.Add("DataType", typeof(string));  // The name of the .NET Framework type of the data type.
-                    table.Columns.Add("IsAutoincrementable", typeof(bool));
-                    table.Columns.Add("IsBestMatch", typeof(bool));
-                    table.Columns.Add("IsCaseSensitive", typeof(bool));
-                    table.Columns.Add("IsFixedLength", typeof(bool));
-                    table.Columns.Add("IsFixedPrecisionScale", typeof(bool));
-                    table.Columns.Add("IsLong", typeof(bool));
-                    table.Columns.Add("IsNullable", typeof(bool));
-                    table.Columns.Add("IsSearchable", typeof(bool));
-                    table.Columns.Add("IsSearchableWithLike", typeof(bool));
-                    table.Columns.Add("IsUnsigned", typeof(bool));
-                    table.Columns.Add("MaximumScale", typeof(short));
-                    table.Columns.Add("MinimumScale", typeof(short));
-                    table.Columns.Add("IsConcurrencyType", typeof(bool));
-                    table.Columns.Add("IsLiteralsSupported", typeof(bool));
-                    table.Columns.Add("LiteralPrefix", typeof(string));
-                    table.Columns.Add("LitteralSuffix", typeof(string));
-                    table.Columns.Add("NativeDataType", typeof(string));    // NativeDataType is an OLE DB specific column for exposing the OLE DB type of the data type .
+            }
+            else if (collectionName == "Columns")
+            {
+                table.Columns.Add("COLUMN_CATALOG", typeof(string));
+                table.Columns.Add("COLUMN_SCHEMA", typeof(string));
+                table.Columns.Add("COLUMN_TABLE", typeof(string));
+                table.Columns.Add("COLUMN_NAME", typeof(string));
+                table.Columns.Add("COLUMN_POSITION", typeof(int));
+                table.Columns.Add("COLUMN_TYPE", typeof(string));
+                table.Columns.Add("COLUMN_LENGTH", typeof(int));
+                table.Columns.Add("COLUMN_PRECISION", typeof(int));
+                table.Columns.Add("COLUMN_NULLABLE", typeof(bool));
+                table.Columns.Add("COLUMN_IDENTITY", typeof(bool));
+                table.Columns.Add("COLUMN_DEFAULT", typeof(string));
+                table.Columns.Add("COLUMN_SCALE", typeof(int));
 
-                    table.ReadXml(XmlReader.Create(typeof(NuoDbConnectionInternal).Assembly.GetManifestResourceStream("NuoDb.Data.Client.DataTypes.xml")));
+                tmConn.InternalConnection.dataStream.startMessage(Protocol.GetColumns);
+                tmConn.InternalConnection.dataStream.encodeNull(); // catalog is always null
+                for (int i = 1; i < 4; i++)
+                    if (restrictionValues != null && restrictionValues.Length > i)
+                        tmConn.InternalConnection.dataStream.encodeString(restrictionValues[i]);
+                    else
+                        tmConn.InternalConnection.dataStream.encodeNull();
+
+                tmConn.InternalConnection.sendAndReceive(tmConn.InternalConnection.dataStream);
+                int handle = tmConn.InternalConnection.dataStream.getInt();
+
+                if (handle != -1)
+                {
+                    using (NuoDbDataReader reader = new NuoDbDataReader(tmConn, handle, tmConn.InternalConnection.dataStream, null, true))
+                    {
+                        table.BeginLoadData();
+                        while (reader.Read())
+                        {
+                            DataRow row = table.NewRow();
+                            row["COLUMN_SCHEMA"] = reader["TABLE_SCHEM"];
+                            row["COLUMN_TABLE"] = reader["TABLE_NAME"];
+                            row["COLUMN_NAME"] = reader["COLUMN_NAME"];
+                            row["COLUMN_POSITION"] = reader["ORDINAL_POSITION"];
+                            row["COLUMN_LENGTH"] = reader["COLUMN_SIZE"];
+                            row["COLUMN_PRECISION"] = reader["BUFFER_LENGTH"];
+                            row["COLUMN_SCALE"] = reader["DECIMAL_DIGITS"];
+                            if (isNumeric((string)reader["TYPE_NAME"]))
+                            {
+                                if ((int)reader["DECIMAL_DIGITS"] != 0)
+                                    row["COLUMN_TYPE"] = reader["TYPE_NAME"] + "(" + reader["BUFFER_LENGTH"] + "," + reader["DECIMAL_DIGITS"] + ")";
+                                else
+                                    row["COLUMN_TYPE"] = reader["TYPE_NAME"];
+                            }
+                            else
+                            {
+                                if (isVarLenType((string)reader["TYPE_NAME"]) && (int)reader["COLUMN_SIZE"] != 0)
+                                    row["COLUMN_TYPE"] = reader["TYPE_NAME"] + "(" + reader["COLUMN_SIZE"] + ")";
+                                else
+                                    row["COLUMN_TYPE"] = reader["TYPE_NAME"];
+                            }
+                            if (!reader.IsDBNull(reader.GetOrdinal("IS_NULLABLE")))
+                                row["COLUMN_NULLABLE"] = reader["IS_NULLABLE"].Equals("YES");
+                            if (!reader.IsDBNull(reader.GetOrdinal("IS_AUTOINCREMENT")))
+                                row["COLUMN_IDENTITY"] = reader["IS_AUTOINCREMENT"].Equals("YES");
+                            row["COLUMN_DEFAULT"] = reader["COLUMN_DEF"];
+
+#if DEBUG
+                            System.Diagnostics.Trace.WriteLine("-> " + row["COLUMN_NAME"] + " " + row["COLUMN_TYPE"]);
+#endif
+                            table.Rows.Add(row);
+                        }
+                        table.EndLoadData();
+                    }
                 }
-                else if (collectionName == "Tables")
-                {
-                    table.Columns.Add("TABLE_CATALOG", typeof(string));
-                    table.Columns.Add("TABLE_SCHEMA", typeof(string));
-                    table.Columns.Add("TABLE_NAME", typeof(string));
-                    table.Columns.Add("TABLE_TYPE", typeof(string));
-                    table.Columns.Add("REMARKS", typeof(string));
-                    table.Columns.Add("VIEW_DEF", typeof(string));
+            }
+            else if (collectionName == "Indexes")
+            {
+                table.Columns.Add("INDEX_CATALOG", typeof(string));
+                table.Columns.Add("INDEX_SCHEMA", typeof(string));
+                table.Columns.Add("INDEX_TABLE", typeof(string));
+                table.Columns.Add("INDEX_NAME", typeof(string));
+                table.Columns.Add("INDEX_TYPE", typeof(string));
+                table.Columns.Add("INDEX_UNIQUE", typeof(bool));
+                table.Columns.Add("INDEX_PRIMARY", typeof(bool));
 
-                    tmConn.InternalConnection.dataStream.startMessage(Protocol.GetTables);
+                List<KeyValuePair<string, string>> tables = RetrieveMatchingTables(tmConn, getItemAtIndex(restrictionValues, 1), getItemAtIndex(restrictionValues, 2));
+
+                foreach (KeyValuePair<string, string> t in tables)
+                {
+                    tmConn.InternalConnection.dataStream.startMessage(Protocol.GetIndexInfo);
+                    tmConn.InternalConnection.dataStream.encodeNull(); // catalog is always null
+                    tmConn.InternalConnection.dataStream.encodeString(t.Key);
+                    tmConn.InternalConnection.dataStream.encodeString(t.Value);
+                    tmConn.InternalConnection.dataStream.encodeBoolean(false);    // unique
+                    tmConn.InternalConnection.dataStream.encodeBoolean(false);    // approximate
+                    tmConn.InternalConnection.sendAndReceive(tmConn.InternalConnection.dataStream);
+                    int handle = tmConn.InternalConnection.dataStream.getInt();
+
+                    // to avoid to insert the same index more than once
+                    HashSet<string> unique = new HashSet<string>();
+                    if (handle != -1)
+                    {
+                        using (NuoDbDataReader reader = new NuoDbDataReader(tmConn, handle, tmConn.InternalConnection.dataStream, null, true))
+                        {
+                            table.BeginLoadData();
+                            while (reader.Read())
+                            {
+                                // enforce the restriction on the index name
+                                if (restrictionValues != null && restrictionValues.Length > 3 && restrictionValues[3] != null &&
+                                    !restrictionValues[3].Equals(reader["INDEX_NAME"]))
+                                    continue;
+                                if (!unique.Add((string)reader["INDEX_NAME"]))
+                                    continue;
+                                DataRow row = table.NewRow();
+                                row["INDEX_SCHEMA"] = reader["TABLE_SCHEM"];
+                                row["INDEX_TABLE"] = reader["TABLE_NAME"];
+                                row["INDEX_NAME"] = reader["INDEX_NAME"];
+                                switch ((int)reader["TYPE"])
+                                {
+                                    case 0:
+                                        row["INDEX_TYPE"] = "Primary";
+                                        break;
+                                    case 1:
+                                        row["INDEX_TYPE"] = "Unique";
+                                        break;
+                                    case 2:
+                                        row["INDEX_TYPE"] = "Secondary";
+                                        break;
+                                    case 3:
+                                        row["INDEX_TYPE"] = "Foreign Key";
+                                        break;
+                                }
+                                row["INDEX_UNIQUE"] = ((int)reader["NON_UNIQUE"] == 0) ? true : false;
+                                row["INDEX_PRIMARY"] = ((int)reader["TYPE"] == 0) ? true : false;
+                                table.Rows.Add(row);
+                            }
+                            table.EndLoadData();
+                        }
+                    }
+
+                    tmConn.InternalConnection.dataStream.startMessage(Protocol.GetPrimaryKeys);
+                    tmConn.InternalConnection.dataStream.encodeNull(); // catalog is always null
+                    tmConn.InternalConnection.dataStream.encodeString(t.Key);
+                    tmConn.InternalConnection.dataStream.encodeString(t.Value);
+                    tmConn.InternalConnection.sendAndReceive(tmConn.InternalConnection.dataStream);
+                    handle = tmConn.InternalConnection.dataStream.getInt();
+
+                    if (handle != -1)
+                    {
+                        using (NuoDbDataReader reader = new NuoDbDataReader(tmConn, handle, tmConn.InternalConnection.dataStream, null, true))
+                        {
+                            // use INDEX_NAME, if present; if missing, the name of the index is in PK_NAME
+                            string indexName = "PK_NAME";
+                            foreach (string column in reader.columnNames)
+                            {
+                                if (column == "INDEX_NAME")
+                                {
+                                    indexName = "INDEX_NAME";
+                                    break;
+                                }
+                            }
+                            table.BeginLoadData();
+                            while (reader.Read())
+                            {
+                                // enforce the restriction on the index name
+                                if (restrictionValues != null && restrictionValues.Length > 3 && restrictionValues[3] != null &&
+                                    !restrictionValues[3].Equals(reader[indexName]))
+                                    continue;
+                                if (!unique.Add((string)reader[indexName]))
+                                    continue;
+                                DataRow row = table.NewRow();
+                                row["INDEX_SCHEMA"] = reader["TABLE_SCHEM"];
+                                row["INDEX_TABLE"] = reader["TABLE_NAME"];
+                                row["INDEX_NAME"] = reader[indexName];
+                                row["INDEX_TYPE"] = "Primary";
+                                row["INDEX_UNIQUE"] = true;
+                                row["INDEX_PRIMARY"] = true;
+                                table.Rows.Add(row);
+                            }
+                            table.EndLoadData();
+                        }
+                    }
+                }
+            }
+            else if (collectionName == "IndexColumns")
+            {
+                table.Columns.Add("INDEXCOLUMN_CATALOG", typeof(string));
+                table.Columns.Add("INDEXCOLUMN_SCHEMA", typeof(string));
+                table.Columns.Add("INDEXCOLUMN_TABLE", typeof(string));
+                table.Columns.Add("INDEXCOLUMN_INDEX", typeof(string));
+                table.Columns.Add("INDEXCOLUMN_NAME", typeof(string));
+                table.Columns.Add("INDEXCOLUMN_POSITION", typeof(int));
+                table.Columns.Add("INDEXCOLUMN_ISPRIMARY", typeof(bool));
+
+                List<KeyValuePair<string, string>> tables = RetrieveMatchingTables(tmConn, getItemAtIndex(restrictionValues, 1), getItemAtIndex(restrictionValues, 2));
+
+                foreach (KeyValuePair<string, string> t in tables)
+                {
+                    tmConn.InternalConnection.dataStream.startMessage(Protocol.GetIndexInfo);
+                    tmConn.InternalConnection.dataStream.encodeNull(); // catalog is always null
+                    tmConn.InternalConnection.dataStream.encodeString(t.Key);
+                    tmConn.InternalConnection.dataStream.encodeString(t.Value);
+                    tmConn.InternalConnection.dataStream.encodeBoolean(false);    // unique
+                    tmConn.InternalConnection.dataStream.encodeBoolean(false);    // approximate
+                    tmConn.InternalConnection.sendAndReceive(tmConn.InternalConnection.dataStream);
+                    int handle = tmConn.InternalConnection.dataStream.getInt();
+
+                    if (handle != -1)
+                    {
+                        using (NuoDbDataReader reader = new NuoDbDataReader(tmConn, handle, tmConn.InternalConnection.dataStream, null, true))
+                        {
+                            table.BeginLoadData();
+                            while (reader.Read())
+                            {
+                                // enforce the restriction on the index name
+                                if (restrictionValues != null && restrictionValues.Length > 3 && restrictionValues[3] != null &&
+                                    !restrictionValues[3].Equals(reader["INDEX_NAME"]))
+                                    continue;
+#if DEBUG
+                                System.Diagnostics.Trace.WriteLine("-> " + reader["TABLE_SCHEM"] + "." + reader["TABLE_NAME"] + "=" + reader["COLUMN_NAME"]);
+#endif
+                                DataRow row = table.NewRow();
+                                row["INDEXCOLUMN_SCHEMA"] = reader["TABLE_SCHEM"];
+                                row["INDEXCOLUMN_TABLE"] = reader["TABLE_NAME"];
+                                row["INDEXCOLUMN_INDEX"] = reader["INDEX_NAME"];
+                                row["INDEXCOLUMN_NAME"] = reader["COLUMN_NAME"];
+                                row["INDEXCOLUMN_POSITION"] = reader["ORDINAL_POSITION"];
+                                row["INDEXCOLUMN_ISPRIMARY"] = false;
+                                table.Rows.Add(row);
+                            }
+                            table.EndLoadData();
+                        }
+                    }
+
+                    tmConn.InternalConnection.dataStream.startMessage(Protocol.GetPrimaryKeys);
+                    tmConn.InternalConnection.dataStream.encodeNull(); // catalog is always null
+                    tmConn.InternalConnection.dataStream.encodeString(t.Key);
+                    tmConn.InternalConnection.dataStream.encodeString(t.Value);
+                    tmConn.InternalConnection.sendAndReceive(tmConn.InternalConnection.dataStream);
+                    handle = tmConn.InternalConnection.dataStream.getInt();
+
+                    if (handle != -1)
+                    {
+                        using (NuoDbDataReader reader = new NuoDbDataReader(tmConn, handle, tmConn.InternalConnection.dataStream, null, true))
+                        {
+                            // use INDEX_NAME, if present; if missing, the name of the index is in PK_NAME
+                            string indexName = "PK_NAME";
+                            foreach (string column in reader.columnNames)
+                            {
+                                if (column == "INDEX_NAME")
+                                {
+                                    indexName = "INDEX_NAME";
+                                    break;
+                                }
+                            }
+                            table.BeginLoadData();
+                            while (reader.Read())
+                            {
+                                // enforce the restriction on the index name
+                                if (restrictionValues != null && restrictionValues.Length > 3 && restrictionValues[3] != null &&
+                                    !restrictionValues[3].Equals(reader[indexName]))
+                                    continue;
+#if DEBUG
+                                System.Diagnostics.Trace.WriteLine("-> " + reader["TABLE_SCHEM"] + "." + reader["TABLE_NAME"] + " (Primary) =" + reader["COLUMN_NAME"]);
+#endif
+                                DataRow row = table.NewRow();
+                                row["INDEXCOLUMN_SCHEMA"] = reader["TABLE_SCHEM"];
+                                row["INDEXCOLUMN_TABLE"] = reader["TABLE_NAME"];
+                                row["INDEXCOLUMN_INDEX"] = reader[indexName];
+                                row["INDEXCOLUMN_NAME"] = reader["COLUMN_NAME"];
+                                row["INDEXCOLUMN_POSITION"] = reader["KEY_SEQ"];
+                                row["INDEXCOLUMN_ISPRIMARY"] = true;
+                                table.Rows.Add(row);
+                            }
+                            table.EndLoadData();
+                        }
+                    }
+                }
+            }
+            else if (collectionName == "ForeignKeys")
+            {
+                table.Columns.Add("FOREIGNKEY_CATALOG", typeof(string));
+                table.Columns.Add("FOREIGNKEY_SCHEMA", typeof(string));
+                table.Columns.Add("FOREIGNKEY_TABLE", typeof(string));
+                table.Columns.Add("FOREIGNKEY_NAME", typeof(string));
+                table.Columns.Add("FOREIGNKEY_OTHER_CATALOG", typeof(string));
+                table.Columns.Add("FOREIGNKEY_OTHER_SCHEMA", typeof(string));
+                table.Columns.Add("FOREIGNKEY_OTHER_TABLE", typeof(string));
+
+                List<KeyValuePair<string, string>> tables = RetrieveMatchingTables(tmConn, getItemAtIndex(restrictionValues, 1), getItemAtIndex(restrictionValues, 2));
+
+                foreach (KeyValuePair<string, string> t in tables)
+                {
+                    tmConn.InternalConnection.dataStream.startMessage(Protocol.GetImportedKeys);
+                    tmConn.InternalConnection.dataStream.encodeNull(); // catalog is always null
+                    tmConn.InternalConnection.dataStream.encodeString(t.Key);
+                    tmConn.InternalConnection.dataStream.encodeString(t.Value);
+                    tmConn.InternalConnection.sendAndReceive(tmConn.InternalConnection.dataStream);
+                    int handle = tmConn.InternalConnection.dataStream.getInt();
+
+                    if (handle != -1)
+                    {
+                        using (NuoDbDataReader reader = new NuoDbDataReader(tmConn, handle, tmConn.InternalConnection.dataStream, null, true))
+                        {
+                            table.BeginLoadData();
+                            while (reader.Read())
+                            {
+                                // enforce the restriction on the index name
+                                string name = "[" + reader["FKTABLE_SCHEM"] + "]" + reader["FKTABLE_NAME"] + "." + reader["FKCOLUMN_NAME"] + "->" +
+                                                "[" + reader["PKTABLE_SCHEM"] + "]" + reader["PKTABLE_NAME"] + "." + reader["PKCOLUMN_NAME"];
+                                // enforce the restriction on the index name
+                                if (restrictionValues != null && restrictionValues.Length > 3 && restrictionValues[3] != null &&
+                                    !restrictionValues[3].Equals(name))
+                                    continue;
+                                DataRow row = table.NewRow();
+                                row["FOREIGNKEY_SCHEMA"] = reader["FKTABLE_SCHEM"];
+                                row["FOREIGNKEY_TABLE"] = reader["FKTABLE_NAME"];
+                                row["FOREIGNKEY_NAME"] = name;
+                                row["FOREIGNKEY_OTHER_SCHEMA"] = reader["PKTABLE_SCHEM"];
+                                row["FOREIGNKEY_OTHER_TABLE"] = reader["PKTABLE_NAME"];
+                                table.Rows.Add(row);
+                            }
+                            table.EndLoadData();
+                        }
+                    }
+                }
+            }
+            else if (collectionName == "ForeignKeyColumns")
+            {
+                table.Columns.Add("FOREIGNKEYCOLUMN_CATALOG", typeof(string));
+                table.Columns.Add("FOREIGNKEYCOLUMN_SCHEMA", typeof(string));
+                table.Columns.Add("FOREIGNKEYCOLUMN_TABLE", typeof(string));
+                table.Columns.Add("FOREIGNKEYCOLUMN_KEY", typeof(string));
+                table.Columns.Add("FOREIGNKEYCOLUMN_NAME", typeof(string));
+                table.Columns.Add("FOREIGNKEYCOLUMN_ORDINAL", typeof(int));
+                table.Columns.Add("FOREIGNKEYCOLUMN_OTHER_COLUMN_NAME", typeof(string));
+
+                List<KeyValuePair<string, string>> tables = RetrieveMatchingTables(tmConn, getItemAtIndex(restrictionValues, 1), getItemAtIndex(restrictionValues, 2));
+
+                foreach (KeyValuePair<string, string> t in tables)
+                {
+                    tmConn.InternalConnection.dataStream.startMessage(Protocol.GetImportedKeys);
+                    tmConn.InternalConnection.dataStream.encodeNull(); // catalog is always null
+                    tmConn.InternalConnection.dataStream.encodeString(t.Key);
+                    tmConn.InternalConnection.dataStream.encodeString(t.Value);
+                    tmConn.InternalConnection.sendAndReceive(tmConn.InternalConnection.dataStream);
+                    int handle = tmConn.InternalConnection.dataStream.getInt();
+
+                    if (handle != -1)
+                    {
+                        using (NuoDbDataReader reader = new NuoDbDataReader(tmConn, handle, tmConn.InternalConnection.dataStream, null, true))
+                        {
+                            table.BeginLoadData();
+                            while (reader.Read())
+                            {
+                                // enforce the restriction on the index name
+                                string name = "[" + reader["FKTABLE_SCHEM"] + "]" + reader["FKTABLE_NAME"] + "." + reader["FKCOLUMN_NAME"] + "->" +
+                                                "[" + reader["PKTABLE_SCHEM"] + "]" + reader["PKTABLE_NAME"] + "." + reader["PKCOLUMN_NAME"];
+                                // enforce the restriction on the index name
+                                if (restrictionValues != null && restrictionValues.Length > 3 && restrictionValues[3] != null &&
+                                    !restrictionValues[3].Equals(name))
+                                    continue;
+#if DEBUG
+                                System.Diagnostics.Trace.WriteLine("-> " + reader["FKTABLE_SCHEM"] + "." + reader["FKTABLE_NAME"] + "=" + reader["FKCOLUMN_NAME"]);
+#endif
+                                DataRow row = table.NewRow();
+                                row["FOREIGNKEYCOLUMN_SCHEMA"] = reader["FKTABLE_SCHEM"];
+                                row["FOREIGNKEYCOLUMN_TABLE"] = reader["FKTABLE_NAME"];
+                                row["FOREIGNKEYCOLUMN_KEY"] = name;
+                                row["FOREIGNKEYCOLUMN_NAME"] = reader["FKCOLUMN_NAME"];
+                                row["FOREIGNKEYCOLUMN_ORDINAL"] = reader["KEY_SEQ"];
+                                row["FOREIGNKEYCOLUMN_OTHER_COLUMN_NAME"] = reader["PKCOLUMN_NAME"];
+                                table.Rows.Add(row);
+                            }
+                            table.EndLoadData();
+                        }
+                    }
+                }
+            }
+            else if (collectionName == "Procedures") 
+            {
+                table.Columns.Add("PROCEDURE_CATALOG", typeof(string));
+                table.Columns.Add("PROCEDURE_SCHEMA", typeof(string));
+                table.Columns.Add("PROCEDURE_NAME", typeof(string));
+                table.Columns.Add("IS_SYSTEM_PROCEDURE", typeof(bool));
+
+                if (tmConn.InternalConnection.protocolVersion >= Protocol.PROTOCOL_VERSION12)
+                {
+                    tmConn.InternalConnection.dataStream.startMessage(Protocol.GetProcedures);
                     tmConn.InternalConnection.dataStream.encodeNull(); // catalog is always null
                     for (int i = 1; i < 3; i++)
                         if (restrictionValues != null && restrictionValues.Length > i)
                             tmConn.InternalConnection.dataStream.encodeString(restrictionValues[i]);
                         else
                             tmConn.InternalConnection.dataStream.encodeNull();
-                    if (restrictionValues == null || restrictionValues.Length < 4 || restrictionValues[3] == null)
-                        tmConn.InternalConnection.dataStream.encodeInt(0);
-                    else
-                    {
-                        tmConn.InternalConnection.dataStream.encodeInt(1);
-                        tmConn.InternalConnection.dataStream.encodeString(restrictionValues[3]);
-                    }
 
                     tmConn.InternalConnection.sendAndReceive(tmConn.InternalConnection.dataStream);
                     int handle = tmConn.InternalConnection.dataStream.getInt();
@@ -1070,36 +1490,37 @@ namespace NuoDb.Data.Client
                             while (reader.Read())
                             {
 #if DEBUG
-                                System.Diagnostics.Trace.WriteLine("-> " + reader["TABLE_NAME"] + ", " + reader["TABLE_TYPE"]);
+                                System.Diagnostics.Trace.WriteLine("-> " + reader["PROCEDURE_NAME"]);
 #endif
                                 DataRow row = table.NewRow();
-                                row["TABLE_SCHEMA"] = reader["TABLE_SCHEM"];
-                                row["TABLE_NAME"] = reader["TABLE_NAME"];
-                                row["TABLE_TYPE"] = reader["TABLE_TYPE"];
-                                row["REMARKS"] = reader["REMARKS"];
-                                row["VIEW_DEF"] = reader["VIEW_DEF"];
+                                row["PROCEDURE_SCHEMA"] = reader["PROCEDURE_SCHEM"];
+                                row["PROCEDURE_NAME"] = reader["PROCEDURE_NAME"];
+                                row["IS_SYSTEM_PROCEDURE"] = false;
                                 table.Rows.Add(row);
                             }
                             table.EndLoadData();
                         }
                     }
                 }
-                else if (collectionName == "Columns")
-                {
-                    table.Columns.Add("COLUMN_CATALOG", typeof(string));
-                    table.Columns.Add("COLUMN_SCHEMA", typeof(string));
-                    table.Columns.Add("COLUMN_TABLE", typeof(string));
-                    table.Columns.Add("COLUMN_NAME", typeof(string));
-                    table.Columns.Add("COLUMN_POSITION", typeof(int));
-                    table.Columns.Add("COLUMN_TYPE", typeof(string));
-                    table.Columns.Add("COLUMN_LENGTH", typeof(int));
-                    table.Columns.Add("COLUMN_PRECISION", typeof(int));
-                    table.Columns.Add("COLUMN_NULLABLE", typeof(bool));
-                    table.Columns.Add("COLUMN_IDENTITY", typeof(bool));
-                    table.Columns.Add("COLUMN_DEFAULT", typeof(string));
-                    table.Columns.Add("COLUMN_SCALE", typeof(int));
+            }
+            else if (collectionName == "ProcedureParameters")
+            {
+                table.Columns.Add("PROCEDURE_CATALOG", typeof(string));
+                table.Columns.Add("PROCEDURE_SCHEMA", typeof(string));
+                table.Columns.Add("PROCEDURE_NAME", typeof(string));
+                table.Columns.Add("PARAMETER_NAME", typeof(string));
+                table.Columns.Add("ORDINAL_POSITION", typeof(int));
+                table.Columns.Add("PARAMETER_DATA_TYPE", typeof(int));
+                table.Columns.Add("PARAMETER_TYPE_NAME", typeof(string));
+                table.Columns.Add("PARAMETER_SIZE", typeof(int));
+                table.Columns.Add("NUMERIC_PRECISION", typeof(int));
+                table.Columns.Add("NUMERIC_SCALE", typeof(int));
+                table.Columns.Add("PARAMETER_DIRECTION", typeof(int));
+                table.Columns.Add("IS_NULLABLE", typeof(bool));
 
-                    tmConn.InternalConnection.dataStream.startMessage(Protocol.GetColumns);
+                if (tmConn.InternalConnection.protocolVersion >= Protocol.PROTOCOL_VERSION12)
+                {
+                    tmConn.InternalConnection.dataStream.startMessage(Protocol.GetProcedureColumns);
                     tmConn.InternalConnection.dataStream.encodeNull(); // catalog is always null
                     for (int i = 1; i < 4; i++)
                         if (restrictionValues != null && restrictionValues.Length > i)
@@ -1117,344 +1538,24 @@ namespace NuoDb.Data.Client
                             table.BeginLoadData();
                             while (reader.Read())
                             {
-                                DataRow row = table.NewRow();
-                                row["COLUMN_SCHEMA"] = reader["TABLE_SCHEM"];
-                                row["COLUMN_TABLE"] = reader["TABLE_NAME"];
-                                row["COLUMN_NAME"] = reader["COLUMN_NAME"];
-                                row["COLUMN_POSITION"] = reader["ORDINAL_POSITION"];
-                                row["COLUMN_LENGTH"] = reader["COLUMN_SIZE"];
-                                row["COLUMN_PRECISION"] = reader["BUFFER_LENGTH"];
-                                row["COLUMN_SCALE"] = reader["DECIMAL_DIGITS"];
-                                if (isNumeric((string)reader["TYPE_NAME"]))
-                                {
-                                    if ((int)reader["DECIMAL_DIGITS"] != 0)
-                                        row["COLUMN_TYPE"] = reader["TYPE_NAME"] + "(" + reader["BUFFER_LENGTH"] + "," + reader["DECIMAL_DIGITS"] + ")";
-                                    else
-                                        row["COLUMN_TYPE"] = reader["TYPE_NAME"];
-                                }
-                                else
-                                {
-                                    if (isVarLenType((string)reader["TYPE_NAME"]) && (int)reader["COLUMN_SIZE"] != 0)
-                                        row["COLUMN_TYPE"] = reader["TYPE_NAME"] + "(" + reader["COLUMN_SIZE"] + ")";
-                                    else
-                                        row["COLUMN_TYPE"] = reader["TYPE_NAME"];
-                                }
-                                if (!reader.IsDBNull(reader.GetOrdinal("IS_NULLABLE")))
-                                    row["COLUMN_NULLABLE"] = reader["IS_NULLABLE"].Equals("YES");
-                                if (!reader.IsDBNull(reader.GetOrdinal("IS_AUTOINCREMENT")))
-                                    row["COLUMN_IDENTITY"] = reader["IS_AUTOINCREMENT"].Equals("YES");
-                                row["COLUMN_DEFAULT"] = reader["COLUMN_DEF"];
-
 #if DEBUG
-                                System.Diagnostics.Trace.WriteLine("-> " + row["COLUMN_NAME"] + " " + row["COLUMN_TYPE"]);
+                                System.Diagnostics.Trace.WriteLine("-> " + reader["PROCEDURE_NAME"] + ", " + reader["COLUMN_NAME"]);
 #endif
+                                DataRow row = table.NewRow();
+                                row["PROCEDURE_SCHEMA"] = reader["PROCEDURE_SCHEM"];
+                                row["PROCEDURE_NAME"] = reader["PROCEDURE_NAME"];
+                                row["PARAMETER_NAME"] = reader["COLUMN_NAME"];
+                                row["ORDINAL_POSITION"] = reader["ORDINAL_POSITION"];
+                                row["PARAMETER_TYPE_NAME"] = reader["TYPE_NAME"];
+                                row["PARAMETER_DATA_TYPE"] = reader["DATA_TYPE"];
+                                row["PARAMETER_SIZE"] = reader["LENGTH"];
+                                row["NUMERIC_PRECISION"] = reader["PRECISION"];
+                                row["NUMERIC_SCALE"] = reader["SCALE"];
+                                row["PARAMETER_DIRECTION"] = reader["COLUMN_TYPE"];
+                                row["IS_NULLABLE"] = !reader["IS_NULLABLE"].Equals("NO");
                                 table.Rows.Add(row);
                             }
                             table.EndLoadData();
-                        }
-                    }
-                }
-                else if (collectionName == "Indexes")
-                {
-                    table.Columns.Add("INDEX_CATALOG", typeof(string));
-                    table.Columns.Add("INDEX_SCHEMA", typeof(string));
-                    table.Columns.Add("INDEX_TABLE", typeof(string));
-                    table.Columns.Add("INDEX_NAME", typeof(string));
-                    table.Columns.Add("INDEX_TYPE", typeof(string));
-                    table.Columns.Add("INDEX_UNIQUE", typeof(bool));
-                    table.Columns.Add("INDEX_PRIMARY", typeof(bool));
-
-                    List<KeyValuePair<string, string>> tables = RetrieveMatchingTables(tmConn, getItemAtIndex(restrictionValues, 1), getItemAtIndex(restrictionValues, 2));
-
-                    foreach (KeyValuePair<string, string> t in tables)
-                    {
-                        tmConn.InternalConnection.dataStream.startMessage(Protocol.GetIndexInfo);
-                        tmConn.InternalConnection.dataStream.encodeNull(); // catalog is always null
-                        tmConn.InternalConnection.dataStream.encodeString(t.Key);
-                        tmConn.InternalConnection.dataStream.encodeString(t.Value);
-                        tmConn.InternalConnection.dataStream.encodeBoolean(false);    // unique
-                        tmConn.InternalConnection.dataStream.encodeBoolean(false);    // approximate
-                        tmConn.InternalConnection.sendAndReceive(tmConn.InternalConnection.dataStream);
-                        int handle = tmConn.InternalConnection.dataStream.getInt();
-
-                        // to avoid to insert the same index more than once
-                        HashSet<string> unique = new HashSet<string>();
-                        if (handle != -1)
-                        {
-                            using (NuoDbDataReader reader = new NuoDbDataReader(tmConn, handle, tmConn.InternalConnection.dataStream, null, true))
-                            {
-                                table.BeginLoadData();
-                                while (reader.Read())
-                                {
-                                    // enforce the restriction on the index name
-                                    if (restrictionValues != null && restrictionValues.Length > 3 && restrictionValues[3] != null &&
-                                        !restrictionValues[3].Equals(reader["INDEX_NAME"]))
-                                        continue;
-                                    if (!unique.Add((string)reader["INDEX_NAME"]))
-                                        continue;
-                                    DataRow row = table.NewRow();
-                                    row["INDEX_SCHEMA"] = reader["TABLE_SCHEM"];
-                                    row["INDEX_TABLE"] = reader["TABLE_NAME"];
-                                    row["INDEX_NAME"] = reader["INDEX_NAME"];
-                                    switch ((int)reader["TYPE"])
-                                    {
-                                        case 0:
-                                            row["INDEX_TYPE"] = "Primary";
-                                            break;
-                                        case 1:
-                                            row["INDEX_TYPE"] = "Unique";
-                                            break;
-                                        case 2:
-                                            row["INDEX_TYPE"] = "Secondary";
-                                            break;
-                                        case 3:
-                                            row["INDEX_TYPE"] = "Foreign Key";
-                                            break;
-                                    }
-                                    row["INDEX_UNIQUE"] = ((int)reader["NON_UNIQUE"] == 0) ? true : false;
-                                    row["INDEX_PRIMARY"] = ((int)reader["TYPE"] == 0) ? true : false;
-                                    table.Rows.Add(row);
-                                }
-                                table.EndLoadData();
-                            }
-                        }
-
-                        tmConn.InternalConnection.dataStream.startMessage(Protocol.GetPrimaryKeys);
-                        tmConn.InternalConnection.dataStream.encodeNull(); // catalog is always null
-                        tmConn.InternalConnection.dataStream.encodeString(t.Key);
-                        tmConn.InternalConnection.dataStream.encodeString(t.Value);
-                        tmConn.InternalConnection.sendAndReceive(tmConn.InternalConnection.dataStream);
-                        handle = tmConn.InternalConnection.dataStream.getInt();
-
-                        if (handle != -1)
-                        {
-                            using (NuoDbDataReader reader = new NuoDbDataReader(tmConn, handle, tmConn.InternalConnection.dataStream, null, true))
-                            {
-                                // use INDEX_NAME, if present; if missing, the name of the index is in PK_NAME
-                                string indexName = "PK_NAME";
-                                foreach (string column in reader.columnNames)
-                                {
-                                    if (column == "INDEX_NAME")
-                                    {
-                                        indexName = "INDEX_NAME";
-                                        break;
-                                    }
-                                }
-                                table.BeginLoadData();
-                                while (reader.Read())
-                                {
-                                    // enforce the restriction on the index name
-                                    if (restrictionValues != null && restrictionValues.Length > 3 && restrictionValues[3] != null &&
-                                        !restrictionValues[3].Equals(reader[indexName]))
-                                        continue;
-                                    if (!unique.Add((string)reader[indexName]))
-                                        continue;
-                                    DataRow row = table.NewRow();
-                                    row["INDEX_SCHEMA"] = reader["TABLE_SCHEM"];
-                                    row["INDEX_TABLE"] = reader["TABLE_NAME"];
-                                    row["INDEX_NAME"] = reader[indexName];
-                                    row["INDEX_TYPE"] = "Primary";
-                                    row["INDEX_UNIQUE"] = true;
-                                    row["INDEX_PRIMARY"] = true;
-                                    table.Rows.Add(row);
-                                }
-                                table.EndLoadData();
-                            }
-                        }
-                    }
-                }
-                else if (collectionName == "IndexColumns")
-                {
-                    table.Columns.Add("INDEXCOLUMN_CATALOG", typeof(string));
-                    table.Columns.Add("INDEXCOLUMN_SCHEMA", typeof(string));
-                    table.Columns.Add("INDEXCOLUMN_TABLE", typeof(string));
-                    table.Columns.Add("INDEXCOLUMN_INDEX", typeof(string));
-                    table.Columns.Add("INDEXCOLUMN_NAME", typeof(string));
-                    table.Columns.Add("INDEXCOLUMN_POSITION", typeof(int));
-                    table.Columns.Add("INDEXCOLUMN_ISPRIMARY", typeof(bool));
-
-                    List<KeyValuePair<string, string>> tables = RetrieveMatchingTables(tmConn, getItemAtIndex(restrictionValues, 1), getItemAtIndex(restrictionValues, 2));
-
-                    foreach (KeyValuePair<string, string> t in tables)
-                    {
-                        tmConn.InternalConnection.dataStream.startMessage(Protocol.GetIndexInfo);
-                        tmConn.InternalConnection.dataStream.encodeNull(); // catalog is always null
-                        tmConn.InternalConnection.dataStream.encodeString(t.Key);
-                        tmConn.InternalConnection.dataStream.encodeString(t.Value);
-                        tmConn.InternalConnection.dataStream.encodeBoolean(false);    // unique
-                        tmConn.InternalConnection.dataStream.encodeBoolean(false);    // approximate
-                        tmConn.InternalConnection.sendAndReceive(tmConn.InternalConnection.dataStream);
-                        int handle = tmConn.InternalConnection.dataStream.getInt();
-
-                        if (handle != -1)
-                        {
-                            using (NuoDbDataReader reader = new NuoDbDataReader(tmConn, handle, tmConn.InternalConnection.dataStream, null, true))
-                            {
-                                table.BeginLoadData();
-                                while (reader.Read())
-                                {
-                                    // enforce the restriction on the index name
-                                    if (restrictionValues != null && restrictionValues.Length > 3 && restrictionValues[3] != null &&
-                                        !restrictionValues[3].Equals(reader["INDEX_NAME"]))
-                                        continue;
-#if DEBUG
-                                    System.Diagnostics.Trace.WriteLine("-> " + reader["TABLE_SCHEM"] + "." + reader["TABLE_NAME"] + "=" + reader["COLUMN_NAME"]);
-#endif
-                                    DataRow row = table.NewRow();
-                                    row["INDEXCOLUMN_SCHEMA"] = reader["TABLE_SCHEM"];
-                                    row["INDEXCOLUMN_TABLE"] = reader["TABLE_NAME"];
-                                    row["INDEXCOLUMN_INDEX"] = reader["INDEX_NAME"];
-                                    row["INDEXCOLUMN_NAME"] = reader["COLUMN_NAME"];
-                                    row["INDEXCOLUMN_POSITION"] = reader["ORDINAL_POSITION"];
-                                    row["INDEXCOLUMN_ISPRIMARY"] = false;
-                                    table.Rows.Add(row);
-                                }
-                                table.EndLoadData();
-                            }
-                        }
-
-                        tmConn.InternalConnection.dataStream.startMessage(Protocol.GetPrimaryKeys);
-                        tmConn.InternalConnection.dataStream.encodeNull(); // catalog is always null
-                        tmConn.InternalConnection.dataStream.encodeString(t.Key);
-                        tmConn.InternalConnection.dataStream.encodeString(t.Value);
-                        tmConn.InternalConnection.sendAndReceive(tmConn.InternalConnection.dataStream);
-                        handle = tmConn.InternalConnection.dataStream.getInt();
-
-                        if (handle != -1)
-                        {
-                            using (NuoDbDataReader reader = new NuoDbDataReader(tmConn, handle, tmConn.InternalConnection.dataStream, null, true))
-                            {
-                                // use INDEX_NAME, if present; if missing, the name of the index is in PK_NAME
-                                string indexName = "PK_NAME";
-                                foreach (string column in reader.columnNames)
-                                {
-                                    if (column == "INDEX_NAME")
-                                    {
-                                        indexName = "INDEX_NAME";
-                                        break;
-                                    }
-                                }
-                                table.BeginLoadData();
-                                while (reader.Read())
-                                {
-                                    // enforce the restriction on the index name
-                                    if (restrictionValues != null && restrictionValues.Length > 3 && restrictionValues[3] != null &&
-                                        !restrictionValues[3].Equals(reader[indexName]))
-                                        continue;
-#if DEBUG
-                                    System.Diagnostics.Trace.WriteLine("-> " + reader["TABLE_SCHEM"] + "." + reader["TABLE_NAME"] + " (Primary) =" + reader["COLUMN_NAME"]);
-#endif
-                                    DataRow row = table.NewRow();
-                                    row["INDEXCOLUMN_SCHEMA"] = reader["TABLE_SCHEM"];
-                                    row["INDEXCOLUMN_TABLE"] = reader["TABLE_NAME"];
-                                    row["INDEXCOLUMN_INDEX"] = reader[indexName];
-                                    row["INDEXCOLUMN_NAME"] = reader["COLUMN_NAME"];
-                                    row["INDEXCOLUMN_POSITION"] = reader["KEY_SEQ"];
-                                    row["INDEXCOLUMN_ISPRIMARY"] = true;
-                                    table.Rows.Add(row);
-                                }
-                                table.EndLoadData();
-                            }
-                        }
-                    }
-                }
-                else if (collectionName == "ForeignKeys")
-                {
-                    table.Columns.Add("FOREIGNKEY_CATALOG", typeof(string));
-                    table.Columns.Add("FOREIGNKEY_SCHEMA", typeof(string));
-                    table.Columns.Add("FOREIGNKEY_TABLE", typeof(string));
-                    table.Columns.Add("FOREIGNKEY_NAME", typeof(string));
-                    table.Columns.Add("FOREIGNKEY_OTHER_CATALOG", typeof(string));
-                    table.Columns.Add("FOREIGNKEY_OTHER_SCHEMA", typeof(string));
-                    table.Columns.Add("FOREIGNKEY_OTHER_TABLE", typeof(string));
-
-                    List<KeyValuePair<string, string>> tables = RetrieveMatchingTables(tmConn, getItemAtIndex(restrictionValues, 1), getItemAtIndex(restrictionValues, 2));
-
-                    foreach (KeyValuePair<string, string> t in tables)
-                    {
-                        tmConn.InternalConnection.dataStream.startMessage(Protocol.GetImportedKeys);
-                        tmConn.InternalConnection.dataStream.encodeNull(); // catalog is always null
-                        tmConn.InternalConnection.dataStream.encodeString(t.Key);
-                        tmConn.InternalConnection.dataStream.encodeString(t.Value);
-                        tmConn.InternalConnection.sendAndReceive(tmConn.InternalConnection.dataStream);
-                        int handle = tmConn.InternalConnection.dataStream.getInt();
-
-                        if (handle != -1)
-                        {
-                            using (NuoDbDataReader reader = new NuoDbDataReader(tmConn, handle, tmConn.InternalConnection.dataStream, null, true))
-                            {
-                                table.BeginLoadData();
-                                while (reader.Read())
-                                {
-                                    // enforce the restriction on the index name
-                                    string name = "[" + reader["FKTABLE_SCHEM"] + "]" + reader["FKTABLE_NAME"] + "." + reader["FKCOLUMN_NAME"] + "->" +
-                                                  "[" + reader["PKTABLE_SCHEM"] + "]" + reader["PKTABLE_NAME"] + "." + reader["PKCOLUMN_NAME"];
-                                    // enforce the restriction on the index name
-                                    if (restrictionValues != null && restrictionValues.Length > 3 && restrictionValues[3] != null &&
-                                        !restrictionValues[3].Equals(name))
-                                        continue;
-                                    DataRow row = table.NewRow();
-                                    row["FOREIGNKEY_SCHEMA"] = reader["FKTABLE_SCHEM"];
-                                    row["FOREIGNKEY_TABLE"] = reader["FKTABLE_NAME"];
-                                    row["FOREIGNKEY_NAME"] = name;
-                                    row["FOREIGNKEY_OTHER_SCHEMA"] = reader["PKTABLE_SCHEM"];
-                                    row["FOREIGNKEY_OTHER_TABLE"] = reader["PKTABLE_NAME"];
-                                    table.Rows.Add(row);
-                                }
-                                table.EndLoadData();
-                            }
-                        }
-                    }
-                }
-                else if (collectionName == "ForeignKeyColumns")
-                {
-                    table.Columns.Add("FOREIGNKEYCOLUMN_CATALOG", typeof(string));
-                    table.Columns.Add("FOREIGNKEYCOLUMN_SCHEMA", typeof(string));
-                    table.Columns.Add("FOREIGNKEYCOLUMN_TABLE", typeof(string));
-                    table.Columns.Add("FOREIGNKEYCOLUMN_KEY", typeof(string));
-                    table.Columns.Add("FOREIGNKEYCOLUMN_NAME", typeof(string));
-                    table.Columns.Add("FOREIGNKEYCOLUMN_ORDINAL", typeof(int));
-                    table.Columns.Add("FOREIGNKEYCOLUMN_OTHER_COLUMN_NAME", typeof(string));
-
-                    List<KeyValuePair<string, string>> tables = RetrieveMatchingTables(tmConn, getItemAtIndex(restrictionValues, 1), getItemAtIndex(restrictionValues, 2));
-
-                    foreach (KeyValuePair<string, string> t in tables)
-                    {
-                        tmConn.InternalConnection.dataStream.startMessage(Protocol.GetImportedKeys);
-                        tmConn.InternalConnection.dataStream.encodeNull(); // catalog is always null
-                        tmConn.InternalConnection.dataStream.encodeString(t.Key);
-                        tmConn.InternalConnection.dataStream.encodeString(t.Value);
-                        tmConn.InternalConnection.sendAndReceive(tmConn.InternalConnection.dataStream);
-                        int handle = tmConn.InternalConnection.dataStream.getInt();
-
-                        if (handle != -1)
-                        {
-                            using (NuoDbDataReader reader = new NuoDbDataReader(tmConn, handle, tmConn.InternalConnection.dataStream, null, true))
-                            {
-                                table.BeginLoadData();
-                                while (reader.Read())
-                                {
-                                    // enforce the restriction on the index name
-                                    string name = "[" + reader["FKTABLE_SCHEM"] + "]" + reader["FKTABLE_NAME"] + "." + reader["FKCOLUMN_NAME"] + "->" +
-                                                  "[" + reader["PKTABLE_SCHEM"] + "]" + reader["PKTABLE_NAME"] + "." + reader["PKCOLUMN_NAME"];
-                                    // enforce the restriction on the index name
-                                    if (restrictionValues != null && restrictionValues.Length > 3 && restrictionValues[3] != null &&
-                                        !restrictionValues[3].Equals(name))
-                                        continue;
-#if DEBUG
-                                    System.Diagnostics.Trace.WriteLine("-> " + reader["FKTABLE_SCHEM"] + "." + reader["FKTABLE_NAME"] + "=" + reader["FKCOLUMN_NAME"]);
-#endif
-                                    DataRow row = table.NewRow();
-                                    row["FOREIGNKEYCOLUMN_SCHEMA"] = reader["FKTABLE_SCHEM"];
-                                    row["FOREIGNKEYCOLUMN_TABLE"] = reader["FKTABLE_NAME"];
-                                    row["FOREIGNKEYCOLUMN_KEY"] = name;
-                                    row["FOREIGNKEYCOLUMN_NAME"] = reader["FKCOLUMN_NAME"];
-                                    row["FOREIGNKEYCOLUMN_ORDINAL"] = reader["KEY_SEQ"];
-                                    row["FOREIGNKEYCOLUMN_OTHER_COLUMN_NAME"] = reader["PKCOLUMN_NAME"];
-                                    table.Rows.Add(row);
-                                }
-                                table.EndLoadData();
-                            }
                         }
                     }
                 }
@@ -1628,6 +1729,39 @@ namespace NuoDb.Data.Client
                     return DbType.Xml;
                 case -8: //ROWID
                     return DbType.Object;
+            }
+            throw new NotImplementedException();
+        }
+
+        internal static int mapDbTypeToJavaSql(DbType dbType)
+        {
+            switch (dbType)
+            {
+                case DbType.Boolean:
+                    return 16; //BOOLEAN
+                case DbType.Int32:
+                    return 4; //INTEGER
+                case DbType.Int64:
+                    return -5; //BIGINT
+                case DbType.Single:
+                    return 7; //REAL
+                case DbType.Double:
+                    return 8; //DOUBLE
+                case DbType.Decimal:
+                    return 3; //DECIMAL
+                case DbType.Xml:
+                case DbType.String:
+                    return 12; //VARCHAR
+                case DbType.Date:
+                    return 91; //DATE
+                case DbType.Time:
+                    return 92; //TIME
+                case DbType.DateTime:
+                    return 93; //TIMESTAMP
+                case DbType.Binary:
+                    return -3; //VARBINARY
+                case DbType.Object:
+                    return 2004; //BLOB
             }
             throw new NotImplementedException();
         }

@@ -156,6 +156,9 @@
   <data name="DataView_Descriptor_Default" xml:space="preserve">
     <value>The default value of the database object.</value>
   </data>
+  <data name="DataView_Node_StoredProcedures" xml:space="preserve">
+    <value>Stored Procedures</value>
+  </data>
   <data name="DataView_Node_Tables" xml:space="preserve">
     <value>Tables</value>
   </data>

@@ -37,16 +37,18 @@ namespace NuoDb.Data.Client
     abstract class Protocol
     {
         internal const int PROTOCOL_VERSION1 = 1;
-        internal const int PROTOCOL_VERSION2 = 2; // 3/27/2011    Passing SQLState on exceptions; piggybacking generated key result sets
-        internal const int PROTOCOL_VERSION3 = 3; // 2/14/2012    Passing txn, node id and commit sequence
-        internal const int PROTOCOL_VERSION4 = 4; // 2/29/2012    Added GetCurrentSchema
-        internal const int PROTOCOL_VERSION5 = 5; // 3/12/2012    Server returns DB UUID
-        internal const int PROTOCOL_VERSION6 = 6; // 3/22/2012    Server encodes error message for each statement in batch
-        internal const int PROTOCOL_VERSION7 = 7; // 5/11/2012    Fix issues with generated key result set and last commit info
-        internal const int PROTOCOL_VERSION8 = 8; // 8/10/2012    Support for async result set close and prepared query sans column names
-        internal const int PROTOCOL_VERSION9 = 9; // 8/30/2012    New Date/Time/Timestamp encodings
-        internal const int PROTOCOL_VERSION10 = 10; // 1/13/2012   Normalization of Date
-        internal const int PROTOCOL_VERSION = PROTOCOL_VERSION10;
+        internal const int PROTOCOL_VERSION2 = 2;   // 03/27/2011  Passing SQLState on exceptions; piggybacking generated key result sets
+        internal const int PROTOCOL_VERSION3 = 3;   // 02/14/2012  Passing txn, node id and commit sequence
+        internal const int PROTOCOL_VERSION4 = 4;   // 02/29/2012  Added GetCurrentSchema
+        internal const int PROTOCOL_VERSION5 = 5;   // 03/12/2012  Server returns DB UUID
+        internal const int PROTOCOL_VERSION6 = 6;   // 03/22/2012  Server encodes error message for each statement in batch
+        internal const int PROTOCOL_VERSION7 = 7;   // 05/11/2012  Fix issues with generated key result set and last commit info
+        internal const int PROTOCOL_VERSION8 = 8;   // 08/10/2012  Support for async result set close and prepared query sans column names
+        internal const int PROTOCOL_VERSION9 = 9;   // 08/30/2012  New Date/Time/Timestamp encodings
+        internal const int PROTOCOL_VERSION10 = 10; // 01/13/2012  Normalization of Date
+        internal const int PROTOCOL_VERSION11 = 11; // 02/01/2013  New BigInt - NuoDB GA 1.0.2
+        internal const int PROTOCOL_VERSION12 = 12; // 06/28/2013  Added setQueryTimeout/PrepareCall/ExecuteCall/GetProcedures/GetProcedureColumns
+        internal const int PROTOCOL_VERSION = PROTOCOL_VERSION12;
         // When updating the PROTOCOL_VERSION, be sure to update Remote/ProtocolVersion.h
 
         internal const int Failure = 0;
@@ -152,6 +154,11 @@ namespace NuoDb.Data.Client
         internal const int SupportsTransactionIsolation = 100; // Connection
         internal const int GetCatalog = 101; // Connection
         internal const int GetCurrentSchema = 102; // Connection
+        internal const int PrepareCall = 103; // Connection
+        internal const int ExecuteCallableStatement = 104; // CallableStatement
+        internal const int SetQueryTimeout = 105; // Statement
+        internal const int GetProcedures = 106; // DatabaseMetaData
+        internal const int GetProcedureColumns = 107; // DatabaseMetaData
 
         // updates to this list must be make in MsgType.h
         // Database Metadata Items

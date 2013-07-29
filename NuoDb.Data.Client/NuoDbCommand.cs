@@ -57,6 +57,7 @@ namespace NuoDb.Data.Client
         private Func<CommandBehavior, DbDataReader> funcExecuteReader;
         private Func<int> funcExecuteUpdate;
         private Func<object> funcExecuteScalar;
+        private System.Data.CommandType commandType = CommandType.Text;
 
         public NuoDbCommand(string query, DbConnection conn)
         {
@@ -207,12 +208,13 @@ namespace NuoDb.Data.Client
         {
             get
             {
-                return CommandType.Text;
+                return commandType;
             }
             set
             {
-                if (value != CommandType.Text)
-                    throw new NotImplementedException();
+                if (value != CommandType.Text && value != CommandType.StoredProcedure)
+                    throw new NotImplementedException("Only CommandType.Text and CommandType.StoredProcedure are supported");
+                commandType = value;
             }
         }
 
@@ -284,7 +286,7 @@ namespace NuoDb.Data.Client
             // has been closed on the server, and we must re-create it
             if (handle == -1 || !connection.InternalConnection.IsCommandRegistered(handle))
             {
-                if (parameters.Count > 0)
+                if (CommandType==CommandType.StoredProcedure || parameters.Count > 0)
                 {
                     Prepare(generatingKeys);
                 }
@@ -365,7 +367,11 @@ namespace NuoDb.Data.Client
 
         protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior)
         {
-            if (!CommandText.TrimStart(null).Substring(0, 6).ToUpper().Equals("SELECT"))
+            string trimmedSql = CommandText.TrimStart(null);
+            if (CommandType == CommandType.Text && 
+                !trimmedSql.StartsWith("SELECT ", StringComparison.InvariantCultureIgnoreCase) &&
+                !trimmedSql.StartsWith("CALL ", StringComparison.InvariantCultureIgnoreCase) &&
+                !trimmedSql.StartsWith("EXECUTE ", StringComparison.InvariantCultureIgnoreCase) )
             {
 #if DEBUG
                 System.Diagnostics.Trace.WriteLine("The statement is not a SELECT: redirecting to ExecuteNonQuery");
@@ -382,8 +388,18 @@ namespace NuoDb.Data.Client
             checkConnection();
             EnsureStatement(false);
 
-            bool readColumnNames = true;
             EncodedDataStream dataStream = new RemEncodedStream(connection.InternalConnection.protocolVersion);
+            if (CommandType == CommandType.StoredProcedure)
+            {
+                InvokeStoredProcedure(false);
+                dataStream.startMessage(Protocol.GetResultSet);
+                dataStream.encodeInt(handle);
+                connection.InternalConnection.sendAndReceive(dataStream);
+                return createResultSet(dataStream, true);
+            }
+
+
+            bool readColumnNames = true;
             if (isPrepared)
             {
                 dataStream.startMessage(Protocol.ExecutePreparedQuery);
@@ -392,13 +408,12 @@ namespace NuoDb.Data.Client
 
                 if (connection.InternalConnection.protocolVersion >= Protocol.PROTOCOL_VERSION8)
                 {
-
-                    /*                    if (columnNames != null)
-                                        {
-                                            dataStream.encodeInt(Protocol.SkipColumnNames);
-                                            readColumnNames = false;
-                                        }
-                                        else */
+                    /* if (columnNames != null)
+                    {
+                        dataStream.encodeInt(Protocol.SkipColumnNames);
+                        readColumnNames = false;
+                    }
+                    else */
                     {
                         dataStream.encodeInt(Protocol.SendColumnNames);
                     }
@@ -427,6 +442,11 @@ namespace NuoDb.Data.Client
 #endif
             checkConnection();
             EnsureStatement(generatingKeys);
+
+            if (CommandType == CommandType.StoredProcedure)
+            {
+                return InvokeStoredProcedure(generatingKeys);
+            }
 
             EncodedDataStream dataStream = new RemEncodedStream(connection.InternalConnection.protocolVersion);
             if (isPrepared)
@@ -458,6 +478,47 @@ namespace NuoDb.Data.Client
 
             updateLastCommitInfo(dataStream, generatingKeys);
 
+            return updateCount;
+        }
+
+        private int InvokeStoredProcedure(bool generatingKeys)
+        {
+            if (connection.InternalConnection.protocolVersion < Protocol.PROTOCOL_VERSION12)
+                throw new NuoDbSqlException(String.Format("server protocol {0} doesn't support prepareCall", connection.InternalConnection.protocolVersion));
+
+            EncodedDataStream dataStream = new RemEncodedStream(connection.InternalConnection.protocolVersion);
+            dataStream.startMessage(Protocol.ExecuteCallableStatement);
+            dataStream.encodeInt(handle);
+            putParameters(dataStream);
+            // check how many OUT parameters we have
+            int outParameters = 0;
+            for (int i = 0; i < parameters.Count; i++)
+            {
+                DbParameter param = parameters[i];
+                if (param.Direction == ParameterDirection.InputOutput || param.Direction == ParameterDirection.Output)
+                    outParameters++;
+            }
+            dataStream.encodeInt(outParameters);
+            for (int i = 0; i < parameters.Count; i++)
+            {
+                DbParameter param = parameters[i];
+                if (param.Direction == ParameterDirection.InputOutput || param.Direction == ParameterDirection.Output)
+                {
+                    dataStream.encodeInt(i);
+                    dataStream.encodeInt(NuoDbConnectionInternal.mapDbTypeToJavaSql(param.DbType));
+                    dataStream.encodeInt(-1);
+                }
+            }
+            connection.InternalConnection.sendAndReceive(dataStream);
+            int result = dataStream.getInt();
+            updateRecordsUpdated(dataStream);
+            updateLastCommitInfo(dataStream, generatingKeys);
+            outParameters = dataStream.getInt();
+            for (int i = 0; i < outParameters; i++)
+            {
+                int index = dataStream.getInt();
+                parameters[index].Value = dataStream.getValue().Object;
+            }
             return updateCount;
         }
 
@@ -593,31 +654,127 @@ namespace NuoDb.Data.Client
                 sqlString.Append("?.");
                 sqlString.Append(curParamName);
             }
+            string nuodbSqlString = sqlString.ToString().TrimStart(null);
 
-            EncodedDataStream dataStream = new RemEncodedStream(connection.InternalConnection.protocolVersion);
-            if (generatingKeys)
+            // if we are given just the name of the stored procedure, retrieve the number of parameters and generate the full command
+            if(CommandType == CommandType.StoredProcedure && 
+                !nuodbSqlString.StartsWith("EXECUTE ", StringComparison.InvariantCultureIgnoreCase) &&
+                !nuodbSqlString.StartsWith("CALL ", StringComparison.InvariantCultureIgnoreCase))
             {
-                dataStream.startMessage(Protocol.PrepareStatementKeys);
-                dataStream.encodeInt(generatingKeys ? 1 : 0);
+                string[] parts = nuodbSqlString.Split(new char[] { '.' });
+                DataTable paramTable = null;
+                if (parts.Length == 2)
+                    paramTable = NuoDbConnectionInternal.GetSchemaHelper(connection, "ProcedureParameters", new string[] { null, parts[0], parts[1], null });
+                else
+                {
+                    NuoDbConnectionStringBuilder builder = new NuoDbConnectionStringBuilder(connection.ConnectionString);
+                    string schema = builder.Schema;
+                    if(schema.Length==0)
+                        schema = "USER";
+                    paramTable = NuoDbConnectionInternal.GetSchemaHelper(connection, "ProcedureParameters", new string[] { null, schema, parts[0], null });
+                }
+                int numParams = 0;
+                foreach (DataRow row in paramTable.Rows) 
+                {
+                    int direction = row.Field<int>("PARAMETER_DIRECTION");
+                    if (direction != 3)
+                    {
+                        numParams++;
+                        // either add a new parameter, or carry over the user-provided one
+                        string paramName = row.Field<string>("PARAMETER_NAME");
+                        if (parameters.Contains(paramName))
+                            newParams.Add(parameters[paramName]);
+                        else if (parameters.Contains("@" + paramName))
+                            newParams.Add(parameters["@" + paramName]);
+                        else if (parameters.Count > newParams.Count)
+                        {
+                            if (parameters[newParams.Count].ParameterName.Length == 0)
+                                parameters[newParams.Count].ParameterName = paramName;
+                            newParams.Add(parameters[newParams.Count]);
+                        }
+                        else
+                        {
+                            NuoDbParameter p = new NuoDbParameter();
+                            p.ParameterName = paramName;
+                            newParams.Add(p);
+                        }
+                        switch (direction)
+                        {
+                            case 1: newParams[newParams.Count - 1].Direction = ParameterDirection.Input; break;
+                            case 2: newParams[newParams.Count - 1].Direction = ParameterDirection.InputOutput; break;
+                            case 4: newParams[newParams.Count - 1].Direction = ParameterDirection.Output; break;
+                        }
+                        newParams[newParams.Count - 1].DbType = NuoDbConnectionInternal.mapJavaSqlToDbType(row.Field<int>("PARAMETER_DATA_TYPE"));
+                    }
+                }
+                StringBuilder strBuilder = new StringBuilder("EXECUTE ");
+                strBuilder.Append(nuodbSqlString);
+                strBuilder.Append("(");
+                for (int i = 0; i < numParams; i++)
+                {
+                    if (i != 0)
+                        strBuilder.Append(",");
+                    strBuilder.Append("?");
+                }
+                strBuilder.Append(")");
+                nuodbSqlString = strBuilder.ToString();
             }
-            else
-                dataStream.startMessage(Protocol.PrepareStatement);
-            dataStream.encodeString(sqlString.ToString());
-            connection.InternalConnection.sendAndReceive(dataStream);
-            handle = dataStream.getInt();
-            connection.InternalConnection.RegisterCommand(handle);
-            int numberParameters = dataStream.getInt();
-            // a prepared DDL command fails to execute
-            if (numberParameters != 0 || CommandText.TrimStart(null).Substring(0, 6).ToUpper().Equals("SELECT"))
+
+            if (nuodbSqlString.StartsWith("EXECUTE ", StringComparison.InvariantCultureIgnoreCase) || 
+                nuodbSqlString.StartsWith("CALL ", StringComparison.InvariantCultureIgnoreCase))
             {
+                if(connection.InternalConnection.protocolVersion < Protocol.PROTOCOL_VERSION12)
+                    throw new NuoDbSqlException(String.Format("server protocol {0} doesn't support prepareCall", connection.InternalConnection.protocolVersion));
+                EncodedDataStream dataStream = new RemEncodedStream(connection.InternalConnection.protocolVersion);
+                dataStream.startMessage(Protocol.PrepareCall);
+                dataStream.encodeString(nuodbSqlString);
+                connection.InternalConnection.sendAndReceive(dataStream);
+                handle = dataStream.getInt();
+                connection.InternalConnection.RegisterCommand(handle);
+                int numberParameters = dataStream.getInt();
+                for (int i = 0; i < numberParameters; i++) {
+                    int     direction = dataStream.getInt();
+                    String  name = dataStream.getString();
+                    switch(direction)
+                    {
+                        case 0: newParams[i].Direction = ParameterDirection.Input; break;
+                        case 1: newParams[i].Direction = ParameterDirection.InputOutput; break;
+                        case 2: newParams[i].Direction = ParameterDirection.Output; break;
+                    }
+                    if(newParams[i].ParameterName.Length == 0)
+                        newParams[i].ParameterName = name;
+                }
                 parameters = newParams;
                 isPrepared = true;
                 isPreparedWithKeys = generatingKeys;
             }
             else
             {
-                Close();
-                isPrepared = false;
+                EncodedDataStream dataStream = new RemEncodedStream(connection.InternalConnection.protocolVersion);
+                if (generatingKeys)
+                {
+                    dataStream.startMessage(Protocol.PrepareStatementKeys);
+                    dataStream.encodeInt(generatingKeys ? 1 : 0);
+                }
+                else
+                    dataStream.startMessage(Protocol.PrepareStatement);
+                dataStream.encodeString(nuodbSqlString);
+                connection.InternalConnection.sendAndReceive(dataStream);
+                handle = dataStream.getInt();
+                connection.InternalConnection.RegisterCommand(handle);
+                int numberParameters = dataStream.getInt();
+                // a prepared DDL command fails to execute
+                if (numberParameters != 0 || nuodbSqlString.StartsWith("SELECT ", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    parameters = newParams;
+                    isPrepared = true;
+                    isPreparedWithKeys = generatingKeys;
+                }
+                else
+                {
+                    Close();
+                    isPrepared = false;
+                }
             }
         }
 
