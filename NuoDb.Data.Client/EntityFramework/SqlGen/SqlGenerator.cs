@@ -117,19 +117,19 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
             #endregion
 
             #region Math Canonical Functions
-            functionHandlers.Add("Abs", HandleCanonicalFunctionNotSupported);
-            functionHandlers.Add("Ceiling", HandleCanonicalFunctionNotSupported);
-            functionHandlers.Add("Floor", HandleCanonicalFunctionNotSupported);
+            functionHandlers.Add("Abs", HandleCanonicalFunctionAbs);
+            functionHandlers.Add("Ceiling", HandleCanonicalFunctionCeiling);
+            functionHandlers.Add("Floor", HandleCanonicalFunctionFloor);
             functionHandlers.Add("Power", HandleCanonicalFunctionPower);
             functionHandlers.Add("Round", HandleCanonicalFunctionRound);
             functionHandlers.Add("Truncate", HandleCanonicalFunctionNotSupported);
             #endregion
 
             #region String Canonical Functions
-            functionHandlers.Add("Concat", HandleCanonicalConcatFunction);
-            functionHandlers.Add("Contains", HandleCanonicalContainsFunction);
+            functionHandlers.Add("Concat", HandleCanonicalFunctionConcat);
+            functionHandlers.Add("Contains", HandleCanonicalFunctionContains);
             functionHandlers.Add("EndsWith", HandleCanonicalFunctionNotSupported);
-            functionHandlers.Add("IndexOf", HandleCanonicalIndexOfFunction);
+            functionHandlers.Add("IndexOf", HandleCanonicalFunctionIndexOf);
             functionHandlers.Add("Length", HandleCanonicalFunctionLength);
             functionHandlers.Add("ToLower", HandleCanonicalFunctionToLower);
             functionHandlers.Add("ToUpper", HandleCanonicalFunctionToUpper);
@@ -2380,12 +2380,12 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
         }
 
         #region String Canonical Functions
-        private static ISqlFragment HandleCanonicalConcatFunction(SqlGenerator sqlgen, DbFunctionExpression e)
+        private static ISqlFragment HandleCanonicalFunctionConcat(SqlGenerator sqlgen, DbFunctionExpression e)
         {
             return sqlgen.HandleSpecialFunctionToOperator(e, false);
         }
 
-        private static ISqlFragment HandleCanonicalContainsFunction(SqlGenerator sqlgen, DbFunctionExpression e)
+        private static ISqlFragment HandleCanonicalFunctionContains(SqlGenerator sqlgen, DbFunctionExpression e)
         {
             sqlgen.shouldHandleBoolComparison = false;
             return sqlgen.HandleSpecialFunctionToOperator(e, false);
@@ -2396,7 +2396,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
             return sqlgen.HandleFunctionDefaultGivenName(e, "CHAR_LENGTH");
         }
 
-        private static ISqlFragment HandleCanonicalIndexOfFunction(SqlGenerator sqlgen, DbFunctionExpression e)
+        private static ISqlFragment HandleCanonicalFunctionIndexOf(SqlGenerator sqlgen, DbFunctionExpression e)
         {
             SqlBuilder result = new SqlBuilder();
             result.Append("POSITION(");
@@ -2500,6 +2500,21 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
         #endregion
 
         #region Math Canonical Functions
+        private static ISqlFragment HandleCanonicalFunctionAbs(SqlGenerator sqlgen, DbFunctionExpression e)
+        {
+            return sqlgen.HandleFunctionDefaultGivenName(e, "ABS");
+        }
+
+        private static ISqlFragment HandleCanonicalFunctionCeiling(SqlGenerator sqlgen, DbFunctionExpression e)
+        {
+            return sqlgen.HandleFunctionDefaultGivenName(e, "CEILING");
+        }
+
+        private static ISqlFragment HandleCanonicalFunctionFloor(SqlGenerator sqlgen, DbFunctionExpression e)
+        {
+            return sqlgen.HandleFunctionDefaultGivenName(e, "FLOOR");
+        }
+
         private static ISqlFragment HandleCanonicalFunctionPower(SqlGenerator sqlgen, DbFunctionExpression e)
         {
             return sqlgen.HandleFunctionDefaultGivenName(e, "POWER");
