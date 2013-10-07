@@ -833,27 +833,27 @@ namespace NuoDb.Data.Client
                 case edsIntLen1:
                     type = edsTypeInt32;
                     scale = 0;
-                    integer32 = source[offset++];
+                    integer32 = (sbyte)source[offset++];
                     break;
 
                 case edsIntLen2:
                     type = edsTypeInt32;
                     scale = 0;
-                    integer32 = source[offset] << 8 | (source[offset + 1] & 0xff);
+                    integer32 = ((sbyte)source[offset] << 8) | (source[offset + 1] & 0xff);
                     offset += 2;
                     break;
 
                 case edsIntLen3:
                     type = edsTypeInt32;
                     scale = 0;
-                    integer32 = source[offset] << 16 | (source[offset + 1] & 0xff) << 8 | (source[offset + 2] & 0xff);
+                    integer32 = ((sbyte)source[offset]) << 16 | (source[offset + 1] & 0xff) << 8 | (source[offset + 2] & 0xff);
                     offset += 3;
                     break;
 
                 case edsIntLen4:
                     type = edsTypeInt32;
                     scale = 0;
-                    integer32 = source[offset] << 24 | (source[offset + 1] & 0xff) << 16 | (source[offset + 2] & 0xff) << 8 | (source[offset + 3] & 0xff);
+                    integer32 = ((sbyte)source[offset]) << 24 | (source[offset + 1] & 0xff) << 16 | (source[offset + 2] & 0xff) << 8 | (source[offset + 3] & 0xff);
                     offset += 4;
                     break;
 
@@ -862,7 +862,7 @@ namespace NuoDb.Data.Client
                 case edsIntLen7:
                 case edsIntLen8:
                     l = code - edsIntLen1;
-                    integer64 = source[offset++];
+                    integer64 = (sbyte)source[offset++];
 
                     for (int n = 0; n < l; ++n)
                     {
@@ -874,7 +874,7 @@ namespace NuoDb.Data.Client
                     break;
 
                 case edsScaledLen0:
-                    scale = source[offset++];
+                    scale = (sbyte)source[offset++];
                     integer64 = 0;
                     type = edsTypeScaled;
                     break;
@@ -889,7 +889,7 @@ namespace NuoDb.Data.Client
                 case edsScaledLen8:
                     scale = source[offset++];
                     l = code - edsScaledLen1;
-                    integer64 = source[offset++];
+                    integer64 = (sbyte)source[offset++];
 
                     for (int n = 0; n < l; ++n)
                     {
@@ -1060,7 +1060,7 @@ namespace NuoDb.Data.Client
                 case edsTimeLen3:
                 case edsTimeLen4:
                     l = code - edsTimeLen1;
-                    integer64 = source[offset++];
+                    integer64 = (sbyte)source[offset++];
 
                     for (int n = 0; n < l; ++n)
                     {
@@ -1086,7 +1086,7 @@ namespace NuoDb.Data.Client
                 case edsMilliSecLen7:
                 case edsMilliSecLen8:
                     l = code - edsMilliSecLen1;
-                    integer64 = source[offset++];
+                    integer64 = (sbyte)source[offset++];
 
                     for (int n = 0; n < l; ++n)
                     {
@@ -1112,7 +1112,7 @@ namespace NuoDb.Data.Client
                 case edsNanoSecLen7:
                 case edsNanoSecLen8:
                     l = code - edsNanoSecLen1;
-                    integer64 = source[offset++];
+                    integer64 = (sbyte)source[offset++];
 
                     for (int n = 0; n < l; ++n)
                     {
@@ -1138,7 +1138,7 @@ namespace NuoDb.Data.Client
                 case edsScaledTimeLen8:
                     scale = source[offset++];
                     l = code - edsScaledTimeLen1 + 1;
-                    integer64 = source[offset++];
+                    integer64 = (sbyte)source[offset++];
 
                     for (int n = 1; n < l; ++n)
                     {
@@ -1158,7 +1158,7 @@ namespace NuoDb.Data.Client
                 case edsScaledDateLen8:
                     scale = source[offset++];
                     l = code - edsScaledDateLen1 + 1;
-                    integer64 = source[offset++];
+                    integer64 = (sbyte)source[offset++];
 
                     for (int n = 1; n < l; ++n)
                     {
@@ -1178,7 +1178,7 @@ namespace NuoDb.Data.Client
                 case edsScaledTimestampLen8:
                     scale = source[offset++];
                     l = code - edsScaledTimestampLen1 + 1;
-                    integer64 = source[offset++];
+                    integer64 = (sbyte)source[offset++];
 
                     for (int n = 1; n < l; ++n)
                     {
@@ -1198,7 +1198,7 @@ namespace NuoDb.Data.Client
                 case edsClobLen3:
                 case edsClobLen4:
                     l = code - edsClobLen1;
-                    blobId = source[offset++];
+                    blobId = (sbyte)source[offset++];
 
                     for (int n = 0; n < l; ++n)
                     {
@@ -1218,7 +1218,7 @@ namespace NuoDb.Data.Client
                 case edsBlobLen3:
                 case edsBlobLen4:
                     l = code - edsBlobLen1;
-                    blobId = source[offset++];
+                    blobId = (sbyte)source[offset++];
 
                     for (int n = 0; n < l; ++n)
                     {

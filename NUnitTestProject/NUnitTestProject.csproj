@@ -68,6 +68,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BugFixture.cs" />
     <Compile Include="LINQUnitTest.cs" />
     <Compile Include="Model.Designer.cs">
       <AutoGen>True</AutoGen>
