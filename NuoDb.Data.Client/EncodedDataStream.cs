@@ -534,7 +534,10 @@ namespace NuoDb.Data.Client
             }
             else if (value is DateTime)
             {
-                encodeDate((DateTime)value);
+                if (((DateTime)value).TimeOfDay.TotalSeconds == 0)
+                    encodeDate((DateTime)value);
+                else
+                    encodeTimestamp((DateTime)value);
             }
             else if (value is TimeSpan)
             {
