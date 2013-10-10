@@ -8,15 +8,8 @@ namespace NUnitTestProject
     {
         internal static void DropTable(NuoDbConnection cnn, string tableName)
         {
-            try
-            {
-                DbCommand dropCommand = new NuoDbCommand("drop table " + tableName, cnn);
-                dropCommand.ExecuteNonQuery();
-            }
-            catch (Exception)
-            {
-                // table is allowed to be missing
-            }
+            DbCommand dropCommand = new NuoDbCommand("drop table if exists " + tableName, cnn);
+            dropCommand.ExecuteNonQuery();
         }
 
         internal static void CreateHockeyTable()
@@ -24,15 +17,7 @@ namespace NUnitTestProject
             using (NuoDbConnection connection = new NuoDbConnection(TestFixture1.connectionString))
             {
                 connection.Open();
-                try
-                {
-                    DbCommand dropCommand = new NuoDbCommand("drop table hockey", connection);
-                    dropCommand.ExecuteNonQuery();
-                }
-                catch (Exception)
-                {
-                    // table is allowed to be missing
-                }
+                DropTable(connection, "hockey");
                 DbCommand createCommand = new NuoDbCommand("create table Hockey" +
                                                             "(" +
                                                             "   Id       Integer not NULL generated always as identity primary key," +

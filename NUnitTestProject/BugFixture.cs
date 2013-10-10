@@ -21,8 +21,7 @@ namespace NUnitTestProject
             using (NuoDbConnection connection = new NuoDbConnection(TestFixture1.connectionString))
             {
                 connection.Open();
-                DbCommand dropCommand = new NuoDbCommand("drop table ExpenseTest if exists", connection);
-                dropCommand.ExecuteNonQuery();
+                Utils.DropTable(connection, "ExpenseTest");
                 DbCommand createCommand = new NuoDbCommand("Create table ExpenseTest" +
                                                            "(" +
                                                            "SourceExpenseId int," +
