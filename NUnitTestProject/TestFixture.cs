@@ -586,7 +586,9 @@ namespace NUnitTestProject
                 DbCommand command = new NuoDbCommand("select col from temp", connection);
                 object val = command.ExecuteScalar();
                 // compare dates using the string representation
-                if (val is DateTime)
+                if (val.GetType() == expected.GetType())
+                    Assert.AreEqual(expected, val);
+                else if (val is DateTime)
                     Assert.AreEqual(DateTime.Parse(expected.ToString()), val);
                 else if (val is TimeSpan)
                     Assert.AreEqual(TimeSpan.Parse(expected.ToString()), val);
@@ -672,7 +674,7 @@ namespace NUnitTestProject
         public void TestDataTypeDate()
         {
             DateTime now = DateTime.Now;
-            TestDataType("date", now);
+            TestDataType("date", now, now.Date);
             TestDataType("date", "1999-01-31");
             TestDataType("dateonly", "1999-01-31");
         }
@@ -680,6 +682,8 @@ namespace NUnitTestProject
         [Test]
         public void TestDataTypeTime()
         {
+            DateTime now = DateTime.Now;
+            TestDataType("time", now, now.TimeOfDay);
             TestDataType("time", new TimeSpan(10, 30, 22));
             TestDataType("time", "10:30:22");
             TestDataType("timeonly", "10:30:22");
@@ -688,6 +692,8 @@ namespace NUnitTestProject
         [Test]
         public void TestDataTypeTimestamp()
         {
+            DateTime now = DateTime.Now;
+            TestDataType("timestamp", now);
             TestDataType("timestamp", "1999-01-31 10:30:00.100");
             TestDataType("datetime", "1999-01-31 10:30:00.100");
         }

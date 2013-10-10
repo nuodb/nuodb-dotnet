@@ -40,10 +40,6 @@ namespace NuoDb.Data.Client
     {
         internal DateTime value;
 
-        public ValueTimestamp()
-        {
-        }
-
         public ValueTimestamp(DateTime val)
         {
             value = val;
@@ -78,7 +74,7 @@ namespace NuoDb.Data.Client
         {
             get
             {
-                return value.ToString();
+                return value.ToString(timestampFormat);
             }
         }
 
@@ -86,18 +82,10 @@ namespace NuoDb.Data.Client
         {
             get
             {
-                return value.Date;
+                return value;
             }
         }
 
-        /*        public override DateTime Timestamp
-                {
-                    get
-                    {
-                        return value;
-                    }
-                }
-                */
         public override object Object
         {
             get

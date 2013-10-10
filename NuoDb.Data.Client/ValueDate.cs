@@ -40,10 +40,6 @@ namespace NuoDb.Data.Client
     {
         internal DateTime value;
 
-        public ValueDate()
-        {
-        }
-
         public ValueDate(DateTime val)
         {
             value = val;

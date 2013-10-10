@@ -38,10 +38,6 @@ namespace NuoDb.Data.Client
     {
         internal byte[] value;
 
-        public ValueBytes()
-        {
-        }
-
         public ValueBytes(byte[] val)
         {
             value = val;

@@ -42,10 +42,6 @@ namespace NuoDb.Data.Client
         internal short value;
         internal short scale;
 
-        public ValueShort()
-        {
-        }
-
         public ValueShort(short val, int scl)
         {
             value = val;

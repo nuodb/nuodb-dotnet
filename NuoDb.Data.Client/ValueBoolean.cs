@@ -40,10 +40,6 @@ namespace NuoDb.Data.Client
     {
         internal bool value;
 
-        public ValueBoolean()
-        {
-        }
-
         public ValueBoolean(bool value)
         {
             this.value = value;

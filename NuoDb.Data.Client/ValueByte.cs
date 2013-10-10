@@ -35,10 +35,6 @@ namespace NuoDb.Data.Client
     {
         private byte value;
 
-        public ValueByte()
-        {
-        }
-
         public ValueByte(byte val)
         {
             value = val;

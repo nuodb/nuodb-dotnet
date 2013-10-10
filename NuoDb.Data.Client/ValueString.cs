@@ -41,10 +41,6 @@ namespace NuoDb.Data.Client
     {
         internal string value;
 
-        public ValueString()
-        {
-        }
-
         public ValueString(string val)
         {
             value = val;

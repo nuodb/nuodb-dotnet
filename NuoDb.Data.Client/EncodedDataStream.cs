@@ -321,7 +321,9 @@ namespace NuoDb.Data.Client
         internal const int SECONDS_SCALE = 0;
         internal const int MILLISECONDS_SCALE = 3;
         internal const int NANOSECONDS_SCALE = 9;
-        internal DateTime baseDate = new DateTime(1970, 1, 1, 0, 0, 0);
+
+        internal static readonly long NANOSECONDS_PER_TICK = (1000000 / TimeSpan.TicksPerMillisecond);
+        internal static readonly DateTime baseDate = new DateTime(1970, 1, 1, 0, 0, 0);
 
         public EncodedDataStream()
         {
@@ -683,7 +685,7 @@ namespace NuoDb.Data.Client
                 return;
             }
 
-            TimeSpan delta = val - baseDate;
+            TimeSpan delta = val.ToUniversalTime() - baseDate;
 
             long value = (long)((delta.TotalMilliseconds * 1000) * 1000000000); // convert to nanoseconds
             int count = byteCount(value);
@@ -712,44 +714,17 @@ namespace NuoDb.Data.Client
                 return;
             }
 
-            // java.sql.Timestamp is a little strange. It actually stores the time in ms and
-            // anything fractional is stored in nanos. The last 3 digits of the internal time in ms
-            // is always 000. But when you call getTime(), it applies the ms from the nanos. Which means
-            // you can't simply  getTime() + getNanos() to get an int64 value
-
-            TimeSpan delta = val - baseDate;
-            int nanos = (int)((delta.TotalMilliseconds - Math.Truncate(delta.TotalMilliseconds)) * 1000);
-
-            // Find the scale factor
-
+            TimeSpan delta = val.ToUniversalTime() - baseDate;
+            long nanos = delta.Ticks * NANOSECONDS_PER_TICK;
             int scale = NANOSECONDS_SCALE;
 
-            if (nanos == 0)
-            {
-                scale = 0;
-            }
-            else
-            {
-                // Find if scale is over 3
-                for (int pow = 10; ((nanos % pow) == 0) && scale > MILLISECONDS_SCALE; pow *= 10)
-                {
-                    scale--;
-                }
-            }
-
-            // If Already at scale 3, we can use the val.getTime() directly
-            // else compute time for the long
-
-            long value = (scale == MILLISECONDS_SCALE) ? (long)(delta.TotalMilliseconds) : Value.reScale((long)(delta.TotalMilliseconds) / 1000, 0, scale) + (Value.reScale(nanos, NANOSECONDS_SCALE, scale));
-
-            int count = byteCount(value);
-
+            int count = byteCount(nanos);
             write(edsScaledTimestampLen1 + count - 1);
             write(scale);
 
             for (int shift = (count - 1) * 8; shift >= 0; shift -= 8)
             {
-                write((int)(value >> shift));
+                write((int)(nanos >> shift));
             }
         }
 
@@ -1445,11 +1420,8 @@ namespace NuoDb.Data.Client
 
                 case edsTypeScaledTime:
                     {
-                        // .NET DateTime only supports ms.
-
-                        long inMillis = Value.reScale(integer64, scale, MILLISECONDS_SCALE);
-
-                        return new ValueTime(new DateTime(inMillis * TimeSpan.TicksPerMillisecond, DateTimeKind.Utc).ToLocalTime());
+                        long inNanos = Value.reScale(integer64, scale, NANOSECONDS_SCALE);
+                        return new ValueTime(new DateTime(inNanos / NANOSECONDS_PER_TICK, DateTimeKind.Utc).ToLocalTime());
                     }
 
                 case edsTypeTime:
@@ -1457,10 +1429,8 @@ namespace NuoDb.Data.Client
 
                 case edsTypeScaledDate:
                     {
-                        // .NET DateTime only supports ms.
-
-                        long inMillis = Value.reScale(integer64, scale, MILLISECONDS_SCALE);
-                        return new ValueDate(new DateTime(baseDate.Ticks + inMillis * TimeSpan.TicksPerMillisecond, DateTimeKind.Utc).ToLocalTime());
+                        long inSeconds = Value.reScale(integer64, scale, SECONDS_SCALE);
+                        return new ValueDate(new DateTime(baseDate.Ticks + inSeconds * TimeSpan.TicksPerSecond, DateTimeKind.Utc).ToLocalTime());
                     }
 
                 case edsTypeMilliseconds:
@@ -1468,10 +1438,9 @@ namespace NuoDb.Data.Client
 
                 case edsTypeScaledTimestamp:
                     {
-                        long inMillis = Value.reScale(integer64, scale, MILLISECONDS_SCALE);
-                        int nanos = getNanos(integer64, scale);
+                        long inNanos = Value.reScale(integer64, scale, NANOSECONDS_SCALE);
 
-                        return new ValueTimestamp(new DateTime(baseDate.Ticks + inMillis * TimeSpan.TicksPerMillisecond, DateTimeKind.Utc).ToLocalTime());
+                        return new ValueTimestamp(new DateTime(baseDate.Ticks + inNanos / NANOSECONDS_PER_TICK, DateTimeKind.Utc).ToLocalTime());
                     }
 
                 case edsTypeNanoseconds:
@@ -1483,27 +1452,6 @@ namespace NuoDb.Data.Client
             }
 
             throw new NuoDbSqlException("On message type " + currentMessageType + ":NuoDB jdbc decode value type " + type + " not yet implemented");
-        }
-
-        internal virtual int getNanos(long number, int scale)
-        {
-            int modulo = 1;
-
-            for (int n = 0; n < scale; ++n)
-            {
-                modulo *= 10;
-            }
-
-            int temp = (int)(number % modulo);
-
-            int delta = 9 - scale;
-
-            for (int n = 0; n < delta; ++n)
-            {
-                temp *= 10;
-            }
-
-            return temp;
         }
 
         public virtual bool EndOfMessage
@@ -1523,7 +1471,7 @@ namespace NuoDb.Data.Client
                 return;
             }
 
-            TimeSpan span = (protocolVersion >= Protocol.PROTOCOL_VERSION10 ? date.ToUniversalTime() : date) - baseDate;
+            TimeSpan span = date.ToUniversalTime() - baseDate;
             long value = (long)(span.TotalMilliseconds);
             int count = byteCount(value);
             write(edsMilliSecLen0 + count);
@@ -1633,7 +1581,7 @@ namespace NuoDb.Data.Client
                 return;
             }
 
-            long milliSecondsSinceMidnight = (long)((protocolVersion >= Protocol.PROTOCOL_VERSION10 ? time.ToUniversalTime() : time).TimeOfDay.TotalMilliseconds);
+            long milliSecondsSinceMidnight = (long)(time.ToUniversalTime().TimeOfDay.TotalMilliseconds);
 
             TimeZone tz = TimeZone.CurrentTimeZone;
             if (tz.IsDaylightSavingTime(time))
@@ -1667,7 +1615,7 @@ namespace NuoDb.Data.Client
                 return;
             }
 
-            TimeSpan span = (protocolVersion >= Protocol.PROTOCOL_VERSION10 ? time.ToUniversalTime() : time) - baseDate;
+            TimeSpan span = time.ToUniversalTime() - baseDate;
             long value = (long)span.TotalMilliseconds;
             int count = byteCount(value);
             write(edsScaledTimeLen1 + count - 1);

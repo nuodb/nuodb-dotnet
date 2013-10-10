@@ -40,10 +40,6 @@ namespace NuoDb.Data.Client
     {
         internal double value;
 
-        public ValueDouble()
-        {
-        }
-
         public ValueDouble(double val)
         {
             value = val;

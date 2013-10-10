@@ -109,8 +109,8 @@ namespace NuoDb.Data.Client
         //private ValueRef @ref = null;
 
         protected static readonly string dateFormat = "yyyy-MM-dd";
-        protected static readonly string timeFormat = "HH:mm:ss.S";
-        protected static readonly string timestampFormat = "yyyy-MM-dd HH:mm:ss";
+        protected static readonly string timeFormat = "HH:mm:ss.FFFFFFFFF";
+        protected static readonly string timestampFormat = "yyyy-MM-dd HH:mm:ss.FFFFFFFFF";
 
         protected static readonly DateTime nullDate = new DateTime(0);
 

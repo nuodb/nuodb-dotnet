@@ -41,10 +41,6 @@ namespace NuoDb.Data.Client
     {
         internal DateTime value;
 
-        public ValueTime()
-        {
-        }
-
         public ValueTime(DateTime val)
         {
             value = val;
@@ -70,14 +66,14 @@ namespace NuoDb.Data.Client
             }
         }
 
-        /*        public override DateTime Time
-                {
-                    get
-                    {
-                        return value;
-                    }
-                }
-                */
+        public override DateTime Date
+        {
+            get
+            {
+                return value;
+            }
+        }
+
         public override object Object
         {
             get
