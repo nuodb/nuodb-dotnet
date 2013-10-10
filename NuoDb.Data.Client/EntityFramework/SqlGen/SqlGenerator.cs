@@ -133,9 +133,9 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
             functionHandlers.Add("Length", HandleCanonicalFunctionLength);
             functionHandlers.Add("ToLower", HandleCanonicalFunctionToLower);
             functionHandlers.Add("ToUpper", HandleCanonicalFunctionToUpper);
-            functionHandlers.Add("Trim", HandleCanonicalFunctionNotSupported);
-            functionHandlers.Add("LTrim", HandleCanonicalFunctionNotSupported);
-            functionHandlers.Add("RTrim", HandleCanonicalFunctionNotSupported);
+            functionHandlers.Add("Trim", HandleCanonicalFunctionTrim);
+            functionHandlers.Add("LTrim", HandleCanonicalFunctionLTrim);
+            functionHandlers.Add("RTrim", HandleCanonicalFunctionRTrim);
             functionHandlers.Add("Left", HandleCanonicalFunctionNotSupported);
             functionHandlers.Add("Right", HandleCanonicalFunctionNotSupported);
             functionHandlers.Add("Reverse", HandleCanonicalFunctionNotSupported);
@@ -160,7 +160,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
             functionHandlers.Add("CurrentDateTime", HandleCanonicalFunctionCurrentDateTime);
             functionHandlers.Add("CurrentDateTimeOffset", HandleCanonicalFunctionNotSupported);
             functionHandlers.Add("CurrentUtcDateTime", HandleCanonicalFunctionNotSupported);
-            functionHandlers.Add("Day", HandleCanonicalFunctionNotSupported);
+            functionHandlers.Add("Day", HandleCanonicalFunctionDay);
             functionHandlers.Add("DayOfYear", HandleCanonicalFunctionNotSupported);
             functionHandlers.Add("DiffNanoseconds", HandleCanonicalFunctionNotSupported);
             functionHandlers.Add("DiffMicroseconds", HandleCanonicalFunctionNotSupported);
@@ -172,13 +172,13 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
             functionHandlers.Add("DiffMonths", HandleCanonicalFunctionNotSupported);
             functionHandlers.Add("DiffYears", HandleCanonicalFunctionNotSupported);
             functionHandlers.Add("GetTotalOffsetMinutes", HandleCanonicalFunctionNotSupported);
-            functionHandlers.Add("Hour", HandleCanonicalFunctionNotSupported);
+            functionHandlers.Add("Hour", HandleCanonicalFunctionHour);
             functionHandlers.Add("Millisecond", HandleCanonicalFunctionNotSupported);
-            functionHandlers.Add("Minute", HandleCanonicalFunctionNotSupported);
-            functionHandlers.Add("Month", HandleCanonicalFunctionNotSupported);
-            functionHandlers.Add("Second", HandleCanonicalFunctionNotSupported);
+            functionHandlers.Add("Minute", HandleCanonicalFunctionMinute);
+            functionHandlers.Add("Month", HandleCanonicalFunctionMonth);
+            functionHandlers.Add("Second", HandleCanonicalFunctionSecond);
             functionHandlers.Add("TruncateTime", HandleCanonicalFunctionTruncateTime);
-            functionHandlers.Add("Year", HandleCanonicalFunctionNotSupported);
+            functionHandlers.Add("Year", HandleCanonicalFunctionYear);
             #endregion
 
             #region Bitwise Canonical Functions
@@ -2399,9 +2399,9 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
         private static ISqlFragment HandleCanonicalFunctionIndexOf(SqlGenerator sqlgen, DbFunctionExpression e)
         {
             SqlBuilder result = new SqlBuilder();
-            result.Append("POSITION(");
+            result.Append("LOCATE(");
             result.Append(e.Arguments[0].Accept(sqlgen));
-            result.Append(" IN ");
+            result.Append(",");
             result.Append(e.Arguments[1].Accept(sqlgen));
             result.Append(")");
             return result;
@@ -2409,7 +2409,6 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 
         private static ISqlFragment HandleCanonicalFunctionSubstring(SqlGenerator sqlgen, DbFunctionExpression e)
         {
-            Debug.Assert(e.Arguments.Count == 3, "Substring should have three arguments");
             return sqlgen.HandleFunctionDefaultGivenName(e, "SUBSTR");
         }
 
@@ -2422,6 +2421,22 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
         {
             return sqlgen.HandleFunctionDefaultGivenName(e, "UPPER");
         }
+
+        private static ISqlFragment HandleCanonicalFunctionTrim(SqlGenerator sqlgen, DbFunctionExpression e)
+        {
+            return sqlgen.HandleFunctionDefaultGivenName(e, "TRIM");
+        }
+
+        private static ISqlFragment HandleCanonicalFunctionLTrim(SqlGenerator sqlgen, DbFunctionExpression e)
+        {
+            return sqlgen.HandleFunctionDefaultGivenName(e, "LTRIM");
+        }
+
+        private static ISqlFragment HandleCanonicalFunctionRTrim(SqlGenerator sqlgen, DbFunctionExpression e)
+        {
+            return sqlgen.HandleFunctionDefaultGivenName(e, "RTRIM");
+        }
+
         #endregion
 
         #region Date and Time Canonical Functions
@@ -2496,6 +2511,36 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
             result.Append(e.Arguments[0].Accept(sqlgen));
             result.Append(" as DATE) as TIMESTAMP)");
             return result;
+        }
+
+        private static ISqlFragment HandleCanonicalFunctionDay(SqlGenerator sqlgen, DbFunctionExpression e)
+        {
+            return sqlgen.HandleFunctionDefaultGivenName(e, "DAY");
+        }
+
+        private static ISqlFragment HandleCanonicalFunctionMonth(SqlGenerator sqlgen, DbFunctionExpression e)
+        {
+            return sqlgen.HandleFunctionDefaultGivenName(e, "MONTH");
+        }
+
+        private static ISqlFragment HandleCanonicalFunctionYear(SqlGenerator sqlgen, DbFunctionExpression e)
+        {
+            return sqlgen.HandleFunctionDefaultGivenName(e, "YEAR");
+        }
+
+        private static ISqlFragment HandleCanonicalFunctionHour(SqlGenerator sqlgen, DbFunctionExpression e)
+        {
+            return sqlgen.HandleFunctionDefaultGivenName(e, "HOUR");
+        }
+
+        private static ISqlFragment HandleCanonicalFunctionMinute(SqlGenerator sqlgen, DbFunctionExpression e)
+        {
+            return sqlgen.HandleFunctionDefaultGivenName(e, "MINUTE");
+        }
+
+        private static ISqlFragment HandleCanonicalFunctionSecond(SqlGenerator sqlgen, DbFunctionExpression e)
+        {
+            return sqlgen.HandleFunctionDefaultGivenName(e, "SECOND");
         }
         #endregion
 

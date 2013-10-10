@@ -1128,5 +1128,227 @@ namespace NUnitTestProject
             }
         }
 
+        [Test]
+        public void LINQTestABS()
+        {
+            var results = from player in context.HOCKEY
+                          select Math.Abs((decimal)player.NUMBER);
+
+            foreach (var x in results)
+            {
+                Assert.GreaterOrEqual(x, 0);
+            }
+        }
+
+        [Test]
+        public void LINQTestCEILING()
+        {
+            var results = from player in context.HOCKEY
+                          select Math.Ceiling(((double)player.NUMBER) / 10.0);
+
+            foreach (var x in results)
+            {
+                Assert.AreEqual(x, (int)x);
+            }
+        }
+
+        [Test]
+        public void LINQTestFLOOR()
+        {
+            var results = from player in context.HOCKEY
+                          select Math.Floor(((double)player.NUMBER) / 10.0);
+
+            foreach (var x in results)
+            {
+                Assert.AreEqual(x, (int)x);
+            }
+        }
+
+        [Test]
+        public void LINQTestROUND()
+        {
+            var results = from player in context.HOCKEY
+                          select Math.Round(((double)player.NUMBER) / 10.0);
+
+            foreach (var x in results)
+            {
+                Assert.AreEqual(x, (int)x);
+            }
+        }
+
+        [Test]
+        public void LINQTestPOWER()
+        {
+            var results = from player in context.HOCKEY
+                          select Math.Pow(((double)player.NUMBER), 2);
+
+            foreach (var x in results)
+            {
+                Assert.AreEqual(Math.Sqrt(x), (int)Math.Sqrt(x));
+            }
+        }
+
+        [Test]
+        public void LINQTestMOD()
+        {
+            var results = from player in context.HOCKEY
+                          select (((double)player.NUMBER)/10) % 1;
+
+            foreach (var x in results)
+            {
+                Assert.LessOrEqual(x, 1);
+            }
+        }
+
+        [Test]
+        public void LINQTestTRIM()
+        {
+            var results = from player in context.HOCKEY
+                          select new
+                          {
+                            one=String.Concat("   ",player.NAME,"  ").Trim(),
+                            two=player.NAME
+                          };
+
+            foreach (var x in results)
+            {
+                Assert.AreEqual(x.one, x.two);
+            }
+        }
+
+        [Test]
+        public void LINQTestLTRIM()
+        {
+            var results = from player in context.HOCKEY
+                          select new
+                          {
+                              one = String.Concat("   ", player.NAME).TrimStart(),
+                              two = player.NAME
+                          };
+
+            foreach (var x in results)
+            {
+                Assert.AreEqual(x.one, x.two);
+            }
+        }
+
+        [Test]
+        public void LINQTestRTRIM()
+        {
+            var results = from player in context.HOCKEY
+                          select new
+                          {
+                              one = String.Concat(player.NAME, "   ").TrimEnd(),
+                              two = player.NAME
+                          };
+
+            foreach (var x in results)
+            {
+                Assert.AreEqual(x.one, x.two);
+            }
+        }
+
+        [Test]
+        public void LINQTestSUBSTRING()
+        {
+            var results = from player in context.HOCKEY
+                          select player.NAME.Substring(0,2);
+
+            foreach (var x in results)
+            {
+                Assert.LessOrEqual(x.Length, 2);
+            }
+        }
+
+        [Test]
+        public void LINQTestINDEXOF()
+        {
+            var results = from player in context.HOCKEY
+                          select player.NAME.IndexOf("SUM");
+
+            foreach (var x in results)
+            {
+                Assert.GreaterOrEqual(x, -1);
+            }
+        }
+
+        [Test]
+        public void LINQTestENDSWITH()
+        {
+            var results = from player in context.HOCKEY
+                          select new
+                            {
+                                name = player.NAME,
+                                b = player.NAME.EndsWith("MIT"),
+                            };
+
+            foreach (var x in results)
+            {
+                Assert.AreEqual(x.name.EndsWith("MIT"), x.b);
+            }
+        }
+
+        [Test]
+        public void LINQTestSTARTSWITH()
+        {
+            var results = from player in context.HOCKEY
+                          select new
+                          {
+                              name = player.NAME,
+                              b = player.NAME.StartsWith("MAX"),
+                          };
+
+            foreach (var x in results)
+            {
+                Assert.AreEqual(x.name.StartsWith("MAX"), x.b);
+            }
+        }
+
+        [Test]
+        public void LINQTestCURRENTDATE()
+        {
+            var results = from player in context.HOCKEY
+                          select DateTime.Now;
+
+            foreach (var x in results)
+            {
+                Assert.LessOrEqual(x, DateTime.Now);
+            }
+        }
+
+        [Test]
+        public void LINQTestDATE()
+        {
+            var results = from player in context.HOCKEY
+                          select new
+                          {
+                              d = DateTime.Now.Day,
+                              m = DateTime.Now.Month,
+                              y = DateTime.Now.Year
+                          };
+
+            foreach (var x in results)
+            {
+                Assert.LessOrEqual(new DateTime(x.y, x.m, x.d), DateTime.Now);
+            }
+        }
+
+        [Test]
+        public void LINQTestTIME()
+        {
+            var results = from player in context.HOCKEY
+                          select new
+                          {
+                              h = DateTime.Now.Hour,
+                              m = DateTime.Now.Minute,
+                              s = DateTime.Now.Second
+                          };
+
+            foreach (var x in results)
+            {
+                Assert.LessOrEqual(new TimeSpan(x.h, x.m, x.s), DateTime.Now.TimeOfDay);
+            }
+        }
+
     }
 }
