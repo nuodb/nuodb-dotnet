@@ -517,7 +517,7 @@ namespace NuoDb.Data.Client
             for (int i = 0; i < outParameters; i++)
             {
                 int index = dataStream.getInt();
-                parameters[index].Value = dataStream.getValue().Object;
+                parameters[index].Value = dataStream.getValue(connection.InternalConnection.sqlContext).Object;
             }
             return updateCount;
         }

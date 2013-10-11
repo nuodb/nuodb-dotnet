@@ -304,7 +304,7 @@ namespace NuoDb.Data.Client
 
                     for (int n = 0; n < numberColumns; ++n)
                     {
-                        values[n] = pendingRows.getValue();
+                        values[n] = pendingRows.getValue(connection.InternalConnection.sqlContext);
                     }
 
                     //clearWarnings();

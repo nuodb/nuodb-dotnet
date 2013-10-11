@@ -768,7 +768,7 @@ namespace NUnitTestProject
                 }
             }
         }
-
+        
         private static void CreateTargetForBulkLoad()
         {
             using (NuoDbConnection connection = new NuoDbConnection(connectionString))
@@ -1510,5 +1510,123 @@ namespace NUnitTestProject
             command.Connection.Close();
         }
 
+        [Test]
+        public void TestTimeZone()
+        {
+            // Use a time in the UTC time zone; otherwise, it would be treated as if it were in the local timezone even
+            // if we are telling NuoDB that we are in a different timezone
+            DateTime dstReferenceDate = DateTime.SpecifyKind(new DateTime(1999, 10, 1, 2, 30, 58), DateTimeKind.Utc);
+            DateTime nonDstReferenceDate = DateTime.SpecifyKind(new DateTime(1999, 12, 1, 2, 30, 58), DateTimeKind.Utc);
+            DateTime dtDate;
+            string strDate;
+            bool hasNext;
+            // GMT-5, or GMT-4 if DST is active
+            using (NuoDbConnection connection = new NuoDbConnection(connectionString + ";TimeZone=America/New_York"))
+            {
+                connection.Open();
+                Utils.DropTable(connection, "timezone");
+
+                DbCommand createCommand = new NuoDbCommand("create table timezone (asTimestamp timestamp, asDate date, asTime time, asString string)", connection);
+                int result = createCommand.ExecuteNonQuery();
+
+                DbCommand insertCommand = new NuoDbCommand("insert into timezone (asTimestamp, asDate, asTime, asString) values (?,?,?,?)", connection);
+                insertCommand.Parameters.Add(dstReferenceDate);
+                insertCommand.Parameters.Add(dstReferenceDate);
+                insertCommand.Parameters.Add(dstReferenceDate);
+                insertCommand.Parameters.Add(dstReferenceDate);
+                insertCommand.ExecuteNonQuery();
+                insertCommand.Parameters.Clear();
+                insertCommand.Parameters.Add(nonDstReferenceDate);
+                insertCommand.Parameters.Add(nonDstReferenceDate);
+                insertCommand.Parameters.Add(nonDstReferenceDate);
+                insertCommand.Parameters.Add(nonDstReferenceDate);
+                insertCommand.ExecuteNonQuery();
+
+                DbCommand command = new NuoDbCommand("select asTimestamp, asDate, asTime, asString from timezone", connection);
+                DbDataReader reader = command.ExecuteReader();
+                hasNext = reader.Read();
+                Assert.IsTrue(hasNext);
+                dtDate = reader.GetDateTime(0);
+                Assert.AreEqual("1999-09-30 22:30:58", dtDate.ToString("yyyy-MM-dd HH:mm:ss"));
+                strDate = reader.GetString(0);
+                Assert.AreEqual("1999-09-30 22:30:58", strDate);
+                dtDate = reader.GetDateTime(1);
+                Assert.AreEqual("1999-09-30", dtDate.ToString("yyyy-MM-dd"));
+                strDate = reader.GetString(1);
+                Assert.AreEqual("1999-09-30", strDate);
+                dtDate = reader.GetDateTime(2);
+                Assert.AreEqual("22:30:58", dtDate.ToString("HH:mm:ss"));
+                strDate = reader.GetString(2);
+                Assert.AreEqual("22:30:58", strDate);
+                dtDate = reader.GetDateTime(3);
+                Assert.AreEqual("1999-09-30 22:30:58", dtDate.ToString("yyyy-MM-dd HH:mm:ss"));
+                strDate = reader.GetString(3);
+                Assert.AreEqual("1999-09-30 22:30:58", strDate);
+
+                hasNext = reader.Read();
+                Assert.IsTrue(hasNext);
+                dtDate = reader.GetDateTime(0);
+                Assert.AreEqual("1999-11-30 21:30:58", dtDate.ToString("yyyy-MM-dd HH:mm:ss"));
+                strDate = reader.GetString(0);
+                Assert.AreEqual("1999-11-30 21:30:58", strDate);
+                dtDate = reader.GetDateTime(1);
+                Assert.AreEqual("1999-11-30", dtDate.ToString("yyyy-MM-dd"));
+                strDate = reader.GetString(1);
+                Assert.AreEqual("1999-11-30", strDate);
+                dtDate = reader.GetDateTime(2);
+                Assert.AreEqual("21:30:58", dtDate.ToString("HH:mm:ss"));
+                strDate = reader.GetString(2);
+                Assert.AreEqual("21:30:58", strDate);
+                dtDate = reader.GetDateTime(3);
+                Assert.AreEqual("1999-11-30 21:30:58", dtDate.ToString("yyyy-MM-dd HH:mm:ss"));
+                strDate = reader.GetString(3);
+                Assert.AreEqual("1999-11-30 21:30:58", strDate);
+            }
+            // all the date-based columns should magically move one hour back when we change timezone
+            // GMT-6, or GMT-5 if DST is active
+            using (NuoDbConnection connection = new NuoDbConnection(connectionString + ";TimeZone=America/Chicago"))
+            {
+                connection.Open();
+                DbCommand command = new NuoDbCommand("select asTimestamp, asDate, asTime, asString from timezone", connection);
+                DbDataReader reader = command.ExecuteReader();
+                hasNext = reader.Read();
+                Assert.IsTrue(hasNext);
+                dtDate = reader.GetDateTime(0);
+                Assert.AreEqual("1999-09-30 21:30:58", dtDate.ToString("yyyy-MM-dd HH:mm:ss"));
+                strDate = reader.GetString(0);
+                Assert.AreEqual("1999-09-30 21:30:58", strDate);
+                dtDate = reader.GetDateTime(1);
+                Assert.AreEqual("1999-09-30", dtDate.ToString("yyyy-MM-dd"));
+                strDate = reader.GetString(1);
+                Assert.AreEqual("1999-09-30", strDate);
+                dtDate = reader.GetDateTime(2);
+                Assert.AreEqual("21:30:58", dtDate.ToString("HH:mm:ss"));
+                strDate = reader.GetString(2);
+                Assert.AreEqual("21:30:58", strDate);
+                dtDate = reader.GetDateTime(3);
+                Assert.AreEqual("1999-09-30 22:30:58", dtDate.ToString("yyyy-MM-dd HH:mm:ss"));
+                strDate = reader.GetString(3);
+                Assert.AreEqual("1999-09-30 22:30:58", strDate);
+
+                hasNext = reader.Read();
+                Assert.IsTrue(hasNext);
+                dtDate = reader.GetDateTime(0);
+                Assert.AreEqual("1999-11-30 20:30:58", dtDate.ToString("yyyy-MM-dd HH:mm:ss"));
+                strDate = reader.GetString(0);
+                Assert.AreEqual("1999-11-30 20:30:58", strDate);
+                dtDate = reader.GetDateTime(1);
+                Assert.AreEqual("1999-11-30", dtDate.ToString("yyyy-MM-dd"));
+                strDate = reader.GetString(1);
+                Assert.AreEqual("1999-11-30", strDate);
+                dtDate = reader.GetDateTime(2);
+                Assert.AreEqual("20:30:58", dtDate.ToString("HH:mm:ss"));
+                strDate = reader.GetString(2);
+                Assert.AreEqual("20:30:58", strDate);
+                dtDate = reader.GetDateTime(3);
+                Assert.AreEqual("1999-11-30 21:30:58", dtDate.ToString("yyyy-MM-dd HH:mm:ss"));
+                strDate = reader.GetString(3);
+                Assert.AreEqual("1999-11-30 21:30:58", strDate);
+            }
+        }
     }
 }

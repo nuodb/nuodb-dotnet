@@ -125,6 +125,15 @@ namespace NuoDb.Data.Client
             get { return ContainsKey(MaxLifetimeKey) ? MaxLifetime : MaxLifetimeDefault; }
         }
 
+        internal const string TimeZoneKey = "TimeZone";
+        [Category("General")]
+        [Description("Specifies the timezone of the client application")]
+        public string TimeZone
+        {
+            get { return this.GetString(TimeZoneKey); }
+            set { this.SetValue(TimeZoneKey, value); }
+        }
+
         public NuoDbConnectionStringBuilder()
         {
         }

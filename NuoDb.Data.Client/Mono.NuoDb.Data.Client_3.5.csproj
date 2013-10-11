@@ -68,6 +68,7 @@
     <Compile Include="Security\RemoteGroup.cs" />
     <Compile Include="Security\RemotePassword.cs" />
     <Compile Include="NuoDbSqlCode.cs" />
+    <Compile Include="SQLContext.cs" />
     <Compile Include="Util\Extensions.cs" />
     <Compile Include="Util\Op.cs" />
     <Compile Include="Util\StringUtils.cs" />
@@ -106,6 +107,9 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="DataTypes.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="TimeZones.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

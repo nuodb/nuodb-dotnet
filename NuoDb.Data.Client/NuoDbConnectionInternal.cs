@@ -53,6 +53,7 @@ namespace NuoDb.Data.Client
         internal const string LAST_INFO_SEPARATOR = ";";
         internal const string DEFAULT_CIPHER = "RC4";
         internal bool networkErrorOccurred = false;
+        internal SQLContext sqlContext = new SQLContext();
 
         NuoDbConnection owner;
 
@@ -637,24 +638,23 @@ namespace NuoDb.Data.Client
                 // see if the app set the TimeZone. If so, it will be sent to the server
                 // so set the local TZ to be the same. If not, send the current default
                 // TZ  to the server. (Of course, this affects this connection only)
-                /*
-                                String timeZone = properties.getProperty(TIMEZONE_NAME);
+                if (parsedConnectionString.ContainsKey(NuoDbConnectionStringBuilder.TimeZoneKey))
+                {
+                    string tzone = parsedConnectionString.TimeZone;
+                    properties["TimeZone"] = tzone;
+                    sqlContext.TimeZone = OlsonDatabase.FindWindowsTimeZone(tzone);
+                }
+                else
+                {
+                    // Save the default at the time the connection was opened
+                    string tzone = TimeZoneInfo.Local.Id;
+                    properties["TimeZone"] = OlsonDatabase.FindOlsonTimeZone(tzone);
+                    // As described in http://msdn.microsoft.com/en-us/library/system.timezoneinfo.local.aspx TimeZoneInfo.Local
+                    // always applies the DST setting of the current time, even if the DST settings of the tested date used different
+                    // rules; so we fetch the complete definition from the database
+                    sqlContext.TimeZone = TimeZoneInfo.FindSystemTimeZoneById(tzone);
+                }
 
-                                if (timeZone == null)
-                                {
-                                    // Save the default at the time the connection was opened
-                                    TimeZone tz = TimeZone.getDefault();
-                                    sqlContext.setTimeZone(tz);
-                                    sqlContext.setTimeZoneId(tz.getID());
-                                    properties.setProperty(TIMEZONE_NAME, tz.getID());
-                                }
-                                else
-                                {
-                                    TimeZone tz = TimeZone.getTimeZone(timeZone);
-                                    sqlContext.setTimeZone(tz);
-                                    sqlContext.setTimeZoneId(tz.getID());
-                                }
-                */
                 int count = properties.Count + 1 + ((dbUUId == null) ? 0 : 1); // Add LastCommitInfo and DatabaseUUId
 
                 dataStream.encodeInt(count);
