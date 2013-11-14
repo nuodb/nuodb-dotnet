@@ -571,8 +571,12 @@ namespace NuoDb.Data.Client
                     properties["User"] = userName = parsedConnectionString.User;
                     tag.addAttribute("User", userName);
                 }
+                else
+                {
+                    throw new ArgumentException("Username is missing in connection string", "ConnectionString");
+                }
 
-                string password = null;
+                string password = "";
                 if (parsedConnectionString.ContainsKey(NuoDbConnectionStringBuilder.PasswordKey))
                 {
                     password = parsedConnectionString.Password;
