@@ -203,8 +203,12 @@
     <None Include="Key.snk" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="NuoDbDataViewSupport.xml" />
-    <EmbeddedResource Include="NuoDbDataObjectSupport.xml" />
+    <EmbeddedResource Include="NuoDbDataViewSupport.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="NuoDbDataObjectSupport.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <Resource Include="Resources\Bitmaps.bmp" />
     <Content Include="Resources\Package.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

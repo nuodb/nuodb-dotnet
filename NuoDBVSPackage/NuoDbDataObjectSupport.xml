@@ -820,7 +820,11 @@
         </Property>
         <Property name="Direction" type="System.Int32" itemName="PARAMETER_DIRECTION">
           <Concepts>
-            <Concept name="Direction" />
+            <Concept name="Direction">
+              <Conversion>
+                <Calculate expr="IIF({0} = 0,'RETVAL',IIF({1}=1,'IN',IIF({1}=2,'IN/OUT','OUT')))" type="System.String"/>
+              </Conversion>
+            </Concept>
           </Concepts>
         </Property>
         <Property name="Nullable" type="System.Boolean" itemName="IS_NULLABLE">

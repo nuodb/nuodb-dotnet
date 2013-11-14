@@ -100,12 +100,16 @@
                   <DisplayName>{StoredProcedure.Name}</DisplayName>
                   <Icon name="StoredProcedure"/>
                   <Children>
-                    <Selection type="StoredProcedureParameter" restrictions="null,{StoredProcedure.Schema},{StoredProcedure.Name}">
+                    <Selection type="StoredProcedureParameter" restrictions="null,{StoredProcedure.Schema},{StoredProcedure.Name}" filter="Direction &lt;&gt; 3">
                       <SelectionNode>
                         <Icon when="{Direction} = 1" name="InputParameter"/>
                         <Icon when="{Direction} = 2" name="InputOutputParameter"/>
-                        <Icon when="{Direction} = 3" name="Column"/>
                         <Icon when="{Direction} = 4" name="OutputParameter"/>
+                      </SelectionNode>
+                    </Selection>
+                    <Selection type="StoredProcedureParameter" restrictions="null,{StoredProcedure.Schema},{StoredProcedure.Name}" filter="Direction = 3">
+                      <SelectionNode>
+                        <Icon name="Column"/>
                       </SelectionNode>
                     </Selection>
                   </Children>
