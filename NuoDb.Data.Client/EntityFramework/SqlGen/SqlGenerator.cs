@@ -73,6 +73,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
         }
 
         SymbolTable symbolTable = new SymbolTable();
+        static Symbol Suppressed = new Symbol("", null);
 
         /// <summary>
         /// VariableReferenceExpressions are allowed only as children of DbPropertyExpression
@@ -1470,12 +1471,15 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 
             result = new SqlBuilder();
             result.Append(instanceSql);
-            result.Append(".");
 
-            // At this point the column name cannot be renamed, so we do
-            // not use a symbol.
-            result.Append(QuoteIdentifier(e.Property.Name));
+            if (symbolTable.Lookup(e.Property.Name) != Suppressed)
+            {
+                result.Append(".");
 
+                // At this point the column name cannot be renamed, so we do
+                // not use a symbol.
+                result.Append(QuoteIdentifier(e.Property.Name));
+            }
             return result;
         }
 
@@ -1780,6 +1784,33 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
             }
             else
             {
+                DbJoinExpression e = inputExpression as DbJoinExpression;
+                if (e != null &&
+                    e.ExpressionKind == DbExpressionKind.InnerJoin &&
+                    e.Left.Expression is DbScanExpression && e.Right.Expression is DbScanExpression &&
+                    (e.Left.Expression as DbScanExpression).Target is EntitySet && (e.Right.Expression as DbScanExpression).Target is EntitySet)
+                {
+                    EntitySet left = (e.Left.Expression as DbScanExpression).Target as EntitySet;
+                    EntitySet right = (e.Right.Expression as DbScanExpression).Target as EntitySet;
+                    string bundleName = left.Name + "-innerjoin-" + right.Name;
+                    if (left.EntityContainer.BaseEntitySets.Contains(bundleName))
+                    {
+                        // we have a better query for this join...
+                        EntitySetBase query = left.EntityContainer.BaseEntitySets[bundleName];
+
+                        // remove the aliases for the stripped join components from the symbol table
+                        foreach (Symbol s in result.FromExtents)
+                            symbolTable.Add(s.Name, Suppressed);
+
+                        // create a new SELECT
+                        result = new SqlSelectStatement();
+                        result.From.Append(GetTargetSql(query));
+                        fromSymbol = new Symbol(inputVarName, TypeUsage.CreateDefaultTypeUsage(query.ElementType));
+                        AddFromSymbol(result, inputVarName, fromSymbol, true);
+                        return result;
+                    }
+                }
+
                 // input was a join.
                 // we are reusing the select statement produced by a Join node
                 // we need to remove the original extents, and replace them with a

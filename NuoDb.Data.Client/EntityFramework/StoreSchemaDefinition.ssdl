@@ -73,7 +73,7 @@
           end AS IsNullable,
           case
             when F.domainname is not null and F.domainname <> '' then F.schema || '.' || F.domainname
-            else D.name
+            else (SELECT name FROM SYSTEM.DATATYPES WHERE Id = F.datatype)
           end AS TypeName,
           F.length AS MaxLength,
           F.precision AS Precision,
@@ -95,10 +95,9 @@
             when F.flags < 8 then false
           end AS IsStoreGenerated,
           F.defaultvalue AS Default
-        FROM SYSTEM.FIELDS as F,SYSTEM.DATATYPES as D,SYSTEM.TABLES as T
+        FROM SYSTEM.FIELDS as F,SYSTEM.TABLES as T
         WHERE
           F.schema != 'SYSTEM' AND
-          F.datatype = D.id AND
           F.schema = T.schema AND
           F.tableName = T.tableName AND
           T.type = 'TABLE'
@@ -150,7 +149,7 @@
           end AS IsNullable,
           case
             when F.domainname is not null and F.domainname <> '' then F.schema || '.' || F.domainname
-            else D.name
+            else (SELECT name FROM SYSTEM.DATATYPES WHERE Id = F.datatype)
           end AS TypeName,
           F.length AS MaxLength,
           F.precision AS Precision,
@@ -172,10 +171,9 @@
             when F.flags < 8 then false
           end AS IsStoreGenerated,
           F.defaultvalue AS Default
-        FROM SYSTEM.FIELDS as F,SYSTEM.DATATYPES as D,SYSTEM.TABLES as T
+        FROM SYSTEM.FIELDS as F,SYSTEM.TABLES as T
         WHERE
           F.schema != 'SYSTEM' AND
-          F.datatype = D.id AND
           F.schema = T.schema AND
           F.tableName = T.tableName AND
           T.type = 'VIEW'
@@ -246,14 +244,12 @@
       <DefiningQuery>
         <![CDATA[
         SELECT
-          '' AS Id,
+          schema || '.' || procedureName AS Id,
           '' AS CatalogName,
-          '' AS SchemaName,
-          '' AS Name
+          schema AS SchemaName,
+          procedureName AS Name
         FROM
-          SYSTEM.TABLES
-        WHERE 
-          1 = 0
+          SYSTEM.PROCEDURES
         ]]>
       </DefiningQuery>
     </EntitySet>
@@ -277,11 +273,11 @@
           '' AS CharacterSetSchema,
           '' AS CharacterSetName,
           false AS IsMultiSet,
-          '' AS Mode,
+          'Unknown' AS Mode,
           '' AS Default
         FROM
-          SYSTEM.TABLES
-        WHERE 
+          DUAL
+        WHERE
           1 = 0
         ]]>
       </DefiningQuery>
@@ -343,6 +339,74 @@
           SYSTEM.INDEXFIELDS
         WHERE
           schema != 'SYSTEM'
+        ]]>
+      </DefiningQuery>
+    </EntitySet>
+    <!-- this entity avoids the usage of a costly nested INNER JOIN -->
+    <EntitySet Name="SConstraintColumns-innerjoin-STableColumns" EntityType="Self.ConstraintTableColumn">
+      <DefiningQuery>
+        <![CDATA[
+        SELECT
+          I.schema || '.' || I.tablename || '.' || I.indexname AS ConstraintId,
+          I.schema || '.' || I.tablename || '.' || I.field AS ColumnId,
+          F.schema || '.' || F.tableName || '.' || F.field AS Id,
+          F.schema || '.' || F.tableName AS ParentId,
+          F.field AS Name,
+          F.fieldId AS Ordinal,
+          case F.flags
+            when 0 then true
+            when 1 then false
+            when 2 then true
+            when 3 then false
+            when 4 then true
+            when 5 then false
+            when 6 then true
+            when 7 then false
+            when 8 then true
+            when 9 then false
+            when 10 then true
+            when 11 then false
+            when 12 then true
+            when 13 then false
+            when 14 then true
+            when 15 then false
+          end AS IsNullable,
+          case
+            when F.domainname is not null and F.domainname <> '' then F.schema || '.' || F.domainname
+            else (SELECT name FROM SYSTEM.DATATYPES WHERE Id = F.datatype)
+          end AS TypeName,
+          F.length AS MaxLength,
+          F.precision AS Precision,
+          0 AS DateTimePrecision,
+          F.scale AS Scale,
+          '' AS CollationCatalog,
+          '' AS CollationSchema,
+          '' AS CollationName,
+          '' AS CharacterSetCatalog,
+          '' AS CharacterSetSchema,
+          '' AS CharacterSetName,
+          false AS IsMultiSet,
+          case
+            when F.generator_sequence is not null and F.generator_sequence like '%IDENTITY_SEQUENCE' then true
+            else false
+          end AS IsIdentity,
+          case 
+            when F.flags >= 8 then true
+            when F.flags < 8 then false
+          end AS IsStoreGenerated,
+          F.defaultvalue AS Default
+        FROM 
+          SYSTEM.INDEXFIELDS as I, 
+          SYSTEM.FIELDS as F,
+          SYSTEM.TABLES as T
+        WHERE
+          I.schema = F.schema AND
+          I.tablename = F.tableName AND
+          I.field = F.field AND
+          F.schema != 'SYSTEM' AND
+          F.schema = T.schema AND
+          F.tableName = T.tableName AND
+          T.type = 'TABLE'
         ]]>
       </DefiningQuery>
     </EntitySet>
@@ -429,6 +493,75 @@
         ]]>
       </DefiningQuery>
     </EntitySet>
+    <!-- this entity avoids the usage of a costly nested INNER JOIN -->
+    <EntitySet Name="SViewConstraintColumns-innerjoin-SViewColumns" EntityType="Self.ConstraintTableColumn">
+      <DefiningQuery>
+        <![CDATA[
+        SELECT
+          I.schema || '.' || I.tablename || '.' || I.indexname AS ConstraintId,
+          I.schema || '.' || I.tablename || '.' || I.field AS ColumnId,
+          F.schema || '.' || F.tableName || '.' || F.field AS Id,
+          F.schema || '.' || F.tableName AS ParentId,
+          F.field AS Name,
+          F.fieldId AS Ordinal,
+          case F.flags
+            when 0 then true
+            when 1 then false
+            when 2 then true
+            when 3 then false
+            when 4 then true
+            when 5 then false
+            when 6 then true
+            when 7 then false
+            when 8 then true
+            when 9 then false
+            when 10 then true
+            when 11 then false
+            when 12 then true
+            when 13 then false
+            when 14 then true
+            when 15 then false
+          end AS IsNullable,
+          case
+            when F.domainname is not null and F.domainname <> '' then F.schema || '.' || F.domainname
+            else (SELECT name FROM SYSTEM.DATATYPES WHERE Id = F.datatype)
+          end AS TypeName,
+          F.length AS MaxLength,
+          F.precision AS Precision,
+          0 AS DateTimePrecision,
+          F.scale AS Scale,
+          '' AS CollationCatalog,
+          '' AS CollationSchema,
+          '' AS CollationName,
+          '' AS CharacterSetCatalog,
+          '' AS CharacterSetSchema,
+          '' AS CharacterSetName,
+          false AS IsMultiSet,
+          case
+            when F.generator_sequence is not null and F.generator_sequence like '%IDENTITY_SEQUENCE' then true
+            else false
+          end AS IsIdentity,
+          case 
+            when F.flags >= 8 then true
+            when F.flags < 8 then false
+          end AS IsStoreGenerated,
+          F.defaultvalue AS Default
+        FROM 
+          SYSTEM.INDEXFIELDS as I, 
+          SYSTEM.FIELDS as F,
+          SYSTEM.TABLES as T
+        WHERE
+          I.schema = F.schema AND
+          I.tablename = F.tableName AND
+          I.field = F.field AND
+          F.schema != 'SYSTEM' AND
+          F.schema = T.schema AND
+          F.tableName = T.tableName AND
+          T.type = 'VIEW'
+        ]]>
+      </DefiningQuery>
+    </EntitySet>
+    
     <EntitySet Name="SViewForeignKeys" EntityType="Self.ForeignKey">
       <DefiningQuery>
         <![CDATA[
@@ -609,6 +742,36 @@
     <Property Name="ColumnId" Nullable="false" Type="string" MaxLength="63" />
   </EntityType>
 
+  <EntityType Name="ConstraintTableColumn">
+    <Key>
+      <PropertyRef Name="ConstraintId" />
+      <PropertyRef Name="ColumnId" />
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="ConstraintId" Nullable="false" Type="string" MaxLength="31" />
+    <Property Name="ColumnId" Nullable="false" Type="string" MaxLength="63" />
+    <Property Name="Id" Nullable="false" Type="string" MaxLength="63" />
+    <Property Name="ParentId" Nullable="false" Type="string" MaxLength="31" />
+    <Property Name="Name" Nullable="false" Type="string" MaxLength="31" />
+    <Property Name="Ordinal" Nullable="false" Type="int" />
+    <Property Name="IsNullable" Nullable="false" Type="boolean" />
+    <Property Name="TypeName" Nullable="false" Type="string" MaxLength="256" />
+    <Property Name="MaxLength" Type="int" />
+    <Property Name="Precision" Type="int" />
+    <Property Name="DateTimePrecision" Type="int" />
+    <Property Name="Scale" Type="int" />
+    <Property Name="CollationCatalog" Type="string" MaxLength="128" />
+    <Property Name="CollationSchema" Type="string" MaxLength="128" />
+    <Property Name="CollationName" Type="string" MaxLength="128" />
+    <Property Name="CharacterSetCatalog" Type="string" MaxLength="128" />
+    <Property Name="CharacterSetSchema" Type="string" MaxLength="128" />
+    <Property Name="CharacterSetName" Type="string" MaxLength="128" />
+    <Property Name="IsMultiSet" Nullable="false" Type="boolean" />
+    <Property Name="IsIdentity" Nullable="false" Type="boolean" />
+    <Property Name="IsStoreGenerated" Nullable="false" Type="boolean" />
+    <Property Name="Default" Nullable="true" Type="string" />
+  </EntityType>
+  
   <EntityType Name="ForeignKeyConstraint">
     <Key>
       <PropertyRef Name="Id" />
