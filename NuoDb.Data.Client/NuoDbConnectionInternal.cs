@@ -639,6 +639,10 @@ namespace NuoDb.Data.Client
                 getProcessConnection(databaseName);
                 string dbUUId = processConnection.DatabaseUUId.ToString();
 
+#if __MonoCS__
+                // On Mono, timezone support is too much platform dependent
+                sqlContext.TimeZone = TimeZoneInfo.Local;
+#else
                 // see if the app set the TimeZone. If so, it will be sent to the server
                 // so set the local TZ to be the same. If not, send the current default
                 // TZ  to the server. (Of course, this affects this connection only)
@@ -657,6 +661,7 @@ namespace NuoDb.Data.Client
                     // always applies the DST setting of the current time, even if the DST settings of the tested date used different
                     // rules; so we fetch the complete definition from the database
                     sqlContext.TimeZone = TimeZoneInfo.FindSystemTimeZoneById(tzone);
+#endif
                 }
 
                 int count = properties.Count + 1 + ((dbUUId == null) ? 0 : 1); // Add LastCommitInfo and DatabaseUUId
