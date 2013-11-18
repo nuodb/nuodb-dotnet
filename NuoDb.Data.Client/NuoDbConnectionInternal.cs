@@ -661,8 +661,8 @@ namespace NuoDb.Data.Client
                     // always applies the DST setting of the current time, even if the DST settings of the tested date used different
                     // rules; so we fetch the complete definition from the database
                     sqlContext.TimeZone = TimeZoneInfo.FindSystemTimeZoneById(tzone);
-#endif
                 }
+#endif
 
                 int count = properties.Count + 1 + ((dbUUId == null) ? 0 : 1); // Add LastCommitInfo and DatabaseUUId
 
