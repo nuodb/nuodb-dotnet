@@ -1376,6 +1376,46 @@ namespace NUnitTestProject
             Assert.AreEqual(0, pooledItems);
         }
 
+        private void SimulateLoad(string connectionString)
+        {
+            using (NuoDbConnection cnn = new NuoDbConnection(connectionString))
+            {
+                cnn.Open();
+
+                Thread.Sleep(2000);
+            }
+        }
+
+        [Test]
+        public void TestConnectionPoolingMaxConnections()
+        {
+            NuoDbConnectionStringBuilder builder = new NuoDbConnectionStringBuilder(connectionString);
+            builder.Pooling = true;
+            builder.MaxConnections = 2;
+            String newConnString = builder.ConnectionString;
+            NuoDbConnection.ClearAllPools();
+            DateTime start = DateTime.Now;
+            // start two long (simulated) queries
+            Thread t1 = new Thread(() => SimulateLoad(newConnString));
+            t1.Start();
+            Thread t2 = new Thread(() => SimulateLoad(newConnString));
+            t2.Start();
+            Thread.Sleep(500);
+            int pooledItems = NuoDbConnection.GetPooledConnectionCount(newConnString);
+            Assert.AreEqual(2, pooledItems);
+            // try to open a third connection: it should stall until one of the threads ends
+            using (NuoDbConnection cnn = new NuoDbConnection(newConnString))
+            {
+                cnn.Open();
+                DateTime end = DateTime.Now;
+                Assert.GreaterOrEqual(end - start, TimeSpan.FromMilliseconds(2000));
+
+                pooledItems = NuoDbConnection.GetPooledConnectionCount(newConnString);
+                Assert.LessOrEqual(pooledItems, 2);
+            }
+
+        }
+        
         [Test]
         public void TestAsynchronousReader1()
         {
@@ -1510,6 +1550,7 @@ namespace NUnitTestProject
             command.Connection.Close();
         }
 
+#if !__MonoCS__
         [Test]
         public void TestTimeZone()
         {
@@ -1628,5 +1669,6 @@ namespace NUnitTestProject
                 Assert.AreEqual("1999-11-30 21:30:58", strDate);
             }
         }
+#endif
     }
 }

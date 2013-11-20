@@ -52,6 +52,8 @@ namespace NuoDb.VisualStudio.DataTools
         private System.Windows.Forms.TextBox textBoxMaxAge;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.TextBox textBoxMaxConnections;
+        private System.Windows.Forms.Label label11;
         private System.Windows.Forms.Label label1;
 
         public DbConnectionStringBuilder ConnectionStringBuilder
@@ -94,9 +96,14 @@ namespace NuoDb.VisualStudio.DataTools
                 obj = ConnectionProperties["ConnectionLifetime"];
                 if (obj is int)
                     this.textBoxIdleTimeout.Text = Convert.ToString((int)obj);
+                this.textBoxMaxAge.Enabled = this.checkBoxConnectionPooling.Checked;
                 obj = ConnectionProperties["MaxLifetime"];
                 if (obj is int)
                     this.textBoxMaxAge.Text = Convert.ToString((int)obj);
+                this.textBoxMaxConnections.Enabled = this.checkBoxConnectionPooling.Checked;
+                obj = ConnectionProperties["MaxConnections"];
+                if (obj is int)
+                    this.textBoxMaxConnections.Text = Convert.ToString((int)obj);
             }
             catch (Exception ex)
             {
@@ -130,6 +137,8 @@ namespace NuoDb.VisualStudio.DataTools
             {
                 this.ConnectionProperties["Pooling"] = this.checkBoxConnectionPooling.Checked;
                 this.textBoxIdleTimeout.Enabled = this.checkBoxConnectionPooling.Checked;
+                this.textBoxMaxAge.Enabled = this.checkBoxConnectionPooling.Checked;
+                this.textBoxMaxConnections.Enabled = this.checkBoxConnectionPooling.Checked;
             }
             else if (sender.Equals(this.textBoxIdleTimeout))
             {
@@ -138,6 +147,10 @@ namespace NuoDb.VisualStudio.DataTools
             else if (sender.Equals(this.textBoxMaxAge))
             {
                 this.ConnectionProperties["MaxLifetime"] = Convert.ToInt32(this.textBoxMaxAge.Text);
+            }
+            else if (sender.Equals(this.textBoxMaxConnections))
+            {
+                this.ConnectionProperties["MaxConnections"] = Convert.ToInt32(this.textBoxMaxConnections.Text);
             }
         }
 
@@ -161,6 +174,8 @@ namespace NuoDb.VisualStudio.DataTools
             this.label7 = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
+            this.textBoxMaxConnections = new System.Windows.Forms.TextBox();
+            this.label11 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -263,6 +278,8 @@ namespace NuoDb.VisualStudio.DataTools
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.textBoxMaxConnections);
+            this.groupBox1.Controls.Add(this.label11);
             this.groupBox1.Controls.Add(this.textBoxIdleTimeout);
             this.groupBox1.Controls.Add(this.textBoxMaxAge);
             this.groupBox1.Controls.Add(this.label6);
@@ -272,7 +289,7 @@ namespace NuoDb.VisualStudio.DataTools
             this.groupBox1.Controls.Add(this.checkBoxConnectionPooling);
             this.groupBox1.Location = new System.Drawing.Point(3, 149);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(297, 94);
+            this.groupBox1.Size = new System.Drawing.Size(297, 119);
             this.groupBox1.TabIndex = 11;
             this.groupBox1.TabStop = false;
             // 
@@ -328,6 +345,22 @@ namespace NuoDb.VisualStudio.DataTools
             this.label8.TabIndex = 13;
             this.label8.Text = "Maximum Age";
             // 
+            // textBoxMaxConnections
+            // 
+            this.textBoxMaxConnections.Location = new System.Drawing.Point(100, 85);
+            this.textBoxMaxConnections.Name = "textBoxMaxConnections";
+            this.textBoxMaxConnections.Size = new System.Drawing.Size(133, 20);
+            this.textBoxMaxConnections.TabIndex = 16;
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(10, 85);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(89, 13);
+            this.label11.TabIndex = 14;
+            this.label11.Text = "Max Connections";
+            // 
             // NuoDbDataConnectionUIControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -345,7 +378,7 @@ namespace NuoDb.VisualStudio.DataTools
             this.Controls.Add(this.groupBox1);
             this.Margin = new System.Windows.Forms.Padding(0);
             this.Name = "NuoDbDataConnectionUIControl";
-            this.Size = new System.Drawing.Size(300, 273);
+            this.Size = new System.Drawing.Size(300, 300);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.ResumeLayout(false);

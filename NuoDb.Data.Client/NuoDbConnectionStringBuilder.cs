@@ -125,6 +125,20 @@ namespace NuoDb.Data.Client
             get { return ContainsKey(MaxLifetimeKey) ? MaxLifetime : MaxLifetimeDefault; }
         }
 
+        internal const string MaxConnectionsKey = "MaxConnections";
+        internal const int MaxConnectionsDefault = 100;
+        [Category("Pooling")]
+        [Description("Specifies the maximum number of connections that can be opened at the same time")]
+        public int MaxConnections
+        {
+            get { return this.GetInt32(MaxConnectionsKey); }
+            set { this.SetValue(MaxConnectionsKey, value); }
+        }
+        internal int MaxConnectionsOrDefault
+        {
+            get { return ContainsKey(MaxConnectionsKey) ? MaxConnections : MaxConnectionsDefault; }
+        }
+
         internal const string TimeZoneKey = "TimeZone";
         [Category("General")]
         [Description("Specifies the timezone of the client application")]

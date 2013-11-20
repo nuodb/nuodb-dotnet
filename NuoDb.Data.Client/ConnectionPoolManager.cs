@@ -86,6 +86,7 @@ namespace NuoDb.Data.Client
             TimeSpan _lifeTime, _maxLifeTime;
             Queue<Item> _available;
             List<NuoDbConnectionInternal> _busy;
+            Semaphore _maxConnections;
 
             public ConnectionPool(string connectionString)
             {
@@ -97,12 +98,14 @@ namespace NuoDb.Data.Client
                 _maxLifeTime = TimeSpan.FromSeconds(connBuilder.MaxLifetimeOrDefault);
                 _available = new Queue<Item>();
                 _busy = new List<NuoDbConnectionInternal>();
+                int maxConn = connBuilder.MaxConnectionsOrDefault;
+                _maxConnections = new Semaphore(maxConn, maxConn);
             }
 
             public NuoDbConnectionInternal GetConnection()
             {
                 CheckDisposed();
-
+                _maxConnections.WaitOne();
                 lock (_syncRoot)
                 {
                     var connection = _available.Any()
@@ -131,6 +134,7 @@ namespace NuoDb.Data.Client
                         }
                         else
                             _available.Enqueue(new Item(now, connection));
+                        _maxConnections.Release();
                     }
                 }
             }
@@ -201,6 +205,10 @@ namespace NuoDb.Data.Client
                     ClearConnectionsImpl();
                     _available = null;
                     _busy = null;
+                    _maxConnections.Close();
+#if NET_40
+                    _maxConnections.Dispose();
+#endif
                 }
             }
 
@@ -211,7 +219,10 @@ namespace NuoDb.Data.Client
                 foreach (var item in _available)
                     item.Dispose();
                 foreach (var item in _busy)
+                {
                     item.Dispose();
+                    _maxConnections.Release();
+                }
             }
         }
 

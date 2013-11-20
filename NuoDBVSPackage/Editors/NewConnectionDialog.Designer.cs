@@ -37,7 +37,7 @@
             // btnOK
             // 
             this.btnOK.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.btnOK.Location = new System.Drawing.Point(158, 308);
+            this.btnOK.Location = new System.Drawing.Point(158, 324);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(75, 23);
             this.btnOK.TabIndex = 1;
@@ -47,7 +47,7 @@
             // btnCancel
             // 
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnCancel.Location = new System.Drawing.Point(239, 308);
+            this.btnCancel.Location = new System.Drawing.Point(239, 324);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 23);
             this.btnCancel.TabIndex = 2;
@@ -65,10 +65,10 @@
             // 
             // nuoDbDataConnectionUIControl1
             // 
-            this.nuoDbDataConnectionUIControl1.Location = new System.Drawing.Point(14, 50);
+            this.nuoDbDataConnectionUIControl1.Location = new System.Drawing.Point(14, 41);
             this.nuoDbDataConnectionUIControl1.Margin = new System.Windows.Forms.Padding(0);
             this.nuoDbDataConnectionUIControl1.Name = "nuoDbDataConnectionUIControl1";
-            this.nuoDbDataConnectionUIControl1.Size = new System.Drawing.Size(308, 255);
+            this.nuoDbDataConnectionUIControl1.Size = new System.Drawing.Size(308, 282);
             this.nuoDbDataConnectionUIControl1.TabIndex = 0;
             // 
             // NewConnectionDialog
@@ -77,7 +77,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btnCancel;
-            this.ClientSize = new System.Drawing.Size(331, 345);
+            this.ClientSize = new System.Drawing.Size(324, 362);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.nuoDbDataConnectionUIControl1);
             this.Controls.Add(this.btnCancel);
