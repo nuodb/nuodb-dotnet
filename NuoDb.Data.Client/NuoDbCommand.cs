@@ -661,17 +661,18 @@ namespace NuoDb.Data.Client
                 !nuodbSqlString.StartsWith("EXECUTE ", StringComparison.InvariantCultureIgnoreCase) &&
                 !nuodbSqlString.StartsWith("CALL ", StringComparison.InvariantCultureIgnoreCase))
             {
+                char[] quotes = new char[] { '"' };
                 string[] parts = nuodbSqlString.Split(new char[] { '.' });
                 DataTable paramTable = null;
                 if (parts.Length == 2)
-                    paramTable = NuoDbConnectionInternal.GetSchemaHelper(connection, "ProcedureParameters", new string[] { null, parts[0], parts[1], null });
+                    paramTable = NuoDbConnectionInternal.GetSchemaHelper(connection, "ProcedureParameters", new string[] { null, parts[0].Trim(quotes), parts[1].Trim(quotes), null });
                 else
                 {
                     NuoDbConnectionStringBuilder builder = new NuoDbConnectionStringBuilder(connection.ConnectionString);
                     string schema = builder.Schema;
                     if(schema.Length==0)
                         schema = "USER";
-                    paramTable = NuoDbConnectionInternal.GetSchemaHelper(connection, "ProcedureParameters", new string[] { null, schema, parts[0], null });
+                    paramTable = NuoDbConnectionInternal.GetSchemaHelper(connection, "ProcedureParameters", new string[] { null, schema, parts[0].Trim(quotes), null });
                 }
                 int numParams = 0;
                 foreach (DataRow row in paramTable.Rows) 
