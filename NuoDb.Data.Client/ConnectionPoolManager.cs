@@ -226,7 +226,7 @@ namespace NuoDb.Data.Client
             }
         }
 
-        bool _disposed;
+        int _disposed;
 #if NET_40
         ConcurrentDictionary<string, ConnectionPool> _pools;
 #else
@@ -237,7 +237,7 @@ namespace NuoDb.Data.Client
 
         ConnectionPoolManager()
         {
-            _disposed = false;
+            _disposed = 0;
 #if NET_40
             _pools = new ConcurrentDictionary<string, ConnectionPool>();
 #else
@@ -332,14 +332,14 @@ namespace NuoDb.Data.Client
 
         void CheckDisposed()
         {
-            if (_disposed)
+            if (Thread.VolatileRead(ref _disposed) == 1)
                 throw new ObjectDisposedException(typeof(ConnectionPoolManager).Name);
         }
 
         void CleanupCallback(object o)
         {
             // in case the timer ticks after dispose, just ignore it
-            if (_disposed)
+            if (Thread.VolatileRead(ref _disposed) == 1)
                 return;
 
             Cleanup();
@@ -364,9 +364,8 @@ namespace NuoDb.Data.Client
 
         public void Dispose()
         {
-            if (_disposed)
+			if (Interlocked.Exchange(ref _disposed, 1) == 1)
                 return;
-            _disposed = true;
             _cleanupTimer.Dispose();
             _cleanupTimer = null;
 #if NET_40
