@@ -257,15 +257,15 @@
       <DefiningQuery>
         <![CDATA[
         SELECT
-          '' AS Id,
-          '' AS ParentId,
-          '' AS Name,
-          0 AS Ordinal,
-          '' AS TypeName,
-          0 AS MaxLength,
-          0 AS Precision,
+          schema || '.' || procedureName || '.' || name AS Id,
+          schema || '.' || procedureName AS ParentId,
+          name AS Name,
+          ordinal AS Ordinal,
+          datatypename AS TypeName,
+          length AS MaxLength,
+          precision AS Precision,
           0 AS DateTimePrecision,
-          0 AS Scale,
+          scale AS Scale,
           '' AS CollationCatalog,
           '' AS CollationSchema,
           '' AS CollationName,
@@ -273,12 +273,16 @@
           '' AS CharacterSetSchema,
           '' AS CharacterSetName,
           false AS IsMultiSet,
-          'Unknown' AS Mode,
+          case type
+            when 1 then 'IN'
+            when 2 then 'INOUT'
+            when 4 then 'OUT'
+          end AS Mode,
           '' AS Default
         FROM
-          DUAL
+          SYSTEM.PROCEDURECOLUMNS
         WHERE
-          1 = 0
+          type != 3
         ]]>
       </DefiningQuery>
     </EntitySet>
