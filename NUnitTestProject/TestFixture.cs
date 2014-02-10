@@ -1415,7 +1415,8 @@ namespace NUnitTestProject
             }
 
         }
-        
+
+#if !__MonoCS__
         [Test]
         public void TestAsynchronousReader1()
         {
@@ -1553,7 +1554,6 @@ namespace NUnitTestProject
         [Test]
         public void TestTimeZone()
         {
-#if !__MonoCS__
             // Use a time in the UTC time zone; otherwise, it would be treated as if it were in the local timezone even
             // if we are telling NuoDB that we are in a different timezone
             DateTime dstReferenceDate = DateTime.SpecifyKind(new DateTime(1999, 10, 1, 2, 30, 58), DateTimeKind.Utc);
@@ -1668,7 +1668,7 @@ namespace NUnitTestProject
                 strDate = reader.GetString(3);
                 Assert.AreEqual("1999-11-30 21:30:58", strDate);
             }
-#endif
         }
+#endif
     }
 }
