@@ -1088,10 +1088,18 @@ namespace NuoDb.Data.Client
                     {
                         table.BeginLoadData();
                         string view_def_label="";
-                        if (reader.GetOrdinal("VIEW_DEF") != -1)
+                        try 
+                        { 
+                            reader.GetOrdinal("VIEW_DEF");
                             view_def_label = "VIEW_DEF";
-                        else if (reader.GetOrdinal("VIEWDEFINITION") != -1)
+                        }
+                        catch(Exception) {}
+                        try 
+                        { 
+                            reader.GetOrdinal("VIEWDEFINITION");
                             view_def_label = "VIEWDEFINITION";
+                        }
+                        catch (Exception) { }
                         while (reader.Read())
                         {
 #if DEBUG
