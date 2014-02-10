@@ -1087,17 +1087,25 @@ namespace NuoDb.Data.Client
                     using (NuoDbDataReader reader = new NuoDbDataReader(tmConn, handle, tmConn.InternalConnection.dataStream, null, true))
                     {
                         table.BeginLoadData();
+                        string view_def_label="";
+                        if (reader.GetOrdinal("VIEW_DEF") != -1)
+                            view_def_label = "VIEW_DEF";
+                        else if (reader.GetOrdinal("VIEWDEFINITION") != -1)
+                            view_def_label = "VIEWDEFINITION";
                         while (reader.Read())
                         {
 #if DEBUG
-                            System.Diagnostics.Trace.WriteLine("-> " + reader["TABLE_NAME"] + ", " + reader["TABLE_TYPE"]);
+                        System.Diagnostics.Trace.WriteLine("-> " + reader["TABLE_NAME"] + ", " + reader["TABLE_TYPE"]);
 #endif
                             DataRow row = table.NewRow();
                             row["TABLE_SCHEMA"] = reader["TABLE_SCHEM"];
                             row["TABLE_NAME"] = reader["TABLE_NAME"];
                             row["TABLE_TYPE"] = reader["TABLE_TYPE"];
                             row["REMARKS"] = reader["REMARKS"];
-                            row["VIEW_DEF"] = reader["VIEW_DEF"];
+                            if (view_def_label.Length != 0)
+                            {
+                                row["VIEW_DEF"] = reader[view_def_label];
+                            }
                             table.Rows.Add(row);
                         }
                         table.EndLoadData();
