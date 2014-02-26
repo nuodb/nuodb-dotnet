@@ -102,6 +102,12 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="..\NuoDb.Data.Client\EntityFramework\StoreSchemaDefinition.ssdl">
+      <Link>Resources\StoreSchemaDefinition.ssdl</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\NuoDb.Data.Client\EntityFramework\StoreSchemaMapping.msl">
+      <Link>Resources\StoreSchemaMapping.msl</Link>
+    </EmbeddedResource>
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
@@ -111,8 +117,11 @@
       <Name>NuoDb.Data.Client_4.0</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
-    <Folder Include="Resources\" />
+    <EmbeddedResource Include="..\NuoDb.Data.Client\EntityFramework\ProviderManifest.xml">
+      <Link>Resources\ProviderManifest.xml</Link>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
