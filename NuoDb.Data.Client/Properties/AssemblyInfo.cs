@@ -34,3 +34,5 @@ using System.Runtime.InteropServices;
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("2.0.3.0")]
 [assembly: AssemblyFileVersion("2.0.3.0")]
+
+[assembly: InternalsVisibleTo("EntityFramework.NuoDb, PublicKey=00240000048000009400000006020000002400005253413100040000010001008fd519edad52df3acad2a26e7b034c31e77ff0464309995e938ca503c54f5fd0c74eb64efa1b39364f986ce57b5b143cb2e8a8cb3946f7f8f79aabd18b9c0b48ade8f1400f07251eaeb5dae8233fed0bf322d38dd018bb5c77a4322d4c5311a37310884755ae8403b4af7766d13d5373fea01bbbfdba33f0037042d210298c92")]
