@@ -124,6 +124,7 @@
     <EmbeddedResource Include="EntityFramework\StoreSchemaMapping.msl">
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <EmbeddedResource Include="EntityFramework\StoreSchemaMappingVersion3.msl" />
     <None Include="Properties\Key.snk" />
   </ItemGroup>
   <ItemGroup>

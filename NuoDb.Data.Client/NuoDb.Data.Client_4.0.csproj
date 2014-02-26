@@ -133,6 +133,9 @@
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <None Include="App.config" />
+    <EmbeddedResource Include="EntityFramework\StoreSchemaMappingVersion3.msl">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\Key.snk" />
   </ItemGroup>
