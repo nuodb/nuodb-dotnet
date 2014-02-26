@@ -15,7 +15,14 @@ namespace EF6TestApp
 		{
 			using (var ctx = new NuoDbContext())
 			{
+				Console.WriteLine(ctx.GetType().BaseType.Assembly.FullName);
+
 				var script = (ctx as IObjectContextAdapter).ObjectContext.CreateDatabaseScript();
+
+				var query1 = ctx.FooBars.Where(x => x.Id == 666);
+				var query2 = ctx.FooBars.Where(x => new[] { 1, 2, 3 }.Contains(x.Id));
+				Console.WriteLine(query1);
+				Console.WriteLine(query2);
 			}
 		}
 	}
@@ -31,6 +38,8 @@ namespace EF6TestApp
 		protected override void OnModelCreating(DbModelBuilder modelBuilder)
 		{
 			base.OnModelCreating(modelBuilder);
+
+			modelBuilder.HasDefaultSchema("user");
 		}
 	}
 

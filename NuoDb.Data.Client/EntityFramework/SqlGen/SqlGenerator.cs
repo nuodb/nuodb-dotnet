@@ -1679,7 +1679,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 				result.Append(separator);
 				result.Append(item.Accept(this));
 
-				separator = ",";
+				separator = ", ";
 			}
 
 			result.Append(")");
