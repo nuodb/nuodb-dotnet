@@ -269,7 +269,7 @@ namespace NuoDb.Data.Client.EntityFramework
 			}
 		}
 
-#if NET_40
+#if NET_40 || EF6
         public override bool SupportsEscapingLikeArgument(out char escapeCharacter)
         {
             escapeCharacter = LikeEscapeCharacter;
