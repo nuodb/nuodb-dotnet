@@ -286,6 +286,14 @@ namespace NuoDb.Data.Client.EntityFramework
         }
 #endif
 
+#if EF6
+		public override bool SupportsInExpression()
+		{
+#warning Implement
+			return true;
+		}
+#endif
+
 		static XmlReader GetResource(string name)
 		{
 			return XmlReader.Create(Assembly.GetExecutingAssembly().GetManifestResourceStream(name));
