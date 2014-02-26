@@ -34,6 +34,7 @@
 using System;
 using System.Text;
 using System.Xml;
+using System.Reflection;
 using System.Data.Common;
 #if EF6
 using System.Data.Entity.Core.Common;
@@ -62,11 +63,23 @@ namespace NuoDb.Data.Client.EntityFramework
 #else
  "NuoDb.Data.Client.EntityFramework.StoreSchemaDefinition.ssdl";
 #endif
+		const string StoreSchemaDefinitionVersion3ResourceName =
+#if EF6
+ "EntityFramework.NuoDb.StoreSchemaDefinitionVersion3.ssdl";
+#else
+ "NuoDb.Data.Client.EntityFramework.StoreSchemaDefinitionVersion3.ssdl";
+#endif
 		const string StoreSchemaMappingResourceName =
 #if EF6
  "EntityFramework.NuoDb.StoreSchemaMapping.msl";
 #else
  "NuoDb.Data.Client.EntityFramework.StoreSchemaMapping.msl";
+#endif
+		const string StoreSchemaMappingVersion3ResourceName =
+#if EF6
+ "EntityFramework.NuoDb.StoreSchemaMappingVersion3.msl";
+#else
+ "NuoDb.Data.Client.EntityFramework.StoreSchemaMappingVersion3.msl";
 #endif
 
 		internal const int BinaryMaxSize = Int32.MaxValue;
@@ -80,17 +93,36 @@ namespace NuoDb.Data.Client.EntityFramework
 
 		protected override XmlReader GetDbInformation(string informationType)
 		{
-#warning V3 schema
 			if (informationType == DbProviderManifest.StoreSchemaDefinition)
 			{
-				return XmlReader.Create(typeof(NuoDbProviderManifest).Assembly.GetManifestResourceStream(StoreSchemaDefinitionResourceName));
+				return GetSchemaResource(StoreSchemaDefinitionResourceName);
 			}
-#warning V3 schema
+#if NET_45 || EF6
+			else if (informationType == DbProviderManifest.StoreSchemaDefinitionVersion3)
+			{
+				return GetSchemaResource(StoreSchemaDefinitionVersion3ResourceName);
+			}
+#endif
 			else if (informationType == DbProviderManifest.StoreSchemaMapping)
 			{
-				return XmlReader.Create(typeof(NuoDbProviderManifest).Assembly.GetManifestResourceStream(StoreSchemaMappingResourceName));
+				return GetSchemaResource(StoreSchemaMappingResourceName);
 			}
-#warning CSDL
+#if NET_45 || EF6
+			else if (informationType == DbProviderManifest.StoreSchemaMappingVersion3)
+			{
+				return GetSchemaResource(StoreSchemaMappingVersion3ResourceName);
+			}
+#endif
+			else if (informationType == DbProviderManifest.ConceptualSchemaDefinition)
+			{
+				return null;
+			}
+#if NET_45 || EF6
+			else if (informationType == DbProviderManifest.ConceptualSchemaDefinitionVersion3)
+			{
+				return null;
+			}
+#endif
 			throw new NotImplementedException();
 		}
 
@@ -254,6 +286,10 @@ namespace NuoDb.Data.Client.EntityFramework
         }
 #endif
 
+		XmlReader GetSchemaResource(string name)
+		{
+			return XmlReader.Create(Assembly.GetExecutingAssembly().GetManifestResourceStream(name));
+		}
 	}
 }
 
