@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("EntityFramework.NuoDb")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Entity Framework 6 provider for the NuoDB database")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("NuoDB, Inc.")]
 [assembly: AssemblyProduct("EntityFramework.NuoDb")]
-[assembly: AssemblyCopyright("Copyright ©  2014")]
+[assembly: AssemblyCopyright("Copyright NuoDB© 2012-2014")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
