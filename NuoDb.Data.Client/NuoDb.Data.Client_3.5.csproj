@@ -34,7 +34,7 @@
     <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>Key.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>Properties\Key.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -124,7 +124,7 @@
     <EmbeddedResource Include="EntityFramework\StoreSchemaMapping.msl">
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <None Include="Key.snk" />
+    <None Include="Properties\Key.snk" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="EntityFramework\ProviderManifest.xml">
