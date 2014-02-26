@@ -289,7 +289,6 @@ namespace NuoDb.Data.Client.EntityFramework
 #if EF6
 		public override bool SupportsInExpression()
 		{
-#warning Implement
 			return true;
 		}
 #endif
