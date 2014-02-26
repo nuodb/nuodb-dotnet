@@ -23,7 +23,7 @@ namespace EF6TestApp
 	class NuoDbContext : DbContext
 	{
 		public NuoDbContext()
-			: base(new NuoDbConnection("Server=192.168.195.128;Database=ef6;User=ef;Password=ef;Schema=user"), true)
+			: base(new NuoDbConnection("Server=localhost;Database=ef6;User=ef;Password=ef;Schema=user"), true)
 		{ }
 
 		public DbSet<FooBar> FooBars { get; set; }
