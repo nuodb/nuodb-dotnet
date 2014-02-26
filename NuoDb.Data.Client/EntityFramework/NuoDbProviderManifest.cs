@@ -53,25 +53,25 @@ namespace NuoDb.Data.Client.EntityFramework
 	{
 		const string ProviderManifestResourceName =
 #if EF6
- "EntityFramework.NuoDb.ProviderManifest.xml";
+ "EntityFramework.NuoDb.Resources.ProviderManifest.xml";
 #else
  "NuoDb.Data.Client.EntityFramework.ProviderManifest.xml";
 #endif
 		const string StoreSchemaDefinitionResourceName =
 #if EF6
- "EntityFramework.NuoDb.StoreSchemaDefinition.ssdl";
+ "EntityFramework.NuoDb.Resources.StoreSchemaDefinition.ssdl";
 #else
  "NuoDb.Data.Client.EntityFramework.StoreSchemaDefinition.ssdl";
 #endif
 		const string StoreSchemaDefinitionVersion3ResourceName =
 #if EF6
- "EntityFramework.NuoDb.StoreSchemaDefinitionVersion3.ssdl";
+ "EntityFramework.NuoDb.Resources.StoreSchemaDefinitionVersion3.ssdl";
 #else
  "NuoDb.Data.Client.EntityFramework.StoreSchemaDefinitionVersion3.ssdl";
 #endif
 		const string StoreSchemaMappingResourceName =
 #if EF6
- "EntityFramework.NuoDb.StoreSchemaMapping.msl";
+ "EntityFramework.NuoDb.Resources.StoreSchemaMapping.msl";
 #else
  "NuoDb.Data.Client.EntityFramework.StoreSchemaMapping.msl";
 #endif
@@ -88,29 +88,29 @@ namespace NuoDb.Data.Client.EntityFramework
 		internal const char LikeEscapeCharacter = '\\';
 
 		public NuoDbProviderManifest()
-			: base(XmlReader.Create(typeof(NuoDbProviderManifest).Assembly.GetManifestResourceStream(ProviderManifestResourceName)))
+			: base(GetResource(ProviderManifestResourceName))
 		{ }
 
 		protected override XmlReader GetDbInformation(string informationType)
 		{
 			if (informationType == DbProviderManifest.StoreSchemaDefinition)
 			{
-				return GetSchemaResource(StoreSchemaDefinitionResourceName);
+				return GetResource(StoreSchemaDefinitionResourceName);
 			}
 #if NET_45 || EF6
 			else if (informationType == DbProviderManifest.StoreSchemaDefinitionVersion3)
 			{
-				return GetSchemaResource(StoreSchemaDefinitionVersion3ResourceName);
+				return GetResource(StoreSchemaDefinitionVersion3ResourceName);
 			}
 #endif
 			else if (informationType == DbProviderManifest.StoreSchemaMapping)
 			{
-				return GetSchemaResource(StoreSchemaMappingResourceName);
+				return GetResource(StoreSchemaMappingResourceName);
 			}
 #if NET_45 || EF6
 			else if (informationType == DbProviderManifest.StoreSchemaMappingVersion3)
 			{
-				return GetSchemaResource(StoreSchemaMappingVersion3ResourceName);
+				return GetResource(StoreSchemaMappingVersion3ResourceName);
 			}
 #endif
 			else if (informationType == DbProviderManifest.ConceptualSchemaDefinition)
@@ -286,7 +286,7 @@ namespace NuoDb.Data.Client.EntityFramework
         }
 #endif
 
-		XmlReader GetSchemaResource(string name)
+		static XmlReader GetResource(string name)
 		{
 			return XmlReader.Create(Assembly.GetExecutingAssembly().GetManifestResourceStream(name));
 		}
