@@ -31,21 +31,33 @@
 
 #if !__MonoCS__
 
+using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
-using NuoDb.Data.Client.EntityFramework.SqlGen;
+#if EF6
+using System.Data.Entity.Core.Common;
+using System.Data.Entity.Core.Metadata.Edm;
+using System.Data.Entity.Core.Common.CommandTrees;
+using EntityFramework.NuoDb.SqlGen;
+using NuoDb.Data.Client;
+#else
 using System.Data.Metadata.Edm;
 using System.Data.Common.CommandTrees;
-using System;
-using System.Data;
+using NuoDb.Data.Client.EntityFramework.SqlGen;
+#endif
 
+#if EF6
+namespace EntityFramework.NuoDb
+#else
 namespace NuoDb.Data.Client.EntityFramework
+#endif
 {
     class NuoDbProviderServices : DbProviderServices
     {
         internal static object Instance = new NuoDbProviderServices();
 
-        protected override DbCommandDefinition CreateDbCommandDefinition(DbProviderManifest providerManifest, System.Data.Common.CommandTrees.DbCommandTree commandTree)
+        protected override DbCommandDefinition CreateDbCommandDefinition(DbProviderManifest providerManifest, DbCommandTree commandTree)
         {
             if (providerManifest == null)
                 throw new ArgumentNullException("providerManifest");
@@ -53,7 +65,7 @@ namespace NuoDb.Data.Client.EntityFramework
             if (commandTree == null)
                 throw new ArgumentNullException("commandTree");
 
-            NuoDbCommand command = new NuoDbCommand(PrepareTypeCoercions(commandTree));
+			NuoDbCommand command = new NuoDbCommand(PrepareTypeCoercions(commandTree));
 
             List<DbParameter> parameters;
             CommandType commandType;

@@ -31,13 +31,22 @@
 
 #if !__MonoCS__
 
-using System.Data.Common;
-using System.Xml;
-using System.Data.Metadata.Edm;
 using System;
 using System.Text;
+using System.Xml;
+using System.Data.Common;
+#if EF6
+using System.Data.Entity.Core.Common;
+using System.Data.Entity.Core.Metadata.Edm;
+#else
+using System.Data.Metadata.Edm;
+#endif
 
+#if EF6
+namespace EntityFramework.NuoDb
+#else
 namespace NuoDb.Data.Client.EntityFramework
+#endif
 {
     class NuoDbProviderManifest : DbXmlEnabledProviderManifest
     {
@@ -47,20 +56,26 @@ namespace NuoDb.Data.Client.EntityFramework
         internal const char LikeEscapeCharacter = '\\';
 
         public NuoDbProviderManifest()
+#warning Resource name
             : base(XmlReader.Create(typeof(NuoDbProviderManifest).Assembly.GetManifestResourceStream("NuoDb.Data.Client.EntityFramework.ProviderManifest.xml")))
         {
         }
 
         protected override XmlReader GetDbInformation(string informationType)
         {
+#warning V3 schema
             if (informationType == DbProviderManifest.StoreSchemaDefinition)
-            {
+			{
+#warning Resource name
                 return XmlReader.Create(typeof(NuoDbProviderManifest).Assembly.GetManifestResourceStream("NuoDb.Data.Client.EntityFramework.StoreSchemaDefinition.ssdl"));
-            }
+			}
+#warning V3 schema
             else if (informationType == DbProviderManifest.StoreSchemaMapping)
-            {
+			{
+#warning Resource name
                 return XmlReader.Create(typeof(NuoDbProviderManifest).Assembly.GetManifestResourceStream("NuoDb.Data.Client.EntityFramework.StoreSchemaMapping.msl"));
             }
+#warning CSDL
             throw new NotImplementedException();
         }
 

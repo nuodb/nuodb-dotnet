@@ -30,12 +30,19 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>..\NuoDb.Data.Client\Properties\Key.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="EntityFramework">
       <HintPath>..\packages\EntityFramework.6.0.2\lib\net40\EntityFramework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -44,6 +51,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\NuoDb.Data.Client\EntityFramework\NuoDbConnectionFactory.cs">
+      <Link>NuoDbConnectionFactory.cs</Link>
+    </Compile>
+    <Compile Include="..\NuoDb.Data.Client\EntityFramework\NuoDbProviderManifest.cs">
+      <Link>NuoDbProviderManifest.cs</Link>
+    </Compile>
+    <Compile Include="..\NuoDb.Data.Client\EntityFramework\NuoDbProviderServices.cs">
+      <Link>NuoDbProviderServices.cs</Link>
+    </Compile>
     <Compile Include="..\NuoDb.Data.Client\EntityFramework\SqlGen\DmlSqlGenerator.cs">
       <Link>SqlGen\DmlSqlGenerator.cs</Link>
     </Compile>
@@ -56,7 +72,7 @@
     <Compile Include="..\NuoDb.Data.Client\EntityFramework\SqlGen\JoinSymbol.cs">
       <Link>SqlGen\JoinSymbol.cs</Link>
     </Compile>
-    <Compile Include="..\NuoDb.Data.Client\EntityFramework\SqlGen\MetaDataHelpers.cs">
+    <Compile Include="..\NuoDb.Data.Client\EntityFramework\SqlGen\MetadataHelpers.cs">
       <Link>SqlGen\MetaDataHelpers.cs</Link>
     </Compile>
     <Compile Include="..\NuoDb.Data.Client\EntityFramework\SqlGen\ScriptBuilder.cs">
