@@ -44,6 +44,45 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\NuoDb.Data.Client\EntityFramework\SqlGen\DmlSqlGenerator.cs">
+      <Link>SqlGen\DmlSqlGenerator.cs</Link>
+    </Compile>
+    <Compile Include="..\NuoDb.Data.Client\EntityFramework\SqlGen\ExpressionTranslator.cs">
+      <Link>SqlGen\ExpressionTranslator.cs</Link>
+    </Compile>
+    <Compile Include="..\NuoDb.Data.Client\EntityFramework\SqlGen\ISqlFragment.cs">
+      <Link>SqlGen\ISqlFragment.cs</Link>
+    </Compile>
+    <Compile Include="..\NuoDb.Data.Client\EntityFramework\SqlGen\JoinSymbol.cs">
+      <Link>SqlGen\JoinSymbol.cs</Link>
+    </Compile>
+    <Compile Include="..\NuoDb.Data.Client\EntityFramework\SqlGen\MetaDataHelpers.cs">
+      <Link>SqlGen\MetaDataHelpers.cs</Link>
+    </Compile>
+    <Compile Include="..\NuoDb.Data.Client\EntityFramework\SqlGen\ScriptBuilder.cs">
+      <Link>SqlGen\ScriptBuilder.cs</Link>
+    </Compile>
+    <Compile Include="..\NuoDb.Data.Client\EntityFramework\SqlGen\SqlBuilder.cs">
+      <Link>SqlGen\SqlBuilder.cs</Link>
+    </Compile>
+    <Compile Include="..\NuoDb.Data.Client\EntityFramework\SqlGen\SqlGenerator.cs">
+      <Link>SqlGen\SqlGenerator.cs</Link>
+    </Compile>
+    <Compile Include="..\NuoDb.Data.Client\EntityFramework\SqlGen\SqlSelectStatement.cs">
+      <Link>SqlGen\SqlSelectStatement.cs</Link>
+    </Compile>
+    <Compile Include="..\NuoDb.Data.Client\EntityFramework\SqlGen\SqlWriter.cs">
+      <Link>SqlGen\SqlWriter.cs</Link>
+    </Compile>
+    <Compile Include="..\NuoDb.Data.Client\EntityFramework\SqlGen\Symbol.cs">
+      <Link>SqlGen\Symbol.cs</Link>
+    </Compile>
+    <Compile Include="..\NuoDb.Data.Client\EntityFramework\SqlGen\SymbolPair.cs">
+      <Link>SqlGen\SymbolPair.cs</Link>
+    </Compile>
+    <Compile Include="..\NuoDb.Data.Client\EntityFramework\SqlGen\SymbolTable.cs">
+      <Link>SqlGen\SymbolTable.cs</Link>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -55,6 +94,9 @@
       <Project>{3a992e63-061c-47ee-862a-452334d70d90}</Project>
       <Name>NuoDb.Data.Client_4.0</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Resources\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

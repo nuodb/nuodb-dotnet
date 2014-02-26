@@ -11,10 +11,12 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Data.SqlClient;
-using System.Data.Metadata.Edm;
-using System.Data.Common.CommandTrees;
 
+#if EF6
+namespace EntityFramework.NuoDb.SqlGen
+#else
 namespace NuoDb.Data.Client.EntityFramework.SqlGen
+#endif
 {
     internal sealed class SqlSelectStatement : ISqlFragment
     {
