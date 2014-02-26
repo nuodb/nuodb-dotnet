@@ -111,6 +111,9 @@
     <EmbeddedResource Include="..\NuoDb.Data.Client\EntityFramework\StoreSchemaMappingVersion3.msl">
       <Link>Resources\StoreSchemaMappingVersion3.msl</Link>
     </EmbeddedResource>
+    <EmbeddedResource Include="..\NuoDb.Data.Client\EntityFramework\StoreSchemaDefinitionVersion3.ssdl">
+      <Link>Resources\StoreSchemaDefinitionVersion3.ssdl</Link>
+    </EmbeddedResource>
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
