@@ -264,7 +264,7 @@
           '' AS CharacterSetName,
           false AS IsMultiSet,
           false AS IsIdentity,
-          false AS IsStoreGenerated
+          false AS IsStoreGenerated,
           '' AS Default
         FROM
           SYSTEM.TABLES
