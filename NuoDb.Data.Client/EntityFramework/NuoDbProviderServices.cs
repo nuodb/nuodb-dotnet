@@ -213,7 +213,7 @@ namespace NuoDb.Data.Client.EntityFramework
             return version;
         }
 
-#if NET_40
+#if NET_40 || EF6
         protected override void DbCreateDatabase(DbConnection connection, int? commandTimeout, StoreItemCollection storeItemCollection)
         {
             throw new NotSupportedException("Creating database is not supported in NuoDB driver.");
