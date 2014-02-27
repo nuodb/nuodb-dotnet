@@ -104,7 +104,7 @@
         ]]>
         </DefiningQuery>
     </EntitySet>
-	  
+
     <EntitySet Name="SViews" EntityType="Self.View">
       <DefiningQuery>
         <![CDATA[
@@ -181,7 +181,7 @@
         ]]>
       </DefiningQuery>
     </EntitySet>
-    
+
     <EntitySet Name="SFunctions" EntityType="Self.Function">
       <DefiningQuery>
         <![CDATA[
