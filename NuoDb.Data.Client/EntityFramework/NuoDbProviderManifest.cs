@@ -77,7 +77,7 @@ namespace NuoDb.Data.Client.EntityFramework
 #endif
 		const string StoreSchemaMappingVersion3ResourceName =
 #if EF6
- "EntityFramework.NuoDb.StoreSchemaMappingVersion3.msl";
+ "EntityFramework.NuoDb.Resources.StoreSchemaMappingVersion3.msl";
 #else
  "NuoDb.Data.Client.EntityFramework.StoreSchemaMappingVersion3.msl";
 #endif
