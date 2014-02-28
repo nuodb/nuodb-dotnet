@@ -126,6 +126,7 @@
     </EmbeddedResource>
     <EmbeddedResource Include="EntityFramework\StoreSchemaMappingVersion3.msl" />
     <EmbeddedResource Include="EntityFramework\StoreSchemaDefinitionVersion3.ssdl" />
+    <None Include="NuGet\NuoDb.Data.Client.nuspec" />
     <None Include="Properties\Key.snk" />
   </ItemGroup>
   <ItemGroup>

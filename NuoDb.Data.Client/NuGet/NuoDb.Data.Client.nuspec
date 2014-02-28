@@ -25,7 +25,7 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="NuoDb.Data.Client\bin\Release35\NuoDb.Data.Client.dll" target="lib\net35" />
-    <file src="NuoDb.Data.Client\bin\Release40\NuoDb.Data.Client.dll" target="lib\net40" />
+    <file src="..\bin\Release35\NuoDb.Data.Client.dll" target="lib\net35" />
+    <file src="..\bin\Release40\NuoDb.Data.Client.dll" target="lib\net40" />
   </files>
 </package>

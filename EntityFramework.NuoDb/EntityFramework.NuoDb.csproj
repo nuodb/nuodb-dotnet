@@ -115,6 +115,7 @@
       <Link>Resources\StoreSchemaDefinitionVersion3.ssdl</Link>
     </EmbeddedResource>
     <None Include="App.config" />
+    <None Include="NuGet\EntityFramework.NuoDb.nuspec" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
