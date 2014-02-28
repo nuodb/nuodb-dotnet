@@ -39,6 +39,8 @@ using System.Data.Common;
 using System.Data.Entity.Core.Common;
 using System.Data.Entity.Core.Metadata.Edm;
 using System.Data.Entity.Core.Common.CommandTrees;
+using System.Data.Entity.Infrastructure;
+using System.Data.Entity.Infrastructure.DependencyResolution;
 using EntityFramework.NuoDb.SqlGen;
 using NuoDb.Data.Client;
 #else
@@ -55,7 +57,14 @@ namespace NuoDb.Data.Client.EntityFramework
 {
     class NuoDbProviderServices : DbProviderServices
     {
-        internal static object Instance = new NuoDbProviderServices();
+        public static object Instance = new NuoDbProviderServices();
+
+		private NuoDbProviderServices()
+		{
+#if EF6
+			AddDependencyResolver(new SingletonDependencyResolver<IDbConnectionFactory>(new NuoDbConnectionFactory()));
+#endif
+		}
 
         protected override DbCommandDefinition CreateDbCommandDefinition(DbProviderManifest providerManifest, DbCommandTree commandTree)
         {
