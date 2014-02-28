@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+	<entityFramework>
+		<providers>
+			<provider invariantName="NuoDb.Data.Client" type="EntityFramework.NuoDb.NuoDbProviderServices, EntityFramework.NuoDb"/>
+		</providers>
+	</entityFramework>
+</configuration>
