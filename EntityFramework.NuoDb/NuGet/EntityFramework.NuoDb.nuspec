@@ -20,5 +20,7 @@
   </metadata>
   <files>
     <file src="..\bin\Release\NuoDb.Data.Client.dll" target="lib\net40" />
+    <file src="content\app.config.transform" target="content" />
+    <file src="content\web.config.transform" target="content" />
   </files>
 </package>
