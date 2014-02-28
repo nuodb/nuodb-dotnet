@@ -13,6 +13,7 @@
     <tags>nuodb newsql nosql cloud entityframework</tags>
     <dependencies>
       <group targetFramework="net40">
+        <dependency id="NuoDb.Data.Client" />
         <dependency id="EntityFramework" version="6.0.0" />
       </group>
     </dependencies>
