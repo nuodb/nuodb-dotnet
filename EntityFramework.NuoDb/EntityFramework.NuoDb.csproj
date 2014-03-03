@@ -105,6 +105,7 @@
   <ItemGroup>
     <EmbeddedResource Include="..\NuoDb.Data.Client\EntityFramework\StoreSchemaDefinition.ssdl">
       <Link>Resources\StoreSchemaDefinition.ssdl</Link>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="..\NuoDb.Data.Client\EntityFramework\StoreSchemaMapping.msl">
       <Link>Resources\StoreSchemaMapping.msl</Link>
@@ -116,9 +117,8 @@
       <Link>Resources\StoreSchemaDefinitionVersion3.ssdl</Link>
     </EmbeddedResource>
     <None Include="App.config" />
-    <None Include="NuGet\content\app.config.transform" />
-    <None Include="NuGet\content\web.config.transform" />
     <None Include="NuGet\EntityFramework.NuoDb.nuspec" />
+    <None Include="NuGet\tools\install.ps1" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
