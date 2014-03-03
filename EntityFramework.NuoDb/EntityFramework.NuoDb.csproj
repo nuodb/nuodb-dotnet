@@ -99,6 +99,7 @@
     <Compile Include="..\NuoDb.Data.Client\EntityFramework\SqlGen\SymbolTable.cs">
       <Link>SqlGen\SymbolTable.cs</Link>
     </Compile>
+    <Compile Include="NuoDbMigrationSqlGenerator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

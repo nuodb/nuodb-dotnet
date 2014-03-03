@@ -41,6 +41,7 @@ using System.Data.Entity.Core.Metadata.Edm;
 using System.Data.Entity.Core.Common.CommandTrees;
 using System.Data.Entity.Infrastructure;
 using System.Data.Entity.Infrastructure.DependencyResolution;
+using System.Data.Entity.Migrations.Sql;
 using EntityFramework.NuoDb.SqlGen;
 using NuoDb.Data.Client;
 #else
@@ -57,12 +58,15 @@ namespace NuoDb.Data.Client.EntityFramework
 {
     class NuoDbProviderServices : DbProviderServices
     {
+		public const string ProviderInvariantName = "NuoDb.Data.Client";
+
         public static object Instance = new NuoDbProviderServices();
 
 		private NuoDbProviderServices()
 		{
 #if EF6
 			AddDependencyResolver(new SingletonDependencyResolver<IDbConnectionFactory>(new NuoDbConnectionFactory()));
+			AddDependencyResolver(new SingletonDependencyResolver<Func<MigrationSqlGenerator>>(() => new NuoDbMigrationSqlGenerator(), ProviderInvariantName));
 #endif
 		}
 
