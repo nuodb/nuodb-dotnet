@@ -12,16 +12,9 @@
     <summary>NuoDB ADO.NET Driver</summary>
     <tags>nuodb newsql nosql cloud</tags>
     <frameworkAssemblies>
-      <frameworkAssembly assemblyName="System.Xml"/>
-      <frameworkAssembly assemblyName="System.Transactions"/>
-      <frameworkAssembly assemblyName="System.Data.Entity"/>
-      <frameworkAssembly assemblyName="System.Data.DataSetExtensions"/>
       <frameworkAssembly assemblyName="System.Data"/>
     </frameworkAssemblies>
     <dependencies>
-      <group targetFramework="net40">
-        <dependency id="EntityFramework" version="5.0.0" />
-      </group>
     </dependencies>
   </metadata>
   <files>
