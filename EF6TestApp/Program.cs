@@ -13,11 +13,9 @@ namespace EF6TestApp
 	{
 		static void Main(string[] args)
 		{
-			using (var ctx = new NuoDbContext())
+			using (var ctx = GetContext())
 			{
 				Console.WriteLine(ctx.GetType().BaseType.Assembly.FullName);
-
-				var script = (ctx as IObjectContextAdapter).ObjectContext.CreateDatabaseScript();
 
 				var query1 = ctx.FooBars.Where(x => x.Id == 666);
 				var query2 = ctx.FooBars.Where(x => new[] { 1, 2, 3 }.Contains(x.Id));
@@ -25,11 +23,17 @@ namespace EF6TestApp
 				Console.WriteLine(query2);
 			}
 		}
+
+		static ISomeNuoDbDbContext GetContext()
+		{
+			//return new NuoDbDirectContext();
+			return new NuoDbConnectionStringContext();
+		}
 	}
 
-	class NuoDbContext : DbContext
+	class NuoDbDirectContext : DbContext, ISomeNuoDbDbContext
 	{
-		public NuoDbContext()
+		public NuoDbDirectContext()
 			: base(new NuoDbConnection("Server=localhost;Database=ef6;User=ef;Password=ef;Schema=user"), true)
 		{ }
 
@@ -41,6 +45,27 @@ namespace EF6TestApp
 
 			modelBuilder.HasDefaultSchema("user");
 		}
+	}
+
+	class NuoDbConnectionStringContext : DbContext, ISomeNuoDbDbContext
+	{
+		public NuoDbConnectionStringContext()
+			: base("FooBar")
+		{ }
+
+		public DbSet<FooBar> FooBars { get; set; }
+
+		protected override void OnModelCreating(DbModelBuilder modelBuilder)
+		{
+			base.OnModelCreating(modelBuilder);
+
+			modelBuilder.HasDefaultSchema("user");
+		}
+	}
+
+	interface ISomeNuoDbDbContext : IDisposable
+	{
+		DbSet<FooBar> FooBars { get; }
 	}
 
 	class FooBar
