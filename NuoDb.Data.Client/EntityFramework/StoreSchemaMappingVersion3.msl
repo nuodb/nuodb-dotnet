@@ -207,7 +207,7 @@
 
     <EntitySetMapping Name="TableConstraints" >
       <EntityTypeMapping TypeName="IsTypeOf(Store.Constraint)">
-        <MappingFragment StoreEntitySet="SConstraints">
+        <MappingFragment StoreEntitySet="STableConstraints">
           <ScalarProperty Name="Id" ColumnName="Id" />
           <ScalarProperty Name="Name" ColumnName="Name" />
           <ScalarProperty Name="IsDeferrable" ColumnName="IsDeferrable" />
@@ -215,13 +215,13 @@
         </MappingFragment>
       </EntityTypeMapping>
       <EntityTypeMapping TypeName="Store.UniqueConstraint">
-          <MappingFragment StoreEntitySet="SConstraints">
+          <MappingFragment StoreEntitySet="STableConstraints">
           <ScalarProperty Name="Id" ColumnName="Id" />
           <Condition ColumnName="ConstraintType" Value="UNIQUE"/>
         </MappingFragment>
       </EntityTypeMapping>
       <EntityTypeMapping TypeName="Store.CheckConstraint">
-        <MappingFragment StoreEntitySet="SConstraints">
+        <MappingFragment StoreEntitySet="STableConstraints">
           <ScalarProperty Name="Id" ColumnName="Id" />
           <Condition ColumnName="ConstraintType" Value="CHECK"/>
         </MappingFragment>
@@ -231,13 +231,13 @@
         </MappingFragment>
       </EntityTypeMapping>
       <EntityTypeMapping TypeName="Store.PrimaryKeyConstraint">
-        <MappingFragment StoreEntitySet="SConstraints">
+        <MappingFragment StoreEntitySet="STableConstraints">
           <ScalarProperty Name="Id" ColumnName="Id" />
           <Condition ColumnName="ConstraintType" Value="PRIMARY KEY"/>
         </MappingFragment>
       </EntityTypeMapping>
       <EntityTypeMapping TypeName="Store.ForeignKeyConstraint">
-        <MappingFragment StoreEntitySet="SConstraints">
+        <MappingFragment StoreEntitySet="STableConstraints">
           <ScalarProperty Name="Id" ColumnName="Id" />
           <Condition ColumnName="ConstraintType" Value="FOREIGN KEY"/>
         </MappingFragment>
@@ -291,7 +291,7 @@
       </EntityTypeMapping>
     </EntitySetMapping>
 
-    <EntitySetMapping Name="TableForeignKeys" StoreEntitySet="SForeignKeys" TypeName="Store.ForeignKey">
+    <EntitySetMapping Name="TableForeignKeys" StoreEntitySet="STableForeignKeys" TypeName="Store.ForeignKey">
       <ScalarProperty Name="Id" ColumnName="Id" />
       <ScalarProperty Name="Ordinal" ColumnName="Ordinal" />
     </EntitySetMapping>
@@ -320,7 +320,7 @@
       </EndProperty>
     </AssociationSetMapping>
 
-    <AssociationSetMapping Name="TableTableConstraints" StoreEntitySet="SConstraints" TypeName="Store.TableOrViewConstraint">
+    <AssociationSetMapping Name="TableTableConstraints" StoreEntitySet="STableConstraints" TypeName="Store.TableOrViewConstraint">
       <EndProperty Name="Parent">
         <ScalarProperty Name="Id" ColumnName="ParentId" />
       </EndProperty>
@@ -338,7 +338,7 @@
       </EndProperty>
     </AssociationSetMapping>
 
-    <AssociationSetMapping Name="TableConstraintForeignKeys" StoreEntitySet="SForeignKeys" TypeName="Store.ConstraintForeignKey">
+    <AssociationSetMapping Name="TableConstraintForeignKeys" StoreEntitySet="STableForeignKeys" TypeName="Store.ConstraintForeignKey">
       <EndProperty Name="Constraint">
         <ScalarProperty Name="Id" ColumnName="ConstraintId" />
       </EndProperty>
@@ -347,7 +347,7 @@
       </EndProperty>
     </AssociationSetMapping>
 
-    <AssociationSetMapping Name="ToTableForeignKeyColumns" StoreEntitySet="SForeignKeys" TypeName="Store.ToForeignKeyColumn">
+    <AssociationSetMapping Name="ToTableForeignKeyColumns" StoreEntitySet="STableForeignKeys" TypeName="Store.ToForeignKeyColumn">
       <EndProperty Name="ForeignKey">
         <ScalarProperty Name="Id" ColumnName="Id" />
       </EndProperty>
@@ -356,7 +356,7 @@
       </EndProperty>
     </AssociationSetMapping>
 
-    <AssociationSetMapping Name="FromTableForeignKeyColumns" StoreEntitySet="SForeignKeys" TypeName="Store.FromForeignKeyColumn">
+    <AssociationSetMapping Name="FromTableForeignKeyColumns" StoreEntitySet="STableForeignKeys" TypeName="Store.FromForeignKeyColumn">
       <EndProperty Name="ForeignKey">
         <ScalarProperty Name="Id" ColumnName="Id" />
       </EndProperty>
