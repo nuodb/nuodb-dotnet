@@ -35,7 +35,7 @@
     <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>Key.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>Properties\Key.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="EntityFramework">
@@ -62,7 +62,7 @@
     <Compile Include="EntityFramework\SqlGen\ExpressionTranslator.cs" />
     <Compile Include="EntityFramework\SqlGen\ISqlFragment.cs" />
     <Compile Include="EntityFramework\SqlGen\JoinSymbol.cs" />
-    <Compile Include="EntityFramework\SqlGen\MetaDataHelpers.cs" />
+    <Compile Include="EntityFramework\SqlGen\MetadataHelpers.cs" />
     <Compile Include="EntityFramework\SqlGen\ScriptBuilder.cs" />
     <Compile Include="EntityFramework\SqlGen\SqlBuilder.cs" />
     <Compile Include="EntityFramework\SqlGen\SqlGenerator.cs" />
@@ -133,8 +133,13 @@
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <None Include="App.config" />
-    <None Include="Key.snk" />
+    <EmbeddedResource Include="EntityFramework\StoreSchemaMappingVersion3.msl">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="EntityFramework\StoreSchemaDefinitionVersion3.ssdl" />
+    <None Include="NuGet\NuoDb.Data.Client.nuspec" />
     <None Include="packages.config" />
+    <None Include="Properties\Key.snk" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="EntityFramework\ProviderManifest.xml">

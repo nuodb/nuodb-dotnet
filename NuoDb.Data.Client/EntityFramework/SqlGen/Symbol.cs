@@ -18,11 +18,19 @@ and limitations under the License.
 
 #if !__MonoCS__
 
+#if EF6
+namespace NuoDb.Data.Client.EntityFramework6.SqlGen
+#else
 namespace NuoDb.Data.Client.EntityFramework.SqlGen
+#endif
 {
     using System.Collections.Generic;
     using System.Globalization;
+#if EF6
+	using System.Data.Entity.Core.Metadata.Edm;
+#else
     using System.Data.Metadata.Edm;
+#endif
     using System;
 
     /// <summary>

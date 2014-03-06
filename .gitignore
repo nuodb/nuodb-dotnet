@@ -9,3 +9,5 @@ WebApplicationSample/WebApplicationSample.csproj.user
 /*.opensdf
 
 *.user
+
+*.nupkg

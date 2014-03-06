@@ -18,7 +18,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug35\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;NET_35</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -26,7 +26,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release35\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;NET_35</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -34,7 +34,7 @@
     <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>Key.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>Properties\Key.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -124,7 +124,10 @@
     <EmbeddedResource Include="EntityFramework\StoreSchemaMapping.msl">
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <None Include="Key.snk" />
+    <EmbeddedResource Include="EntityFramework\StoreSchemaMappingVersion3.msl" />
+    <EmbeddedResource Include="EntityFramework\StoreSchemaDefinitionVersion3.ssdl" />
+    <None Include="NuGet\NuoDb.Data.Client.nuspec" />
+    <None Include="Properties\Key.snk" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="EntityFramework\ProviderManifest.xml">

@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>NuoDb.Data.Client</id>
+    <version>2.0.3.0</version>
+    <title>NuoDB ADO.NET Driver</title>
+    <authors>NuoDB</authors>
+    <owners>NuoDB</owners>
+    <projectUrl>http://doc.nuodb.com/display/doc/NuoDB+ADO.NET+Driver</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>The ADO.NET Driver for NuoDB® enables you to develop .NET applications that connect to the NuoDB database. It is a fully managed ADO.NET driver, written in C# for .NET 3.5, implements all the required ADO.NET interfaces and integrates with ADO.NET aware tools.</description>
+    <summary>NuoDB ADO.NET Driver</summary>
+    <tags>nuodb newsql nosql cloud</tags>
+    <frameworkAssemblies>
+      <frameworkAssembly assemblyName="System.Data"/>
+    </frameworkAssemblies>
+    <dependencies>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="..\bin\Release35\NuoDb.Data.Client.dll" target="lib\net35" />
+    <file src="..\bin\Release40\NuoDb.Data.Client.dll" target="lib\net40" />
+  </files>
+</package>

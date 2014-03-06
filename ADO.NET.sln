@@ -1,5 +1,7 @@
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30110.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsFormsSample", "WindowsFormsSample\WindowsFormsSample.csproj", "{939FB16E-8217-493A-8CB4-A82D94A7F4EC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuoDBVSPackage", "NuoDBVSPackage\NuoDBVSPackage.csproj", "{84554CD4-9013-4D7F-8969-29C332AF607A}"
@@ -32,6 +34,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuoDb.Data.Client_4.0", "NuoDb.Data.Client\NuoDb.Data.Client_4.0.csproj", "{3A992E63-061C-47EE-862A-452334D70D90}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NUnitEFCodeFirstTestProject", "NUnitEFCodeFirstTestProject\NUnitEFCodeFirstTestProject.csproj", "{52F5C65F-9A64-416B-A888-AC04264E7D7C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.NuoDb", "EntityFramework.NuoDb\EntityFramework.NuoDb.csproj", "{96F008F5-3984-4074-B3BD-D60C7FDC7DA7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -147,6 +151,18 @@ Global
 		{52F5C65F-9A64-416B-A888-AC04264E7D7C}.Release|Win32.ActiveCfg = Release|x86
 		{52F5C65F-9A64-416B-A888-AC04264E7D7C}.Release|x86.ActiveCfg = Release|x86
 		{52F5C65F-9A64-416B-A888-AC04264E7D7C}.Release|x86.Build.0 = Release|x86
+		{96F008F5-3984-4074-B3BD-D60C7FDC7DA7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{96F008F5-3984-4074-B3BD-D60C7FDC7DA7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{96F008F5-3984-4074-B3BD-D60C7FDC7DA7}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{96F008F5-3984-4074-B3BD-D60C7FDC7DA7}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{96F008F5-3984-4074-B3BD-D60C7FDC7DA7}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{96F008F5-3984-4074-B3BD-D60C7FDC7DA7}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{96F008F5-3984-4074-B3BD-D60C7FDC7DA7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{96F008F5-3984-4074-B3BD-D60C7FDC7DA7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{96F008F5-3984-4074-B3BD-D60C7FDC7DA7}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{96F008F5-3984-4074-B3BD-D60C7FDC7DA7}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{96F008F5-3984-4074-B3BD-D60C7FDC7DA7}.Release|Win32.ActiveCfg = Release|Any CPU
+		{96F008F5-3984-4074-B3BD-D60C7FDC7DA7}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
