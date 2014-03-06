@@ -39,7 +39,7 @@ using System.Linq;
 using NuoDb.Data.Client;
 
 #if EF6
-namespace EntityFramework.NuoDb
+namespace NuoDb.Data.Client.EntityFramework6
 #else
 namespace NuoDb.Data.Client.EntityFramework
 #endif

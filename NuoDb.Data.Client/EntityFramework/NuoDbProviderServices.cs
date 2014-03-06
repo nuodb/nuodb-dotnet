@@ -42,7 +42,7 @@ using System.Data.Entity.Core.Common.CommandTrees;
 using System.Data.Entity.Infrastructure;
 using System.Data.Entity.Infrastructure.DependencyResolution;
 using System.Data.Entity.Migrations.Sql;
-using EntityFramework.NuoDb.SqlGen;
+using NuoDb.Data.Client.EntityFramework6.SqlGen;
 using NuoDb.Data.Client;
 #else
 using System.Data.Metadata.Edm;
@@ -51,7 +51,7 @@ using NuoDb.Data.Client.EntityFramework.SqlGen;
 #endif
 
 #if EF6
-namespace EntityFramework.NuoDb
+namespace NuoDb.Data.Client.EntityFramework6
 #else
 namespace NuoDb.Data.Client.EntityFramework
 #endif

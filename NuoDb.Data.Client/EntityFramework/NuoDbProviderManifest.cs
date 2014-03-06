@@ -44,7 +44,7 @@ using System.Data.Metadata.Edm;
 #endif
 
 #if EF6
-namespace EntityFramework.NuoDb
+namespace NuoDb.Data.Client.EntityFramework6
 #else
 namespace NuoDb.Data.Client.EntityFramework
 #endif
@@ -53,31 +53,31 @@ namespace NuoDb.Data.Client.EntityFramework
 	{
 		const string ProviderManifestResourceName =
 #if EF6
- "EntityFramework.NuoDb.Resources.ProviderManifest.xml";
+ "NuoDb.Data.Client.EntityFramework6.Resources.ProviderManifest.xml";
 #else
  "NuoDb.Data.Client.EntityFramework.ProviderManifest.xml";
 #endif
 		const string StoreSchemaDefinitionResourceName =
 #if EF6
- "EntityFramework.NuoDb.Resources.StoreSchemaDefinition.ssdl";
+ "NuoDb.Data.Client.EntityFramework6.Resources.StoreSchemaDefinition.ssdl";
 #else
  "NuoDb.Data.Client.EntityFramework.StoreSchemaDefinition.ssdl";
 #endif
 		const string StoreSchemaDefinitionVersion3ResourceName =
 #if EF6
- "EntityFramework.NuoDb.Resources.StoreSchemaDefinitionVersion3.ssdl";
+ "NuoDb.Data.Client.EntityFramework6.Resources.StoreSchemaDefinitionVersion3.ssdl";
 #else
  "NuoDb.Data.Client.EntityFramework.StoreSchemaDefinitionVersion3.ssdl";
 #endif
 		const string StoreSchemaMappingResourceName =
 #if EF6
- "EntityFramework.NuoDb.Resources.StoreSchemaMapping.msl";
+ "NuoDb.Data.Client.EntityFramework6.Resources.StoreSchemaMapping.msl";
 #else
  "NuoDb.Data.Client.EntityFramework.StoreSchemaMapping.msl";
 #endif
 		const string StoreSchemaMappingVersion3ResourceName =
 #if EF6
- "EntityFramework.NuoDb.Resources.StoreSchemaMappingVersion3.msl";
+ "NuoDb.Data.Client.EntityFramework6.Resources.StoreSchemaMappingVersion3.msl";
 #else
  "NuoDb.Data.Client.EntityFramework.StoreSchemaMappingVersion3.msl";
 #endif

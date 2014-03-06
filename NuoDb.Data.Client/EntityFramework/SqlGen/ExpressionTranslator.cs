@@ -23,7 +23,7 @@ using System.Data.Common.CommandTrees;
 using NuoDb.Data.Client;
 
 #if EF6
-namespace EntityFramework.NuoDb.SqlGen
+namespace NuoDb.Data.Client.EntityFramework6.SqlGen
 #else
 namespace NuoDb.Data.Client.EntityFramework.SqlGen
 #endif

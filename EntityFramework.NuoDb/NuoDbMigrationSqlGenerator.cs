@@ -5,7 +5,7 @@ using System.Data.Entity.Migrations.Sql;
 using System.Linq;
 using System.Text;
 
-namespace EntityFramework.NuoDb
+namespace NuoDb.Data.Client.EntityFramework6
 {
 	public class NuoDbMigrationSqlGenerator : MigrationSqlGenerator
 	{
