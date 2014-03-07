@@ -25,6 +25,7 @@
       <ComponentRef Id="Install_VSPackage"/>
       <ComponentGroupRef Id="Install_DDEXPlugin_VS2010" />
       <ComponentGroupRef Id="Install_DDEXPlugin_VS2012" />
+      <ComponentGroupRef Id="Install_DDEXPlugin_VS2013" />
     </Feature>
 
     <Feature Id="SamplesFeature" Title="Installing sample projects" Level="1">
@@ -48,6 +49,14 @@
       <RegistrySearch Id="VS2012_VSIX_INSTALLER"
                       Root="HKCU"
                       Key="Software\Microsoft\VisualStudio\11.0_Config"
+                      Name="VSIXInstallerLocation"
+                      Type="raw" />
+    </Property>
+
+    <Property Id="VSIX_INSTALLER_VS2013">
+      <RegistrySearch Id="VS2013_VSIX_INSTALLER"
+                      Root="HKCU"
+                      Key="Software\Microsoft\VisualStudio\12.0_Config"
                       Name="VSIXInstallerLocation"
                       Type="raw" />
     </Property>
@@ -80,6 +89,20 @@
                   Impersonate="no"
                   Execute="deferred"
                   />
+    <CustomAction Id="RegisterVSIX_VS2013"
+                  Directory="INSTALLFOLDER"
+                  ExeCommand="&quot;[VSIX_INSTALLER_VS2013]&quot; /admin /quiet &quot;[#NuoDb.VisualStudio.DataTools.vsix]&quot;"
+                  Return="ignore"
+                  Impersonate="no"
+                  Execute="deferred"
+                  />
+    <CustomAction Id="UnRegisterVSIX_VS2013"
+                  Directory="INSTALLFOLDER"
+                  ExeCommand="&quot;[VSIX_INSTALLER_VS2013]&quot; /admin /quiet /uninstall:407f565d-8772-4770-8243-5a1f396aae9d"
+                  Return="ignore"
+                  Impersonate="no"
+                  Execute="deferred"
+                  />
 
     <!-- The !VStudioFeature is the installed state of the feature -->
     <!-- The &VStudioFeature is the action state of the feature -->
@@ -96,6 +119,12 @@
       </Custom>
       <Custom Action="UnRegisterVSIX_VS2012" Before="RemoveFiles">
         <![CDATA[VSIX_INSTALLER_VS2012 AND (&VStudioFeature=2) AND (!VStudioFeature=3)]]>
+      </Custom>
+      <Custom Action="RegisterVSIX_VS2013" Before="InstallFinalize">
+        <![CDATA[VSIX_INSTALLER_VS2013 AND (&VStudioFeature=3) AND (!VStudioFeature=2)]]>
+      </Custom>
+      <Custom Action="UnRegisterVSIX_VS2013" Before="RemoveFiles">
+        <![CDATA[VSIX_INSTALLER_VS2013 AND (&VStudioFeature=2) AND (!VStudioFeature=3)]]>
       </Custom>
     </InstallExecuteSequence>
     

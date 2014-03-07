@@ -54,6 +54,14 @@
                       Type="raw" />
     </Property>
 
+    <Property Id="EXTENSION_DIR_VS2013">
+      <RegistrySearch Id="VS2013_Extension"
+                      Root="HKCU"
+                      Key="Software\Microsoft\VisualStudio\12.0_Config\Initialization"
+                      Name="ApplicationExtensionsFolder"
+                      Type="raw" />
+    </Property>
+
     <DirectoryRef Id="INSTALLFOLDER">
       <Directory Id="NET35" Name="NET 3.5">
         <Component Id="Install_DotNetDriver_35" Guid="A04B6218-AD90-40E5-8001-918CF0D3EAF2">
@@ -106,6 +114,17 @@
             <Directory Id="EXTENSION_DIR_VS2012_MICROSOFT_EFT_DBGEN" Name="DBGen"/>
             <Directory Id="EXTENSION_DIR_VS2012_MICROSOFT_EFT_TEMPLATES" Name="Templates">
               <Directory Id="EXTENSION_DIR_VS2012_MICROSOFT_EFT_TEMPLATES_INCLUDES" Name="Includes"/>
+            </Directory>
+          </Directory>
+        </Directory>
+      </Directory>
+
+      <Directory Id="EXTENSION_DIR_VS2013" Name="VS2013">
+        <Directory Id="EXTENSION_DIR_VS2013_MICROSOFT" Name="Microsoft" >
+          <Directory Id="EXTENSION_DIR_VS2013_MICROSOFT_EFT" Name="Entity Framework Tools">
+            <Directory Id="EXTENSION_DIR_VS2013_MICROSOFT_EFT_DBGEN" Name="DBGen"/>
+            <Directory Id="EXTENSION_DIR_VS2013_MICROSOFT_EFT_TEMPLATES" Name="Templates">
+              <Directory Id="EXTENSION_DIR_VS2013_MICROSOFT_EFT_TEMPLATES_INCLUDES" Name="Includes"/>
             </Directory>
           </Directory>
         </Directory>
@@ -356,6 +375,21 @@
       </Component>
       <Component Guid="A04B6218-AD90-40E5-8001-918CF0D3EAF8" Directory="EXTENSION_DIR_VS2012_MICROSOFT_EFT_TEMPLATES_INCLUDES">
         <File KeyPath="yes" Id="GenerateNuoSQL.Utility.ttinclude_VS2012"
+              Name="GenerateNuoSQL.Utility.ttinclude"
+              Source="../NuoDBVSPackage/Templates/DDL_Templates/GenerateNuoSQL.Utility.ttinclude.txt">
+        </File>
+      </Component>
+    </ComponentGroup>
+
+    <ComponentGroup Id="Install_DDEXPlugin_VS2013">
+      <Component Guid="A04B6218-AD90-40E5-8001-918CF0D3EAF9" Directory="EXTENSION_DIR_VS2013_MICROSOFT_EFT_DBGEN">
+        <File KeyPath="yes" Id="SSDLToNuoSQL.tt_VS2013"
+              Name="SSDLToNuoSQL.tt"
+              Source="../NuoDBVSPackage/Templates/DDL_Templates/SSDLToNuoSQL.tt.txt">
+        </File>
+      </Component>
+      <Component Guid="A04B6218-AD90-40E5-8001-918CF0D3EAFA" Directory="EXTENSION_DIR_VS2013_MICROSOFT_EFT_TEMPLATES_INCLUDES">
+        <File KeyPath="yes" Id="GenerateNuoSQL.Utility.ttinclude_VS2013"
               Name="GenerateNuoSQL.Utility.ttinclude"
               Source="../NuoDBVSPackage/Templates/DDL_Templates/GenerateNuoSQL.Utility.ttinclude.txt">
         </File>

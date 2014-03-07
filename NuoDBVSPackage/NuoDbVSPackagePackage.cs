@@ -156,7 +156,7 @@ namespace NuoDb.VisualStudio.DataTools
             }
         }
 
-        private const int MaxVsVersion = 11;    // VS2012
+        private const int MaxVsVersion = 12;    // VS2013
 
         internal int GetMajorVStudioVersion()
         {
