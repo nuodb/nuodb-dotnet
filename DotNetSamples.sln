@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApplicationSample", "Web
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleSample", "ConsoleSample\ConsoleSample.csproj", "{51CF36CD-7035-4CF9-A7E7-97C1BA85BB9B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EF6ConsoleSample", "EF6ConsoleSample\EF6ConsoleSample.csproj", "{13D1AF66-5CE1-416C-A073-010C8EEC99A0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -46,6 +48,16 @@ Global
 		{51CF36CD-7035-4CF9-A7E7-97C1BA85BB9B}.Release|Mixed Platforms.Build.0 = Release|x86
 		{51CF36CD-7035-4CF9-A7E7-97C1BA85BB9B}.Release|x86.ActiveCfg = Release|x86
 		{51CF36CD-7035-4CF9-A7E7-97C1BA85BB9B}.Release|x86.Build.0 = Release|x86
+		{13D1AF66-5CE1-416C-A073-010C8EEC99A0}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{13D1AF66-5CE1-416C-A073-010C8EEC99A0}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{13D1AF66-5CE1-416C-A073-010C8EEC99A0}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{13D1AF66-5CE1-416C-A073-010C8EEC99A0}.Debug|x86.ActiveCfg = Debug|x86
+		{13D1AF66-5CE1-416C-A073-010C8EEC99A0}.Debug|x86.Build.0 = Debug|x86
+		{13D1AF66-5CE1-416C-A073-010C8EEC99A0}.Release|Any CPU.ActiveCfg = Release|x86
+		{13D1AF66-5CE1-416C-A073-010C8EEC99A0}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{13D1AF66-5CE1-416C-A073-010C8EEC99A0}.Release|Mixed Platforms.Build.0 = Release|x86
+		{13D1AF66-5CE1-416C-A073-010C8EEC99A0}.Release|x86.ActiveCfg = Release|x86
+		{13D1AF66-5CE1-416C-A073-010C8EEC99A0}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

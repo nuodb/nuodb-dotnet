@@ -18,11 +18,15 @@ and limitations under the License.
 
 #if !__MonoCS__
 
-namespace NuoDb.Data.Client.EntityFramework.SqlGen
-{
-    using System.Collections.Generic;
-    using System;
+using System.Collections.Generic;
+using System;
 
+#if EF6
+namespace NuoDb.Data.Client.EntityFramework6.SqlGen
+#else
+namespace NuoDb.Data.Client.EntityFramework.SqlGen
+#endif
+{
     /// <summary>
     /// The symbol table is quite primitive - it is a stack with a new entry for
     /// each scope.  Lookups search from the top of the stack to the bottom, until

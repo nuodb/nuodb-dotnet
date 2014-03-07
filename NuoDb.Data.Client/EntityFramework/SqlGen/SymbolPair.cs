@@ -18,11 +18,14 @@ and limitations under the License.
 
 #if !__MonoCS__
 
-namespace NuoDb.Data.Client.EntityFramework.SqlGen
-{
-    using System.Diagnostics;
-    using System.Data.Common.CommandTrees;
+using System.Diagnostics;
 
+#if EF6
+namespace NuoDb.Data.Client.EntityFramework6.SqlGen
+#else
+namespace NuoDb.Data.Client.EntityFramework.SqlGen
+#endif
+{
     /// <summary>
     /// The SymbolPair exists to solve the record flattening problem.
     /// <see cref="SqlGenerator.Visit(DbPropertyExpression)"/>

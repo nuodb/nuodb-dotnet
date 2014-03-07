@@ -1,0 +1,146 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{96F008F5-3984-4074-B3BD-D60C7FDC7DA7}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>NuoDb.Data.Client.EntityFramework6</RootNamespace>
+    <AssemblyName>EntityFramework.NuoDb</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;EF6</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE;EF6</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>..\NuoDb.Data.Client\Key.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="EntityFramework, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\EntityFramework.6.0.2\lib\net40\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\NuoDb.Data.Client\EntityFramework\NuoDbConnectionFactory.cs">
+      <Link>NuoDbConnectionFactory.cs</Link>
+    </Compile>
+    <Compile Include="..\NuoDb.Data.Client\EntityFramework\NuoDbProviderManifest.cs">
+      <Link>NuoDbProviderManifest.cs</Link>
+    </Compile>
+    <Compile Include="..\NuoDb.Data.Client\EntityFramework\NuoDbProviderServices.cs">
+      <Link>NuoDbProviderServices.cs</Link>
+    </Compile>
+    <Compile Include="..\NuoDb.Data.Client\EntityFramework\SqlGen\DmlSqlGenerator.cs">
+      <Link>SqlGen\DmlSqlGenerator.cs</Link>
+    </Compile>
+    <Compile Include="..\NuoDb.Data.Client\EntityFramework\SqlGen\ExpressionTranslator.cs">
+      <Link>SqlGen\ExpressionTranslator.cs</Link>
+    </Compile>
+    <Compile Include="..\NuoDb.Data.Client\EntityFramework\SqlGen\ISqlFragment.cs">
+      <Link>SqlGen\ISqlFragment.cs</Link>
+    </Compile>
+    <Compile Include="..\NuoDb.Data.Client\EntityFramework\SqlGen\JoinSymbol.cs">
+      <Link>SqlGen\JoinSymbol.cs</Link>
+    </Compile>
+    <Compile Include="..\NuoDb.Data.Client\EntityFramework\SqlGen\MetadataHelpers.cs">
+      <Link>SqlGen\MetaDataHelpers.cs</Link>
+    </Compile>
+    <Compile Include="..\NuoDb.Data.Client\EntityFramework\SqlGen\ScriptBuilder.cs">
+      <Link>SqlGen\ScriptBuilder.cs</Link>
+    </Compile>
+    <Compile Include="..\NuoDb.Data.Client\EntityFramework\SqlGen\SqlBuilder.cs">
+      <Link>SqlGen\SqlBuilder.cs</Link>
+    </Compile>
+    <Compile Include="..\NuoDb.Data.Client\EntityFramework\SqlGen\SqlGenerator.cs">
+      <Link>SqlGen\SqlGenerator.cs</Link>
+    </Compile>
+    <Compile Include="..\NuoDb.Data.Client\EntityFramework\SqlGen\SqlSelectStatement.cs">
+      <Link>SqlGen\SqlSelectStatement.cs</Link>
+    </Compile>
+    <Compile Include="..\NuoDb.Data.Client\EntityFramework\SqlGen\SqlWriter.cs">
+      <Link>SqlGen\SqlWriter.cs</Link>
+    </Compile>
+    <Compile Include="..\NuoDb.Data.Client\EntityFramework\SqlGen\Symbol.cs">
+      <Link>SqlGen\Symbol.cs</Link>
+    </Compile>
+    <Compile Include="..\NuoDb.Data.Client\EntityFramework\SqlGen\SymbolPair.cs">
+      <Link>SqlGen\SymbolPair.cs</Link>
+    </Compile>
+    <Compile Include="..\NuoDb.Data.Client\EntityFramework\SqlGen\SymbolTable.cs">
+      <Link>SqlGen\SymbolTable.cs</Link>
+    </Compile>
+    <Compile Include="NuoDbMigrationSqlGenerator.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="..\NuoDb.Data.Client\EntityFramework\StoreSchemaDefinition.ssdl">
+      <Link>Resources\StoreSchemaDefinition.ssdl</Link>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\NuoDb.Data.Client\EntityFramework\StoreSchemaMapping.msl">
+      <Link>Resources\StoreSchemaMapping.msl</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\NuoDb.Data.Client\EntityFramework\StoreSchemaMappingVersion3.msl">
+      <Link>Resources\StoreSchemaMappingVersion3.msl</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\NuoDb.Data.Client\EntityFramework\StoreSchemaDefinitionVersion3.ssdl">
+      <Link>Resources\StoreSchemaDefinitionVersion3.ssdl</Link>
+    </EmbeddedResource>
+    <None Include="App.config" />
+    <None Include="..\NuoDb.Data.Client\Key.snk" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NuoDb.Data.Client\NuoDb.Data.Client_4.0.csproj">
+      <Project>{3a992e63-061c-47ee-862a-452334d70d90}</Project>
+      <Name>NuoDb.Data.Client_4.0</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <EmbeddedResource Include="..\NuoDb.Data.Client\EntityFramework\ProviderManifest.xml">
+      <Link>Resources\ProviderManifest.xml</Link>
+    </EmbeddedResource>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

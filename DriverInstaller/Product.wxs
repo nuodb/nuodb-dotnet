@@ -33,6 +33,7 @@
       <ComponentGroupRef Id="SampleProject" />
       <ComponentGroupRef Id="SampleWebProject" />
       <ComponentGroupRef Id="ConsoleProject" />
+      <ComponentGroupRef Id="EF6ConsoleProject" />
     </Feature>
 
     <!-- Section to handle the intallation of the VSIX -->

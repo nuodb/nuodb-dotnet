@@ -737,7 +737,7 @@ namespace NuoDb.Data.Client
 #endif
                 if (authenticating)
                 {
-                    throw new NuoDbSqlException("Authentication failed for database \"" + databaseName + "\"", e);
+                    throw new NuoDbSqlException("Authentication failed for database \"" + databaseName + "\"");
                 }
 
                 throw e;

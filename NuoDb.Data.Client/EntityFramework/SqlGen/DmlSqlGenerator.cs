@@ -14,13 +14,20 @@ using System.Text;
 using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
-using System.Data.Metadata.Edm;
-using System.Data.Common.CommandTrees;
-using System.Data.Common.Utils;
-using System.Data.Mapping.Update.Internal;
 using System.Linq;
 
+#if EF6
+using System.Data.Entity.Core.Metadata.Edm;
+using System.Data.Entity.Core.Common.CommandTrees;
+using NuoDb.Data.Client;
+
+namespace NuoDb.Data.Client.EntityFramework6.SqlGen
+#else
+using System.Data.Metadata.Edm;
+using System.Data.Common.CommandTrees;
+
 namespace NuoDb.Data.Client.EntityFramework.SqlGen
+#endif
 {
     /// <summary>
     /// Class generating SQL for a DML command tree.

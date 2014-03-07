@@ -18,12 +18,16 @@ and limitations under the License.
 
 #if !__MonoCS__
 
-namespace NuoDb.Data.Client.EntityFramework.SqlGen
-{
-    using System.Globalization;
-    using System.IO;
-    using System.Text;
+using System.Globalization;
+using System.IO;
+using System.Text;
 
+#if EF6
+namespace NuoDb.Data.Client.EntityFramework6.SqlGen
+#else
+namespace NuoDb.Data.Client.EntityFramework.SqlGen
+#endif
+{
     /// <summary>
     /// This extends StringWriter primarily to add the ability to add an indent
     /// to each line that is written out.

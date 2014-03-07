@@ -33,21 +33,43 @@
 
 using System.Data.Common;
 using System.Xml;
-using System.Data.Metadata.Edm;
 using System;
 using System.Text;
 
+#if EF6
+using System.Data.Entity.Core.Common;
+using System.Data.Entity.Core.Metadata.Edm;
+using NuoDb.Data.Client;
+
+namespace NuoDb.Data.Client.EntityFramework6
+#else
+using System.Data.Metadata.Edm;
+
 namespace NuoDb.Data.Client.EntityFramework
+#endif
 {
     class NuoDbProviderManifest : DbXmlEnabledProviderManifest
     {
+#if EF6
+        const string ProviderManifestResourceName = "NuoDb.Data.Client.EntityFramework6.Resources.ProviderManifest.xml";
+        const string StoreSchemaDefinitionResourceName = "NuoDb.Data.Client.EntityFramework6.Resources.StoreSchemaDefinition.ssdl";
+        const string StoreSchemaDefinitionVersion3ResourceName = "NuoDb.Data.Client.EntityFramework6.Resources.StoreSchemaDefinitionVersion3.ssdl";
+        const string StoreSchemaMappingResourceName = "NuoDb.Data.Client.EntityFramework6.Resources.StoreSchemaMapping.msl";
+        const string StoreSchemaMappingVersion3ResourceName = "NuoDb.Data.Client.EntityFramework6.Resources.StoreSchemaMappingVersion3.msl";
+#else
+        const string ProviderManifestResourceName = "NuoDb.Data.Client.EntityFramework.ProviderManifest.xml";
+        const string StoreSchemaDefinitionResourceName = "NuoDb.Data.Client.EntityFramework.StoreSchemaDefinition.ssdl";
+        const string StoreSchemaDefinitionVersion3ResourceName = "NuoDb.Data.Client.EntityFramework.StoreSchemaDefinitionVersion3.ssdl";
+        const string StoreSchemaMappingResourceName = "NuoDb.Data.Client.EntityFramework.StoreSchemaMapping.msl";
+        const string StoreSchemaMappingVersion3ResourceName = "NuoDb.Data.Client.EntityFramework.StoreSchemaMappingVersion3.msl";
+#endif
         internal const int BinaryMaxSize = Int32.MaxValue;
         internal const int VarcharMaxSize = 32765;
         internal const int NVarcharMaxSize = VarcharMaxSize;
         internal const char LikeEscapeCharacter = '\\';
 
         public NuoDbProviderManifest()
-            : base(XmlReader.Create(typeof(NuoDbProviderManifest).Assembly.GetManifestResourceStream("NuoDb.Data.Client.EntityFramework.ProviderManifest.xml")))
+            : base(GetResource(ProviderManifestResourceName))
         {
         }
 
@@ -55,12 +77,34 @@ namespace NuoDb.Data.Client.EntityFramework
         {
             if (informationType == DbProviderManifest.StoreSchemaDefinition)
             {
-                return XmlReader.Create(typeof(NuoDbProviderManifest).Assembly.GetManifestResourceStream("NuoDb.Data.Client.EntityFramework.StoreSchemaDefinition.ssdl"));
+                return GetResource(StoreSchemaDefinitionResourceName);
             }
-            else if (informationType == DbProviderManifest.StoreSchemaMapping)
-            {
-                return XmlReader.Create(typeof(NuoDbProviderManifest).Assembly.GetManifestResourceStream("NuoDb.Data.Client.EntityFramework.StoreSchemaMapping.msl"));
-            }
+#if NET_45 || EF6
+			else if (informationType == DbProviderManifest.StoreSchemaDefinitionVersion3)
+			{
+				return GetResource(StoreSchemaDefinitionVersion3ResourceName);
+			}
+#endif
+			else if (informationType == DbProviderManifest.StoreSchemaMapping)
+			{
+				return GetResource(StoreSchemaMappingResourceName);
+			}
+#if NET_45 || EF6
+			else if (informationType == DbProviderManifest.StoreSchemaMappingVersion3)
+			{
+				return GetResource(StoreSchemaMappingVersion3ResourceName);
+			}
+#endif
+			else if (informationType == DbProviderManifest.ConceptualSchemaDefinition)
+			{
+				return null;
+			}
+#if NET_45 || EF6
+			else if (informationType == DbProviderManifest.ConceptualSchemaDefinitionVersion3)
+			{
+				return null;
+			}
+#endif
             throw new NotImplementedException();
         }
 
@@ -207,7 +251,7 @@ namespace NuoDb.Data.Client.EntityFramework
             }
         }
 
-#if NET_40
+#if NET_40 || EF6
         public override bool SupportsEscapingLikeArgument(out char escapeCharacter)
         {
             escapeCharacter = LikeEscapeCharacter;
@@ -223,6 +267,18 @@ namespace NuoDb.Data.Client.EntityFramework
             return sb.ToString();
         }
 #endif
+
+#if EF6
+		public override bool SupportsInExpression()
+		{
+			return true;
+		}
+#endif
+
+        static XmlReader GetResource(string name)
+		{
+			return XmlReader.Create(typeof(NuoDbProviderManifest).Assembly.GetManifestResourceStream(name));
+		}
 
     }
 }

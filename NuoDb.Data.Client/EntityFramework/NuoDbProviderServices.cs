@@ -33,19 +33,42 @@
 
 using System.Collections.Generic;
 using System.Data.Common;
-using NuoDb.Data.Client.EntityFramework.SqlGen;
-using System.Data.Metadata.Edm;
-using System.Data.Common.CommandTrees;
 using System;
 using System.Data;
 
+#if EF6
+using System.Data.Entity.Core.Common;
+using System.Data.Entity.Core.Metadata.Edm;
+using System.Data.Entity.Core.Common.CommandTrees;
+using System.Data.Entity.Infrastructure;
+using System.Data.Entity.Infrastructure.DependencyResolution;
+using System.Data.Entity.Migrations.Sql;
+using NuoDb.Data.Client.EntityFramework6.SqlGen;
+using NuoDb.Data.Client;
+
+namespace NuoDb.Data.Client.EntityFramework6
+#else
+using System.Data.Metadata.Edm;
+using System.Data.Common.CommandTrees;
+using NuoDb.Data.Client.EntityFramework.SqlGen;
+
 namespace NuoDb.Data.Client.EntityFramework
+#endif
 {
     class NuoDbProviderServices : DbProviderServices
     {
-        internal static object Instance = new NuoDbProviderServices();
+        public const string ProviderInvariantName = "NuoDb.Data.Client";
+        public static object Instance = new NuoDbProviderServices();
 
-        protected override DbCommandDefinition CreateDbCommandDefinition(DbProviderManifest providerManifest, System.Data.Common.CommandTrees.DbCommandTree commandTree)
+        private NuoDbProviderServices()
+        {
+#if EF6
+            AddDependencyResolver(new SingletonDependencyResolver<IDbConnectionFactory>(new NuoDbConnectionFactory()));
+            AddDependencyResolver(new SingletonDependencyResolver<Func<MigrationSqlGenerator>>(() => new NuoDbMigrationSqlGenerator(), ProviderInvariantName));
+#endif
+        }
+
+        protected override DbCommandDefinition CreateDbCommandDefinition(DbProviderManifest providerManifest, DbCommandTree commandTree)
         {
             if (providerManifest == null)
                 throw new ArgumentNullException("providerManifest");
@@ -201,7 +224,7 @@ namespace NuoDb.Data.Client.EntityFramework
             return version;
         }
 
-#if NET_40
+#if NET_40 || EF6
         protected override void DbCreateDatabase(DbConnection connection, int? commandTimeout, StoreItemCollection storeItemCollection)
         {
             throw new NotSupportedException("Creating database is not supported in NuoDB driver.");

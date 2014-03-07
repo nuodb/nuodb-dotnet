@@ -38,8 +38,9 @@
     <AssemblyOriginatorKeyFile>Key.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="EntityFramework">
-      <HintPath>..\packages\EntityFramework.5.0.0\lib\net45\EntityFramework.dll</HintPath>
+    <Reference Include="EntityFramework, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\EntityFramework.5.0.0\lib\net40\EntityFramework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
@@ -62,7 +63,7 @@
     <Compile Include="EntityFramework\SqlGen\ExpressionTranslator.cs" />
     <Compile Include="EntityFramework\SqlGen\ISqlFragment.cs" />
     <Compile Include="EntityFramework\SqlGen\JoinSymbol.cs" />
-    <Compile Include="EntityFramework\SqlGen\MetaDataHelpers.cs" />
+    <Compile Include="EntityFramework\SqlGen\MetadataHelpers.cs" />
     <Compile Include="EntityFramework\SqlGen\ScriptBuilder.cs" />
     <Compile Include="EntityFramework\SqlGen\SqlBuilder.cs" />
     <Compile Include="EntityFramework\SqlGen\SqlGenerator.cs" />
@@ -133,8 +134,12 @@
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <None Include="App.config" />
+    <EmbeddedResource Include="EntityFramework\StoreSchemaDefinitionVersion3.ssdl" />
+    <EmbeddedResource Include="EntityFramework\StoreSchemaMappingVersion3.msl" />
     <None Include="Key.snk" />
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="EntityFramework\ProviderManifest.xml">

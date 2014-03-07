@@ -18,12 +18,16 @@ and limitations under the License.
 
 #if !__MonoCS__
 
-namespace NuoDb.Data.Client.EntityFramework.SqlGen
-{
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System;
 
+#if EF6
+namespace NuoDb.Data.Client.EntityFramework6.SqlGen
+#else
+namespace NuoDb.Data.Client.EntityFramework.SqlGen
+#endif
+{
     /// <summary>
     /// This class is like StringBuilder.  While traversing the tree for the first time, 
     /// we do not know all the strings that need to be appended e.g. things that need to be

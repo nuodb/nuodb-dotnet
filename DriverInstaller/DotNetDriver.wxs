@@ -86,8 +86,13 @@
                           Key="SOFTWARE\Microsoft\.NETFramework\AssemblyFolders\[ProductName]_40"
                           Value="[$Install_DotNetDriver_40]"
                           Type="string"/>
-          <File Source="../NuoDb.Data.Client/bin/$(var.Configuration)40/EntityFramework.dll"/>
-          <File Source="../NuoDb.Data.Client/bin/$(var.Configuration)40/EntityFramework.xml"/>
+        </Component>
+      </Directory>
+      <Directory Id="EF6" Name="EF 6.0">
+        <Component Id="Install_EntityFramework_NuoDb" Guid="7EB79C05-04AE-4BD0-B934-E00104F00FC5">
+          <File Id="EntityFramework.NuoDb.dll"
+                KeyPath="yes"
+                Source="../EntityFramework.NuoDb/bin/$(var.Configuration)/EntityFramework.NuoDb.dll"/>
         </Component>
       </Directory>
 
@@ -247,6 +252,13 @@
                 KeyPath="yes"
                 Source="../NuoDb.Data.Client/bin/$(var.Configuration)40/NuoDb.Data.Client.dll"/>
         </Component>
+        <Component Id="Register_GAC_EF" Guid="14603834-DF9E-46ED-9A44-285043C96351">
+          <File Id="EntityFramework.NuoDb.dll_GAC"
+                Name="EntityFramework.NuoDb.dll"
+                Assembly=".net"
+                KeyPath="yes"
+                Source="../EntityFramework.NuoDb/bin/$(var.Configuration)/EntityFramework.NuoDb.dll"/>
+        </Component>
 
         <Component Id="Register_DotNetProvider_40" Guid="DE4E60BA-8202-4BB5-9AB7-88248CD6B368">
           <RegistryKey Root="HKLM" Key="Software\NuoDB">
@@ -399,10 +411,12 @@
     <ComponentGroup Id="Install_DotNetDriver">
       <ComponentRef Id="Install_DotNetDriver_35" />
       <ComponentRef Id="Install_DotNetDriver_40" />
+      <ComponentRef Id="Install_EntityFramework_NuoDb" />
     </ComponentGroup>
     <ComponentGroup Id="Register_DotNetDriver">
       <ComponentRef Id="Register_GAC_35"/>
       <ComponentRef Id="Register_GAC_40"/>
+      <ComponentRef Id="Register_GAC_EF"/>
       <ComponentRef Id="Register_DotNetProvider_20"/>
       <ComponentRef Id="Register_DotNetProvider_40"/>
       <ComponentRef Id="Register_DotNet64Provider_20"/>

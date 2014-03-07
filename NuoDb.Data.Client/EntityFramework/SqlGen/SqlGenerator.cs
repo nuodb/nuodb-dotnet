@@ -11,12 +11,20 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Text;
 using System.Data.Common;
-using System.Data.Metadata.Edm;
-using System.Data.Common.CommandTrees;
 using System.Data;
 using NuoDb.Data.Client.Util;
 
+#if EF6
+using System.Data.Entity.Core.Metadata.Edm;
+using System.Data.Entity.Core.Common.CommandTrees;
+
+namespace NuoDb.Data.Client.EntityFramework6.SqlGen
+#else
+using System.Data.Metadata.Edm;
+using System.Data.Common.CommandTrees;
+
 namespace NuoDb.Data.Client.EntityFramework.SqlGen
+#endif
 {
     internal sealed class SqlGenerator : DbExpressionVisitor<ISqlFragment>
     {
@@ -1655,6 +1663,24 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 
             return result;
         }
+
+#if EF6
+        public override ISqlFragment Visit(DbInExpression e)
+        {
+            SqlBuilder result = new SqlBuilder();
+            result.Append(e.Item.Accept(this));
+            result.Append(" IN (");
+            var separator = string.Empty;
+            foreach (var item in e.List)
+            {
+                result.Append(separator);
+                result.Append(item.Accept(this));
+                separator = ", ";
+            }
+            result.Append(")");
+            return result;
+        }
+#endif
 
         #region Visits shared by multiple nodes
         /// <summary>

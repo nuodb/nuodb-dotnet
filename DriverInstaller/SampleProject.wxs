@@ -21,6 +21,9 @@
       <Directory Id="dir7C4943161F4326908FB17010A3E00061" Name="ConsoleSample" >
         <Directory Id="dirFE4B148A70A647221D7C840E963A9F37" Name="Properties" />
       </Directory>
+      <Directory Id="dir7C4943161F4326908FB17010A3E00062" Name="EF6ConsoleSample" >
+        <Directory Id="dirFE4B148A70A647221D7C840E963A9F38" Name="Properties" />
+      </Directory>
 
     </DirectoryRef>
   </Fragment>
@@ -199,9 +202,6 @@
       <Component Id="cmp02B7ADAC1AF98B2861F962D2C49B0F73" Directory="dir7C4943161F4326908FB17010A3E00061" Guid="*">
         <File Id="fil775C2CABF0EAF115CDFA6E41F6D6481D" KeyPath="yes" Source="..\ConsoleSample\ConsoleSample.csproj" />
       </Component>
-      <Component Id="cmpC9FD95CB5EC51D752EF1D95D3CA0385B" Directory="dir7C4943161F4326908FB17010A3E00061" Guid="*">
-        <File Id="fil0D8777B2EF78B6AEF05223F5301AA349" KeyPath="yes" Source="..\ConsoleSample\ConsoleSample.csproj.user" />
-      </Component>
       <Component Id="cmpD08D8056468BD258F5D8C7A06D3C22F3" Directory="dir7C4943161F4326908FB17010A3E00061" Guid="*">
         <File Id="filD26E03D38BDD88CD9D8C7FD1892C2F90" KeyPath="yes" Source="..\ConsoleSample\HelloDB.cs" />
       </Component>
@@ -210,6 +210,26 @@
       </Component>
       <Component Id="cmp2303E8F98F7DD361AF488C13268FD0AA" Directory="dirFE4B148A70A647221D7C840E963A9F37" Guid="*">
         <File Id="fil7840301D7484731F1AADB19B00BA60E3" KeyPath="yes" Source="..\ConsoleSample\Properties\AssemblyInfo.cs" />
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+
+  <Fragment>
+    <ComponentGroup Id="EF6ConsoleProject">
+      <Component Id="cmpC9FD95CB5EC51D752EF1D95D3CA0385C" Directory="dir7C4943161F4326908FB17010A3E00062" Guid="*">
+        <File Id="fil0D8777B2EF78B6AEF05223F5301AA34A" KeyPath="yes" Source="..\EF6ConsoleSample\App.config" />
+      </Component>
+      <Component Id="cmp02B7ADAC1AF98B2861F962D2C49B0F74" Directory="dir7C4943161F4326908FB17010A3E00062" Guid="*">
+        <File Id="fil775C2CABF0EAF115CDFA6E41F6D6481E" KeyPath="yes" Source="..\EF6ConsoleSample\EF6ConsoleSample.csproj" />
+      </Component>
+      <Component Id="cmpD08D8056468BD258F5D8C7A06D3C22F4" Directory="dir7C4943161F4326908FB17010A3E00062" Guid="*">
+        <File Id="filD26E03D38BDD88CD9D8C7FD1892C2F91" KeyPath="yes" Source="..\EF6ConsoleSample\packages.config" />
+      </Component>
+      <Component Id="cmpB14CD14ECE69EB3D8BF44DEA6EE83A0B" Directory="dir7C4943161F4326908FB17010A3E00062" Guid="*">
+        <File Id="filD94AF716847DA1EE07CAD401BF1AB6AB" KeyPath="yes" Source="..\EF6ConsoleSample\Program.cs" />
+      </Component>
+      <Component Id="cmp2303E8F98F7DD361AF488C13268FD0AB" Directory="dirFE4B148A70A647221D7C840E963A9F38" Guid="*">
+        <File Id="fil7840301D7484731F1AADB19B00BA60E4" KeyPath="yes" Source="..\EF6ConsoleSample\Properties\AssemblyInfo.cs" />
       </Component>
     </ComponentGroup>
   </Fragment>

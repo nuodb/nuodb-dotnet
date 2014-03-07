@@ -18,13 +18,20 @@ and limitations under the License.
 
 #if !__MonoCS__
 
-namespace NuoDb.Data.Client.EntityFramework.SqlGen
-{
-    using System.Collections.Generic;
-    using System.Globalization;
-    using System.Data.Metadata.Edm;
-    using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System;
 
+#if EF6
+using System.Data.Entity.Core.Metadata.Edm;
+
+namespace NuoDb.Data.Client.EntityFramework6.SqlGen
+#else
+using System.Data.Metadata.Edm;
+
+namespace NuoDb.Data.Client.EntityFramework.SqlGen
+#endif
+{
     /// <summary>
     /// <see cref="SymbolTable"/>
     /// This class represents an extent/nested select statement,

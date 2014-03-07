@@ -18,12 +18,19 @@ and limitations under the License.
 
 #if !__MonoCS__
 
-namespace NuoDb.Data.Client.EntityFramework.SqlGen
-{
-    using System.Collections.Generic;
-    using System.Data.Metadata.Edm;
-    using System;
+using System.Collections.Generic;
+using System;
 
+#if EF6
+using System.Data.Entity.Core.Metadata.Edm;
+
+namespace NuoDb.Data.Client.EntityFramework6.SqlGen
+#else
+using System.Data.Metadata.Edm;
+
+namespace NuoDb.Data.Client.EntityFramework.SqlGen
+#endif
+{
     /// <summary>
     /// A Join symbol is a special kind of Symbol.
     /// It has to carry additional information

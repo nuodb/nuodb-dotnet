@@ -37,7 +37,13 @@ using System.Data.Common;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
 
+#if EF6
+using NuoDb.Data.Client;
+
+namespace NuoDb.Data.Client.EntityFramework6
+#else
 namespace NuoDb.Data.Client.EntityFramework
+#endif
 {
     public class NuoDbConnectionFactory : IDbConnectionFactory
     {

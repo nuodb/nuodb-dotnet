@@ -6,11 +6,18 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data.Metadata.Edm;
 using System.Linq;
 using System.Text;
 
+#if EF6
+using System.Data.Entity.Core.Metadata.Edm;
+
+namespace NuoDb.Data.Client.EntityFramework6.SqlGen
+#else
+using System.Data.Metadata.Edm;
+
 namespace NuoDb.Data.Client.EntityFramework.SqlGen
+#endif
 {
     static class ScriptBuilder
     {

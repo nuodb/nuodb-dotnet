@@ -15,9 +15,6 @@ Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "DriverInstaller", "DriverIn
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Installers", "Installers", "{E46B6737-B30A-48B2-8596-704E7B4B7E91}"
-	ProjectSection(SolutionItems) = preProject
-		NuoDb.Data.Client.nuspec = NuoDb.Data.Client.nuspec
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuoDb.Data.Client_3.5", "NuoDb.Data.Client\NuoDb.Data.Client_3.5.csproj", "{0660AC83-4B1B-4DE0-9D8E-6049DE12E0CD}"
 EndProject
@@ -32,6 +29,17 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuoDb.Data.Client_4.0", "NuoDb.Data.Client\NuoDb.Data.Client_4.0.csproj", "{3A992E63-061C-47EE-862A-452334D70D90}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NUnitEFCodeFirstTestProject", "NUnitEFCodeFirstTestProject\NUnitEFCodeFirstTestProject.csproj", "{52F5C65F-9A64-416B-A888-AC04264E7D7C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.NuoDb", "EntityFramework.NuoDb\EntityFramework.NuoDb.csproj", "{96F008F5-3984-4074-B3BD-D60C7FDC7DA7}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NuGet", "NuGet", "{C36EFE7B-812A-4CAD-9835-B3992163972A}"
+	ProjectSection(SolutionItems) = preProject
+		EntityFramework.NuoDb.nuspec = EntityFramework.NuoDb.nuspec
+		install.ps1 = install.ps1
+		NuoDb.Data.Client.nuspec = NuoDb.Data.Client.nuspec
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EF6ConsoleSample", "EF6ConsoleSample\EF6ConsoleSample.csproj", "{13D1AF66-5CE1-416C-A073-010C8EEC99A0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -147,6 +155,30 @@ Global
 		{52F5C65F-9A64-416B-A888-AC04264E7D7C}.Release|Win32.ActiveCfg = Release|x86
 		{52F5C65F-9A64-416B-A888-AC04264E7D7C}.Release|x86.ActiveCfg = Release|x86
 		{52F5C65F-9A64-416B-A888-AC04264E7D7C}.Release|x86.Build.0 = Release|x86
+		{96F008F5-3984-4074-B3BD-D60C7FDC7DA7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{96F008F5-3984-4074-B3BD-D60C7FDC7DA7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{96F008F5-3984-4074-B3BD-D60C7FDC7DA7}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{96F008F5-3984-4074-B3BD-D60C7FDC7DA7}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{96F008F5-3984-4074-B3BD-D60C7FDC7DA7}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{96F008F5-3984-4074-B3BD-D60C7FDC7DA7}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{96F008F5-3984-4074-B3BD-D60C7FDC7DA7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{96F008F5-3984-4074-B3BD-D60C7FDC7DA7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{96F008F5-3984-4074-B3BD-D60C7FDC7DA7}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{96F008F5-3984-4074-B3BD-D60C7FDC7DA7}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{96F008F5-3984-4074-B3BD-D60C7FDC7DA7}.Release|Win32.ActiveCfg = Release|Any CPU
+		{96F008F5-3984-4074-B3BD-D60C7FDC7DA7}.Release|x86.ActiveCfg = Release|Any CPU
+		{13D1AF66-5CE1-416C-A073-010C8EEC99A0}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{13D1AF66-5CE1-416C-A073-010C8EEC99A0}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{13D1AF66-5CE1-416C-A073-010C8EEC99A0}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{13D1AF66-5CE1-416C-A073-010C8EEC99A0}.Debug|Win32.ActiveCfg = Debug|x86
+		{13D1AF66-5CE1-416C-A073-010C8EEC99A0}.Debug|x86.ActiveCfg = Debug|x86
+		{13D1AF66-5CE1-416C-A073-010C8EEC99A0}.Debug|x86.Build.0 = Debug|x86
+		{13D1AF66-5CE1-416C-A073-010C8EEC99A0}.Release|Any CPU.ActiveCfg = Release|x86
+		{13D1AF66-5CE1-416C-A073-010C8EEC99A0}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{13D1AF66-5CE1-416C-A073-010C8EEC99A0}.Release|Mixed Platforms.Build.0 = Release|x86
+		{13D1AF66-5CE1-416C-A073-010C8EEC99A0}.Release|Win32.ActiveCfg = Release|x86
+		{13D1AF66-5CE1-416C-A073-010C8EEC99A0}.Release|x86.ActiveCfg = Release|x86
+		{13D1AF66-5CE1-416C-A073-010C8EEC99A0}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -155,6 +187,8 @@ Global
 		{FDE45A07-57F4-4096-B262-97EFAD500BCC} = {5D8A89DF-9798-42C6-B906-25CC10006FCF}
 		{51CF36CD-7035-4CF9-A7E7-97C1BA85BB9B} = {5D8A89DF-9798-42C6-B906-25CC10006FCF}
 		{939FB16E-8217-493A-8CB4-A82D94A7F4EC} = {5D8A89DF-9798-42C6-B906-25CC10006FCF}
+		{13D1AF66-5CE1-416C-A073-010C8EEC99A0} = {5D8A89DF-9798-42C6-B906-25CC10006FCF}
 		{B96E5BA9-21F7-4F3D-865B-C7010E9087DE} = {E46B6737-B30A-48B2-8596-704E7B4B7E91}
+		{C36EFE7B-812A-4CAD-9835-B3992163972A} = {E46B6737-B30A-48B2-8596-704E7B4B7E91}
 	EndGlobalSection
 EndGlobal

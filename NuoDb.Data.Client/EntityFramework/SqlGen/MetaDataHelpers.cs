@@ -9,10 +9,17 @@ using System;
 using System.Data;
 using System.Data.Common;
 using System.Collections.Generic;
-using System.Data.Metadata.Edm;
 using System.Diagnostics;
 
+#if EF6
+using System.Data.Entity.Core.Metadata.Edm;
+
+namespace NuoDb.Data.Client.EntityFramework6.SqlGen
+#else
+using System.Data.Metadata.Edm;
+
 namespace NuoDb.Data.Client.EntityFramework.SqlGen
+#endif
 {
     /// <summary>
     /// A set of static helpers for type metadata
