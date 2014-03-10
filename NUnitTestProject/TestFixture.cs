@@ -1416,7 +1416,6 @@ namespace NUnitTestProject
 
         }
 
-#if !__MonoCS__
         [Test]
         public void TestAsynchronousReader1()
         {
@@ -1551,6 +1550,7 @@ namespace NUnitTestProject
             command.Connection.Close();
         }
 
+#if !__MonoCS__
         [Test]
         public void TestTimeZone()
         {

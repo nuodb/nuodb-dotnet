@@ -241,7 +241,6 @@ namespace NuoDb.Data.Client
 #if NET_40
             _pools = new ConcurrentDictionary<string, ConnectionPool>();
 #else
-            _syncRoot = new object();
             _pools = new Dictionary<string, ConnectionPool>();
 #endif
             _cleanupTimer = new Timer(CleanupCallback, null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1));
@@ -254,10 +253,7 @@ namespace NuoDb.Data.Client
 #if NET_40
             return _pools.GetOrAdd(connectionString, PrepareNewPool).GetConnection();
 #else
-            lock (_syncRoot)
-            {
-                return GetPoolOrCreateNew(connectionString).GetConnection();
-            }
+            return GetPoolOrCreateNew(connectionString).GetConnection();
 #endif
         }
 
@@ -266,10 +262,7 @@ namespace NuoDb.Data.Client
 #if NET_40
             _pools.GetOrAdd(connection.ConnectionString, PrepareNewPool).ReleaseConnection(connection);
 #else
-            lock (_syncRoot)
-            {
-                GetPoolOrCreateNew(connection.ConnectionString).ReleaseConnection(connection);
-            }
+            GetPoolOrCreateNew(connection.ConnectionString).ReleaseConnection(connection);
 #endif
         }
 
@@ -277,9 +270,13 @@ namespace NuoDb.Data.Client
         ConnectionPool GetPoolOrCreateNew(string connectionString)
         {
             var pool = default(ConnectionPool);
-            if (!_pools.TryGetValue(connectionString, out pool))
+            lock (_syncRoot)
             {
-                pool = PrepareNewPool(connectionString);
+                if (!_pools.TryGetValue(connectionString, out pool))
+                {
+                    pool = PrepareNewPool(connectionString);
+                    _pools.Add(connectionString, pool);
+                }
             }
             return pool;
         }
@@ -323,11 +320,7 @@ namespace NuoDb.Data.Client
 
         ConnectionPool PrepareNewPool(string connectionString)
         {
-            var pool = new ConnectionPool(connectionString);
-#if !NET_40
-            _pools.Add(connectionString, pool);
-#endif
-            return pool;
+            return new ConnectionPool(connectionString);
         }
 
         void CheckDisposed()
