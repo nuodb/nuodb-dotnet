@@ -40,6 +40,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NuGet", "NuGet", "{C36EFE7B
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EF6ConsoleSample", "EF6ConsoleSample\EF6ConsoleSample.csproj", "{13D1AF66-5CE1-416C-A073-010C8EEC99A0}"
+	ProjectSection(ProjectDependencies) = postProject
+		{3A992E63-061C-47EE-862A-452334D70D90} = {3A992E63-061C-47EE-862A-452334D70D90}
+		{96F008F5-3984-4074-B3BD-D60C7FDC7DA7} = {96F008F5-3984-4074-B3BD-D60C7FDC7DA7}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

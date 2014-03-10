@@ -38,12 +38,13 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\EntityFramework.6.0.2\lib\net40\EntityFramework.dll</HintPath>
     </Reference>
-    <Reference Include="EntityFramework.SqlServer">
-      <HintPath>..\packages\EntityFramework.6.0.2\lib\net40\EntityFramework.SqlServer.dll</HintPath>
-    </Reference>
     <Reference Include="NuoDb.Data.Client, Version=2.0.3.0, Culture=neutral, PublicKeyToken=e49f105b7fb49b38, processorArchitecture=MSIL">
       <Private>True</Private>
-      <HintPath>C:\Program Files (x86)\ADO.NET Driver for NuoDB\NET 4.0\NuoDb.Data.Client.dll</HintPath>
+      <HintPath>..\NET 4.0\NuoDb.Data.Client.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.NuoDb, Version=2.0.3.0, Culture=neutral, PublicKeyToken=e49f105b7fb49b38, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\EF 6.0\EntityFramework.NuoDb.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
