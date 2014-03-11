@@ -67,7 +67,7 @@
         <Component Id="Install_DotNetDriver_35" Guid="A04B6218-AD90-40E5-8001-918CF0D3EAF2">
           <File Id="NuoDb.Data.Client.35.dll"
                 KeyPath="yes"
-                Source="../NuoDb.Data.Client/bin/$(var.Configuration)35/NuoDb.Data.Client.dll"/>
+                Source="../NuoDb.Data.Client.3.5/bin/$(var.Configuration)/NuoDb.Data.Client.dll"/>
           <RegistryValue Id="R_DT_AssemblyFolders_35"
                           Root="HKLM"
                           Key="SOFTWARE\Microsoft\.NETFramework\AssemblyFolders\[ProductName]_35"
@@ -80,7 +80,7 @@
         <Component Id="Install_DotNetDriver_40" Guid="7EB79C05-04AE-4BD0-B934-E00104F00FC4">
           <File Id="NuoDb.Data.Client.40.dll"
                 KeyPath="yes"
-                Source="../NuoDb.Data.Client/bin/$(var.Configuration)40/NuoDb.Data.Client.dll"/>
+                Source="../NuoDb.Data.Client/bin/$(var.Configuration)/NuoDb.Data.Client.dll"/>
           <RegistryValue Id="R_DT_AssemblyFolders_40"
                           Root="HKLM"
                           Key="SOFTWARE\Microsoft\.NETFramework\AssemblyFolders\[ProductName]_40"
@@ -141,7 +141,7 @@
                 Name="NuoDb.Data.Client.dll"
                 Assembly=".net"
                 KeyPath="yes"
-                Source="../NuoDb.Data.Client/bin/$(var.Configuration)35/NuoDb.Data.Client.dll"/>
+                Source="../NuoDb.Data.Client.3.5/bin/$(var.Configuration)/NuoDb.Data.Client.dll"/>
         </Component>
 
         <Component Id="Register_DotNetProvider_20" Guid="30E05F54-C856-4645-8701-0AF31EF27BA6">
@@ -250,7 +250,7 @@
                 Name="NuoDb.Data.Client.dll"
                 Assembly=".net"
                 KeyPath="yes"
-                Source="../NuoDb.Data.Client/bin/$(var.Configuration)40/NuoDb.Data.Client.dll"/>
+                Source="../NuoDb.Data.Client/bin/$(var.Configuration)/NuoDb.Data.Client.dll"/>
         </Component>
         <Component Id="Register_GAC_EF" Guid="14603834-DF9E-46ED-9A44-285043C96351">
           <File Id="EntityFramework.NuoDb.dll_GAC"

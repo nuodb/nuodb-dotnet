@@ -18,7 +18,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug40\</OutputPath>
+    <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>TRACE;DEBUG;NET_40</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -26,7 +26,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release40\</OutputPath>
+    <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE;NET_40</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -134,8 +134,6 @@
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <None Include="App.config" />
-    <EmbeddedResource Include="EntityFramework\StoreSchemaDefinitionVersion3.ssdl" />
-    <EmbeddedResource Include="EntityFramework\StoreSchemaMappingVersion3.msl" />
     <None Include="Key.snk" />
     <None Include="packages.config">
       <SubType>Designer</SubType>

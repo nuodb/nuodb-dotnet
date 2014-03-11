@@ -59,9 +59,11 @@ namespace NuoDb.Data.Client.EntityFramework
 #else
         const string ProviderManifestResourceName = "NuoDb.Data.Client.EntityFramework.ProviderManifest.xml";
         const string StoreSchemaDefinitionResourceName = "NuoDb.Data.Client.EntityFramework.StoreSchemaDefinition.ssdl";
-        const string StoreSchemaDefinitionVersion3ResourceName = "NuoDb.Data.Client.EntityFramework.StoreSchemaDefinitionVersion3.ssdl";
         const string StoreSchemaMappingResourceName = "NuoDb.Data.Client.EntityFramework.StoreSchemaMapping.msl";
+#if NET_45 || EF6
+        const string StoreSchemaDefinitionVersion3ResourceName = "NuoDb.Data.Client.EntityFramework.StoreSchemaDefinitionVersion3.ssdl";
         const string StoreSchemaMappingVersion3ResourceName = "NuoDb.Data.Client.EntityFramework.StoreSchemaMappingVersion3.msl";
+#endif
 #endif
         internal const int BinaryMaxSize = Int32.MaxValue;
         internal const int VarcharMaxSize = 32765;
