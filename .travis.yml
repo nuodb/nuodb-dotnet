@@ -12,16 +12,16 @@ install:
  - sudo apt-get update && sudo apt-get install mono-devel mono-gmcs mono-complete cli-common-dev nunit-console
 
 before_script:
-  - ${NUODB_HOME}/bin/nuodb --chorus test --password bar --dba-user dba --dba-password goalie --verbose debug --archive /var/tmp/nuodb --initialize --force &
+  - ${NUODB_HOME}/bin/nuodb --chorus test --password bar --dba-user dba --dba-password goalie --archive /var/tmp/nuodb --initialize --force &
   - sleep 2
   - ${NUODB_HOME}/bin/nuodb --chorus test --password bar --dba-user dba --dba-password goalie &
   - sleep 2
 
 script:
- - xbuild /p:TargetFrameworkProfile="" /p:Configuration=Release NuoDb.Data.Client/Mono.NuoDb.Data.Client_3.5.csproj
- - sudo gacutil -i NuoDb.Data.Client/bin/Release35/NuoDb.Data.Client.dll
+ - xbuild /p:TargetFrameworkProfile="" /p:Configuration=Release NuoDb.Data.Client.3.5/Mono.NuoDb.Data.Client_3.5.csproj
+ - sudo gacutil -i NuoDb.Data.Client.3.5/bin/Release/NuoDb.Data.Client.dll
  - xbuild /p:TargetFrameworkProfile="" /p:Configuration=Release NuoDb.Data.Client/Mono.NuoDb.Data.Client_4.0.csproj
- - sudo gacutil -i NuoDb.Data.Client/bin/Release40/NuoDb.Data.Client.dll
+ - sudo gacutil -i NuoDb.Data.Client/bin/Release/NuoDb.Data.Client.dll
  - xbuild /p:TargetFrameworkProfile="" /p:Configuration=Release ConsoleSample/ConsoleSample.csproj
  - ConsoleSample/bin/Release/ConsoleSample.exe test
  - xbuild /p:TargetFrameworkProfile="" /p:Configuration=Release NUnitTestProject/Mono.NUnitTestProject.csproj
