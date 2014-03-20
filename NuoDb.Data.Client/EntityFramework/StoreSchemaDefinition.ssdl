@@ -53,24 +53,7 @@
           F.schema || '.' || F.tableName AS ParentId,
           F.field AS Name,
           F.fieldId AS Ordinal,
-          case F.flags
-            when 0 then true
-            when 1 then false
-            when 2 then true
-            when 3 then false
-            when 4 then true
-            when 5 then false
-            when 6 then true
-            when 7 then false
-            when 8 then true
-            when 9 then false
-            when 10 then true
-            when 11 then false
-            when 12 then true
-            when 13 then false
-            when 14 then true
-            when 15 then false
-          end AS IsNullable,
+          (MOD(F.flags,2) = 0) AS IsNullable,
           case
             when F.domainname is not null and F.domainname <> '' then F.schema || '.' || F.domainname
             else (SELECT name FROM SYSTEM.DATATYPES WHERE Id = F.datatype)
@@ -90,17 +73,10 @@
             when F.generator_sequence is not null and F.generator_sequence like '%IDENTITY_SEQUENCE' then true
             else false
           end AS IsIdentity,
-          case 
-            when F.flags >= 8 then true
-            when F.flags < 8 then false
-          end AS IsStoreGenerated,
+          (F.flags >= 8) AS IsStoreGenerated,
           F.defaultvalue AS Default
-        FROM SYSTEM.FIELDS as F,SYSTEM.TABLES as T
-        WHERE
-          F.schema != 'SYSTEM' AND
-          F.schema = T.schema AND
-          F.tableName = T.tableName AND
-          T.type = 'TABLE'
+        FROM SYSTEM.FIELDS as F
+        INNER JOIN SYSTEM.TABLES as T ON (T.schema != 'SYSTEM' AND T.type = 'TABLE' AND F.schema = T.schema AND F.tableName = T.tableName)
         ]]>
         </DefiningQuery>
     </EntitySet>
@@ -129,24 +105,7 @@
           F.schema || '.' || F.tableName AS ParentId,
           F.field AS Name,
           F.fieldId AS Ordinal,
-          case F.flags
-            when 0 then true
-            when 1 then false
-            when 2 then true
-            when 3 then false
-            when 4 then true
-            when 5 then false
-            when 6 then true
-            when 7 then false
-            when 8 then true
-            when 9 then false
-            when 10 then true
-            when 11 then false
-            when 12 then true
-            when 13 then false
-            when 14 then true
-            when 15 then false
-          end AS IsNullable,
+          (MOD(F.flags,2) = 0) AS IsNullable,
           case
             when F.domainname is not null and F.domainname <> '' then F.schema || '.' || F.domainname
             else (SELECT name FROM SYSTEM.DATATYPES WHERE Id = F.datatype)
@@ -166,17 +125,10 @@
             when F.generator_sequence is not null and F.generator_sequence like '%IDENTITY_SEQUENCE' then true
             else false
           end AS IsIdentity,
-          case 
-            when F.flags >= 8 then true
-            when F.flags < 8 then false
-          end AS IsStoreGenerated,
+          (F.flags >= 8) AS IsStoreGenerated,
           F.defaultvalue AS Default
-        FROM SYSTEM.FIELDS as F,SYSTEM.TABLES as T
-        WHERE
-          F.schema != 'SYSTEM' AND
-          F.schema = T.schema AND
-          F.tableName = T.tableName AND
-          T.type = 'VIEW'
+        FROM SYSTEM.FIELDS as F
+        INNER JOIN SYSTEM.TABLES as T ON (T.schema != 'SYSTEM' AND T.type = 'VIEW' AND F.schema = T.schema AND F.tableName = T.tableName)
         ]]>
       </DefiningQuery>
     </EntitySet>
@@ -312,11 +264,10 @@
             false AS IsDeferrable,
             false AS IsInitiallyDeferred
           FROM SYSTEM.FOREIGNKEYS AS fkey
-          LEFT JOIN SYSTEM.TABLES AS table
-          ON (fkey.FOREIGNTABLEID = table.TABLEID)
+          INNER JOIN SYSTEM.TABLES AS table
+          ON (table.schema != 'SYSTEM' AND fkey.FOREIGNTABLEID = table.TABLEID)
           WHERE 
-            fkey.position = 0 AND
-            table.schema != 'SYSTEM'
+            fkey.position = 0
         ]]>
       </DefiningQuery>
     </EntitySet>
@@ -357,24 +308,7 @@
           F.schema || '.' || F.tableName AS ParentId,
           F.field AS Name,
           F.fieldId AS Ordinal,
-          case F.flags
-            when 0 then true
-            when 1 then false
-            when 2 then true
-            when 3 then false
-            when 4 then true
-            when 5 then false
-            when 6 then true
-            when 7 then false
-            when 8 then true
-            when 9 then false
-            when 10 then true
-            when 11 then false
-            when 12 then true
-            when 13 then false
-            when 14 then true
-            when 15 then false
-          end AS IsNullable,
+          (MOD(F.flags,2) = 0) AS IsNullable,
           case
             when F.domainname is not null and F.domainname <> '' then F.schema || '.' || F.domainname
             else (SELECT name FROM SYSTEM.DATATYPES WHERE Id = F.datatype)
@@ -394,23 +328,48 @@
             when F.generator_sequence is not null and F.generator_sequence like '%IDENTITY_SEQUENCE' then true
             else false
           end AS IsIdentity,
-          case 
-            when F.flags >= 8 then true
-            when F.flags < 8 then false
-          end AS IsStoreGenerated,
+          (F.flags >= 8) AS IsStoreGenerated,
           F.defaultvalue AS Default
         FROM 
-          SYSTEM.INDEXFIELDS as I, 
-          SYSTEM.FIELDS as F,
-          SYSTEM.TABLES as T
+          SYSTEM.INDEXFIELDS as I
+        INNER JOIN
+          SYSTEM.TABLES as T ON (T.schema != 'SYSTEM' AND T.type = 'TABLE' AND I.schema = T.schema AND I.tableName = T.tableName)
+        INNER JOIN
+          SYSTEM.FIELDS as F ON (I.schema = F.schema AND I.tablename = F.tableName AND I.field = F.field)
+        ]]>
+      </DefiningQuery>
+    </EntitySet>
+
+    <!-- this entity avoids the usage of a costly nested INNER JOIN -->
+    <EntitySet Name="SForeignKeyConstraints-innerjoin-STableConstraints" EntityType="Self.Constraint">
+      <DefiningQuery>
+        <![CDATA[
+        SELECT
+          table.schema || '.' || table.tablename || '.FOREIGN' || fkey.foreigntableid || '_' || fkey.primarytableid AS Id,
+          case fkey.updaterule 
+            when 0 then 'CASCADE'
+            when 1 then 'RESTRICT'
+            when 2 then 'SET NULL'
+            when 3 then 'NO ACTION'
+            when 4 then 'SET DEFAULT'
+          end AS UpdateRule,
+          case fkey.deleterule 
+            when 0 then 'CASCADE'
+            when 1 then 'RESTRICT'
+            when 2 then 'SET NULL'
+            when 3 then 'NO ACTION'
+            when 4 then 'SET DEFAULT'
+          end AS DeleteRule,
+          table.schema || '.' || table.tablename AS ParentId,
+          'FOREIGN' || fkey.foreigntableid || '_' || fkey.primarytableid AS Name,
+          'FOREIGN KEY' AS ConstraintType,
+          false AS IsDeferrable,
+          false AS IsInitiallyDeferred
+        FROM SYSTEM.FOREIGNKEYS AS fkey
+        INNER JOIN SYSTEM.TABLES AS table
+        ON (table.schema != 'SYSTEM' AND fkey.FOREIGNTABLEID = table.TABLEID)
         WHERE
-          I.schema = F.schema AND
-          I.tablename = F.tableName AND
-          I.field = F.field AND
-          F.schema != 'SYSTEM' AND
-          F.schema = T.schema AND
-          F.tableName = T.tableName AND
-          T.type = 'TABLE'
+          fkey.position = 0
         ]]>
       </DefiningQuery>
     </EntitySet>
@@ -435,11 +394,10 @@
             when 4 then 'SET DEFAULT'
           end AS DeleteRule
         FROM SYSTEM.FOREIGNKEYS AS fkey
-        LEFT JOIN SYSTEM.TABLES AS table
-        ON (fkey.FOREIGNTABLEID = table.TABLEID)
+        INNER JOIN SYSTEM.TABLES AS table
+        ON (table.schema != 'SYSTEM' AND fkey.FOREIGNTABLEID = table.TABLEID)
         WHERE
-          fkey.position = 0 AND
-          table.schema != 'SYSTEM'
+          fkey.position = 0
         ]]>
       </DefiningQuery>
     </EntitySet>
@@ -453,15 +411,14 @@
           tableFrom.schema || '.' || tableFrom.tablename || '.FOREIGN' || fkey.foreigntableid || '_' || fkey.primarytableid AS ConstraintId,
           fkey.position AS Ordinal
         FROM SYSTEM.FOREIGNKEYS AS fkey
-        LEFT JOIN SYSTEM.TABLES AS tableTo
-        ON (fkey.primarytableid = tableTo.tableid)
-        LEFT JOIN SYSTEM.FIELDS AS columnsTo
-        ON (tableTo.schema = columnsTo.schema AND tableTo.tableName = columnsTo.tablename AND fkey.primaryfieldid = columnsTo.fieldid)
-        LEFT JOIN SYSTEM.TABLES AS tableFrom
-        ON (fkey.foreigntableid = tableFrom.tableid)
-        LEFT JOIN SYSTEM.FIELDS AS columnsFrom
+        INNER JOIN SYSTEM.TABLES AS tableFrom
+        ON (tableFrom.schema != 'SYSTEM' AND fkey.foreigntableid = tableFrom.tableid)
+        INNER JOIN SYSTEM.FIELDS AS columnsFrom
         ON (tableFrom.schema = columnsFrom.schema AND tableFrom.tableName = columnsFrom.tablename AND fkey.foreignfieldid = columnsFrom.fieldid)
-        WHERE tableFrom.schema != 'SYSTEM'
+        INNER JOIN SYSTEM.TABLES AS tableTo
+        ON (fkey.primarytableid = tableTo.tableid)
+        INNER JOIN SYSTEM.FIELDS AS columnsTo
+        ON (tableTo.schema = columnsTo.schema AND tableTo.tableName = columnsTo.tablename AND fkey.primaryfieldid = columnsTo.fieldid)
         ]]>
       </DefiningQuery>
     </EntitySet>
@@ -508,24 +465,7 @@
           F.schema || '.' || F.tableName AS ParentId,
           F.field AS Name,
           F.fieldId AS Ordinal,
-          case F.flags
-            when 0 then true
-            when 1 then false
-            when 2 then true
-            when 3 then false
-            when 4 then true
-            when 5 then false
-            when 6 then true
-            when 7 then false
-            when 8 then true
-            when 9 then false
-            when 10 then true
-            when 11 then false
-            when 12 then true
-            when 13 then false
-            when 14 then true
-            when 15 then false
-          end AS IsNullable,
+          (MOD(F.flags,2) = 0) AS IsNullable,
           case
             when F.domainname is not null and F.domainname <> '' then F.schema || '.' || F.domainname
             else (SELECT name FROM SYSTEM.DATATYPES WHERE Id = F.datatype)
@@ -545,23 +485,14 @@
             when F.generator_sequence is not null and F.generator_sequence like '%IDENTITY_SEQUENCE' then true
             else false
           end AS IsIdentity,
-          case 
-            when F.flags >= 8 then true
-            when F.flags < 8 then false
-          end AS IsStoreGenerated,
+          (F.flags >= 8) AS IsStoreGenerated,
           F.defaultvalue AS Default
         FROM 
-          SYSTEM.INDEXFIELDS as I, 
-          SYSTEM.FIELDS as F,
-          SYSTEM.TABLES as T
-        WHERE
-          I.schema = F.schema AND
-          I.tablename = F.tableName AND
-          I.field = F.field AND
-          F.schema != 'SYSTEM' AND
-          F.schema = T.schema AND
-          F.tableName = T.tableName AND
-          T.type = 'VIEW'
+          SYSTEM.INDEXFIELDS as I
+        INNER JOIN
+          SYSTEM.TABLES as T ON (T.schema != 'SYSTEM' AND T.type = 'VIEW' AND I.schema = T.schema AND I.tableName = T.tableName)
+        INNER JOIN
+          SYSTEM.FIELDS as F ON (I.schema = F.schema AND I.tablename = F.tableName AND I.field = F.field)
         ]]>
       </DefiningQuery>
     </EntitySet>

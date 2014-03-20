@@ -38,7 +38,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
     {
         private List<object> _sqlFragments;
 
-        private List<object> sqlFragments
+        public List<object> sqlFragments
         {
             get
             {

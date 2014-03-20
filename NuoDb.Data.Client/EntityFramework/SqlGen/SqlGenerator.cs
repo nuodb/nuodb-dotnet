@@ -81,7 +81,6 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
         }
 
         SymbolTable symbolTable = new SymbolTable();
-        static Symbol Suppressed = new Symbol("", null);
 
         /// <summary>
         /// VariableReferenceExpressions are allowed only as children of DbPropertyExpression
@@ -1479,15 +1478,11 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 
             result = new SqlBuilder();
             result.Append(instanceSql);
+            result.Append(".");
 
-            if (symbolTable.Lookup(e.Property.Name) != Suppressed)
-            {
-                result.Append(".");
-
-                // At this point the column name cannot be renamed, so we do
-                // not use a symbol.
-                result.Append(QuoteIdentifier(e.Property.Name));
-            }
+            // At this point the column name cannot be renamed, so we do
+            // not use a symbol.
+            result.Append(QuoteIdentifier(e.Property.Name));
             return result;
         }
 
@@ -1771,6 +1766,28 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
             return result;
         }
 
+        EntitySetBase SimplifyJoin(DbExpression inputExpression)
+        {
+            DbJoinExpression joinExpression = inputExpression as DbJoinExpression;
+            if (joinExpression != null &&
+                joinExpression.Left.Expression.ExpressionKind == DbExpressionKind.Scan &&
+                joinExpression.Right.Expression.ExpressionKind == DbExpressionKind.Scan)
+            {
+                EntitySet left = (joinExpression.Left.Expression as DbScanExpression).Target as EntitySet;
+                EntitySet right = (joinExpression.Right.Expression as DbScanExpression).Target as EntitySet;
+                if (left != null && right != null)
+                {
+                    string bundleName = left.Name + "-innerjoin-" + right.Name;
+                    if (left.EntityContainer.BaseEntitySets.Contains(bundleName))
+                    {
+                        // we have a better query for this join...
+                        return left.EntityContainer.BaseEntitySets[bundleName];
+                    }
+                }
+            }
+            return null;
+        }
+
         /// <summary>
         /// This is called by the relational nodes.  It does the following
         /// <list>
@@ -1810,33 +1827,6 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
             }
             else
             {
-                DbJoinExpression e = inputExpression as DbJoinExpression;
-                if (e != null &&
-                    e.ExpressionKind == DbExpressionKind.InnerJoin &&
-                    e.Left.Expression is DbScanExpression && e.Right.Expression is DbScanExpression &&
-                    (e.Left.Expression as DbScanExpression).Target is EntitySet && (e.Right.Expression as DbScanExpression).Target is EntitySet)
-                {
-                    EntitySet left = (e.Left.Expression as DbScanExpression).Target as EntitySet;
-                    EntitySet right = (e.Right.Expression as DbScanExpression).Target as EntitySet;
-                    string bundleName = left.Name + "-innerjoin-" + right.Name;
-                    if (left.EntityContainer.BaseEntitySets.Contains(bundleName))
-                    {
-                        // we have a better query for this join...
-                        EntitySetBase query = left.EntityContainer.BaseEntitySets[bundleName];
-
-                        // remove the aliases for the stripped join components from the symbol table
-                        foreach (Symbol s in result.FromExtents)
-                            symbolTable.Add(s.Name, Suppressed);
-
-                        // create a new SELECT
-                        result = new SqlSelectStatement();
-                        result.From.Append(GetTargetSql(query));
-                        fromSymbol = new Symbol(inputVarName, TypeUsage.CreateDefaultTypeUsage(query.ElementType));
-                        AddFromSymbol(result, inputVarName, fromSymbol, true);
-                        return result;
-                    }
-                }
-
                 // input was a join.
                 // we are reusing the select statement produced by a Join node
                 // we need to remove the original extents, and replace them with a
@@ -1847,6 +1837,21 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
                 fromSymbol = joinSymbol;
                 result.FromExtents.Clear();
                 result.FromExtents.Add(fromSymbol);
+
+                EntitySetBase simplifiedQuery = SimplifyJoin(inputExpression);
+                if (simplifiedQuery != null)
+                {
+                    string newSymbol = "Inner" + new Random().Next();
+                    foreach (Symbol s in joinSymbol.ExtentList)
+                    {
+                        s.NewName = newSymbol;
+                    }
+
+                    result.From.sqlFragments.Clear();
+                    result.From.Append(GetTargetSql(simplifiedQuery));
+                    result.From.Append(" AS ");
+                    result.From.Append(QuoteIdentifier(newSymbol));
+                }
             }
 
             return result;
@@ -2035,12 +2040,51 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
                 // symbols to our FromExtents list.  So, we need to remember the
                 // start of the child's entries.
                 int fromSymbolStart = result.FromExtents.Count;
-
+                int fromTableStart = result.From.sqlFragments.Count;
                 ISqlFragment fromExtentFragment = input.Expression.Accept(this);
-
                 isParentAJoinStack.Pop();
 
                 ProcessJoinInputResult(fromExtentFragment, result, input, fromSymbolStart);
+
+                EntitySetBase simplifiedQuery = SimplifyJoin(input.Expression);
+                if (simplifiedQuery != null)
+                {
+                    JoinSymbol joinSymbol = symbolTable.Lookup(input.VariableName) as JoinSymbol;
+                    string newSymbol = "Inner" + new Random().Next();
+                    foreach (Symbol s in joinSymbol.ExtentList)
+                    {
+                        s.NewName = newSymbol;
+                    }
+
+                    SqlSelectStatement stmt = null;
+                    if (needsJoinContext)
+                    {
+                        stmt = result;
+                    }
+                    else
+                    {
+                        if (joinSymbol.ExtentList.Count != 0)
+                        {
+                            for (int i = fromTableStart; i < result.From.sqlFragments.Count; i++)
+                            {
+                                SqlSelectStatement thisStmt = result.From.sqlFragments[i] as SqlSelectStatement;
+                                if (thisStmt != null && thisStmt.FromExtents.Contains(joinSymbol.ExtentList[0]))
+                                {
+                                    stmt = thisStmt;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if (stmt != null)
+                    {
+                        stmt.From.sqlFragments.Clear();
+                        stmt.From.Append(GetTargetSql(simplifiedQuery));
+                        stmt.From.Append(" AS ");
+                        stmt.From.Append(QuoteIdentifier(newSymbol));
+                    }
+                }
+
                 separator = joinString;
 
                 isLeftMostInput = false;
