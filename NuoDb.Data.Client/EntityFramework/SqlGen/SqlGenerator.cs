@@ -2009,6 +2009,10 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
                 result = CurrentSelectStatement;
             }
 
+            Dictionary<string, DbConstantExpression> constraints = new Dictionary<string, DbConstantExpression>();
+            if (joinCondition != null && joinKind == DbExpressionKind.InnerJoin)
+                ExtractConstraints(joinCondition, constraints);
+
             // Process each of the inputs, and then the joinCondition if it exists.
             // It would be nice if we could call VisitInputExpression - that would
             // avoid some code duplication
@@ -2021,6 +2025,43 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
             for (int idx = 0; idx < inputCount; idx++)
             {
                 DbExpressionBinding input = inputs[idx];
+                DbExpression processing = input.Expression;
+
+                if (constraints.Count != 0 && processing.ExpressionKind == DbExpressionKind.UnionAll)
+                {
+                    bool excludedChildren = false;
+                    DbExpression[] children = new DbExpression[] { (processing as DbUnionAllExpression).Left, (processing as DbUnionAllExpression).Right };
+                    // check whether the joinCondition is filtering out a branch of the union
+                    for (int j=0;!excludedChildren && j < children.Length;j++)
+                    {
+                        DbExpression child = children[j];
+                        if (child.ExpressionKind != DbExpressionKind.Project)
+                            continue;
+                        DbNewInstanceExpression expr = (child as DbProjectExpression).Projection as DbNewInstanceExpression;
+                        if (expr != null && expr.ResultType.EdmType.MetadataProperties.Contains("Members"))
+                        {
+                            IList<EdmMember> properties = expr.ResultType.EdmType.MetadataProperties["Members"].Value as IList<EdmMember>;
+                            for (int i=0;i< (properties==null?0:properties.Count);i++)
+                            {
+                                // verify that the projection is specifying a constant value
+                                DbExpression argument = expr.Arguments[i];
+                                if (argument.ExpressionKind != DbExpressionKind.Constant)
+                                    continue;
+                                // verify that the property has a constraint
+                                EdmMember property = properties[i];
+                                if (!constraints.ContainsKey(property.Name))
+                                    continue;
+                                // ok, if the values don't match, skip the processing of the union and directly translate the other branch
+                                if(!constraints[property.Name].Value.Equals((expr.Arguments[i] as DbConstantExpression).Value))
+                                {
+                                    processing = (j==0) ? children[1] : children[0];
+                                    excludedChildren = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
 
                 if (separator != string.Empty)
                 {
@@ -2029,10 +2070,10 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
                 result.From.Append(separator + " ");
                 // Change this if other conditions are required
                 // to force the child to produce a nested SqlStatement.
-                bool needsJoinContext = (input.Expression.ExpressionKind == DbExpressionKind.Scan)
+                bool needsJoinContext = (processing.ExpressionKind == DbExpressionKind.Scan)
                                         || (isLeftMostInput &&
-                                            (IsJoinExpression(input.Expression)
-                                             || IsApplyExpression(input.Expression)))
+                                            (IsJoinExpression(processing)
+                                             || IsApplyExpression(processing)))
                                         ;
 
                 isParentAJoinStack.Push(needsJoinContext ? true : false);
@@ -2041,12 +2082,12 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
                 // start of the child's entries.
                 int fromSymbolStart = result.FromExtents.Count;
                 int fromTableStart = result.From.sqlFragments.Count;
-                ISqlFragment fromExtentFragment = input.Expression.Accept(this);
+                ISqlFragment fromExtentFragment = processing.Accept(this);
                 isParentAJoinStack.Pop();
 
-                ProcessJoinInputResult(fromExtentFragment, result, input, fromSymbolStart);
+                ProcessJoinInputResult(fromExtentFragment, result, processing, input.VariableName, input.VariableType, fromSymbolStart);
 
-                EntitySetBase simplifiedQuery = SimplifyJoin(input.Expression);
+                EntitySetBase simplifiedQuery = SimplifyJoin(processing);
                 if (simplifiedQuery != null)
                 {
                     JoinSymbol joinSymbol = symbolTable.Lookup(input.VariableName) as JoinSymbol;
@@ -2113,6 +2154,34 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
             return result;
         }
 
+        // if the condition is made of AND and EQUALS between properties and constants, fill the dictionary with them
+        private void ExtractConstraints(DbExpression joinCondition, Dictionary<string, DbConstantExpression> result)
+        {
+            switch(joinCondition.ExpressionKind)
+            {
+                case DbExpressionKind.And:
+                    ExtractConstraints((joinCondition as DbAndExpression).Left, result);
+                    ExtractConstraints((joinCondition as DbAndExpression).Right, result);
+                    break;
+                case DbExpressionKind.Equals:
+                    if ((joinCondition as DbComparisonExpression).Left.ExpressionKind == DbExpressionKind.Constant &&
+                        (joinCondition as DbComparisonExpression).Right.ExpressionKind == DbExpressionKind.Property)
+                    {
+                        result.Add(((joinCondition as DbComparisonExpression).Right as DbPropertyExpression).Property.Name, (joinCondition as DbComparisonExpression).Left as DbConstantExpression);
+                    }
+                    else if ((joinCondition as DbComparisonExpression).Right.ExpressionKind == DbExpressionKind.Constant &&
+                        (joinCondition as DbComparisonExpression).Left.ExpressionKind == DbExpressionKind.Property)
+                    {
+                        result.Add(((joinCondition as DbComparisonExpression).Left as DbPropertyExpression).Property.Name, (joinCondition as DbComparisonExpression).Right as DbConstantExpression);
+                    }
+                    break;
+                default:
+                    // something else (e.g. OR): it means we cannot exclude non-matching subqueries from the result
+                    result.Clear();
+                    break;
+            }
+        }
+
         /// <summary>
         /// This is called from <see cref="VisitJoinExpression"/>.
         ///
@@ -2148,7 +2217,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
         /// <param name="input"></param>
         /// <param name="fromSymbolStart"></param>
         void ProcessJoinInputResult(ISqlFragment fromExtentFragment, SqlSelectStatement result,
-            DbExpressionBinding input, int fromSymbolStart)
+            DbExpression inputExpression, string inputVariableName, TypeUsage inputVariableType, int fromSymbolStart)
         {
             Symbol fromSymbol = null;
 
@@ -2164,11 +2233,11 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
                     {
                         List<Symbol> columns = AddDefaultColumns(sqlSelectStatement);
 
-                        if (IsJoinExpression(input.Expression)
-                            || IsApplyExpression(input.Expression))
+                        if (IsJoinExpression(inputExpression)
+                            || IsApplyExpression(inputExpression))
                         {
                             List<Symbol> extents = sqlSelectStatement.FromExtents;
-                            JoinSymbol newJoinSymbol = new JoinSymbol(input.VariableName, input.VariableType, extents);
+                            JoinSymbol newJoinSymbol = new JoinSymbol(inputVariableName, inputVariableType, extents);
                             newJoinSymbol.IsNestedJoin = true;
                             newJoinSymbol.ColumnList = columns;
 
@@ -2187,7 +2256,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
                             {
                                 // Note: sqlSelectStatement.FromExtents will not do, since it might
                                 // just be an alias of joinSymbol, and we want an actual JoinSymbol.
-                                JoinSymbol newJoinSymbol = new JoinSymbol(input.VariableName, input.VariableType, oldJoinSymbol.ExtentList);
+                                JoinSymbol newJoinSymbol = new JoinSymbol(inputVariableName, inputVariableType, oldJoinSymbol.ExtentList);
                                 // This indicates that the sqlSelectStatement is a blocking scope
                                 // i.e. it hides/renames extent columns
                                 newJoinSymbol.IsNestedJoin = true;
@@ -2203,22 +2272,22 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
                     result.From.Append(sqlSelectStatement);
                     result.From.Append(" )");
                 }
-                else if (input.Expression is DbScanExpression)
+                else if (inputExpression is DbScanExpression)
                 {
                     result.From.Append(fromExtentFragment);
                 }
                 else // bracket it
                 {
-                    WrapNonQueryExtent(result, fromExtentFragment, input.Expression.ExpressionKind);
+                    WrapNonQueryExtent(result, fromExtentFragment, inputExpression.ExpressionKind);
                 }
 
                 if (fromSymbol == null) // i.e. not a join symbol
                 {
-                    fromSymbol = new Symbol(input.VariableName, input.VariableType);
+                    fromSymbol = new Symbol(inputVariableName, inputVariableType);
                 }
 
 
-                AddFromSymbol(result, input.VariableName, fromSymbol);
+                AddFromSymbol(result, inputVariableName, fromSymbol);
                 result.AllJoinExtents.Add(fromSymbol);
             }
             else // result == fromExtentFragment.  The child extents have been merged into the parent's.
@@ -2238,7 +2307,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
                     extents.Add(result.FromExtents[i]);
                 }
                 result.FromExtents.RemoveRange(fromSymbolStart, result.FromExtents.Count - fromSymbolStart);
-                fromSymbol = new JoinSymbol(input.VariableName, input.VariableType, extents);
+                fromSymbol = new JoinSymbol(inputVariableName, inputVariableType, extents);
                 result.FromExtents.Add(fromSymbol);
                 // this Join Symbol does not have its own select statement, so we
                 // do not set IsNestedJoin
@@ -2246,7 +2315,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 
                 // We do not call AddFromSymbol(), since we do not want to add
                 // "AS alias" to the FROM clause- it has been done when the extent was added earlier.
-                symbolTable.Add(input.VariableName, fromSymbol);
+                symbolTable.Add(inputVariableName, fromSymbol);
             }
         }
 
