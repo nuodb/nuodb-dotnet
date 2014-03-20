@@ -121,26 +121,22 @@ namespace NuoDb.Data.Client.EntityFramework
             PrimitiveType edmPrimitiveType = base.StoreTypeNameToEdmPrimitiveType[storeTypeName];
             if (storeTypeName == "string" || storeTypeName == "varchar")
             {
-                Facet f;
-                int maxLength = -1;
-                if (storeType.Facets.TryGetValue("MaxLength", false, out f) && !f.IsUnbounded && f.Value != null)
-                    maxLength = (int)f.Value;
-                if (maxLength != -1)
-                    return TypeUsage.CreateStringTypeUsage(edmPrimitiveType, false, false, maxLength);
+                Facet fMaxLength = null;
+                storeType.Facets.TryGetValue("MaxLength", false, out fMaxLength);
+                if (fMaxLength != null && !fMaxLength.IsUnbounded && fMaxLength.Value != null)
+                    return TypeUsage.CreateStringTypeUsage(edmPrimitiveType, false, false, (int)fMaxLength.Value);
                 else
                     return TypeUsage.CreateStringTypeUsage(edmPrimitiveType, false, false);
             }
             else if (storeTypeName == "decimal" || storeTypeName == "numeric")
             {
-                Facet f;
-                byte precision = 0;
-                if (storeType.Facets.TryGetValue("Precision", false, out f) && !f.IsUnbounded && f.Value != null)
-                    precision = (byte)f.Value;
-                byte scale = 0;
-                if (storeType.Facets.TryGetValue("Scale", false, out f) && !f.IsUnbounded && f.Value != null)
-                    scale = (byte)f.Value;
-                if (precision != 0 && scale != 0)
-                    return TypeUsage.CreateDecimalTypeUsage(edmPrimitiveType, precision, scale);
+                Facet fPrecision = null;
+                storeType.Facets.TryGetValue("Precision", false, out fPrecision);
+                Facet fScale = null;
+                storeType.Facets.TryGetValue("Scale", false, out fScale);
+                if (fPrecision != null && !fPrecision.IsUnbounded && fPrecision.Value != null && 
+                    fScale != null && !fScale.IsUnbounded && fScale.Value != null)
+                    return TypeUsage.CreateDecimalTypeUsage(edmPrimitiveType, (byte)fPrecision.Value, (byte)fScale.Value);
                 else
                     return TypeUsage.CreateDecimalTypeUsage(edmPrimitiveType);
             }
