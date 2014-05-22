@@ -1050,7 +1050,7 @@ namespace NuoDb.Data.Client
                 table.Columns.Add("IsConcurrencyType", typeof(bool));
                 table.Columns.Add("IsLiteralsSupported", typeof(bool));
                 table.Columns.Add("LiteralPrefix", typeof(string));
-                table.Columns.Add("LitteralSuffix", typeof(string));
+                table.Columns.Add("LiteralSuffix", typeof(string));
                 table.Columns.Add("NativeDataType", typeof(string));    // NativeDataType is an OLE DB specific column for exposing the OLE DB type of the data type .
 
                 table.ReadXml(XmlReader.Create(typeof(NuoDbConnectionInternal).Assembly.GetManifestResourceStream("NuoDb.Data.Client.DataTypes.xml")));

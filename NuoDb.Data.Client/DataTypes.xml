@@ -194,7 +194,7 @@
     <IsSearchableWithLike>true</IsSearchableWithLike>
     <IsConcurrencyType>false</IsConcurrencyType>
     <LiteralPrefix>'</LiteralPrefix>
-    <LitteralSuffix>'</LitteralSuffix>
+    <LiteralSuffix>'</LiteralSuffix>
     <NativeDataType>date</NativeDataType>
   </DataTypes>
   <DataTypes>
@@ -217,7 +217,7 @@
     <MinimumScale>0</MinimumScale>
     <IsConcurrencyType>false</IsConcurrencyType>
     <LiteralPrefix>'</LiteralPrefix>
-    <LitteralSuffix>'</LitteralSuffix>
+    <LiteralSuffix>'</LiteralSuffix>
     <NativeDataType>time</NativeDataType>
   </DataTypes>
   <DataTypes>
@@ -237,7 +237,7 @@
     <IsSearchableWithLike>false</IsSearchableWithLike>
     <IsConcurrencyType>false</IsConcurrencyType>
     <LiteralPrefix>'</LiteralPrefix>
-    <LitteralSuffix>'</LitteralSuffix>
+    <LiteralSuffix>'</LiteralSuffix>
     <NativeDataType>datetime</NativeDataType>
   </DataTypes>
   <DataTypes>
@@ -276,7 +276,7 @@
     <IsSearchableWithLike>true</IsSearchableWithLike>
     <IsConcurrencyType>false</IsConcurrencyType>
     <LiteralPrefix>'</LiteralPrefix>
-    <LitteralSuffix>'</LitteralSuffix>
+    <LiteralSuffix>'</LiteralSuffix>
     <NativeDataType>text</NativeDataType>
   </DataTypes>
   <DataTypes>
@@ -296,7 +296,7 @@
     <IsSearchableWithLike>true</IsSearchableWithLike>
     <IsConcurrencyType>false</IsConcurrencyType>
     <LiteralPrefix>N'</LiteralPrefix>
-    <LitteralSuffix>'</LitteralSuffix>
+    <LiteralSuffix>'</LiteralSuffix>
     <NativeDataType>ntext</NativeDataType>
   </DataTypes>
   <DataTypes>
@@ -316,7 +316,7 @@
     <IsSearchableWithLike>true</IsSearchableWithLike>
     <IsConcurrencyType>false</IsConcurrencyType>
     <LiteralPrefix>'</LiteralPrefix>
-    <LitteralSuffix>'</LitteralSuffix>
+    <LiteralSuffix>'</LiteralSuffix>
     <NativeDataType>string</NativeDataType>
   </DataTypes>
   <DataTypes>
@@ -337,7 +337,7 @@
     <IsSearchableWithLike>true</IsSearchableWithLike>
     <IsConcurrencyType>false</IsConcurrencyType>
     <LiteralPrefix>'</LiteralPrefix>
-    <LitteralSuffix>'</LitteralSuffix>
+    <LiteralSuffix>'</LiteralSuffix>
     <NativeDataType>varchar</NativeDataType>
   </DataTypes>
   <DataTypes>
@@ -358,7 +358,7 @@
     <IsSearchableWithLike>true</IsSearchableWithLike>
     <IsConcurrencyType>false</IsConcurrencyType>
     <LiteralPrefix>'</LiteralPrefix>
-    <LitteralSuffix>'</LitteralSuffix>
+    <LiteralSuffix>'</LiteralSuffix>
     <NativeDataType>char</NativeDataType>
   </DataTypes>
   <DataTypes>
@@ -379,7 +379,7 @@
     <IsSearchableWithLike>true</IsSearchableWithLike>
     <IsConcurrencyType>false</IsConcurrencyType>
     <LiteralPrefix>N'</LiteralPrefix>
-    <LitteralSuffix>'</LitteralSuffix>
+    <LiteralSuffix>'</LiteralSuffix>
     <NativeDataType>nchar</NativeDataType>
   </DataTypes>
   <DataTypes>
@@ -400,7 +400,7 @@
     <IsSearchableWithLike>true</IsSearchableWithLike>
     <IsConcurrencyType>false</IsConcurrencyType>
     <LiteralPrefix>N'</LiteralPrefix>
-    <LitteralSuffix>'</LitteralSuffix>
+    <LiteralSuffix>'</LiteralSuffix>
     <NativeDataType>nvarchar</NativeDataType>
   </DataTypes>
   <DataTypes>
