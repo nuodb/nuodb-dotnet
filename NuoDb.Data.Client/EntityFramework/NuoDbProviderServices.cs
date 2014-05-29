@@ -55,12 +55,12 @@ using NuoDb.Data.Client.EntityFramework.SqlGen;
 namespace NuoDb.Data.Client.EntityFramework
 #endif
 {
-    class NuoDbProviderServices : DbProviderServices
+    public class NuoDbProviderServices : DbProviderServices
     {
         public const string ProviderInvariantName = "NuoDb.Data.Client";
         public static object Instance = new NuoDbProviderServices();
 
-        private NuoDbProviderServices()
+        public NuoDbProviderServices()
         {
 #if EF6
             AddDependencyResolver(new SingletonDependencyResolver<IDbConnectionFactory>(new NuoDbConnectionFactory()));
