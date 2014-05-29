@@ -1,10 +1,10 @@
 language: c
 
 env:
-  - NUODB_HOME=/opt/nuodb NUODB_VERSION=2.0.2
+  - NUODB_HOME=/opt/nuodb NUODB_VERSION=2.0.4
 
 before_install:
-  - wget http://www.nuodb.com/latest/releases/nuodb-${NUODB_VERSION}.linux.x64.deb --output-document=/var/tmp/nuodb.deb
+  - wget http://download.nuohub.org/nuodb-${NUODB_VERSION}.linux.x64.deb --output-document=/var/tmp/nuodb.deb
   - sudo dpkg -i /var/tmp/nuodb.deb
   - sleep 2
 
