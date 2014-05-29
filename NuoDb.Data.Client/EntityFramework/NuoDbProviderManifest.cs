@@ -72,8 +72,7 @@ namespace NuoDb.Data.Client.EntityFramework
 
         public NuoDbProviderManifest()
             : base(GetResource(ProviderManifestResourceName))
-        {
-        }
+        { }
 
         protected override XmlReader GetDbInformation(string informationType)
         {
