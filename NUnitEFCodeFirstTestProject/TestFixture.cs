@@ -16,6 +16,7 @@ namespace NUnitEFCodeFirstTestProject
         {
             Utils.CreateHockeyTable();
             Utils.CreatePersonTable();
+            Utils.CreateGameTable();
             tableRows = Utils.GetTableRows();
             
         }
@@ -51,6 +52,17 @@ namespace NUnitEFCodeFirstTestProject
 
                 Assert.AreEqual(1, count);
             }
+        }
+
+        [Test]
+        public void TestBigIntIdentity()
+        {
+            GameEntity data;
+            using (var context = new EFCodeFirstContext())
+            {
+                data = context.Set<GameEntity>().Find(1); 
+            } 
+            Assert.AreEqual(1, data.Id); 
         }
 
         [Test]

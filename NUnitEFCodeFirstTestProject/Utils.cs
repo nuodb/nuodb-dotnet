@@ -212,6 +212,37 @@ namespace NUnitEFCodeFirstTestProject
             }
         }
 
+        internal static void CreateGameTable()
+        {
+            using (NuoDbConnection connection = new NuoDbConnection(connectionString))
+            {
+                connection.Open();
+                try
+                {
+                    DbCommand dropCommand = new NuoDbCommand("drop table Game", connection);
+                    dropCommand.ExecuteNonQuery();
+                }
+                catch (Exception)
+                {
+                    // table is allowed to be missing
+                }
+                DbCommand createCommand = new NuoDbCommand("create table Game" +
+                                                            "(" +
+                                                            "   Id       bigint generated always as identity not NULL primary key," +
+                                                            "   Date     DATE" +
+                                                            ")", connection);
+                createCommand.ExecuteNonQuery();
+
+                DbCommand insertCommand = new NuoDbCommand("Insert into Game (Date) Values (?)", connection);
+                insertCommand.Prepare();
+
+                insertCommand.Parameters[0].Value = "1970-01-01";
+
+                insertCommand.ExecuteNonQuery();
+
+            }
+        }
+
         internal static int GetTableRows()
         {
             using (NuoDbConnection connection = new NuoDbConnection(connectionString))

@@ -10,6 +10,7 @@ namespace NUnitEFCodeFirstTestProject
     {       
         public DbSet<HockeyEntity> Hockey { get; set; }
         public DbSet<PersonEntity> Person { get; set; }
+        public DbSet<GameEntity> Game { get; set; }
 
         public EFCodeFirstContext()
             : base("EFCodeFirstTestFixture")
@@ -23,6 +24,7 @@ namespace NUnitEFCodeFirstTestProject
 
             modelBuilder.Entity<HockeyEntity>().ToTable("HOCKEY", "HOCKEY");
             modelBuilder.Entity<PersonEntity>().ToTable("PERSON", "HOCKEY");
+            modelBuilder.Entity<GameEntity>().ToTable("GAME", "HOCKEY");
         }
     }
 }
