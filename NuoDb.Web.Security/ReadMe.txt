@@ -20,7 +20,7 @@ An ASP.NET application can use this Membership provider by doing the following:
       <machineKey validationKey="C50B3C89CB21F4F1422FF158A5B42D0E8DB8CB5CDA1742572A487D9401E3400267682B202B746511891C1BAF47F8D25C07F6C39A104696DB51F17C529AD3CABE" decryptionKey="8A9BE8FD67AF6979E7D20198CFEA50DD3D3799C77AF2B72F" validation="SHA1"/>
       <membership defaultProvider="NuoDbProvider">
         <providers>
-          <add connectionStringName="NuoDbServices" enablePasswordRetrieval="true" enablePasswordReset="true" requiresQuestionAndAnswer="true" writeExceptionsToEventLog="true" name="NuoDbProvider" type="NuoDb.AspNet.Membership.NuoDbMembershipProvider"/>
+          <add connectionStringName="NuoDbServices" enablePasswordRetrieval="true" enablePasswordReset="true" requiresQuestionAndAnswer="true" writeExceptionsToEventLog="true" name="NuoDbProvider" type="NuoDb.Web.Security.NuoDbMembershipProvider"/>
         </providers>
       </membership>
     </system.web>

@@ -486,7 +486,7 @@ namespace NuoDb.Web.Security
                         cmd.Parameters.Add(passwordAnswerParameter);
                         IDbDataParameter isApprovedParameter = cmd.CreateParameter();
                         isApprovedParameter.Value = isApproved;
-                        isApprovedParameter.DbType = DbType.String;
+                        isApprovedParameter.DbType = DbType.Boolean;
                         cmd.Parameters.Add(isApprovedParameter);
                         IDbDataParameter commentParameter = cmd.CreateParameter();
                         commentParameter.Value = "";
@@ -510,7 +510,7 @@ namespace NuoDb.Web.Security
                         cmd.Parameters.Add(applicationNameParameter);
                         IDbDataParameter isLockedOutParameter = cmd.CreateParameter();
                         isLockedOutParameter.Value = false;
-                        isLockedOutParameter.DbType = DbType.Binary;
+                        isLockedOutParameter.DbType = DbType.Boolean;
                         cmd.Parameters.Add(isLockedOutParameter);
                         IDbDataParameter lastLockedOutDateParameter = cmd.CreateParameter();
                         lastLockedOutDateParameter.Value = createDate;
@@ -685,7 +685,7 @@ namespace NuoDb.Web.Security
                             users.Add(u);
                         }
 
-                        if (counter >= endIndex) { cmd.Cancel(); }
+                        if (counter >= endIndex) { break; }
 
                         counter++;
                     }
@@ -1364,7 +1364,7 @@ namespace NuoDb.Web.Security
                     cmd.Parameters.Add(commentParameter);
                     IDbDataParameter isApprovedParameter = cmd.CreateParameter();
                     isApprovedParameter.Value = user.IsApproved;
-                    isApprovedParameter.DbType = DbType.String;
+                    isApprovedParameter.DbType = DbType.Boolean;
                     cmd.Parameters.Add(isApprovedParameter);
                     IDbDataParameter usernameParameter = cmd.CreateParameter();
                     usernameParameter.Value = user.UserName;
@@ -1615,7 +1615,7 @@ namespace NuoDb.Web.Security
 
                                 IDbDataParameter isLockedOutParameter = updateCmd.CreateParameter();
                                 isLockedOutParameter.Value = true;
-                                isLockedOutParameter.DbType = DbType.Binary;
+                                isLockedOutParameter.DbType = DbType.Boolean;
                                 updateCmd.Parameters.Add(isLockedOutParameter);
                                 IDbDataParameter lastLockedOutDateParameter = updateCmd.CreateParameter();
                                 lastLockedOutDateParameter.Value = DateTime.Now;
@@ -1847,7 +1847,7 @@ namespace NuoDb.Web.Security
                             users.Add(u);
                         }
 
-                        if (counter >= endIndex) { cmd.Cancel(); }
+                        if (counter >= endIndex) { break; }
 
                         counter++;
                     }
@@ -1931,7 +1931,7 @@ namespace NuoDb.Web.Security
                             users.Add(u);
                         }
 
-                        if (counter >= endIndex) { cmd.Cancel(); }
+                        if (counter >= endIndex) { break; }
 
                         counter++;
                     }
