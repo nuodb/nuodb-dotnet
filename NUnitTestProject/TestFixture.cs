@@ -5,6 +5,7 @@ using System.Data.Common;
 using System.Data;
 using System.Collections;
 using System.Threading;
+using System.Transactions;
 
 namespace NUnitTestProject
 {
@@ -268,6 +269,44 @@ namespace NUnitTestProject
                 {
                     Utils.DropTable(connection, "xyz");
                 }
+            }
+        }
+
+        [Test]
+        public void TestTransactionScope()
+        {
+            int count1 = -1;
+            using (TransactionScope scope = new TransactionScope())
+            {
+                using (NuoDbConnection connection = new NuoDbConnection(connectionString))
+                {
+                    connection.Open();
+
+                    DbCommand countCommand = connection.CreateCommand();
+                    countCommand.CommandText = "select count(*) from hockey";
+
+                    DbCommand updateCommand = connection.CreateCommand();
+                    updateCommand.CommandText = "insert into hockey (number, name) values (99, 'xxxx')";
+
+                    count1 = (int)countCommand.ExecuteScalar();
+                    updateCommand.ExecuteNonQuery();
+                    int count2 = (int)countCommand.ExecuteScalar();
+
+                    Assert.AreEqual(count2, count1 + 1);
+
+                    // don't call scope.Complete(), so that the transaction is aborted
+                }
+            }
+            // verify that the data hasn't been changed
+            using (NuoDbConnection connection = new NuoDbConnection(connectionString))
+            {
+                connection.Open();
+
+                DbCommand countCommand = connection.CreateCommand();
+                countCommand.CommandText = "select count(*) from hockey";
+
+                int count3 = (int)countCommand.ExecuteScalar();
+                Assert.AreEqual(count3, count1);
             }
         }
 
