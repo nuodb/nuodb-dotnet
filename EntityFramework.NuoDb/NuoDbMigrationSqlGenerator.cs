@@ -273,32 +273,38 @@ namespace NuoDb.Data.Client.EntityFramework6
 
 		protected virtual IEnumerable<MigrationStatement> Generate(DropTableOperation operation)
 		{
-			return Enumerable.Empty<MigrationStatement>();
+			var builder = new StringBuilder();
+			builder.Append("DROP TABLE ");
+			builder.Append(Name(operation.Name));
+			yield return Statement(builder.ToString());
 		}
 
 		protected virtual IEnumerable<MigrationStatement> Generate(HistoryOperation operation)
 		{
+#warning Finish
 			return Enumerable.Empty<MigrationStatement>();
 		}
 
 		protected virtual IEnumerable<MigrationStatement> Generate(MoveProcedureOperation operation)
 		{
-			return Enumerable.Empty<MigrationStatement>();
+			throw new NotImplementedException();
 		}
 
 		protected virtual IEnumerable<MigrationStatement> Generate(MoveTableOperation operation)
 		{
-			return Enumerable.Empty<MigrationStatement>();
-		}
-
-		protected virtual IEnumerable<MigrationStatement> Generate(NotSupportedOperation operation)
-		{
-			return Enumerable.Empty<MigrationStatement>();
+			throw new NotImplementedException();
 		}
 
 		protected virtual IEnumerable<MigrationStatement> Generate(RenameColumnOperation operation)
 		{
-			return Enumerable.Empty<MigrationStatement>();
+			var builder = new StringBuilder();
+			builder.Append("ALTER TABLE ");
+			builder.Append(Quote(operation.Table));
+			builder.Append(" RENAME COLUMN ");
+			builder.Append(Quote(operation.Name));
+			builder.Append(" TO ");
+			builder.Append(Quote(operation.NewName));
+			yield return Statement(builder.ToString());
 		}
 
 		protected virtual IEnumerable<MigrationStatement> Generate(RenameIndexOperation operation)

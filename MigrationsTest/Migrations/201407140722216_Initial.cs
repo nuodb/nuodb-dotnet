@@ -19,6 +19,8 @@ namespace MigrationsTest.Migrations
 			AlterColumn("hockey.SomeTable", "SomeColumn", c => c.Long(nullable: false, defaultValue: 10));
 			CreateIndex("hockey.SomeTable", "FooBar", unique: false, name: "IX_SomeTable_FooBar");
 			CreateIndex("hockey.SomeTable", "FooBar", unique: true, name: "UX_SomeTable_FooBar");
+			DropTable("foo.test");
+			RenameColumn("hockey.TestEntites", "FooBar", "Renamed");
 		}
 
 		public override void Down()
