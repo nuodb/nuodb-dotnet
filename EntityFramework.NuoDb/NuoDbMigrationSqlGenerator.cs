@@ -291,7 +291,7 @@ namespace NuoDb.Data.Client.EntityFramework6
 
 		protected virtual IEnumerable<MigrationStatement> Generate(MoveTableOperation operation)
 		{
-			throw new NotImplementedException();
+			throw new NotSupportedException("'MoveTableOperation' is not supported.");
 		}
 
 		protected virtual IEnumerable<MigrationStatement> Generate(RenameColumnOperation operation)
@@ -381,12 +381,6 @@ namespace NuoDb.Data.Client.EntityFramework6
 		protected virtual string Generate(bool defaultValue)
 		{
 			return SqlGenerator.FormatBoolean(defaultValue);
-		}
-
-		protected virtual string Generate(DateTimeOffset defaultValue)
-		{
-#warning Not done!
-			return "'" + defaultValue.ToString(""/*DateTimeOffsetFormat*/, CultureInfo.InvariantCulture) + "'";
 		}
 
 		protected virtual string Generate(Guid defaultValue)
