@@ -89,12 +89,37 @@ namespace NuoDb.Data.Client.EntityFramework6
 
 		protected virtual IEnumerable<MigrationStatement> Generate(AddForeignKeyOperation operation)
 		{
-			return Enumerable.Empty<MigrationStatement>();
+			var builder = new StringBuilder();
+			builder.Append("ALTER TABLE ");
+			builder.Append(Name(operation.DependentTable));
+			builder.Append(" ADD CONSTRAINT ");
+			builder.Append(Quote(operation.Name));
+			builder.Append(" FOREIGN KEY (");
+			builder.Append(JoinColumns(operation.DependentColumns.Select(Quote)));
+			builder.Append(") REFERENCES ");
+			builder.Append(Name(operation.PrincipalTable));
+			builder.Append(" (");
+			builder.Append(JoinColumns(operation.PrincipalColumns.Select(Quote)));
+			builder.Append(")");
+			if (operation.CascadeDelete)
+			{
+				builder.Append(" ON DELETE CASCADE");
+			}
+			return new[] { Statement(builder.ToString()) };
 		}
 
 		protected virtual IEnumerable<MigrationStatement> Generate(AddPrimaryKeyOperation operation)
 		{
-			return Enumerable.Empty<MigrationStatement>();
+			var builder = new StringBuilder();
+			builder.Append("ALTER TABLE ");
+			builder.Append(Name(operation.Table));
+			builder.Append(" ADD CONSTRAINT ");
+			builder.Append(Quote(operation.Name));
+			builder.Append(" PRIMARY KEY ");
+			builder.Append("(");
+			builder.Append(JoinColumns(operation.Columns.Select(Quote)));
+			builder.Append(")");
+			return new[] { Statement(builder.ToString()) };
 		}
 
 		protected virtual IEnumerable<MigrationStatement> Generate(AlterColumnOperation operation)
@@ -382,6 +407,11 @@ namespace NuoDb.Data.Client.EntityFramework6
 		static DbConnection CreateConnection()
 		{
 			return DbConfiguration.DependencyResolver.GetService<DbProviderFactory>(NuoDbProviderServices.ProviderInvariantName).CreateConnection();
+		}
+
+		static string JoinColumns(IEnumerable<string> columns)
+		{
+			return string.Join(", ", columns);
 		}
 
 		#endregion
