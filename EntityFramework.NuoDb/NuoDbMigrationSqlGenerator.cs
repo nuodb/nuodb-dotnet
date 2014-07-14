@@ -215,7 +215,7 @@ namespace NuoDb.Data.Client.EntityFramework6
 			builder.Append(Name(operation.Name));
 			builder.Append(" (");
 			builder.AppendLine();
-			JoinColumns(operation.Columns.Select(Generate), true);
+			builder.Append(JoinColumns(operation.Columns.Select(Generate), true));
 			builder.Append(")");
 			yield return Statement(builder.ToString());
 
