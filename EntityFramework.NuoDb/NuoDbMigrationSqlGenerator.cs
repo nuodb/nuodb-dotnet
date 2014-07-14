@@ -53,7 +53,7 @@ namespace NuoDb.Data.Client.EntityFramework6
 
 		protected virtual IEnumerable<MigrationStatement> Generate(SqlOperation operation)
 		{
-			return new[] { Statement(operation.Sql, operation.SuppressTransaction) };
+			yield return Statement(operation.Sql, operation.SuppressTransaction);
 		}
 
 		protected virtual IEnumerable<MigrationStatement> Generate(AddColumnOperation operation)
@@ -84,7 +84,7 @@ namespace NuoDb.Data.Client.EntityFramework6
 				}
 			}
 
-			return new[] { Statement(builder.ToString()) };
+			yield return Statement(builder.ToString());
 		}
 
 		protected virtual IEnumerable<MigrationStatement> Generate(AddForeignKeyOperation operation)
@@ -105,7 +105,7 @@ namespace NuoDb.Data.Client.EntityFramework6
 			{
 				builder.Append(" ON DELETE CASCADE");
 			}
-			return new[] { Statement(builder.ToString()) };
+			yield return Statement(builder.ToString());
 		}
 
 		protected virtual IEnumerable<MigrationStatement> Generate(AddPrimaryKeyOperation operation)
@@ -119,7 +119,7 @@ namespace NuoDb.Data.Client.EntityFramework6
 			builder.Append("(");
 			builder.Append(JoinColumns(operation.Columns.Select(Quote)));
 			builder.Append(")");
-			return new[] { Statement(builder.ToString()) };
+			yield return Statement(builder.ToString());
 		}
 
 		protected virtual IEnumerable<MigrationStatement> Generate(AlterColumnOperation operation)
