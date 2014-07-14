@@ -75,6 +75,7 @@ namespace NuoDb.Data.Client.EntityFramework6
 
 				if (column.Type == PrimitiveTypeKind.DateTime)
 				{
+#warning What's the default for NuoDB?
 					builder.Append(Generate(DateTime.Parse("1900-01-01 00:00:00", CultureInfo.InvariantCulture)));
 				}
 				else
