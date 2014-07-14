@@ -1,4 +1,9 @@
-﻿using System;
+﻿/****************************************************************************
+*  Author: Jiri Cincura (jiri@cincura.net)
+*  Based on SqlCeMigrationSqlGenerator
+****************************************************************************/
+
+using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Data.Entity;
