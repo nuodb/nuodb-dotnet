@@ -14,165 +14,140 @@ namespace NuoDb.Data.Client.EntityFramework6
 
 		public override IEnumerable<MigrationStatement> Generate(IEnumerable<MigrationOperation> migrationOperations, string providerManifestToken)
 		{
-			return migrationOperations.Select(Generate);
+			return GenerateStatements(migrationOperations).ToArray();
 		}
 
-		protected virtual MigrationStatement Generate(AddColumnOperation operation)
+		protected IEnumerable<MigrationStatement> Generate(MigrationOperation operation)
 		{
-			return null;
+			throw new NotSupportedException(string.Format("Unknown operation '{0}'.", operation.GetType().FullName));
 		}
 
-		protected virtual MigrationStatement Generate(AddForeignKeyOperation operation)
+		protected virtual IEnumerable<MigrationStatement> Generate(UpdateDatabaseOperation operation)
 		{
-			return null;
+			return GenerateStatements(operation.Migrations.SelectMany(x => x.Operations));
 		}
 
-		protected virtual MigrationStatement Generate(AddPrimaryKeyOperation operation)
+		protected virtual IEnumerable<MigrationStatement> Generate(SqlOperation operation)
 		{
-			return null;
+			return new[] { Statement(operation.Sql, operation.SuppressTransaction) };
 		}
 
-		protected virtual MigrationStatement Generate(AlterColumnOperation operation)
+		protected virtual IEnumerable<MigrationStatement> Generate(AddColumnOperation operation)
 		{
-			return null;
+			return Enumerable.Empty<MigrationStatement>();
 		}
 
-		protected virtual MigrationStatement Generate(AlterProcedureOperation operation)
+		protected virtual IEnumerable<MigrationStatement> Generate(AddForeignKeyOperation operation)
 		{
-			return null;
+			return Enumerable.Empty<MigrationStatement>();
 		}
 
-		protected virtual MigrationStatement Generate(AlterTableOperation operation)
+		protected virtual IEnumerable<MigrationStatement> Generate(AddPrimaryKeyOperation operation)
 		{
-			return null;
+			return Enumerable.Empty<MigrationStatement>();
 		}
 
-		protected virtual MigrationStatement Generate(CreateIndexOperation operation)
+		protected virtual IEnumerable<MigrationStatement> Generate(AlterColumnOperation operation)
 		{
-			return null;
+			return Enumerable.Empty<MigrationStatement>();
 		}
 
-		protected virtual MigrationStatement Generate(CreateProcedureOperation operation)
+		protected virtual IEnumerable<MigrationStatement> Generate(AlterProcedureOperation operation)
 		{
-			return null;
+			return Enumerable.Empty<MigrationStatement>();
 		}
 
-		protected virtual MigrationStatement Generate(CreateTableOperation operation)
+		protected virtual IEnumerable<MigrationStatement> Generate(AlterTableOperation operation)
 		{
-			return null;
+			return Enumerable.Empty<MigrationStatement>();
 		}
 
-		protected virtual MigrationStatement Generate(DropColumnOperation operation)
+		protected virtual IEnumerable<MigrationStatement> Generate(CreateIndexOperation operation)
 		{
-			return null;
+			return Enumerable.Empty<MigrationStatement>();
 		}
 
-		protected virtual MigrationStatement Generate(DropForeignKeyOperation operation)
+		protected virtual IEnumerable<MigrationStatement> Generate(CreateProcedureOperation operation)
 		{
-			return null;
+			return Enumerable.Empty<MigrationStatement>();
 		}
 
-		protected virtual MigrationStatement Generate(DropIndexOperation operation)
+		protected virtual IEnumerable<MigrationStatement> Generate(CreateTableOperation operation)
 		{
-			return null;
+			return Enumerable.Empty<MigrationStatement>();
 		}
 
-		protected virtual MigrationStatement Generate(DropPrimaryKeyOperation operation)
+		protected virtual IEnumerable<MigrationStatement> Generate(DropColumnOperation operation)
 		{
-			return null;
+			return Enumerable.Empty<MigrationStatement>();
 		}
 
-		protected virtual MigrationStatement Generate(DropProcedureOperation operation)
+		protected virtual IEnumerable<MigrationStatement> Generate(DropForeignKeyOperation operation)
 		{
-			return null;
+			return Enumerable.Empty<MigrationStatement>();
 		}
 
-		protected virtual MigrationStatement Generate(DropTableOperation operation)
+		protected virtual IEnumerable<MigrationStatement> Generate(DropIndexOperation operation)
 		{
-			return null;
+			return Enumerable.Empty<MigrationStatement>();
 		}
 
-		protected virtual MigrationStatement Generate(ForeignKeyOperation operation)
+		protected virtual IEnumerable<MigrationStatement> Generate(DropPrimaryKeyOperation operation)
 		{
-			return null;
+			return Enumerable.Empty<MigrationStatement>();
 		}
 
-		protected virtual MigrationStatement Generate(HistoryOperation operation)
+		protected virtual IEnumerable<MigrationStatement> Generate(DropProcedureOperation operation)
 		{
-			return null;
+			return Enumerable.Empty<MigrationStatement>();
 		}
 
-		protected virtual MigrationStatement Generate(IndexOperation operation)
+		protected virtual IEnumerable<MigrationStatement> Generate(DropTableOperation operation)
 		{
-			return null;
+			return Enumerable.Empty<MigrationStatement>();
 		}
 
-		protected virtual MigrationStatement Generate(MigrationOperation operation)
+		protected virtual IEnumerable<MigrationStatement> Generate(HistoryOperation operation)
 		{
-			return null;
+			return Enumerable.Empty<MigrationStatement>();
 		}
 
-		protected virtual MigrationStatement Generate(MoveProcedureOperation operation)
+		protected virtual IEnumerable<MigrationStatement> Generate(MoveProcedureOperation operation)
 		{
-			return null;
+			return Enumerable.Empty<MigrationStatement>();
 		}
 
-		protected virtual MigrationStatement Generate(MoveTableOperation operation)
+		protected virtual IEnumerable<MigrationStatement> Generate(MoveTableOperation operation)
 		{
-			return null;
+			return Enumerable.Empty<MigrationStatement>();
 		}
 
-		protected virtual MigrationStatement Generate(NotSupportedOperation operation)
+		protected virtual IEnumerable<MigrationStatement> Generate(NotSupportedOperation operation)
 		{
-			return null;
+			return Enumerable.Empty<MigrationStatement>();
 		}
 
-		protected virtual MigrationStatement Generate(PrimaryKeyOperation operation)
+		protected virtual IEnumerable<MigrationStatement> Generate(RenameColumnOperation operation)
 		{
-			return null;
+			return Enumerable.Empty<MigrationStatement>();
 		}
 
-		protected virtual MigrationStatement Generate(ProcedureOperation operation)
+		protected virtual IEnumerable<MigrationStatement> Generate(RenameIndexOperation operation)
 		{
-			return null;
+			return Enumerable.Empty<MigrationStatement>();
 		}
 
-		protected virtual MigrationStatement Generate(PropertyModel operation)
+		protected virtual IEnumerable<MigrationStatement> Generate(RenameProcedureOperation operation)
 		{
-			return null;
+			return Enumerable.Empty<MigrationStatement>();
 		}
 
-		protected virtual MigrationStatement Generate(RenameColumnOperation operation)
+		protected virtual IEnumerable<MigrationStatement> Generate(RenameTableOperation operation)
 		{
-			return null;
+			return Enumerable.Empty<MigrationStatement>();
 		}
 
-		protected virtual MigrationStatement Generate(RenameIndexOperation operation)
-		{
-			return null;
-		}
-
-		protected virtual MigrationStatement Generate(RenameProcedureOperation operation)
-		{
-			return null;
-		}
-
-		protected virtual MigrationStatement Generate(RenameTableOperation operation)
-		{
-			return null;
-		}
-
-		protected virtual MigrationStatement Generate(SqlOperation operation)
-		{
-			return null;
-		}
-
-		protected virtual MigrationStatement Generate(UpdateDatabaseOperation operation)
-		{
-			return null;
-		}
-
-		protected MigrationStatement Statement(string sql, bool suppressTransaction = false)
+		protected MigrationStatement Statement(string sql, bool suppressTransaction)
 		{
 			return new MigrationStatement
 			{
@@ -180,6 +155,11 @@ namespace NuoDb.Data.Client.EntityFramework6
 				SuppressTransaction = suppressTransaction,
 				BatchTerminator = string.Empty
 			};
+		}
+
+		IEnumerable<MigrationStatement> GenerateStatements(IEnumerable<MigrationOperation> operations)
+		{
+			return operations.Select<dynamic, IEnumerable<MigrationStatement>>(x => Generate(x)).SelectMany(x => x);
 		}
 	}
 }
