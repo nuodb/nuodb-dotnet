@@ -16,6 +16,7 @@ namespace MigrationsTest.Migrations
 					})
 				.PrimaryKey(t => t.Id);
 			AddColumn("hockey.SomeTable", "SomeColumn", c => c.Int(nullable: false, defaultValue: 6));
+			AddColumn("hockey.SomeTable", "SomeColumn2", c => c.DateTime(nullable: false));
 			AlterColumn("hockey.SomeTable", "SomeColumn", c => c.Long(nullable: false, defaultValue: 10));
 			CreateIndex("hockey.SomeTable", "FooBar", unique: false, name: "IX_SomeTable_FooBar");
 			CreateIndex("hockey.SomeTable", "FooBar", unique: true, name: "UX_SomeTable_FooBar");
