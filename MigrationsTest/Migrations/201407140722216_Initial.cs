@@ -16,6 +16,7 @@ namespace MigrationsTest.Migrations
                     })
                 .PrimaryKey(t => t.Id);
 			AddColumn("hockey.SomeTable", "SomeColumn", c => c.Int(nullable: false, defaultValue: 6));
+			AlterColumn("hockey.SomeTable", "SomeColumn", c => c.Long(nullable: false, defaultValue: 10));
 		}
         
         public override void Down()
