@@ -195,20 +195,6 @@ namespace NuoDb.Data.Client.EntityFramework6
 
 		protected virtual IEnumerable<MigrationStatement> Generate(CreateTableOperation operation)
 		{
-#warning Schemas
-			//var databaseName = DatabaseName.Parse(operation.Name);
-
-			//if (!string.IsNullOrWhiteSpace(databaseName.Schema))
-			//{
-			//	if (!databaseName.Schema.EqualsIgnoreCase("dbo")
-			//		&& !_generatedSchemas.Contains(databaseName.Schema))
-			//	{
-			//		GenerateCreateSchema(databaseName.Schema);
-
-			//		_generatedSchemas.Add(databaseName.Schema);
-			//	}
-			//}
-
 			var builder = new StringBuilder();
 			builder.Append("CREATE TABLE ");
 			builder.Append(Name(operation.Name));
