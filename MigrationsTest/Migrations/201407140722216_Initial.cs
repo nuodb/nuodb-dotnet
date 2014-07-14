@@ -15,6 +15,7 @@ namespace MigrationsTest.Migrations
                         FooBar = c.Int(nullable: false),
                     })
                 .PrimaryKey(t => t.Id);
+			AddColumn("hockey.SomeTable", "SomeColumn", c => c.Int(nullable: false, defaultValue: 6));
 		}
         
         public override void Down()
