@@ -124,7 +124,40 @@ namespace NuoDb.Data.Client.EntityFramework6
 
 		protected virtual IEnumerable<MigrationStatement> Generate(AlterColumnOperation operation)
 		{
-			return Enumerable.Empty<MigrationStatement>();
+			var column = operation.Column;
+			var builder = new StringBuilder();
+			builder.Append("ALTER TABLE ");
+			builder.Append(Name(operation.Table));
+			builder.Append(" ALTER COLUMN ");
+			builder.Append(Quote(column.Name));
+			builder.Append(" ");
+			builder.Append(BuildColumnType(column));
+			if (column.IsNullable != null && !column.IsNullable.Value)
+			{
+				builder.Append(" NOT");
+			}
+			builder.Append(" NULL");
+			yield return Statement(builder.ToString());
+
+			if (column.DefaultValue != null || !string.IsNullOrWhiteSpace(column.DefaultValueSql))
+			{
+				builder.Clear();
+				builder.Append("ALTER TABLE ");
+				builder.Append(Name(operation.Table));
+				builder.Append(" ALTER COLUMN ");
+				builder.Append(Quote(column.Name));
+				builder.Append(" DROP DEFAULT");
+				yield return Statement(builder.ToString());
+
+				builder.Clear();
+				builder.Append("ALTER TABLE ");
+				builder.Append(Name(operation.Table));
+				builder.Append(" ALTER COLUMN ");
+				builder.Append(Quote(column.Name));
+				builder.Append(" SET DEFAULT ");
+				builder.Append(column.DefaultValue != null ? Generate((dynamic)column.DefaultValue) : column.DefaultValueSql);
+				yield return Statement(builder.ToString());
+			}
 		}
 
 		protected virtual IEnumerable<MigrationStatement> Generate(AlterProcedureOperation operation)
