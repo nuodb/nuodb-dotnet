@@ -380,8 +380,7 @@ namespace NuoDb.Data.Client.EntityFramework6
 
 		protected virtual string Generate(bool defaultValue)
 		{
-#warning Not done!
-			return defaultValue ? "1" : "0";
+			return SqlGenerator.FormatBoolean(defaultValue);
 		}
 
 		protected virtual string Generate(DateTimeOffset defaultValue)

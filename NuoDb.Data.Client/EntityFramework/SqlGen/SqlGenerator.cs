@@ -578,7 +578,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
                 switch (typeKind)
                 {
                     case PrimitiveTypeKind.Boolean:
-                        result.Append((bool)e.Value ? "TRUE" : "FALSE");
+						result.Append(FormatBoolean((bool)e.Value));
                         break;
 
                     case PrimitiveTypeKind.Int16:
@@ -3689,6 +3689,11 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 			result.Append("0x");
 			result.Append(BitConverter.ToString(value).Replace("-", string.Empty));
 			return result.ToString();
+		}
+
+		internal static string FormatBoolean(bool value)
+		{
+			return value ? "TRUE" : "FALSE";
 		}
 
         #endregion
