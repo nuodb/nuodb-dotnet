@@ -647,7 +647,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
                         break;
 
                     case PrimitiveTypeKind.Binary:
-                        result.Append(string.Format("0x{0}", BitConverter.ToString((byte[])e.Value).Replace("-", string.Empty)));
+						result.Append(FormatBinary((byte[])e.Value));
                         break;
 
                     case PrimitiveTypeKind.String:
@@ -656,20 +656,14 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
                         break;
 
                     case PrimitiveTypeKind.DateTime:
-                        result.Append("'");
-                        result.Append(((DateTime)e.Value).ToString("yyyy-MM-dd HH:mm:ss.fffffff", CultureInfo.InvariantCulture));
-                        result.Append("'");
+						result.Append(FormatDateTime((DateTime)e.Value));
                         break;
                     case PrimitiveTypeKind.Time:
-                        result.Append("'");
-                        result.Append(((DateTime)e.Value).ToString("HH:mm:ss.fffffff", CultureInfo.InvariantCulture));
-                        result.Append("'");
+						result.Append(FormatTime((DateTime)e.Value));
                         break;
 
                     case PrimitiveTypeKind.Guid:
-                        result.Append("'");
-                        result.Append(((Guid)e.Value).ToNuoDbString());
-                        result.Append("'");
+						result.Append(FormatGuid((Guid)e.Value));
                         break;
 
                     default:
@@ -3661,6 +3655,41 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
             }
             return true;
         }
+
+		internal static string FormatDateTime(DateTime value)
+		{
+			var result = new StringBuilder();
+			result.Append("'");
+			result.Append(value.ToString("yyyy-MM-dd HH:mm:ss.fffffff", CultureInfo.InvariantCulture));
+			result.Append("'");
+			return result.ToString();
+		}
+
+		internal static string FormatTime(DateTime value)
+		{
+			var result = new StringBuilder();
+			result.Append("'");
+			result.Append(value.ToString("HH:mm:ss.fffffff", CultureInfo.InvariantCulture));
+			result.Append("'");
+			return result.ToString();
+		}
+
+		internal static string FormatGuid(Guid value)
+		{
+			var result = new StringBuilder();
+			result.Append("'");
+			result.Append(value.ToNuoDbString());
+			result.Append("'");
+			return result.ToString();
+		}
+
+		internal static string FormatBinary(byte[] value)
+		{
+			var result = new StringBuilder();
+			result.Append("0x");
+			result.Append(BitConverter.ToString(value).Replace("-", string.Empty));
+			return result.ToString();
+		}
 
         #endregion
     }
