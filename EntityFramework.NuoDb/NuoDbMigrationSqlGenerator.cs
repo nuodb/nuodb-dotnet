@@ -433,12 +433,6 @@ namespace NuoDb.Data.Client.EntityFramework6
 
 		string BuildColumnType(ColumnModel columnModel)
 		{
-			if (columnModel.IsTimestamp)
-			{
-#warning Does this exists in NuoDB?
-				return "rowversion";
-			}
-
 			return BuildPropertyType(columnModel);
 		}
 
