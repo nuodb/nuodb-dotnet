@@ -162,17 +162,31 @@ namespace NuoDb.Data.Client.EntityFramework6
 
 		protected virtual IEnumerable<MigrationStatement> Generate(AlterProcedureOperation operation)
 		{
-			return Enumerable.Empty<MigrationStatement>();
+			throw new NotImplementedException();
 		}
 
 		protected virtual IEnumerable<MigrationStatement> Generate(AlterTableOperation operation)
 		{
-			return Enumerable.Empty<MigrationStatement>();
+			// Nothing to do since there is no inherent semantics associated with annotations
+			yield break;
 		}
 
 		protected virtual IEnumerable<MigrationStatement> Generate(CreateIndexOperation operation)
 		{
-			return Enumerable.Empty<MigrationStatement>();
+			var builder = new StringBuilder();
+			builder.Append("CREATE ");
+			if (operation.IsUnique)
+			{
+				builder.Append("UNIQUE ");
+			}
+			builder.Append("INDEX ");
+			builder.Append(Quote(operation.Name));
+			builder.Append(" ON ");
+			builder.Append(Name(operation.Table));
+			builder.Append("(");
+			builder.Append(JoinColumns(operation.Columns));
+			builder.Append(")");
+			yield return Statement(builder.ToString());
 		}
 
 		protected virtual IEnumerable<MigrationStatement> Generate(CreateProcedureOperation operation)
