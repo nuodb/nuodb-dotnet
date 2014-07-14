@@ -191,37 +191,84 @@ namespace NuoDb.Data.Client.EntityFramework6
 
 		protected virtual IEnumerable<MigrationStatement> Generate(CreateProcedureOperation operation)
 		{
-			return Enumerable.Empty<MigrationStatement>();
+			throw new NotImplementedException();
 		}
 
 		protected virtual IEnumerable<MigrationStatement> Generate(CreateTableOperation operation)
 		{
-			return Enumerable.Empty<MigrationStatement>();
+#warning Schemas
+			//var databaseName = DatabaseName.Parse(operation.Name);
+
+			//if (!string.IsNullOrWhiteSpace(databaseName.Schema))
+			//{
+			//	if (!databaseName.Schema.EqualsIgnoreCase("dbo")
+			//		&& !_generatedSchemas.Contains(databaseName.Schema))
+			//	{
+			//		GenerateCreateSchema(databaseName.Schema);
+
+			//		_generatedSchemas.Add(databaseName.Schema);
+			//	}
+			//}
+
+			var builder = new StringBuilder();
+			builder.Append("CREATE TABLE ");
+			builder.Append(Name(operation.Name));
+			builder.Append(" (");
+			builder.AppendLine();
+			JoinColumns(operation.Columns.Select(Generate), true);
+			builder.Append(")");
+			yield return Statement(builder.ToString());
+
+			if (operation.PrimaryKey != null)
+			{
+				foreach (var item in Generate(operation.PrimaryKey))
+					yield return item;
+			}
 		}
 
 		protected virtual IEnumerable<MigrationStatement> Generate(DropColumnOperation operation)
 		{
-			return Enumerable.Empty<MigrationStatement>();
+			var builder = new StringBuilder();
+			builder.Append("ALTER TABLE ");
+			builder.Append(Name(operation.Table));
+			builder.Append(" DROP COLUMN ");
+			builder.Append(Quote(operation.Name));
+			yield return Statement(builder.ToString());
 		}
 
 		protected virtual IEnumerable<MigrationStatement> Generate(DropForeignKeyOperation operation)
 		{
-			return Enumerable.Empty<MigrationStatement>();
+			var builder = new StringBuilder();
+			builder.Append("ALTER TABLE ");
+			builder.Append(Name(operation.DependentTable));
+			builder.Append(" DROP CONSTRAINT ");
+			builder.Append(Quote(operation.Name));
+			yield return Statement(builder.ToString());
 		}
 
 		protected virtual IEnumerable<MigrationStatement> Generate(DropIndexOperation operation)
 		{
-			return Enumerable.Empty<MigrationStatement>();
+			var builder = new StringBuilder();
+			builder.Append("DROP INDEX ");
+			builder.Append(Quote(operation.Name));
+			builder.Append(" ON ");
+			builder.Append(Name(operation.Table));
+			yield return Statement(builder.ToString());
 		}
 
 		protected virtual IEnumerable<MigrationStatement> Generate(DropPrimaryKeyOperation operation)
 		{
-			return Enumerable.Empty<MigrationStatement>();
+#warning Does not work in NuoDB, yet
+			var writer = new StringBuilder();
+			writer.Append("ALTER TABLE ");
+			writer.Append(Name(operation.Table));
+			writer.Append(" DROP PRIMARY KEY");
+			yield return Statement(writer.ToString());
 		}
 
 		protected virtual IEnumerable<MigrationStatement> Generate(DropProcedureOperation operation)
 		{
-			return Enumerable.Empty<MigrationStatement>();
+			throw new NotImplementedException();
 		}
 
 		protected virtual IEnumerable<MigrationStatement> Generate(DropTableOperation operation)
@@ -456,9 +503,10 @@ namespace NuoDb.Data.Client.EntityFramework6
 			return DbConfiguration.DependencyResolver.GetService<DbProviderFactory>(NuoDbProviderServices.ProviderInvariantName).CreateConnection();
 		}
 
-		static string JoinColumns(IEnumerable<string> columns)
+		static string JoinColumns(IEnumerable<string> columns, bool separateLines = false)
 		{
-			return string.Join(", ", columns);
+			var separator = ", " + (separateLines ? Environment.NewLine : string.Empty);
+			return string.Join(separator, columns);
 		}
 
 		#endregion
