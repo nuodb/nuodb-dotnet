@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.Data.Entity.Migrations;
+using System.Data.Entity.Migrations.Infrastructure;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,7 +15,10 @@ namespace MigrationsTest
 	{
 		static void Main(string[] args)
 		{
-
+			var migrator = new DbMigrator(new Migrations.Configuration());
+			var scripting = new MigratorScriptingDecorator(migrator);
+			var script = scripting.ScriptUpdate("0", null);
+			Console.WriteLine(script);
 		}
 	}
 
@@ -25,6 +30,14 @@ namespace MigrationsTest
 		{ }
 
 		public DbSet<TestEntity> TestEntities { get; set; }
+
+		protected override void OnModelCreating(DbModelBuilder modelBuilder)
+		{
+			base.OnModelCreating(modelBuilder);
+
+			var builder = new NuoDbConnectionStringBuilder(Database.Connection.ConnectionString);
+			modelBuilder.HasDefaultSchema(builder.Schema);
+		}
 	}
 
 	class NuoDbContextConfiguration : DbConfiguration

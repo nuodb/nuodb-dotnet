@@ -48,6 +48,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Migrations\201407140722216_Initial.cs" />
+    <Compile Include="Migrations\201407140722216_Initial.Designer.cs">
+      <DependentUpon>201407140722216_Initial.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -65,6 +69,11 @@
       <Project>{3a992e63-061c-47ee-862a-452334d70d90}</Project>
       <Name>NuoDb.Data.Client_4.0</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\201407140722216_Initial.resx">
+      <DependentUpon>201407140722216_Initial.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
