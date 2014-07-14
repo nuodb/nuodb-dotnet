@@ -445,58 +445,13 @@ namespace NuoDb.Data.Client.EntityFramework6
 
 		string BuildPropertyType(PropertyModel propertyModel)
 		{
-#warning Not finished.
-			var originalStoreTypeName = propertyModel.StoreType;
+			var storeTypeName = propertyModel.StoreType;
 			var typeUsage = ProviderManifest.GetStoreType(propertyModel.TypeUsage);
-
-			if (string.IsNullOrWhiteSpace(originalStoreTypeName))
+			if (!string.IsNullOrWhiteSpace(storeTypeName))
 			{
-				originalStoreTypeName = typeUsage.EdmType.Name;
+				typeUsage = BuildStoreTypeUsage(storeTypeName, propertyModel) ?? typeUsage;
 			}
-			else
-			{
-				var storeTypeUsage = BuildStoreTypeUsage(originalStoreTypeName, propertyModel);
-
-				typeUsage = storeTypeUsage ?? typeUsage;
-			}
-
-			var storeTypeName = originalStoreTypeName;
-
-			const string MaxSuffix = "(max)";
-
-			if (storeTypeName.EndsWith(MaxSuffix, StringComparison.Ordinal))
-			{
-				storeTypeName = Quote(storeTypeName.Substring(0, storeTypeName.Length - MaxSuffix.Length)) + MaxSuffix;
-			}
-			else
-			{
-				storeTypeName = Quote(storeTypeName);
-			}
-
-			switch (originalStoreTypeName)
-			{
-				case "decimal":
-				case "numeric":
-					storeTypeName += "(" +
-									 (propertyModel.Precision ?? (byte)typeUsage.Facets[DbProviderManifest.PrecisionFacetName].Value)
-									 + ", " + (propertyModel.Scale ?? (byte)typeUsage.Facets[DbProviderManifest.ScaleFacetName].Value) + ")";
-					break;
-				case "datetime2":
-				case "datetimeoffset":
-				case "time":
-					storeTypeName += "(" + (propertyModel.Precision ?? (byte)typeUsage.Facets[DbProviderManifest.PrecisionFacetName].Value) + ")";
-					break;
-				case "binary":
-				case "varbinary":
-				case "nvarchar":
-				case "varchar":
-				case "char":
-				case "nchar":
-					storeTypeName += "(" + (propertyModel.MaxLength ?? (int)typeUsage.Facets[DbProviderManifest.MaxLengthFacetName].Value) + ")";
-					break;
-			}
-
-			return storeTypeName;
+			return SqlGenerator.GetSqlPrimitiveType(typeUsage);
 		}
 
 		IEnumerable<MigrationStatement> GenerateStatements(IEnumerable<MigrationOperation> operations)
