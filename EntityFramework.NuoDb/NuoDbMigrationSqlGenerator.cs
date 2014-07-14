@@ -309,17 +309,17 @@ namespace NuoDb.Data.Client.EntityFramework6
 
 		protected virtual IEnumerable<MigrationStatement> Generate(RenameIndexOperation operation)
 		{
-			return Enumerable.Empty<MigrationStatement>();
+			throw new NotSupportedException("'RenameIndexOperation' is not supported.");
 		}
 
 		protected virtual IEnumerable<MigrationStatement> Generate(RenameProcedureOperation operation)
 		{
-			return Enumerable.Empty<MigrationStatement>();
+			throw new NotImplementedException();
 		}
 
 		protected virtual IEnumerable<MigrationStatement> Generate(RenameTableOperation operation)
 		{
-			return Enumerable.Empty<MigrationStatement>();
+			throw new NotSupportedException("'RenameTableOperation' is not supported.");
 		}
 
 		#endregion
@@ -516,7 +516,5 @@ namespace NuoDb.Data.Client.EntityFramework6
 		}
 
 		#endregion
-
-
 	}
 }
