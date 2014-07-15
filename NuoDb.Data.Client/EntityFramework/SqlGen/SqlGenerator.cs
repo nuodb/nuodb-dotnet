@@ -3659,6 +3659,10 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 			result.Append("'");
 			return result.ToString();
 		}
+		internal static string FormatTime(TimeSpan value)
+		{
+			return FormatTime(DateTime.Today.Add(value));
+		}
 
 		internal static string FormatGuid(Guid value)
 		{
