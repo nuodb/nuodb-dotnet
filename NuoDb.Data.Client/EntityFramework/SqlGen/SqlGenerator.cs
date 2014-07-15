@@ -651,8 +651,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
                         break;
 
                     case PrimitiveTypeKind.String:
-                        bool isUnicode = MetadataHelpers.GetFacetValueOrDefault<bool>(e.ResultType, MetadataHelpers.UnicodeFacetName, true);
-                        result.Append(EscapeSingleQuote(e.Value as string, isUnicode));
+                        result.Append(FormatString((string)e.Value));
                         break;
 
                     case PrimitiveTypeKind.DateTime:
@@ -3119,19 +3118,6 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
             return selectStatement;
         }
 
-
-        /// <summary>
-        /// Before we embed a string literal in a SQL string, we should
-        /// convert all ' to '', and enclose the whole string in single quotes.
-        /// </summary>
-        /// <param name="s"></param>
-        /// <param name="isUnicode"></param>
-        /// <returns>The escaped sql string.</returns>
-        private string EscapeSingleQuote(string s, bool isUnicode)
-        {
-            return "'" + s.Replace("'", "''") + "'";
-        }
-
         /// <summary>
         /// Returns the sql primitive/native type name. 
         /// It will include size, precision or scale depending on type information present in the 
@@ -3694,6 +3680,20 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 		internal static string FormatBoolean(bool value)
 		{
 			return value ? "TRUE" : "FALSE";
+		}
+
+		internal static string FormatString(string value)
+		{
+			var result = new StringBuilder();
+			result.Append("'");
+			result.Append(EscapeSingleQuote(value));
+			result.Append("'");
+			return result.ToString();
+		}
+
+		static string EscapeSingleQuote(string s)
+		{
+			return s.Replace("'", "''");
 		}
 
         #endregion

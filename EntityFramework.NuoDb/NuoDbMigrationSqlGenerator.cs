@@ -376,8 +376,7 @@ namespace NuoDb.Data.Client.EntityFramework6
 
 		protected virtual string Generate(string defaultValue)
 		{
-#warning Not done!
-			return "'" + defaultValue + "'";
+			return SqlGenerator.FormatString(defaultValue);
 		}
 
 		protected virtual string Generate(TimeSpan defaultValue)
