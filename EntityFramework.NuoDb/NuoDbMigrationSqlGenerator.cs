@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Data.Entity;
 using System.Data.Entity.Core.Common;
+using System.Data.Entity.Core.Common.CommandTrees;
 using System.Data.Entity.Core.Metadata.Edm;
 using System.Data.Entity.Infrastructure.DependencyResolution;
 using System.Data.Entity.Migrations.Model;
@@ -293,8 +294,30 @@ namespace NuoDb.Data.Client.EntityFramework6
 
 		protected virtual IEnumerable<MigrationStatement> Generate(HistoryOperation operation)
 		{
-#warning Finish
-			return Enumerable.Empty<MigrationStatement>();
+			foreach (var commandTree in operation.CommandTrees)
+			{
+				List<DbParameter> _;
+
+				switch (commandTree.CommandTreeKind)
+				{
+					case DbCommandTreeKind.Insert:
+						using (var writer = SqlWriter())
+						{
+							writer.Write(DmlSqlGenerator.GenerateInsertSql((DbInsertCommandTree)commandTree, out _,
+								generateParameters: false));
+							yield return Statement(writer);
+						}
+						break;
+					case DbCommandTreeKind.Delete:
+						using (var writer = SqlWriter())
+						{
+							writer.Write(DmlSqlGenerator.GenerateDeleteSql((DbDeleteCommandTree)commandTree, out _,
+								generateParameters: false));
+							yield return Statement(writer);
+						}
+						break;
+				}
+			}
 		}
 
 		protected virtual IEnumerable<MigrationStatement> Generate(MoveProcedureOperation operation)

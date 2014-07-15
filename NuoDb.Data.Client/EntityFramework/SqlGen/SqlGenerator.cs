@@ -216,7 +216,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
         #endregion
 
         #region Constructor
-        private SqlGenerator()
+        internal SqlGenerator()
         { }
         #endregion
 
@@ -384,11 +384,16 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
             StringBuilder builder = new StringBuilder(1024);
             using (SqlWriter writer = new SqlWriter(builder))
             {
-                sqlStatement.WriteSql(writer, this);
+                WriteSql(writer, sqlStatement);
             }
-
             return builder.ToString();
         }
+
+		internal SqlWriter WriteSql(SqlWriter writer, ISqlFragment sqlStatement)
+		{
+			sqlStatement.WriteSql(writer, this);
+			return writer;
+		}
         #endregion
 
         #region DbExpressionVisitor Members

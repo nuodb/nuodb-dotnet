@@ -40,6 +40,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
         private readonly DbModificationCommandTree commandTree;
         private readonly List<DbParameter> parameters;
         private readonly Dictionary<EdmMember, List<DbParameter>> memberValues;
+		private readonly bool generateParameters;
 
         #endregion
 
@@ -258,8 +259,19 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 
         public override void Visit(DbConstantExpression expression)
         {
-            NuoDbParameter parameter = CreateParameter(expression.Value, expression.ResultType);
-            commandText.Append(parameter.ParameterName);
+			if (generateParameters)
+			{
+				var parameter = CreateParameter(expression.Value, expression.ResultType);
+				commandText.Append(parameter.ParameterName);
+			}
+			else
+			{
+				using (var writer = new SqlWriter(commandText))
+				{
+					var sqlGenerator = new SqlGenerator();
+					sqlGenerator.WriteSql(writer, expression.Accept(sqlGenerator));
+				}
+			}
         }
 
         public override void Visit(DbScanExpression expression)
@@ -312,7 +324,8 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
         internal ExpressionTranslator(
             StringBuilder commandText,
             DbModificationCommandTree commandTree,
-            bool preserveMemberValues)
+            bool preserveMemberValues,
+			bool generateParameters)
         {
             Debug.Assert(null != commandText);
             Debug.Assert(null != commandTree);
@@ -321,6 +334,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
             this.commandTree = commandTree;
             this.parameters = new List<DbParameter>();
             this.memberValues = preserveMemberValues ? new Dictionary<EdmMember, List<DbParameter>>() : null;
+			this.generateParameters = generateParameters;
         }
 
         internal NuoDbParameter CreateParameter(object value, TypeUsage type)
@@ -358,7 +372,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
                     if (!memberValues.ContainsKey(property))
                         memberValues.Add(property, new List<DbParameter>(new[] { p }));
                     else
-                        memberValues[property].Add(parameters[parameters.Count - 1]);
+                        memberValues[property].Add(p);
                 }
             }
         }
