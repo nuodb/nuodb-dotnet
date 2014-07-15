@@ -62,7 +62,7 @@ namespace NuoDb.Data.Client.EntityFramework6
 			using (var writer = SqlWriter())
 			{
 				writer.Write("ALTER TABLE ");
-				writer.Write(Name(operation.Table));
+				writer.Write(Quote(operation.Table));
 				writer.Write(" ADD ");
 				var column = operation.Column;
 				writer.Write(Generate(column));
@@ -93,13 +93,13 @@ namespace NuoDb.Data.Client.EntityFramework6
 			using (var writer = SqlWriter())
 			{
 				writer.Write("ALTER TABLE ");
-				writer.Write(Name(operation.DependentTable));
+				writer.Write(Quote(operation.DependentTable));
 				writer.Write(" ADD CONSTRAINT ");
 				writer.Write(Quote(operation.Name));
 				writer.Write(" FOREIGN KEY (");
 				WriteColumns(writer, operation.DependentColumns.Select(Quote));
 				writer.Write(") REFERENCES ");
-				writer.Write(Name(operation.PrincipalTable));
+				writer.Write(Quote(operation.PrincipalTable));
 				writer.Write(" (");
 				WriteColumns(writer, operation.PrincipalColumns.Select(Quote));
 				writer.Write(")");
@@ -116,7 +116,7 @@ namespace NuoDb.Data.Client.EntityFramework6
 			using (var writer = SqlWriter())
 			{
 				writer.Write("ALTER TABLE ");
-				writer.Write(Name(operation.Table));
+				writer.Write(Quote(operation.Table));
 				writer.Write(" ADD CONSTRAINT ");
 				writer.Write(Quote(operation.Name));
 				writer.Write(" PRIMARY KEY ");
@@ -133,11 +133,11 @@ namespace NuoDb.Data.Client.EntityFramework6
 			using (var writer = SqlWriter())
 			{
 				writer.Write("ALTER TABLE ");
-				writer.Write(Name(operation.Table));
+				writer.Write(Quote(operation.Table));
 				writer.Write(" ALTER COLUMN ");
 				writer.Write(Quote(column.Name));
 				writer.Write(" ");
-				writer.Write(BuildColumn(column));
+				writer.Write(BuildColumnType(column));
 				if (column.IsNullable != null && !column.IsNullable.Value)
 				{
 					writer.Write(" NOT");
@@ -151,7 +151,7 @@ namespace NuoDb.Data.Client.EntityFramework6
 				using (var writer = SqlWriter())
 				{
 					writer.Write("ALTER TABLE ");
-					writer.Write(Name(operation.Table));
+					writer.Write(Quote(operation.Table));
 					writer.Write(" ALTER COLUMN ");
 					writer.Write(Quote(column.Name));
 					writer.Write(" DROP DEFAULT");
@@ -161,7 +161,7 @@ namespace NuoDb.Data.Client.EntityFramework6
 				using (var writer = SqlWriter())
 				{
 					writer.Write("ALTER TABLE ");
-					writer.Write(Name(operation.Table));
+					writer.Write(Quote(operation.Table));
 					writer.Write(" ALTER COLUMN ");
 					writer.Write(Quote(column.Name));
 					writer.Write(" SET DEFAULT ");
@@ -194,9 +194,9 @@ namespace NuoDb.Data.Client.EntityFramework6
 				writer.Write("INDEX ");
 				writer.Write(Quote(operation.Name));
 				writer.Write(" ON ");
-				writer.Write(Name(operation.Table));
+				writer.Write(Quote(operation.Table));
 				writer.Write("(");
-				WriteColumns(writer, operation.Columns);
+				WriteColumns(writer, operation.Columns.Select(Quote));
 				writer.Write(")");
 				yield return Statement(writer);
 			}
@@ -212,7 +212,7 @@ namespace NuoDb.Data.Client.EntityFramework6
 			using (var writer = SqlWriter())
 			{
 				writer.Write("CREATE TABLE ");
-				writer.Write(Name(operation.Name));
+				writer.Write(Quote(operation.Name));
 				writer.Write(" (");
 				writer.WriteLine();
 				writer.Indent++;
@@ -234,7 +234,7 @@ namespace NuoDb.Data.Client.EntityFramework6
 			using (var writer = SqlWriter())
 			{
 				writer.Write("ALTER TABLE ");
-				writer.Write(Name(operation.Table));
+				writer.Write(Quote(operation.Table));
 				writer.Write(" DROP COLUMN ");
 				writer.Write(Quote(operation.Name));
 				yield return Statement(writer);
@@ -246,7 +246,7 @@ namespace NuoDb.Data.Client.EntityFramework6
 			using (var writer = SqlWriter())
 			{
 				writer.Write("ALTER TABLE ");
-				writer.Write(Name(operation.DependentTable));
+				writer.Write(Quote(operation.DependentTable));
 				writer.Write(" DROP CONSTRAINT ");
 				writer.Write(Quote(operation.Name));
 				yield return Statement(writer);
@@ -260,18 +260,17 @@ namespace NuoDb.Data.Client.EntityFramework6
 				writer.Write("DROP INDEX ");
 				writer.Write(Quote(operation.Name));
 				writer.Write(" ON ");
-				writer.Write(Name(operation.Table));
+				writer.Write(Quote(operation.Table));
 				yield return Statement(writer);
 			}
 		}
 
 		protected virtual IEnumerable<MigrationStatement> Generate(DropPrimaryKeyOperation operation)
 		{
-#warning Does not work in NuoDB, yet
 			using (var writer = SqlWriter())
 			{
 				writer.Write("ALTER TABLE ");
-				writer.Write(Name(operation.Table));
+				writer.Write(Quote(operation.Table));
 				writer.Write(" DROP PRIMARY KEY");
 				yield return Statement(writer);
 			}
@@ -282,7 +281,7 @@ namespace NuoDb.Data.Client.EntityFramework6
 			using (var writer = SqlWriter())
 			{
 				writer.Write("DROP PROCEDURE ");
-				writer.Write(Name(operation.Name));
+				writer.Write(Quote(operation.Name));
 				yield return Statement(writer);
 			}
 		}
@@ -292,7 +291,7 @@ namespace NuoDb.Data.Client.EntityFramework6
 			using (var writer = SqlWriter())
 			{
 				writer.Write("DROP TABLE ");
-				writer.Write(Name(operation.Name));
+				writer.Write(Quote(operation.Name));
 				yield return Statement(writer);
 			}
 		}
@@ -304,7 +303,14 @@ namespace NuoDb.Data.Client.EntityFramework6
 
 		protected virtual IEnumerable<MigrationStatement> Generate(MoveTableOperation operation)
 		{
-			throw new NotSupportedException("'MoveTableOperation' is not supported.");
+			using (var writer = SqlWriter())
+			{
+				writer.Write("ALTER TABLE ");
+				writer.Write(Quote(operation.Name));
+				writer.Write(" TO ");
+				writer.Write(Quote(operation.NewSchema + "." + ObjectName(operation.Name)));
+				yield return Statement(writer);
+			}
 		}
 
 		protected virtual IEnumerable<MigrationStatement> Generate(RenameColumnOperation operation)
@@ -333,7 +339,14 @@ namespace NuoDb.Data.Client.EntityFramework6
 
 		protected virtual IEnumerable<MigrationStatement> Generate(RenameTableOperation operation)
 		{
-			throw new NotSupportedException("'RenameTableOperation' is not supported.");
+			using (var writer = SqlWriter())
+			{
+				writer.Write("ALTER TABLE ");
+				writer.Write(Quote(operation.Name));
+				writer.Write(" TO ");
+				writer.Write(Quote(operation.NewName));
+				yield return Statement(writer);
+			}
 		}
 
 		protected virtual IEnumerable<MigrationStatement> Generate(HistoryOperation operation)
@@ -372,7 +385,7 @@ namespace NuoDb.Data.Client.EntityFramework6
 			{
 				writer.Write(action);
 				writer.Write(" PROCEDURE ");
-				writer.Write(Name(operation.Name));
+				writer.Write(Quote(operation.Name));
 				writer.Write(" (");
 				if (operation.Parameters.Any())
 				{
@@ -398,7 +411,7 @@ namespace NuoDb.Data.Client.EntityFramework6
 			var result = new StringBuilder();
 			result.Append(Quote(column.Name));
 			result.Append(" ");
-			result.Append(BuildColumn(column));
+			result.Append(BuildColumnType(column));
 
 			if ((column.IsNullable != null)
 				&& !column.IsNullable.Value)
@@ -436,20 +449,9 @@ namespace NuoDb.Data.Client.EntityFramework6
 			var result = new StringBuilder();
 			result.Append(parameter.IsOutParameter ? "OUT" : "IN");
 			result.Append(" ");
-			result.Append(parameter.Name);
+			result.Append(Quote(parameter.Name));
 			result.Append(" ");
-			result.Append(BuildProperty(parameter));
-#warning Values for SPs?
-			if (parameter.DefaultValue != null)
-			{
-				result.Append(" = ");
-				result.Append(Generate((dynamic)parameter.DefaultValue));
-			}
-			else if (!string.IsNullOrWhiteSpace(parameter.DefaultValueSql))
-			{
-				result.Append(" = ");
-				result.Append(parameter.DefaultValueSql);
-			}
+			result.Append(BuildPropertyType(parameter));
 			return result.ToString();
 		}
 
@@ -472,9 +474,14 @@ namespace NuoDb.Data.Client.EntityFramework6
 			return SqlGenerator.QuoteIdentifier(identifier);
 		}
 
-		protected static string Name(string name)
+		protected static string[] ParseObjectName(string name)
 		{
-			return name;
+			return name.Split('.');
+		}
+
+		protected string ObjectName(string name)
+		{
+			return ParseObjectName(name).Last();
 		}
 
 		MigrationStatement Statement(SqlWriter sqlWriter, bool suppressTransaction = false)
@@ -524,12 +531,12 @@ namespace NuoDb.Data.Client.EntityFramework6
 			return SqlGenerator.FormatTime(defaultValue);
 		}
 
-		string BuildColumn(ColumnModel columnModel)
+		string BuildColumnType(ColumnModel columnModel)
 		{
-			return BuildProperty(columnModel);
+			return BuildPropertyType(columnModel);
 		}
 
-		string BuildProperty(PropertyModel propertyModel)
+		string BuildPropertyType(PropertyModel propertyModel)
 		{
 			var storeTypeName = propertyModel.StoreType;
 			var typeUsage = ProviderManifest.GetStoreType(propertyModel.TypeUsage);

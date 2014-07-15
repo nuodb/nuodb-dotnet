@@ -33,6 +33,7 @@ namespace MigrationsTest.Migrations
 			}, "body");
 			DropStoredProcedure("DropMeSP");
 			AlterStoredProcedure("AlterSP", "body");
+			MoveTable("foo", "bar");
 		}
 
 		public override void Down()
