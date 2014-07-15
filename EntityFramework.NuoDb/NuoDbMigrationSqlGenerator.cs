@@ -137,7 +137,7 @@ namespace NuoDb.Data.Client.EntityFramework6
 				writer.Write(" ALTER COLUMN ");
 				writer.Write(Quote(column.Name));
 				writer.Write(" ");
-				writer.Write(BuildColumnType(column));
+				writer.Write(BuildColumn(column));
 				if (column.IsNullable != null && !column.IsNullable.Value)
 				{
 					writer.Write(" NOT");
@@ -173,7 +173,7 @@ namespace NuoDb.Data.Client.EntityFramework6
 
 		protected virtual IEnumerable<MigrationStatement> Generate(AlterProcedureOperation operation)
 		{
-			throw new NotImplementedException();
+			return Generate(operation, "ALTER");
 		}
 
 		protected virtual IEnumerable<MigrationStatement> Generate(AlterTableOperation operation)
@@ -204,7 +204,7 @@ namespace NuoDb.Data.Client.EntityFramework6
 
 		protected virtual IEnumerable<MigrationStatement> Generate(CreateProcedureOperation operation)
 		{
-			throw new NotImplementedException();
+			return Generate(operation, "CREATE");
 		}
 
 		protected virtual IEnumerable<MigrationStatement> Generate(CreateTableOperation operation)
@@ -279,7 +279,12 @@ namespace NuoDb.Data.Client.EntityFramework6
 
 		protected virtual IEnumerable<MigrationStatement> Generate(DropProcedureOperation operation)
 		{
-			throw new NotImplementedException();
+			using (var writer = SqlWriter())
+			{
+				writer.Write("DROP PROCEDURE ");
+				writer.Write(Name(operation.Name));
+				yield return Statement(writer);
+			}
 		}
 
 		protected virtual IEnumerable<MigrationStatement> Generate(DropTableOperation operation)
@@ -290,6 +295,45 @@ namespace NuoDb.Data.Client.EntityFramework6
 				writer.Write(Name(operation.Name));
 				yield return Statement(writer);
 			}
+		}
+
+		protected virtual IEnumerable<MigrationStatement> Generate(MoveProcedureOperation operation)
+		{
+			throw new NotSupportedException("'MoveProcedureOperation' is not supported.");
+		}
+
+		protected virtual IEnumerable<MigrationStatement> Generate(MoveTableOperation operation)
+		{
+			throw new NotSupportedException("'MoveTableOperation' is not supported.");
+		}
+
+		protected virtual IEnumerable<MigrationStatement> Generate(RenameColumnOperation operation)
+		{
+			using (var writer = SqlWriter())
+			{
+				writer.Write("ALTER TABLE ");
+				writer.Write(Quote(operation.Table));
+				writer.Write(" RENAME COLUMN ");
+				writer.Write(Quote(operation.Name));
+				writer.Write(" TO ");
+				writer.Write(Quote(operation.NewName));
+				yield return Statement(writer);
+			}
+		}
+
+		protected virtual IEnumerable<MigrationStatement> Generate(RenameIndexOperation operation)
+		{
+			throw new NotSupportedException("'RenameIndexOperation' is not supported.");
+		}
+
+		protected virtual IEnumerable<MigrationStatement> Generate(RenameProcedureOperation operation)
+		{
+			throw new NotSupportedException("'RenameProcedureOperation' is not supported.");
+		}
+
+		protected virtual IEnumerable<MigrationStatement> Generate(RenameTableOperation operation)
+		{
+			throw new NotSupportedException("'RenameTableOperation' is not supported.");
 		}
 
 		protected virtual IEnumerable<MigrationStatement> Generate(HistoryOperation operation)
@@ -319,52 +363,42 @@ namespace NuoDb.Data.Client.EntityFramework6
 				}
 			}
 		}
-
-		protected virtual IEnumerable<MigrationStatement> Generate(MoveProcedureOperation operation)
+		
+		protected virtual IEnumerable<MigrationStatement> Generate(ProcedureOperation operation, string action)
 		{
-			throw new NotImplementedException();
-		}
+			// we might add support for [LANGUAGE SQL | LANGUAGE JAVA ] via AnonymousArguments
 
-		protected virtual IEnumerable<MigrationStatement> Generate(MoveTableOperation operation)
-		{
-			throw new NotSupportedException("'MoveTableOperation' is not supported.");
-		}
-
-		protected virtual IEnumerable<MigrationStatement> Generate(RenameColumnOperation operation)
-		{
 			using (var writer = SqlWriter())
 			{
-				writer.Write("ALTER TABLE ");
-				writer.Write(Quote(operation.Table));
-				writer.Write(" RENAME COLUMN ");
-				writer.Write(Quote(operation.Name));
-				writer.Write(" TO ");
-				writer.Write(Quote(operation.NewName));
+				writer.Write(action);
+				writer.Write(" PROCEDURE ");
+				writer.Write(Name(operation.Name));
+				writer.Write(" (");
+				if (operation.Parameters.Any())
+				{
+					writer.WriteLine();
+					writer.Indent++;
+					WriteColumns(writer, operation.Parameters.Select(Generate), true);
+					writer.Indent--;
+					writer.WriteLine();
+				}
+				writer.Write(")");
+				writer.WriteLine();
+				writer.Write("AS");
+				writer.WriteLine();
+				writer.Write(operation.BodySql);
+				writer.WriteLine();
+				writer.Write("END_PROCEDURE");
 				yield return Statement(writer);
 			}
 		}
-
-		protected virtual IEnumerable<MigrationStatement> Generate(RenameIndexOperation operation)
-		{
-			throw new NotSupportedException("'RenameIndexOperation' is not supported.");
-		}
-
-		protected virtual IEnumerable<MigrationStatement> Generate(RenameProcedureOperation operation)
-		{
-			throw new NotImplementedException();
-		}
-
-		protected virtual IEnumerable<MigrationStatement> Generate(RenameTableOperation operation)
-		{
-			throw new NotSupportedException("'RenameTableOperation' is not supported.");
-		}
-
+		
 		protected virtual string Generate(ColumnModel column)
 		{
 			var result = new StringBuilder();
 			result.Append(Quote(column.Name));
 			result.Append(" ");
-			result.Append(BuildColumnType(column));
+			result.Append(BuildColumn(column));
 
 			if ((column.IsNullable != null)
 				&& !column.IsNullable.Value)
@@ -394,6 +428,28 @@ namespace NuoDb.Data.Client.EntityFramework6
 				}
 			}
 
+			return result.ToString();
+		}
+		
+		protected virtual string Generate(ParameterModel parameter)
+		{
+			var result = new StringBuilder();
+			result.Append(parameter.IsOutParameter ? "OUT" : "IN");
+			result.Append(" ");
+			result.Append(parameter.Name);
+			result.Append(" ");
+			result.Append(BuildProperty(parameter));
+#warning Values for SPs?
+			if (parameter.DefaultValue != null)
+			{
+				result.Append(" = ");
+				result.Append(Generate((dynamic)parameter.DefaultValue));
+			}
+			else if (!string.IsNullOrWhiteSpace(parameter.DefaultValueSql))
+			{
+				result.Append(" = ");
+				result.Append(parameter.DefaultValueSql);
+			}
 			return result.ToString();
 		}
 
@@ -468,12 +524,12 @@ namespace NuoDb.Data.Client.EntityFramework6
 			return SqlGenerator.FormatTime(defaultValue);
 		}
 
-		string BuildColumnType(ColumnModel columnModel)
+		string BuildColumn(ColumnModel columnModel)
 		{
-			return BuildPropertyType(columnModel);
+			return BuildProperty(columnModel);
 		}
 
-		string BuildPropertyType(PropertyModel propertyModel)
+		string BuildProperty(PropertyModel propertyModel)
 		{
 			var storeTypeName = propertyModel.StoreType;
 			var typeUsage = ProviderManifest.GetStoreType(propertyModel.TypeUsage);

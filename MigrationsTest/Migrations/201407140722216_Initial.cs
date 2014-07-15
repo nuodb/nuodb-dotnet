@@ -24,6 +24,15 @@ namespace MigrationsTest.Migrations
 			CreateIndex("hockey.SomeTable", "FooBar", unique: true, name: "UX_SomeTable_FooBar");
 			DropTable("foo.test");
 			RenameColumn("hockey.TestEntites", "FooBar", "Renamed");
+			CreateStoredProcedure("StoredProcedure_NoParams", "body");
+			CreateStoredProcedure("StoredProcedure_Params", p => new
+			{
+				InputInt = p.Int(),
+				OutputInt = p.Int(outParameter: true),
+				InputString = p.String(maxLength: 20),
+			}, "body");
+			DropStoredProcedure("DropMeSP");
+			AlterStoredProcedure("AlterSP", "body");
 		}
 
 		public override void Down()
