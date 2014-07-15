@@ -76,11 +76,11 @@ namespace NuoDb.Data.Client.EntityFramework6
 
 					if (column.Type == PrimitiveTypeKind.DateTime)
 					{
-						writer.Write(Generate(DateTime.Parse("1970-01-01 00:00:00", CultureInfo.InvariantCulture)));
+						writer.Write(WriteValue(DateTime.Parse("1970-01-01 00:00:00", CultureInfo.InvariantCulture)));
 					}
 					else
 					{
-						writer.Write(Generate((dynamic)column.ClrDefaultValue));
+						writer.Write(WriteValue((dynamic)column.ClrDefaultValue));
 					}
 				}
 				yield return Statement(writer);
@@ -164,7 +164,7 @@ namespace NuoDb.Data.Client.EntityFramework6
 					writer.Write(" ALTER COLUMN ");
 					writer.Write(Quote(column.Name));
 					writer.Write(" SET DEFAULT ");
-					writer.Write(column.DefaultValue != null ? Generate((dynamic)column.DefaultValue) : column.DefaultValueSql);
+					writer.Write(column.DefaultValue != null ? WriteValue((dynamic)column.DefaultValue) : column.DefaultValueSql);
 					yield return Statement(writer);
 				}
 			}
@@ -336,10 +336,6 @@ namespace NuoDb.Data.Client.EntityFramework6
 			throw new NotSupportedException("'RenameTableOperation' is not supported.");
 		}
 
-		#endregion
-
-		#region Models
-
 		protected virtual string Generate(ColumnModel column)
 		{
 			var result = new StringBuilder();
@@ -356,7 +352,7 @@ namespace NuoDb.Data.Client.EntityFramework6
 			if (column.DefaultValue != null)
 			{
 				result.Append(" DEFAULT ");
-				result.Append(Generate((dynamic)column.DefaultValue));
+				result.Append(WriteValue((dynamic)column.DefaultValue));
 			}
 			else if (!string.IsNullOrWhiteSpace(column.DefaultValueSql))
 			{
@@ -376,41 +372,6 @@ namespace NuoDb.Data.Client.EntityFramework6
 			}
 
 			return result.ToString();
-		}
-
-		protected virtual string Generate(object defaultValue)
-		{
-			return string.Format(CultureInfo.InvariantCulture, "{0}", defaultValue);
-		}
-
-		protected virtual string Generate(DateTime defaultValue)
-		{
-			return SqlGenerator.FormatDateTime(defaultValue);
-		}
-
-		protected virtual string Generate(byte[] defaultValue)
-		{
-			return SqlGenerator.FormatBinary(defaultValue);
-		}
-
-		protected virtual string Generate(bool defaultValue)
-		{
-			return SqlGenerator.FormatBoolean(defaultValue);
-		}
-
-		protected virtual string Generate(Guid defaultValue)
-		{
-			return SqlGenerator.FormatGuid(defaultValue);
-		}
-
-		protected virtual string Generate(string defaultValue)
-		{
-			return SqlGenerator.FormatString(defaultValue);
-		}
-
-		protected virtual string Generate(TimeSpan defaultValue)
-		{
-			return SqlGenerator.FormatTime(defaultValue);
 		}
 
 		#endregion
@@ -447,6 +408,41 @@ namespace NuoDb.Data.Client.EntityFramework6
 			var result = new SqlWriter(new StringBuilder());
 			result.Indent++;
 			return result;
+		}
+
+		protected string WriteValue(object defaultValue)
+		{
+			return string.Format(CultureInfo.InvariantCulture, "{0}", defaultValue);
+		}
+
+		protected string WriteValue(DateTime defaultValue)
+		{
+			return SqlGenerator.FormatDateTime(defaultValue);
+		}
+
+		protected string WriteValue(byte[] defaultValue)
+		{
+			return SqlGenerator.FormatBinary(defaultValue);
+		}
+
+		protected string WriteValue(bool defaultValue)
+		{
+			return SqlGenerator.FormatBoolean(defaultValue);
+		}
+
+		protected string WriteValue(Guid defaultValue)
+		{
+			return SqlGenerator.FormatGuid(defaultValue);
+		}
+
+		protected string WriteValue(string defaultValue)
+		{
+			return SqlGenerator.FormatString(defaultValue);
+		}
+
+		protected string WriteValue(TimeSpan defaultValue)
+		{
+			return SqlGenerator.FormatTime(defaultValue);
 		}
 
 		string BuildColumnType(ColumnModel columnModel)
