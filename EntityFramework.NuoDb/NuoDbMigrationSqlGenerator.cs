@@ -58,104 +58,115 @@ namespace NuoDb.Data.Client.EntityFramework6
 
 		protected virtual IEnumerable<MigrationStatement> Generate(AddColumnOperation operation)
 		{
-			var builder = new StringBuilder();
-			builder.Append("ALTER TABLE ");
-			builder.Append(Name(operation.Table));
-			builder.Append(" ADD ");
-			var column = operation.Column;
-			builder.Append(Generate(column));
-			if (column.IsNullable != null
-				&& !column.IsNullable.Value
-				&& column.DefaultValue == null
-				&& string.IsNullOrWhiteSpace(column.DefaultValueSql)
-				&& !column.IsIdentity
-				&& !column.IsTimestamp)
+			using (var writer = SqlWriter())
 			{
-				builder.Append(" DEFAULT ");
+				writer.Write("ALTER TABLE ");
+				writer.Write(Name(operation.Table));
+				writer.Write(" ADD ");
+				var column = operation.Column;
+				writer.Write(Generate(column));
+				if (column.IsNullable != null
+					&& !column.IsNullable.Value
+					&& column.DefaultValue == null
+					&& string.IsNullOrWhiteSpace(column.DefaultValueSql)
+					&& !column.IsIdentity
+					&& !column.IsTimestamp)
+				{
+					writer.Write(" DEFAULT ");
 
-				if (column.Type == PrimitiveTypeKind.DateTime)
-				{
-					builder.Append(Generate(DateTime.Parse("1970-01-01 00:00:00", CultureInfo.InvariantCulture)));
+					if (column.Type == PrimitiveTypeKind.DateTime)
+					{
+						writer.Write(Generate(DateTime.Parse("1970-01-01 00:00:00", CultureInfo.InvariantCulture)));
+					}
+					else
+					{
+						writer.Write(Generate((dynamic)column.ClrDefaultValue));
+					}
 				}
-				else
-				{
-					builder.Append(Generate((dynamic)column.ClrDefaultValue));
-				}
+				yield return Statement(writer);
 			}
-
-			yield return Statement(builder.ToString());
 		}
 
 		protected virtual IEnumerable<MigrationStatement> Generate(AddForeignKeyOperation operation)
 		{
-			var builder = new StringBuilder();
-			builder.Append("ALTER TABLE ");
-			builder.Append(Name(operation.DependentTable));
-			builder.Append(" ADD CONSTRAINT ");
-			builder.Append(Quote(operation.Name));
-			builder.Append(" FOREIGN KEY (");
-			builder.Append(JoinColumns(operation.DependentColumns.Select(Quote)));
-			builder.Append(") REFERENCES ");
-			builder.Append(Name(operation.PrincipalTable));
-			builder.Append(" (");
-			builder.Append(JoinColumns(operation.PrincipalColumns.Select(Quote)));
-			builder.Append(")");
-			if (operation.CascadeDelete)
+			using (var writer = SqlWriter())
 			{
-				builder.Append(" ON DELETE CASCADE");
+				writer.Write("ALTER TABLE ");
+				writer.Write(Name(operation.DependentTable));
+				writer.Write(" ADD CONSTRAINT ");
+				writer.Write(Quote(operation.Name));
+				writer.Write(" FOREIGN KEY (");
+				WriteColumns(writer, operation.DependentColumns.Select(Quote));
+				writer.Write(") REFERENCES ");
+				writer.Write(Name(operation.PrincipalTable));
+				writer.Write(" (");
+				WriteColumns(writer, operation.PrincipalColumns.Select(Quote));
+				writer.Write(")");
+				if (operation.CascadeDelete)
+				{
+					writer.Write(" ON DELETE CASCADE");
+				}
+				yield return Statement(writer);
 			}
-			yield return Statement(builder.ToString());
 		}
 
 		protected virtual IEnumerable<MigrationStatement> Generate(AddPrimaryKeyOperation operation)
 		{
-			var builder = new StringBuilder();
-			builder.Append("ALTER TABLE ");
-			builder.Append(Name(operation.Table));
-			builder.Append(" ADD CONSTRAINT ");
-			builder.Append(Quote(operation.Name));
-			builder.Append(" PRIMARY KEY ");
-			builder.Append("(");
-			builder.Append(JoinColumns(operation.Columns.Select(Quote)));
-			builder.Append(")");
-			yield return Statement(builder.ToString());
+			using (var writer = SqlWriter())
+			{
+				writer.Write("ALTER TABLE ");
+				writer.Write(Name(operation.Table));
+				writer.Write(" ADD CONSTRAINT ");
+				writer.Write(Quote(operation.Name));
+				writer.Write(" PRIMARY KEY ");
+				writer.Write("(");
+				WriteColumns(writer, operation.Columns.Select(Quote));
+				writer.Write(")");
+				yield return Statement(writer);
+			}
 		}
 
 		protected virtual IEnumerable<MigrationStatement> Generate(AlterColumnOperation operation)
 		{
 			var column = operation.Column;
-			var builder = new StringBuilder();
-			builder.Append("ALTER TABLE ");
-			builder.Append(Name(operation.Table));
-			builder.Append(" ALTER COLUMN ");
-			builder.Append(Quote(column.Name));
-			builder.Append(" ");
-			builder.Append(BuildColumnType(column));
-			if (column.IsNullable != null && !column.IsNullable.Value)
+			using (var writer = SqlWriter())
 			{
-				builder.Append(" NOT");
+				writer.Write("ALTER TABLE ");
+				writer.Write(Name(operation.Table));
+				writer.Write(" ALTER COLUMN ");
+				writer.Write(Quote(column.Name));
+				writer.Write(" ");
+				writer.Write(BuildColumnType(column));
+				if (column.IsNullable != null && !column.IsNullable.Value)
+				{
+					writer.Write(" NOT");
+				}
+				writer.Write(" NULL");
+				yield return Statement(writer);
 			}
-			builder.Append(" NULL");
-			yield return Statement(builder.ToString());
 
 			if (column.DefaultValue != null || !string.IsNullOrWhiteSpace(column.DefaultValueSql))
 			{
-				builder.Clear();
-				builder.Append("ALTER TABLE ");
-				builder.Append(Name(operation.Table));
-				builder.Append(" ALTER COLUMN ");
-				builder.Append(Quote(column.Name));
-				builder.Append(" DROP DEFAULT");
-				yield return Statement(builder.ToString());
+				using (var writer = SqlWriter())
+				{
+					writer.Write("ALTER TABLE ");
+					writer.Write(Name(operation.Table));
+					writer.Write(" ALTER COLUMN ");
+					writer.Write(Quote(column.Name));
+					writer.Write(" DROP DEFAULT");
+					yield return Statement(writer);
+				}
 
-				builder.Clear();
-				builder.Append("ALTER TABLE ");
-				builder.Append(Name(operation.Table));
-				builder.Append(" ALTER COLUMN ");
-				builder.Append(Quote(column.Name));
-				builder.Append(" SET DEFAULT ");
-				builder.Append(column.DefaultValue != null ? Generate((dynamic)column.DefaultValue) : column.DefaultValueSql);
-				yield return Statement(builder.ToString());
+				using (var writer = SqlWriter())
+				{
+					writer.Write("ALTER TABLE ");
+					writer.Write(Name(operation.Table));
+					writer.Write(" ALTER COLUMN ");
+					writer.Write(Quote(column.Name));
+					writer.Write(" SET DEFAULT ");
+					writer.Write(column.DefaultValue != null ? Generate((dynamic)column.DefaultValue) : column.DefaultValueSql);
+					yield return Statement(writer);
+				}
 			}
 		}
 
@@ -172,20 +183,22 @@ namespace NuoDb.Data.Client.EntityFramework6
 
 		protected virtual IEnumerable<MigrationStatement> Generate(CreateIndexOperation operation)
 		{
-			var builder = new StringBuilder();
-			builder.Append("CREATE ");
-			if (operation.IsUnique)
+			using (var writer = SqlWriter())
 			{
-				builder.Append("UNIQUE ");
+				writer.Write("CREATE ");
+				if (operation.IsUnique)
+				{
+					writer.Write("UNIQUE ");
+				}
+				writer.Write("INDEX ");
+				writer.Write(Quote(operation.Name));
+				writer.Write(" ON ");
+				writer.Write(Name(operation.Table));
+				writer.Write("(");
+				WriteColumns(writer, operation.Columns);
+				writer.Write(")");
+				yield return Statement(writer);
 			}
-			builder.Append("INDEX ");
-			builder.Append(Quote(operation.Name));
-			builder.Append(" ON ");
-			builder.Append(Name(operation.Table));
-			builder.Append("(");
-			builder.Append(JoinColumns(operation.Columns));
-			builder.Append(")");
-			yield return Statement(builder.ToString());
 		}
 
 		protected virtual IEnumerable<MigrationStatement> Generate(CreateProcedureOperation operation)
@@ -195,15 +208,19 @@ namespace NuoDb.Data.Client.EntityFramework6
 
 		protected virtual IEnumerable<MigrationStatement> Generate(CreateTableOperation operation)
 		{
-			var builder = new StringBuilder();
-			builder.Append("CREATE TABLE ");
-			builder.Append(Name(operation.Name));
-			builder.Append(" (");
-			builder.AppendLine();
-			builder.Append(JoinColumns(operation.Columns.Select(Generate), true));
-			builder.Append(")");
-			yield return Statement(builder.ToString());
-
+			using (var writer = SqlWriter())
+			{
+				writer.Write("CREATE TABLE ");
+				writer.Write(Name(operation.Name));
+				writer.Write(" (");
+				writer.WriteLine();
+				writer.Indent++;
+				WriteColumns(writer, operation.Columns.Select(Generate), true);
+				writer.Indent--;
+				writer.WriteLine();
+				writer.Write(")");
+				yield return Statement(writer);
+			}
 			if (operation.PrimaryKey != null)
 			{
 				foreach (var item in Generate(operation.PrimaryKey))
@@ -213,42 +230,50 @@ namespace NuoDb.Data.Client.EntityFramework6
 
 		protected virtual IEnumerable<MigrationStatement> Generate(DropColumnOperation operation)
 		{
-			var builder = new StringBuilder();
-			builder.Append("ALTER TABLE ");
-			builder.Append(Name(operation.Table));
-			builder.Append(" DROP COLUMN ");
-			builder.Append(Quote(operation.Name));
-			yield return Statement(builder.ToString());
+			using (var writer = SqlWriter())
+			{
+				writer.Write("ALTER TABLE ");
+				writer.Write(Name(operation.Table));
+				writer.Write(" DROP COLUMN ");
+				writer.Write(Quote(operation.Name));
+				yield return Statement(writer);
+			}
 		}
 
 		protected virtual IEnumerable<MigrationStatement> Generate(DropForeignKeyOperation operation)
 		{
-			var builder = new StringBuilder();
-			builder.Append("ALTER TABLE ");
-			builder.Append(Name(operation.DependentTable));
-			builder.Append(" DROP CONSTRAINT ");
-			builder.Append(Quote(operation.Name));
-			yield return Statement(builder.ToString());
+			using (var writer = SqlWriter())
+			{
+				writer.Write("ALTER TABLE ");
+				writer.Write(Name(operation.DependentTable));
+				writer.Write(" DROP CONSTRAINT ");
+				writer.Write(Quote(operation.Name));
+				yield return Statement(writer);
+			}
 		}
 
 		protected virtual IEnumerable<MigrationStatement> Generate(DropIndexOperation operation)
 		{
-			var builder = new StringBuilder();
-			builder.Append("DROP INDEX ");
-			builder.Append(Quote(operation.Name));
-			builder.Append(" ON ");
-			builder.Append(Name(operation.Table));
-			yield return Statement(builder.ToString());
+			using (var writer = SqlWriter())
+			{
+				writer.Write("DROP INDEX ");
+				writer.Write(Quote(operation.Name));
+				writer.Write(" ON ");
+				writer.Write(Name(operation.Table));
+				yield return Statement(writer);
+			}
 		}
 
 		protected virtual IEnumerable<MigrationStatement> Generate(DropPrimaryKeyOperation operation)
 		{
 #warning Does not work in NuoDB, yet
-			var writer = new StringBuilder();
-			writer.Append("ALTER TABLE ");
-			writer.Append(Name(operation.Table));
-			writer.Append(" DROP PRIMARY KEY");
-			yield return Statement(writer.ToString());
+			using (var writer = SqlWriter())
+			{
+				writer.Write("ALTER TABLE ");
+				writer.Write(Name(operation.Table));
+				writer.Write(" DROP PRIMARY KEY");
+				yield return Statement(writer);
+			}
 		}
 
 		protected virtual IEnumerable<MigrationStatement> Generate(DropProcedureOperation operation)
@@ -258,10 +283,12 @@ namespace NuoDb.Data.Client.EntityFramework6
 
 		protected virtual IEnumerable<MigrationStatement> Generate(DropTableOperation operation)
 		{
-			var builder = new StringBuilder();
-			builder.Append("DROP TABLE ");
-			builder.Append(Name(operation.Name));
-			yield return Statement(builder.ToString());
+			using (var writer = SqlWriter())
+			{
+				writer.Write("DROP TABLE ");
+				writer.Write(Name(operation.Name));
+				yield return Statement(writer);
+			}
 		}
 
 		protected virtual IEnumerable<MigrationStatement> Generate(HistoryOperation operation)
@@ -282,14 +309,16 @@ namespace NuoDb.Data.Client.EntityFramework6
 
 		protected virtual IEnumerable<MigrationStatement> Generate(RenameColumnOperation operation)
 		{
-			var builder = new StringBuilder();
-			builder.Append("ALTER TABLE ");
-			builder.Append(Quote(operation.Table));
-			builder.Append(" RENAME COLUMN ");
-			builder.Append(Quote(operation.Name));
-			builder.Append(" TO ");
-			builder.Append(Quote(operation.NewName));
-			yield return Statement(builder.ToString());
+			using (var writer = SqlWriter())
+			{
+				writer.Write("ALTER TABLE ");
+				writer.Write(Quote(operation.Table));
+				writer.Write(" RENAME COLUMN ");
+				writer.Write(Quote(operation.Name));
+				writer.Write(" TO ");
+				writer.Write(Quote(operation.NewName));
+				yield return Statement(writer);
+			}
 		}
 
 		protected virtual IEnumerable<MigrationStatement> Generate(RenameIndexOperation operation)
@@ -313,40 +342,40 @@ namespace NuoDb.Data.Client.EntityFramework6
 
 		protected virtual string Generate(ColumnModel column)
 		{
-			var builder = new StringBuilder();
-			builder.Append(Quote(column.Name));
-			builder.Append(" ");
-			builder.Append(BuildColumnType(column));
+			var result = new StringBuilder();
+			result.Append(Quote(column.Name));
+			result.Append(" ");
+			result.Append(BuildColumnType(column));
 
 			if ((column.IsNullable != null)
 				&& !column.IsNullable.Value)
 			{
-				builder.Append(" NOT NULL");
+				result.Append(" NOT NULL");
 			}
 
 			if (column.DefaultValue != null)
 			{
-				builder.Append(" DEFAULT ");
-				builder.Append(Generate((dynamic)column.DefaultValue));
+				result.Append(" DEFAULT ");
+				result.Append(Generate((dynamic)column.DefaultValue));
 			}
 			else if (!string.IsNullOrWhiteSpace(column.DefaultValueSql))
 			{
-				builder.Append(" DEFAULT ");
-				builder.Append(column.DefaultValueSql);
+				result.Append(" DEFAULT ");
+				result.Append(column.DefaultValueSql);
 			}
 			else if (column.IsIdentity)
 			{
 				if (column.Type == PrimitiveTypeKind.Guid && column.DefaultValue == null)
 				{
-					builder.Append(" DEFAULT " + Guid.NewGuid().ToNuoDbString());
+					result.Append(" DEFAULT " + Guid.NewGuid().ToNuoDbString());
 				}
 				else
 				{
-					builder.Append(" GENERATED BY DEFAULT AS IDENTITY");
+					result.Append(" GENERATED BY DEFAULT AS IDENTITY");
 				}
 			}
 
-			return builder.ToString();
+			return result.ToString();
 		}
 
 		protected virtual string Generate(object defaultValue)
@@ -408,6 +437,18 @@ namespace NuoDb.Data.Client.EntityFramework6
 			return name;
 		}
 
+		MigrationStatement Statement(SqlWriter sqlWriter, bool suppressTransaction = false)
+		{
+			return Statement(sqlWriter.ToString(), suppressTransaction);
+		}
+
+		SqlWriter SqlWriter()
+		{
+			var result = new SqlWriter(new StringBuilder());
+			result.Indent++;
+			return result;
+		}
+
 		string BuildColumnType(ColumnModel columnModel)
 		{
 			return BuildPropertyType(columnModel);
@@ -434,10 +475,20 @@ namespace NuoDb.Data.Client.EntityFramework6
 			return DbConfiguration.DependencyResolver.GetService<DbProviderFactory>(NuoDbProviderServices.ProviderInvariantName).CreateConnection();
 		}
 
-		static string JoinColumns(IEnumerable<string> columns, bool separateLines = false)
+		static void WriteColumns(SqlWriter writer, IEnumerable<string> columns, bool separateLines = false)
 		{
-			var separator = ", " + (separateLines ? Environment.NewLine : string.Empty);
-			return string.Join(separator, columns);
+			var separator = (string)null;
+			foreach (var column in columns)
+			{
+				if (separator != null)
+				{
+					writer.Write(separator);
+					if (separateLines)
+						writer.WriteLine();
+				}
+				writer.Write(column);
+				separator = ", ";
+			}
 		}
 
 		#endregion
