@@ -363,7 +363,7 @@ namespace NuoDb.Data.Client.EntityFramework6
 				}
 			}
 		}
-		
+
 		protected virtual IEnumerable<MigrationStatement> Generate(ProcedureOperation operation, string action)
 		{
 			// we might add support for [LANGUAGE SQL | LANGUAGE JAVA ] via AnonymousArguments
@@ -392,7 +392,7 @@ namespace NuoDb.Data.Client.EntityFramework6
 				yield return Statement(writer);
 			}
 		}
-		
+
 		protected virtual string Generate(ColumnModel column)
 		{
 			var result = new StringBuilder();
@@ -430,7 +430,7 @@ namespace NuoDb.Data.Client.EntityFramework6
 
 			return result.ToString();
 		}
-		
+
 		protected virtual string Generate(ParameterModel parameter)
 		{
 			var result = new StringBuilder();
