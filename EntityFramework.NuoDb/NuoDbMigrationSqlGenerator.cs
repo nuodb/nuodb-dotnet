@@ -267,9 +267,8 @@ namespace NuoDb.Data.Client.EntityFramework6
 		{
 			using (var writer = SqlWriter())
 			{
-				writer.Write("ALTER TABLE ");
-				writer.Write(Quote(operation.Table));
-				writer.Write(" DROP PRIMARY KEY");
+				writer.Write("DROP INDEX ");
+				writer.Write(Quote(FixName(operation.Name)));
 				yield return Statement(writer);
 			}
 		}
