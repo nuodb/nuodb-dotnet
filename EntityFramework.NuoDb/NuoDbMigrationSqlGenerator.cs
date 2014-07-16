@@ -465,7 +465,7 @@ namespace NuoDb.Data.Client.EntityFramework6
 			{
 				Sql = sql,
 				SuppressTransaction = suppressTransaction,
-				BatchTerminator = string.Empty
+				BatchTerminator = ";",
 			};
 		}
 
