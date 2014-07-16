@@ -152,11 +152,12 @@ namespace NuoDb.Data.Client
             if (_disposed)
                 return;
 
-            _disposed = true;
             if (disposing)
             {
                 CloseImpl();
             }
+
+            _disposed = true;
         }
 
         protected override DbCommand CreateDbCommand()
