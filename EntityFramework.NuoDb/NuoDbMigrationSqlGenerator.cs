@@ -134,7 +134,7 @@ namespace NuoDb.Data.Client.EntityFramework6
 			{
 				writer.Write("ALTER TABLE ");
 				writer.Write(Quote(operation.Table));
-				writer.Write(" ALTER COLUMN ");
+				writer.Write(" MODIFY COLUMN ");
 				writer.Write(Quote(column.Name));
 				writer.Write(" ");
 				writer.Write(BuildColumnType(column));
