@@ -94,9 +94,7 @@ namespace NuoDb.Data.Client.EntityFramework6
 			{
 				writer.Write("ALTER TABLE ");
 				writer.Write(Quote(operation.DependentTable));
-				writer.Write(" ADD CONSTRAINT ");
-				writer.Write(Quote(FixName(operation.Name)));
-				writer.Write(" FOREIGN KEY (");
+				writer.Write(" ADD FOREIGN KEY (");
 				WriteColumns(writer, operation.DependentColumns.Select(Quote));
 				writer.Write(") REFERENCES ");
 				writer.Write(Quote(operation.PrincipalTable));
