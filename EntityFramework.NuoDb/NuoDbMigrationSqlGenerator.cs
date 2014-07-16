@@ -247,8 +247,10 @@ namespace NuoDb.Data.Client.EntityFramework6
 			{
 				writer.Write("ALTER TABLE ");
 				writer.Write(Quote(operation.DependentTable));
-				writer.Write(" DROP CONSTRAINT ");
-				writer.Write(Quote(FixName(operation.Name)));
+				writer.Write(" DROP FOREIGN KEY (");
+				WriteColumns(writer, operation.DependentColumns.Select(Quote));
+				writer.Write(") REFERENCES ");
+				writer.Write(Quote(operation.PrincipalTable));
 				yield return Statement(writer);
 			}
 		}
