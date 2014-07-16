@@ -95,7 +95,7 @@ namespace NuoDb.Data.Client.EntityFramework6
 				writer.Write("ALTER TABLE ");
 				writer.Write(Quote(operation.DependentTable));
 				writer.Write(" ADD CONSTRAINT ");
-				writer.Write(Quote(operation.Name));
+				writer.Write(Quote(FixName(operation.Name)));
 				writer.Write(" FOREIGN KEY (");
 				WriteColumns(writer, operation.DependentColumns.Select(Quote));
 				writer.Write(") REFERENCES ");
@@ -118,7 +118,7 @@ namespace NuoDb.Data.Client.EntityFramework6
 				writer.Write("ALTER TABLE ");
 				writer.Write(Quote(operation.Table));
 				writer.Write(" ADD CONSTRAINT ");
-				writer.Write(Quote(operation.Name));
+				writer.Write(Quote(FixName(operation.Name)));
 				writer.Write(" PRIMARY KEY ");
 				writer.Write("(");
 				WriteColumns(writer, operation.Columns.Select(Quote));
@@ -192,7 +192,7 @@ namespace NuoDb.Data.Client.EntityFramework6
 					writer.Write("UNIQUE ");
 				}
 				writer.Write("INDEX ");
-				writer.Write(Quote(operation.Name));
+				writer.Write(Quote(FixName(operation.Name)));
 				writer.Write(" ON ");
 				writer.Write(Quote(operation.Table));
 				writer.Write("(");
@@ -248,7 +248,7 @@ namespace NuoDb.Data.Client.EntityFramework6
 				writer.Write("ALTER TABLE ");
 				writer.Write(Quote(operation.DependentTable));
 				writer.Write(" DROP CONSTRAINT ");
-				writer.Write(Quote(operation.Name));
+				writer.Write(Quote(FixName(operation.Name)));
 				yield return Statement(writer);
 			}
 		}
@@ -258,7 +258,7 @@ namespace NuoDb.Data.Client.EntityFramework6
 			using (var writer = SqlWriter())
 			{
 				writer.Write("DROP INDEX ");
-				writer.Write(Quote(operation.Name));
+				writer.Write(Quote(FixName(operation.Name)));
 				writer.Write(" ON ");
 				writer.Write(Quote(operation.Table));
 				yield return Statement(writer);
@@ -487,6 +487,11 @@ namespace NuoDb.Data.Client.EntityFramework6
 		protected string ObjectName(string name)
 		{
 			return ParseName(name).Last();
+		}
+
+		protected static string FixName(string name)
+		{
+			return name.Replace(".", "_");
 		}
 
 		MigrationStatement Statement(SqlWriter sqlWriter, bool suppressTransaction = false)
