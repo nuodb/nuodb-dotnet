@@ -469,19 +469,24 @@ namespace NuoDb.Data.Client.EntityFramework6
 			};
 		}
 
-		protected static string Quote(string identifier)
+		protected static string Quote(string name)
 		{
-			return SqlGenerator.QuoteIdentifier(identifier);
+			return JoinNames(ParseName(name).Select(SqlGenerator.QuoteIdentifier));
 		}
 
-		protected static string[] ParseObjectName(string name)
+		protected static string[] ParseName(string name)
 		{
-			return name.Split('.');
+			return name.Split(new[] { "." }, StringSplitOptions.None);
+		}
+
+		protected static string JoinNames(IEnumerable<string> names)
+		{
+			return string.Join(".", names);
 		}
 
 		protected string ObjectName(string name)
 		{
-			return ParseObjectName(name).Last();
+			return ParseName(name).Last();
 		}
 
 		MigrationStatement Statement(SqlWriter sqlWriter, bool suppressTransaction = false)
