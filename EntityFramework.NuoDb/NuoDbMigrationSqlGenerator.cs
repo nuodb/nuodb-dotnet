@@ -259,8 +259,6 @@ namespace NuoDb.Data.Client.EntityFramework6
 			{
 				writer.Write("DROP INDEX ");
 				writer.Write(Quote(FixName(operation.Name)));
-				writer.Write(" ON ");
-				writer.Write(Quote(operation.Table));
 				yield return Statement(writer);
 			}
 		}
