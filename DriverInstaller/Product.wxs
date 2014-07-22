@@ -21,6 +21,14 @@
       <ComponentGroupRef Id="Register_DotNetDriver" />
     </Feature>
 
+    <Feature Id="AspNetMembershipFeature" Title="Installing ASP.NET Membership Provider" Level="1">
+      <ComponentRef Id="Install_MembershipProvider" />
+      <ComponentRef Id="Register_MembershipProvider_35" />
+      <ComponentRef Id="Register_MembershipProvider_40" />
+      <ComponentRef Id="Register_MembershipProvider64_35" />
+      <ComponentRef Id="Register_MembershipProvider64_40" />
+    </Feature>
+
     <Feature Id="VStudioFeature" Title="Installing Visual Studio plugins" Level="1">
       <ComponentRef Id="Install_VSPackage"/>
       <ComponentGroupRef Id="Install_DDEXPlugin_VS2010" />

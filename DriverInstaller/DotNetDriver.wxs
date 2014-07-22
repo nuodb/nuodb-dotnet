@@ -3,7 +3,7 @@
      xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
   <Fragment>
     <Property Id="DOTNET_20_CONFIG">
-      <RegistrySearch Id="NetFxInstallRootForNetfx20Search" Type="raw" Root="HKLM" Key="Software\Microsoft\.NETFramework" Name="InstallRoot">
+      <RegistrySearch Id="NetFxInstallRootForConfig20Search" Root="HKLM" Key="Software\Microsoft\.NETFramework" Name="InstallRoot" Type="directory">
         <DirectorySearch Id="NetFx20InstallRootSearch" Path="v2.0.50727" Depth="0">
           <DirectorySearch Id="SearchMachineConfig_20" Path="Config" Depth="0">
             <FileSearch Id="FileSearchMachineConfig_20" Name="machine.config"/>
@@ -13,7 +13,7 @@
     </Property>
     
     <Property Id="DOTNET_40_CONFIG">
-      <RegistrySearch Id="NetFxInstallRootForNetfx40Client" Root="HKLM" Key="Software\Microsoft\NET Framework Setup\NDP\v4\Client" Name="InstallPath" Type="raw" >
+      <RegistrySearch Id="NetFxInstallRootForConfig40Client" Root="HKLM" Key="Software\Microsoft\NET Framework Setup\NDP\v4\Client" Name="InstallPath" Type="directory" >
         <DirectorySearch Id="SearchMachineConfig_40" Path="Config" Depth="0">
           <FileSearch Id="FileSearchMachineConfig_40" Name="machine.config"/>
         </DirectorySearch>
@@ -21,7 +21,7 @@
     </Property>
 
     <Property Id="DOTNET64_20_CONFIG">
-      <RegistrySearch Id="NetFxInstallRootForNetfx20Search64" Type="raw" Root="HKLM" Key="Software\Microsoft\.NETFramework" Name="InstallRoot" Win64="yes">
+      <RegistrySearch Id="NetFxInstallRootForConfig20Search64" Root="HKLM" Key="Software\Microsoft\.NETFramework" Name="InstallRoot" Win64="yes" Type="directory">
         <DirectorySearch Id="NetFx20InstallRootSearch64" Path="v2.0.50727" Depth="0">
           <DirectorySearch Id="SearchMachineConfig_6420" Path="Config" Depth="0">
             <FileSearch Id="FileSearchMachineConfig_6420" Name="machine.config"/>
@@ -31,13 +31,41 @@
     </Property>
 
     <Property Id="DOTNET64_40_CONFIG">
-      <RegistrySearch Id="NetFxInstallRootForNetfx40Client64" Root="HKLM" Key="Software\Microsoft\NET Framework Setup\NDP\v4\Client" Name="InstallPath" Type="raw" Win64="yes" >
+      <RegistrySearch Id="NetFxInstallRootForConfig40Client64" Root="HKLM" Key="Software\Microsoft\NET Framework Setup\NDP\v4\Client" Name="InstallPath" Type="directory" Win64="yes" >
         <DirectorySearch Id="SearchMachineConfig_6440" Path="Config" Depth="0">
           <FileSearch Id="FileSearchMachineConfig_6440" Name="machine.config"/>
         </DirectorySearch>
       </RegistrySearch>
     </Property>
 
+    <Property Id="DOTNET_20_EVENTLOGMESSAGES">
+      <RegistrySearch Id="NetFxInstallRootForEventLog20Search" Root="HKLM" Key="Software\Microsoft\.NETFramework" Name="InstallRoot" Type="directory">
+        <DirectorySearch Id="NetFxForEventLog20InstallRootSearch" Path="v2.0.50727" Depth="0">
+          <FileSearch Id="FileSearchEventLogMessages_20" Name="EventLogMessages.dll"/>
+        </DirectorySearch>
+      </RegistrySearch>
+    </Property>
+
+    <Property Id="DOTNET_40_EVENTLOGMESSAGES">
+      <RegistrySearch Id="NetFxInstallRootForEventLog40Client" Root="HKLM" Key="Software\Microsoft\NET Framework Setup\NDP\v4\Client" Name="InstallPath" Type="directory" >
+        <FileSearch Id="FileSearchEventLogMessages_40" Name="EventLogMessages.dll"/>
+      </RegistrySearch>
+    </Property>
+
+    <Property Id="DOTNET64_20_EVENTLOGMESSAGES">
+      <RegistrySearch Id="NetFxInstallRootForEventLog20Search64" Root="HKLM" Key="Software\Microsoft\.NETFramework" Name="InstallRoot" Type="directory" Win64="yes">
+        <DirectorySearch Id="NetFxForEventLog20InstallRootSearch64" Path="v2.0.50727" Depth="0">
+          <FileSearch Id="FileSearchEventLogMessages_6420" Name="EventLogMessages.dll"/>
+        </DirectorySearch>
+      </RegistrySearch>
+    </Property>
+
+    <Property Id="DOTNET64_40_EVENTLOGMESSAGES">
+      <RegistrySearch Id="NetFxInstallRootForEventLog40Client64" Root="HKLM" Key="Software\Microsoft\NET Framework Setup\NDP\v4\Client" Name="InstallPath" Type="directory" Win64="yes" >
+        <FileSearch Id="FileSearchEventLogMessages_6440" Name="EventLogMessages.dll"/>
+      </RegistrySearch>
+    </Property>
+    
     <Property Id="EXTENSION_DIR_VS2010">
       <RegistrySearch Id="VS2010_Extension"
                       Root="HKCU"
@@ -88,6 +116,48 @@
                           Type="string"/>
         </Component>
       </Directory>
+      
+      <Directory Id="ASP.NET" Name="ASP.NET">
+        <Component Id="Install_MembershipProvider" Guid="7619B209-76A9-4446-8872-96260753611C">
+          <File Id="NuoDb.Web.Security.dll"
+                KeyPath="yes"
+                Assembly=".net"
+                Source="../NuoDb.Web.Security/bin/$(var.Configuration)/NuoDb.Web.Security.dll"/>
+        </Component>
+        <!-- .NET 2.0 - 3.5 -->
+        <Component Id="Register_MembershipProvider_35" Guid="8CB8F917-5842-4752-BDFF-011ECFD9D71F">
+          <CreateFolder/>
+          <util:EventSource Name="NuoDbMembershipProvider"
+                            Log="Application"
+                            EventMessageFile="[DOTNET_20_EVENTLOGMESSAGES]"/>
+          <Condition>DOTNET_20_EVENTLOGMESSAGES</Condition>
+        </Component>
+        <!-- .NET 4.0 -->
+        <Component Id="Register_MembershipProvider_40" Guid="B9E5EBB5-CFC2-4697-9AE4-A42236120974">
+          <CreateFolder/>
+          <util:EventSource Name="NuoDbMembershipProvider"
+                            Log="Application"
+                            EventMessageFile="[DOTNET_40_EVENTLOGMESSAGES]"/>
+          <Condition>DOTNET_40_EVENTLOGMESSAGES</Condition>
+        </Component>
+        <!-- 64 bit .NET 2.0 - 3.5 -->
+        <Component Id="Register_MembershipProvider64_35" Guid="5C3E4170-B4D1-4EA7-9E08-F628EE08E06D">
+          <CreateFolder/>
+          <util:EventSource Name="NuoDbMembershipProvider"
+                            Log="Application"
+                            EventMessageFile="[DOTNET64_20_EVENTLOGMESSAGES]"/>
+          <Condition>DOTNET64_20_EVENTLOGMESSAGES</Condition>
+        </Component>
+        <!-- 64 bit .NET 4.0 -->
+        <Component Id="Register_MembershipProvider64_40" Guid="FC1AF163-7DA0-4FD9-AF21-C27AB6A28114">
+          <CreateFolder/>
+          <util:EventSource Name="NuoDbMembershipProvider"
+                            Log="Application"
+                            EventMessageFile="[DOTNET64_40_EVENTLOGMESSAGES]"/>
+          <Condition>DOTNET64_40_EVENTLOGMESSAGES</Condition>
+        </Component>
+      </Directory>
+      
       <Directory Id="EF6" Name="EF 6.0">
         <Component Id="Install_EntityFramework_NuoDb" Guid="7EB79C05-04AE-4BD0-B934-E00104F00FC5">
           <File Id="EntityFramework.NuoDb.dll"

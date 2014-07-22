@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>NuoDb.Web.Security</id>
+    <version>2.0.4.0</version>
+    <title>NuoDB ASP.NET Membership Provider</title>
+    <authors>NuoDB</authors>
+    <owners>NuoDB</owners>
+    <projectUrl>http://doc.nuodb.com/display/doc/NuoDB+ADO.NET+Driver</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>The ASP.NET Membership Provider for NuoDB® enables an ASP.NET application to authenticate web users using a table inside a NuoDB database.</description>
+    <summary>NuoDB ASP.NET Membership Provider</summary>
+    <tags>nuodb newsql nosql cloud ASP.NET</tags>
+    <dependencies>
+      <group>
+        <dependency id="NuoDb.Data.Client" version="2.0.4" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="NuoDb.Web.Security\bin\Release\NuoDb.Web.Security.dll" target="lib\net35" />
+  </files>
+</package>

@@ -1582,8 +1582,14 @@ namespace NUnitTestProject
         void HandleCallback3(IAsyncResult result)
         {
             NuoDbCommand command = (NuoDbCommand)result.AsyncState;
-            int count = command.EndExecuteNonQuery(result);
-
+            try
+            {
+                int count = command.EndExecuteNonQuery(result);
+            }
+            catch (Exception e)
+            {
+                Assert.Fail(e.Message);
+            }
             Utils.DropTable(command.Connection as NuoDbConnection, "temp");
             command.Close();
             command.Connection.Close();
