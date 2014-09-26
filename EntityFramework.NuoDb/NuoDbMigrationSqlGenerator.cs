@@ -190,7 +190,7 @@ namespace NuoDb.Data.Client.EntityFramework6
                     writer.Write("UNIQUE ");
                 }
                 writer.Write("INDEX ");
-                writer.Write(Quote(FixName(operation.Name)));
+                writer.Write(Quote(string.Format("{0}_{1}", operation.Table, FixName(operation.Name))));
                 writer.Write(" ON ");
                 writer.Write(Quote(operation.Table));
                 writer.Write("(");
@@ -258,7 +258,7 @@ namespace NuoDb.Data.Client.EntityFramework6
             using (var writer = SqlWriter())
             {
                 writer.Write("DROP INDEX ");
-                writer.Write(Quote(FixName(operation.Name)));
+                writer.Write(Quote(string.Format("{0}_{1}", operation.Table, FixName(operation.Name))));
                 yield return Statement(writer);
             }
         }
