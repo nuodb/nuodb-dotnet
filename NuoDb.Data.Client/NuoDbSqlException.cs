@@ -28,6 +28,7 @@
 
 using System;
 using System.Data.Common;
+using System.Runtime.Serialization;
 
 namespace NuoDb.Data.Client
 {
@@ -61,6 +62,18 @@ namespace NuoDb.Data.Client
         public NuoDbSqlException(Exception exception)
             : base("", exception)
         {
+        }
+        public NuoDbSqlException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+            code = (NuoDbSqlCode)info.GetValue("NuoDbSqlCode", code.GetType());
+        }
+
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("NuoDbSqlCode", code);
         }
     }
 }
