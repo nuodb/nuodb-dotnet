@@ -33,6 +33,7 @@ namespace NuoDb.Data.Client
     /// <summary>
     /// Maps Nuodb vendor error codes to default SQLState values.
     /// </summary>
+    [Serializable]
     public class NuoDbSqlCode
     {
         // modifications to this list must also update C++'s SQLException.h
