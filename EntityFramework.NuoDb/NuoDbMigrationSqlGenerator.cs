@@ -190,7 +190,7 @@ namespace NuoDb.Data.Client.EntityFramework6
                     writer.Write("UNIQUE ");
                 }
                 writer.Write("INDEX ");
-                writer.Write(Quote(string.Format("{0}_{1}", operation.Table, FixName(operation.Name))));
+                writer.Write(Quote(string.Format("{0}_{1}", FixName(ObjectName(operation.Table)), FixName(operation.Name))));
                 writer.Write(" ON ");
                 writer.Write(Quote(operation.Table));
                 writer.Write("(");
@@ -258,7 +258,7 @@ namespace NuoDb.Data.Client.EntityFramework6
             using (var writer = SqlWriter())
             {
                 writer.Write("DROP INDEX ");
-                writer.Write(Quote(string.Format("{0}_{1}", operation.Table, FixName(operation.Name))));
+                writer.Write(Quote(string.Format("{0}.{1}_{2}", SchemaName(operation.Table), FixName(ObjectName(operation.Table)), FixName(operation.Name))));
                 yield return Statement(writer);
             }
         }
@@ -268,7 +268,7 @@ namespace NuoDb.Data.Client.EntityFramework6
             using (var writer = SqlWriter())
             {
                 writer.Write("DROP INDEX ");
-                writer.Write(Quote(FixName(operation.Name)));
+                writer.Write(Quote(string.Format("{0}.{1}", SchemaName(operation.Table), FixName(operation.Name))));
                 yield return Statement(writer);
             }
         }
@@ -479,9 +479,19 @@ namespace NuoDb.Data.Client.EntityFramework6
             return ParseName(name).Last();
         }
 
+        protected string SchemaName(string name)
+        {
+            string[] tokens = ParseName(name);
+            if (tokens.Length == 1)
+            {
+                return null;
+            }
+            return tokens[0];
+        }
+
         protected static string FixName(string name)
         {
-            return name.Replace(".", "_");
+            return name.Replace(".", "_").Replace(" ", "_");
         }
 
         MigrationStatement Statement(SqlWriter sqlWriter, bool suppressTransaction = false)
