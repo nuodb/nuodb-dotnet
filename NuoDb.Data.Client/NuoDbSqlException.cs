@@ -66,7 +66,7 @@ namespace NuoDb.Data.Client
         public NuoDbSqlException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            code = (NuoDbSqlCode)info.GetValue("NuoDbSqlCode", code.GetType());
+            code = (NuoDbSqlCode)info.GetValue("NuoDbSqlCode", typeof (NuoDbSqlCode));
         }
 
 
