@@ -453,9 +453,9 @@ namespace NuoDb.Data.Client.EntityFramework6
         {
             return new MigrationStatement
             {
-                Sql = sql,
+                Sql = sql + ";",
                 SuppressTransaction = suppressTransaction,
-                BatchTerminator = ";",
+                BatchTerminator = string.Empty,
             };
         }
 
