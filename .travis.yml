@@ -1,12 +1,15 @@
 language: c
 
 env:
-  - NUODB_HOME=/opt/nuodb NUODB_VERSION=2.0.4
+  - NUODB_HOME=/opt/nuodb NUODB_VERSION=2.0.4.20 NUODB_ADD_DOMAIN_PASS=no NUODB_START_AGENT=no
+  - NUODB_HOME=/opt/nuodb NUODB_VERSION=2.1.0.2 NUODB_ADD_DOMAIN_PASS=yes NUODB_START_AGENT=yes
 
 before_install:
-  - wget http://download.nuohub.org/nuodb-${NUODB_VERSION}.linux.x64.deb --output-document=/var/tmp/nuodb.deb
+  - wget http://download.nuohub.org/nuodb_${NUODB_VERSION}.deb --output-document=/var/tmp/nuodb.deb
   - sudo dpkg -i /var/tmp/nuodb.deb
-  - sleep 2
+  - sleep 5
+  - if [[ "${NUODB_ADD_DOMAIN_PASS}" == "yes" ]] ; then sudo chmod 777 $NUODB_HOME/etc/default.properties; echo "domainPassword = bird" >> $NUODB_HOME/etc/default.properties; sudo chmod 600 $NUODB_HOME/etc/default.properties; fi
+  - if [[ "${NUODB_START_AGENT}" == "yes" ]]; then sudo service nuoagent start; fi
 
 install:
  - sudo apt-get update && sudo apt-get install mono-devel mono-gmcs mono-complete cli-common-dev nunit-console
