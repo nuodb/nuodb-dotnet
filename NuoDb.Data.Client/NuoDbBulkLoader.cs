@@ -79,11 +79,11 @@ namespace NuoDb.Data.Client
         public int BatchSize
         {
             get { return batchSize; }
-            set 
+            set
             {
                 if (value < 1)
                     throw new ArgumentOutOfRangeException("BatchSize", "The size of a batch must be a positive number");
-                batchSize = value; 
+                batchSize = value;
             }
         }
 
@@ -251,7 +251,7 @@ namespace NuoDb.Data.Client
             {
                 DataRowCollection targetColumns = null;
                 builder.Append(" (");
-                for(int i=0;i<mappings.Count;i++)
+                for (int i = 0; i < mappings.Count; i++)
                 {
                     NuoDbBulkLoaderColumnMapping mapping = mappings[i];
                     if (i != 0)
@@ -295,7 +295,7 @@ namespace NuoDb.Data.Client
             }
             string sqlString = builder.ToString();
 #if DEBUG
-            System.Diagnostics.Trace.WriteLine("NuoDbBulkLoader::WriteToServer: "+sqlString);
+            System.Diagnostics.Trace.WriteLine("NuoDbBulkLoader::WriteToServer: " + sqlString);
 #endif
 
             if (this.connection.State != ConnectionState.Open)
@@ -359,9 +359,8 @@ namespace NuoDb.Data.Client
 #endif
                     this.connection.InternalConnection.sendAndReceive(dataStream);
 
-                    string firstViolationString = "";
-                    int firstViolation = 0;
-                    bool haserrors = false;
+                    bool hasErrors = false;
+                    string errorMessage = string.Empty;
 
                     for (int i = 0; i < batchCount; i++)
                     {
@@ -370,17 +369,12 @@ namespace NuoDb.Data.Client
                         {
                             if (this.connection.InternalConnection.protocolVersion >= Protocol.PROTOCOL_VERSION6)
                             {
-                                int status = dataStream.getInt();
-                                string s = dataStream.getString();
+                                int sqlCode = dataStream.getInt();
+                                string message = dataStream.getString();
 
-                                // Only take the first constraint violation.
-                                if (NuoDbSqlCode.FindCode(status).SQLState.Equals("CONSTRAINT_ERROR") && firstViolation == 0)
-                                {
-                                    firstViolation = status;
-                                    firstViolationString = s;
-                                }
+                                errorMessage = AppendError(errorMessage, message, i);
                             }
-                            haserrors = true;
+                            hasErrors = true;
                         }
                     }
 
@@ -399,23 +393,16 @@ namespace NuoDb.Data.Client
                         BatchProcessedEventArgs args = new BatchProcessedEventArgs();
                         args.BatchSize = batchCount;
                         args.TotalSize = totalSize;
-                        args.HasErrors = haserrors;
+                        args.HasErrors = hasErrors;
                         foreach (BatchProcessedEventHandler h in tmpArray)
                         {
                             h.Invoke(this, args);
                         }
                     }
 
-                    if (haserrors)
+                    if (hasErrors)
                     {
-                        if (firstViolation == 0)
-                        {
-                            throw new NuoDbSqlException("", NuoDbSqlCode.FindError("BATCH_UPDATE_ERROR"));
-                        }
-                        else
-                        {
-                            throw new NuoDbSqlException(firstViolationString, NuoDbSqlCode.FindError("BATCH_UPDATE_ERROR"));
-                        }
+                        throw new NuoDbSqlException(errorMessage, NuoDbSqlCode.FindError("BATCH_UPDATE_ERROR"));
                     }
                 }
             }
@@ -497,6 +484,15 @@ namespace NuoDb.Data.Client
         {
             Feeder feeder = new WrapDataReaderAsFeeder(reader);
             WriteToServer(feeder);
+        }
+
+        private string AppendError(string currentMessage, string error, int index)
+        {
+            var builder = new StringBuilder(currentMessage);
+            if (builder.Length > 0)
+                builder.AppendLine();
+            builder.AppendFormat("{0} (item #{1})", error, index);
+            return builder.ToString();
         }
     }
 }
