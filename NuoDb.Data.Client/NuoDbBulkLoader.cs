@@ -79,11 +79,11 @@ namespace NuoDb.Data.Client
         public int BatchSize
         {
             get { return batchSize; }
-            set 
+            set
             {
                 if (value < 1)
                     throw new ArgumentOutOfRangeException("BatchSize", "The size of a batch must be a positive number");
-                batchSize = value; 
+                batchSize = value;
             }
         }
 
@@ -251,7 +251,7 @@ namespace NuoDb.Data.Client
             {
                 DataRowCollection targetColumns = null;
                 builder.Append(" (");
-                for(int i=0;i<mappings.Count;i++)
+                for (int i = 0; i < mappings.Count; i++)
                 {
                     NuoDbBulkLoaderColumnMapping mapping = mappings[i];
                     if (i != 0)
@@ -295,7 +295,7 @@ namespace NuoDb.Data.Client
             }
             string sqlString = builder.ToString();
 #if DEBUG
-            System.Diagnostics.Trace.WriteLine("NuoDbBulkLoader::WriteToServer: "+sqlString);
+            System.Diagnostics.Trace.WriteLine("NuoDbBulkLoader::WriteToServer: " + sqlString);
 #endif
 
             if (this.connection.State != ConnectionState.Open)
