@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -134,6 +134,7 @@
       <Link>Xml\Attribute.cs</Link>
     </Compile>
     <Compile Include="..\NuoDb.Data.Client\NuoDbCommand.cs" />
+    <Compile Include="..\NuoDb.Data.Client\NuoDbMultipleCommands.cs" />
     <Compile Include="..\NuoDb.Data.Client\NuoDbConnection.cs" />
     <Compile Include="..\NuoDb.Data.Client\Net\CryptoInputStream.cs">
       <Link>Net\CryptoInputStream.cs</Link>

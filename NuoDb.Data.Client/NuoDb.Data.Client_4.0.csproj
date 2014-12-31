@@ -81,6 +81,7 @@
     <Compile Include="NuoDbConnectionStringBuilder.cs" />
     <Compile Include="NuoDbDataAdapter.cs" />
     <Compile Include="NuoDbDataParameterCollection.cs" />
+    <Compile Include="NuoDbMultipleCommands.cs" />
     <Compile Include="NuoDbParameter.cs" />
     <Compile Include="NuoDbProviderFactory.cs" />
     <Compile Include="NuoDbRowUpdatedEventHandler.cs" />
