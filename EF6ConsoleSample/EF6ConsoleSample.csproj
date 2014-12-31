@@ -38,11 +38,11 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\EntityFramework.6.1.1\lib\net40\EntityFramework.dll</HintPath>
     </Reference>
-    <Reference Include="NuoDb.Data.Client, Version=2.1.1.0, Culture=neutral, PublicKeyToken=e49f105b7fb49b38, processorArchitecture=MSIL">
+    <Reference Include="NuoDb.Data.Client, Version=2.1.1.1, Culture=neutral, PublicKeyToken=e49f105b7fb49b38, processorArchitecture=MSIL">
       <Private>True</Private>
       <HintPath>..\NET 4.0\NuoDb.Data.Client.dll</HintPath>
     </Reference>
-    <Reference Include="EntityFramework.NuoDb, Version=2.1.1.0, Culture=neutral, PublicKeyToken=e49f105b7fb49b38, processorArchitecture=MSIL">
+    <Reference Include="EntityFramework.NuoDb, Version=2.1.1.1, Culture=neutral, PublicKeyToken=e49f105b7fb49b38, processorArchitecture=MSIL">
       <Private>True</Private>
       <HintPath>..\EF 6.0\EntityFramework.NuoDb.dll</HintPath>
     </Reference>
