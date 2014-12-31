@@ -46,6 +46,22 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
         }
 
         /// <summary>
+        /// The tables used by Entity Framework to capture the schema of the database
+        /// require the usage of ID columns that are constructed by concatenating the
+        /// key columns of the real metadata tables. This prevents the usage of the
+        /// indexes in the query involving such tables.
+        /// So the metadata tables are dumped into temporary tables having the proper
+        /// index; this variable holds the statements that build them before running
+        /// the real query
+        /// </summary>
+        private List<string> preparationCommands;
+
+        /// <summary>
+        /// A random generator to be used when unique identifiers are needed
+        /// </summary>
+        private Random randomGenerator = new Random();
+
+        /// <summary>
         /// Nested joins and extents need to know whether they should create
         /// a new Select statement, or reuse the parent's.  This flag
         /// indicates whether the parent is a join or not.
@@ -224,7 +240,6 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
         /// <summary>
         /// General purpose static function that can be called from System.Data assembly
         /// </summary>
-        /// <param name="sqlVersion">Server version</param>
         /// <param name="tree">command tree</param>
         /// <param name="parameters">Parameters to add to the command tree corresponding
         /// to constants in the command tree. Used only in ModificationCommandTrees.</param>
@@ -239,7 +254,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
             {
                 SqlGenerator sqlGen = new SqlGenerator();
                 parameters = null;
-                return sqlGen.GenerateSql((DbQueryCommandTree)tree);
+                return sqlGen.GenerateSql((DbQueryCommandTree)tree, out commandType);
             }
 
             //Handle Function
@@ -291,10 +306,11 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
         /// </summary>
         /// <param name="tree"></param>
         /// <returns>The string representing the SQL to be executed.</returns>
-        private string GenerateSql(DbQueryCommandTree tree)
+        private string GenerateSql(DbQueryCommandTree tree, out CommandType commandType)
         {
             selectStatementStack = new Stack<SqlSelectStatement>();
             isParentAJoinStack = new Stack<bool>();
+            preparationCommands = new List<string>();
 
             allExtentNames = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
             allColumnNames = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
@@ -329,7 +345,17 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
             Debug.Assert(selectStatementStack.Count == 0);
             Debug.Assert(isParentAJoinStack.Count == 0);
 
-            return WriteSql(result);
+            commandType = CommandType.Text;
+            StringBuilder builder = new StringBuilder();
+            foreach(String s in preparationCommands)
+            {
+                commandType = NuoDbMultipleCommands.MultipleTexts;
+                builder.Append(s);
+                builder.AppendLine(";");
+            }
+            builder.Append(WriteSql(result));
+
+            return builder.ToString();
         }
 
         /// <summary>
@@ -829,14 +855,14 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
             if (IsParentAJoin)
             {
                 SqlBuilder result = new SqlBuilder();
-                result.Append(GetTargetSql(target));
+                result.Append(GetTargetSql(target, preparationCommands));
 
                 return result;
             }
             else
             {
                 SqlSelectStatement result = new SqlSelectStatement();
-                result.From.Append(GetTargetSql(target));
+                result.From.Append(GetTargetSql(target, preparationCommands));
 
                 return result;
             }
@@ -847,16 +873,51 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
         /// Gets escaped Sql identifier describing this entity set.
         /// </summary>
         /// <returns></returns>
-        internal static string GetTargetSql(EntitySetBase entitySetBase)
+        internal static string GetTargetSql(EntitySetBase entitySetBase, List<string> preparationCommands)
         {
             // construct escaped SQL referencing entity set
             var builder = new StringBuilder();
             var definingQuery = MetadataHelpers.TryGetValueForMetadataProperty<string>(entitySetBase, "DefiningQuery");
             if (!string.IsNullOrEmpty(definingQuery))
             {
-                builder.Append("(");
-                builder.Append(definingQuery);
-                builder.Append(")");
+                string tmpTableName = "`_TMP__" + entitySetBase.Name + "`";
+                string dropCmd = "DROP TABLE " + tmpTableName + " IF EXISTS";
+                if (!preparationCommands.Contains(dropCmd))
+                {
+                    preparationCommands.Add(dropCmd);
+                    StringBuilder createTable = new StringBuilder("CREATE TEMPORARY TABLE " + tmpTableName + "(");
+                    for (int i = 0; i < entitySetBase.ElementType.Members.Count; i++)
+                    {
+                        if (i != 0)
+                        {
+                            createTable.Append(",");
+                        }
+                        EdmMember member = entitySetBase.ElementType.Members[i];
+                        createTable.Append("`");
+                        createTable.Append(member.Name);
+                        createTable.Append("` ");
+                        createTable.Append(member.TypeUsage.EdmType.Name);
+                    }
+                    if (entitySetBase.ElementType.KeyMembers.Count > 0)
+                    {
+                        createTable.Append(",PRIMARY KEY(");
+                        for (int i = 0; i < entitySetBase.ElementType.KeyMembers.Count; i++)
+                        {
+                            if (i != 0)
+                            {
+                                createTable.Append(",");
+                            }
+                            createTable.Append("`");
+                            createTable.Append(entitySetBase.ElementType.KeyMembers[i].Name);
+                            createTable.Append("`");
+                        }
+                        createTable.Append(")");
+                    }
+                    createTable.Append(")");
+                    preparationCommands.Add(createTable.ToString());
+                    preparationCommands.Add("INSERT INTO " + tmpTableName + " " + definingQuery);
+                }
+                builder.Append(tmpTableName);
             }
             else
             {
@@ -1901,14 +1962,14 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
                 EntitySetBase simplifiedQuery = SimplifyJoin(inputExpression);
                 if (simplifiedQuery != null)
                 {
-                    string newSymbol = "Inner" + new Random().Next();
+                    string newSymbol = "Inner" + randomGenerator.Next();
                     foreach (Symbol s in joinSymbol.ExtentList)
                     {
                         s.NewName = newSymbol;
                     }
 
                     result.From.sqlFragments.Clear();
-                    result.From.Append(GetTargetSql(simplifiedQuery));
+                    result.From.Append(GetTargetSql(simplifiedQuery, preparationCommands));
                     result.From.Append(" AS ");
                     result.From.Append(QuoteIdentifier(newSymbol));
                 }
@@ -2070,7 +2131,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
             }
 
             Dictionary<string, DbConstantExpression> constraints = new Dictionary<string, DbConstantExpression>();
-            if (joinCondition != null && joinKind == DbExpressionKind.InnerJoin)
+            if (joinCondition != null && (joinKind == DbExpressionKind.InnerJoin || joinKind == DbExpressionKind.LeftOuterJoin))
                 ExtractConstraints(joinCondition, constraints);
 
             // Process each of the inputs, and then the joinCondition if it exists.
@@ -2151,7 +2212,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
                 if (simplifiedQuery != null)
                 {
                     JoinSymbol joinSymbol = symbolTable.Lookup(input.VariableName) as JoinSymbol;
-                    string newSymbol = "Inner" + new Random().Next();
+                    string newSymbol = "Inner" + randomGenerator.Next();
                     foreach (Symbol s in joinSymbol.ExtentList)
                     {
                         s.NewName = newSymbol;
@@ -2180,7 +2241,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
                     if (stmt != null)
                     {
                         stmt.From.sqlFragments.Clear();
-                        stmt.From.Append(GetTargetSql(simplifiedQuery));
+                        stmt.From.Append(GetTargetSql(simplifiedQuery, preparationCommands));
                         stmt.From.Append(" AS ");
                         stmt.From.Append(QuoteIdentifier(newSymbol));
                     }

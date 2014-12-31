@@ -78,6 +78,7 @@
     <Compile Include="ValueBytes.cs" />
     <Compile Include="Xml\Attribute.cs" />
     <Compile Include="NuoDbCommand.cs" />
+    <Compile Include="NuoDbMultipleCommands.cs" />
     <Compile Include="NuoDbConnectionInternal.cs" />
     <Compile Include="Net\CryptoInputStream.cs" />
     <Compile Include="Net\CryptoOutputStream.cs" />

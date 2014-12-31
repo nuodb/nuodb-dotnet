@@ -76,11 +76,15 @@ namespace NuoDb.Data.Client.EntityFramework
             if (commandTree == null)
                 throw new ArgumentNullException("commandTree");
 
-            NuoDbCommand command = new NuoDbCommand(PrepareTypeCoercions(commandTree));
-
             List<DbParameter> parameters;
             CommandType commandType;
-            command.CommandText = SqlGenerator.GenerateSql(commandTree, out parameters, out commandType);
+            string commandText = SqlGenerator.GenerateSql(commandTree, out parameters, out commandType);
+            DbCommand command = null;
+            if (commandType == NuoDbMultipleCommands.MultipleTexts)
+                command = new NuoDbMultipleCommands(PrepareTypeCoercions(commandTree));
+            else
+                command = new NuoDbCommand(PrepareTypeCoercions(commandTree));
+            command.CommandText = commandText;
             command.CommandType = commandType;
 
             // Get the function (if any) implemented by the command tree since this influences our interpretation of parameters
