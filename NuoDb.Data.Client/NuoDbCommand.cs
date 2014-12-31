@@ -424,7 +424,7 @@ namespace NuoDb.Data.Client
             {
                 dataStream.startMessage(Protocol.ExecuteQuery);
                 dataStream.encodeInt(handle);
-                dataStream.encodeString(sqlText);
+                dataStream.encodeString(CommandText);
             }
             connection.InternalConnection.sendAndReceive(dataStream);
             return createResultSet(dataStream, readColumnNames);
@@ -465,7 +465,7 @@ namespace NuoDb.Data.Client
                 else
                     dataStream.startMessage(Protocol.ExecuteUpdate);
                 dataStream.encodeInt(handle);
-                dataStream.encodeString(sqlText);
+                dataStream.encodeString(CommandText);
             }
             connection.InternalConnection.sendAndReceive(dataStream);
             updateRecordsUpdated(dataStream);
@@ -542,12 +542,12 @@ namespace NuoDb.Data.Client
             checkConnection();
             Close();
 
-            StringBuilder sqlString = new StringBuilder(sqlText.Length);
+            StringBuilder sqlString = new StringBuilder(CommandText.Length);
             NuoDbDataParameterCollection newParams = new NuoDbDataParameterCollection();
             int state = 0;
             string curParamName = "";
             bool inSingleQuotes = false, inDoubleQuotes = false, inSmartQuotes = false;
-            foreach (char c in sqlText)
+            foreach (char c in CommandText)
             {
                 if (c == '\'' && !(inDoubleQuotes || inSmartQuotes))
                 {

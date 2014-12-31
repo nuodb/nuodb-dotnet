@@ -75,6 +75,7 @@
     <Compile Include="..\NuoDb.Data.Client\ValueBytes.cs" />
     <Compile Include="..\NuoDb.Data.Client\Xml\Attribute.cs" />
     <Compile Include="..\NuoDb.Data.Client\NuoDbCommand.cs" />
+    <Compile Include="..\NuoDb.Data.Client\NuoDbMultipleCommands.cs" />
     <Compile Include="..\NuoDb.Data.Client\NuoDbConnection.cs" />
     <Compile Include="..\NuoDb.Data.Client\Net\CryptoInputStream.cs" />
     <Compile Include="..\NuoDb.Data.Client\Net\CryptoOutputStream.cs" />

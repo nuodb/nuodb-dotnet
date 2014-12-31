@@ -276,7 +276,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 
         public override void Visit(DbScanExpression expression)
         {
-            commandText.Append(SqlGenerator.GetTargetSql(expression.Target));
+            commandText.Append(SqlGenerator.GetTargetSql(expression.Target, null));
         }
 
         public override void Visit(DbPropertyExpression expression)
