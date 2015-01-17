@@ -509,6 +509,11 @@ namespace NuoDb.Data.Client
             return getValue(i).String;
         }
 
+        public virtual T GetFieldValue<T>(int ordinal)
+        {
+            return (T)Convert.ChangeType(getValue(ordinal).Object, typeof(T));
+        }
+
         public override object GetValue(int i)
         {
             if (statement != null &&
