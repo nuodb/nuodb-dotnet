@@ -880,44 +880,53 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
             var definingQuery = MetadataHelpers.TryGetValueForMetadataProperty<string>(entitySetBase, "DefiningQuery");
             if (!string.IsNullOrEmpty(definingQuery))
             {
-                string tmpTableName = "`_TMP__" + entitySetBase.Name + "`";
-                string dropCmd = "DROP TABLE " + tmpTableName + " IF EXISTS";
-                if (!preparationCommands.Contains(dropCmd))
+                if (preparationCommands != null)
                 {
-                    preparationCommands.Add(dropCmd);
-                    StringBuilder createTable = new StringBuilder("CREATE TEMPORARY TABLE " + tmpTableName + "(");
-                    for (int i = 0; i < entitySetBase.ElementType.Members.Count; i++)
+                    string tmpTableName = "`_TMP__" + entitySetBase.Name + "`";
+                    string dropCmd = "DROP TABLE " + tmpTableName + " IF EXISTS";
+                    if (!preparationCommands.Contains(dropCmd))
                     {
-                        if (i != 0)
-                        {
-                            createTable.Append(",");
-                        }
-                        EdmMember member = entitySetBase.ElementType.Members[i];
-                        createTable.Append("`");
-                        createTable.Append(member.Name);
-                        createTable.Append("` ");
-                        createTable.Append(member.TypeUsage.EdmType.Name);
-                    }
-                    if (entitySetBase.ElementType.KeyMembers.Count > 0)
-                    {
-                        createTable.Append(",PRIMARY KEY(");
-                        for (int i = 0; i < entitySetBase.ElementType.KeyMembers.Count; i++)
+                        preparationCommands.Add(dropCmd);
+                        StringBuilder createTable = new StringBuilder("CREATE TEMPORARY TABLE " + tmpTableName + "(");
+                        for (int i = 0; i < entitySetBase.ElementType.Members.Count; i++)
                         {
                             if (i != 0)
                             {
                                 createTable.Append(",");
                             }
+                            EdmMember member = entitySetBase.ElementType.Members[i];
                             createTable.Append("`");
-                            createTable.Append(entitySetBase.ElementType.KeyMembers[i].Name);
-                            createTable.Append("`");
+                            createTable.Append(member.Name);
+                            createTable.Append("` ");
+                            createTable.Append(member.TypeUsage.EdmType.Name);
+                        }
+                        if (entitySetBase.ElementType.KeyMembers.Count > 0)
+                        {
+                            createTable.Append(",PRIMARY KEY(");
+                            for (int i = 0; i < entitySetBase.ElementType.KeyMembers.Count; i++)
+                            {
+                                if (i != 0)
+                                {
+                                    createTable.Append(",");
+                                }
+                                createTable.Append("`");
+                                createTable.Append(entitySetBase.ElementType.KeyMembers[i].Name);
+                                createTable.Append("`");
+                            }
+                            createTable.Append(")");
                         }
                         createTable.Append(")");
+                        preparationCommands.Add(createTable.ToString());
+                        preparationCommands.Add("INSERT INTO " + tmpTableName + " " + definingQuery);
                     }
-                    createTable.Append(")");
-                    preparationCommands.Add(createTable.ToString());
-                    preparationCommands.Add("INSERT INTO " + tmpTableName + " " + definingQuery);
+                    builder.Append(tmpTableName);
                 }
-                builder.Append(tmpTableName);
+                else
+                {
+                    builder.Append("(");
+                    builder.Append(definingQuery);
+                    builder.Append(")");
+                }
             }
             else
             {
