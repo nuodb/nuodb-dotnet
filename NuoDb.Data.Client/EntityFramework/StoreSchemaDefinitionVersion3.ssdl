@@ -277,23 +277,27 @@
           schema || '.' || tablename || '.' || indexname AS Id,
           schema || '.' || tablename AS ParentId,
           indexname AS Name,
+          false AS IsDeferrable,
+          false AS IsInitiallyDeferred,
           case indextype
             when 0 then 'PRIMARY KEY'
             when 1 then 'UNIQUE'
-          end AS ConstraintType,
-          false AS IsDeferrable,
-          false AS IsInitiallyDeferred
+          end AS ConstraintType
         FROM SYSTEM.INDEXES
         WHERE
           schema != 'SYSTEM' AND (indextype = 0 OR indextype = 1) 
         UNION ALL
           SELECT
-            table.schema || '.' || table.tablename || '.FOREIGN' || fkey.foreigntableid || '_' || fkey.primarytableid AS Id,
+            table.schema || '.' || table.tablename || '.FOREIGN' || 
+                 fkey.foreigntableid || '.' || fkey.foreignfieldid || '_' || 
+                 fkey.primarytableid || '.' || fkey.primaryfieldid AS Id,
             table.schema || '.' || table.tablename AS ParentId,
-            'FOREIGN' || fkey.foreigntableid || '_' || fkey.primarytableid AS Name,
-            'FOREIGN KEY' AS ConstraintType,
+            'FOREIGN' || 
+                 fkey.foreigntableid || '.' || fkey.foreignfieldid || '_' || 
+                 fkey.primarytableid || '.' || fkey.primaryfieldid AS Name,
             false AS IsDeferrable,
-            false AS IsInitiallyDeferred
+            false AS IsInitiallyDeferred,
+            'FOREIGN KEY' AS ConstraintType
           FROM SYSTEM.FOREIGNKEYS AS fkey
           INNER JOIN SYSTEM.TABLES AS table
           ON (table.schema != 'SYSTEM' AND fkey.FOREIGNTABLEID = table.TABLEID)
@@ -372,11 +376,13 @@
     </EntitySet>
 
     <!-- this entity avoids the usage of a costly nested INNER JOIN -->
-    <EntitySet Name="SForeignKeyConstraints-innerjoin-STableConstraints" EntityType="Self.Constraint">
+    <EntitySet Name="SForeignKeyConstraints-innerjoin-STableConstraints" EntityType="Self.ForeignKeyColumn">
       <DefiningQuery>
         <![CDATA[
         SELECT
-          table.schema || '.' || table.tablename || '.FOREIGN' || fkey.foreigntableid || '_' || fkey.primarytableid AS Id,
+          table.schema || '.' || table.tablename || '.FOREIGN' || 
+                 fkey.foreigntableid || '.' || fkey.foreignfieldid || '_' || 
+                 fkey.primarytableid || '.' || fkey.primaryfieldid AS Id,
           case fkey.updaterule 
             when 0 then 'CASCADE'
             when 1 then 'RESTRICT'
@@ -393,9 +399,9 @@
           end AS DeleteRule,
           table.schema || '.' || table.tablename AS ParentId,
           'FOREIGN' || fkey.foreigntableid || '_' || fkey.primarytableid AS Name,
-          'FOREIGN KEY' AS ConstraintType,
           false AS IsDeferrable,
-          false AS IsInitiallyDeferred
+          false AS IsInitiallyDeferred,
+          'FOREIGN KEY' AS ConstraintType
         FROM SYSTEM.FOREIGNKEYS AS fkey
         INNER JOIN SYSTEM.TABLES AS table
         ON (table.schema != 'SYSTEM' AND fkey.FOREIGNTABLEID = table.TABLEID)
@@ -409,7 +415,9 @@
       <DefiningQuery>
         <![CDATA[
         SELECT
-          table.schema || '.' || table.tablename || '.FOREIGN' || fkey.foreigntableid || '_' || fkey.primarytableid AS Id,
+           table.schema || '.' || table.tablename || '.FOREIGN' || 
+                 fkey.foreigntableid || '.' || fkey.foreignfieldid || '_' || 
+                 fkey.primarytableid || '.' || fkey.primaryfieldid AS Id,
           case fkey.updaterule 
             when 0 then 'CASCADE'
             when 1 then 'RESTRICT'
@@ -437,10 +445,12 @@
         <![CDATA[
         SELECT
           fkey.primarytableid || '.' || fkey.primaryfieldid || '.' || fkey.foreigntableid || '.' || fkey.foreignfieldid || '.' || fkey.position AS Id,
+          fkey.position AS Ordinal,
+          tableFrom.schema || '.' || tableFrom.tablename || '.FOREIGN' || 
+                 fkey.foreigntableid || '.' || fkey.foreignfieldid || '_' || 
+                 fkey.primarytableid || '.' || fkey.primaryfieldid AS ConstraintId,
           tableFrom.schema || '.' || tableFrom.tableName || '.' || columnsFrom.field AS FromColumnId,
-          tableTo.schema || '.' || tableTo.tableName || '.' || columnsTo.field AS ToColumnId,
-          tableFrom.schema || '.' || tableFrom.tablename || '.FOREIGN' || fkey.foreigntableid || '_' || fkey.primarytableid AS ConstraintId,
-          fkey.position AS Ordinal
+          tableTo.schema || '.' || tableTo.tableName || '.' || columnsTo.field AS ToColumnId
         FROM SYSTEM.FOREIGNKEYS AS fkey
         INNER JOIN SYSTEM.TABLES AS tableFrom
         ON (tableFrom.schema != 'SYSTEM' AND fkey.foreigntableid = tableFrom.tableid)
@@ -461,9 +471,9 @@
           '' AS Id,
           '' AS ParentId,
           '' AS Name,
-          '' AS ConstraintType,
           false AS IsDeferrable,
           false AS IsInitiallyDeferred,
+          '' AS ConstraintType,
           '' AS Expression,
           '' AS UpdateRule,
           '' AS DeleteRule
@@ -639,7 +649,7 @@
     <Property Name="ReturnCharacterSetCatalog" Type="string" MaxLength="128" />
     <Property Name="ReturnCharacterSetSchema" Type="string" MaxLength="128" />
     <Property Name="ReturnCharacterSetName" Type="string" MaxLength="128" />
-    <Property Name="ReturnIsMultiSet" Type="boolean" />
+    <Property Name="ReturnIsMultiSet" Nullable="false" Type="boolean" />
     <Property Name="IsAggregate" Type="boolean" />
     <Property Name="IsBuiltIn" Type="boolean" />
     <Property Name="IsNiladic" Type="boolean" />
@@ -774,6 +784,20 @@
     <Property Name="DeleteRule" Nullable="false" MaxLength="11" Type="string" />
   </EntityType>
 
+  <EntityType Name="ForeignKeyColumn">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Nullable="false" Type="string" MaxLength="31" />
+    <Property Name="UpdateRule" Nullable="false" MaxLength="11" Type="string" />
+    <Property Name="DeleteRule" Nullable="false" MaxLength="11" Type="string" />
+    <Property Name="ParentId" Nullable="false" Type="string" MaxLength="31" />
+    <Property Name="Name" Nullable="false" MaxLength="31" Type="string" />
+    <Property Name="IsDeferrable" Nullable="false" Type="boolean" />
+    <Property Name="IsInitiallyDeferred" Nullable="false" Type="boolean" />
+    <Property Name="ConstraintType" Nullable="false" MaxLength="11" Type="string" />
+  </EntityType>
+  
   <EntityType Name="ForeignKey">
     <Key>
       <PropertyRef Name="Id" />
