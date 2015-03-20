@@ -45,7 +45,7 @@ namespace NUnitEFCodeFirstTestProject
                 }
                 DbCommand createCommand = new NuoDbCommand("create table Hockey" +
                                                             "(" +
-                                                            "   Id       Integer not NULL generated always as identity primary key," +
+                                                            "   Id       bigint not NULL generated always as identity primary key," +
                                                             "   Number   Integer," +
                                                             "   Name     String," +
                                                             "   Position String," +

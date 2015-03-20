@@ -46,7 +46,7 @@ namespace ConsoleSample
             {
                 using (DbCommand command = connection.CreateCommand())
                 {
-                    command.CommandText = "create table names (id int generated always as identity primary key, name string)";
+                    command.CommandText = "create table names (id bigint generated always as identity primary key, name string)";
                     command.ExecuteNonQuery();
                     Console.Out.WriteLine("The table 'NAMES' was created.");
                 }
@@ -79,7 +79,7 @@ namespace ConsoleSample
                         string columnName = reader.GetName(0);
                         while (reader.Read())
                         {
-                            Console.Out.WriteLine("New id={0} for column {1}", reader.GetInt32(0), columnName);
+                            Console.Out.WriteLine("New id={0} for column {1}", reader.GetInt64(0), columnName);
                         }
                     }
                 }
