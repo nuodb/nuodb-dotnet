@@ -6,16 +6,20 @@ env:
 before_install:
   - wget http://download.nuohub.org/nuodb_${NUODB_VERSION}_amd64.deb --output-document=/var/tmp/nuodb.deb
   - sudo dpkg -i /var/tmp/nuodb.deb
-  - sleep 2
+  - sleep 5
+  - sudo chmod 777 $NUODB_HOME/etc/default.properties
+  - echo "domainPassword = bird" >> $NUODB_HOME/etc/default.properties
+  - sudo chmod 600 $NUODB_HOME/etc/default.properties
+  - sudo service nuoagent start
 
 install:
  - sudo apt-get update && sudo apt-get install mono-devel mono-gmcs mono-complete cli-common-dev nunit-console
 
 before_script:
-  - ${NUODB_HOME}/bin/nuodb --chorus test --password bar --dba-user dba --dba-password goalie --archive /var/tmp/nuodb --initialize --force &
-  - sleep 2
-  - ${NUODB_HOME}/bin/nuodb --chorus test --password bar --dba-user dba --dba-password goalie &
-  - sleep 2
+  - ${NUODB_HOME}/bin/nuodbmgr --broker localhost --password bird --command "start process sm host localhost database test archive /var/tmp/nuodb initialize true"
+  - sleep 5
+  - ${NUODB_HOME}/bin/nuodbmgr --broker localhost --password bird --command "start process te host localhost database test options '--dba-user dba --dba-password goalie'"
+  - sleep 5
 
 script:
  - xbuild /p:TargetFrameworkProfile="" /p:Configuration=Release NuoDb.Data.Client.3.5/Mono.NuoDb.Data.Client_3.5.csproj
