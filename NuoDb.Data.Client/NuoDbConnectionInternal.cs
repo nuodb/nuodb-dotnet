@@ -1648,10 +1648,10 @@ namespace NuoDb.Data.Client
                 case DbType.Decimal: return "System.Decimal";
                 case DbType.Byte: return "System.Byte";
                 case DbType.String: return "System.String";
-                case DbType.Date: return "System.Date";
-                case DbType.Time: return "System.Time";
+                case DbType.Date:
+                case DbType.Time:
                 case DbType.DateTime: return "System.DateTime";
-                case DbType.Binary: return "System.Binary";
+                case DbType.Binary:
                 case DbType.Object: return "System.Object";
             }
             throw new NotImplementedException();
