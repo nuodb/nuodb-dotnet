@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!-- 
  Copyright (c) 2012-2013, NuoDB, Inc.
  All rights reserved.
@@ -41,9 +41,6 @@
       <ScalarProperty Name="Name" ColumnName="Name" />
       <ScalarProperty Name="Ordinal" ColumnName="Ordinal" />
       <ScalarProperty Name="IsNullable" ColumnName="IsNullable" />
-      <ScalarProperty Name="IsIdentity" ColumnName="IsIdentity" />
-      <ScalarProperty Name="IsStoreGenerated" ColumnName="IsStoreGenerated" />
-      <ScalarProperty Name="Default" ColumnName="Default" />
       <ComplexProperty Name="ColumnType">
         <ScalarProperty Name="TypeName" ColumnName="TypeName" />
         <ScalarProperty Name="MaxLength" ColumnName="MaxLength" />
@@ -62,6 +59,9 @@
         </ComplexProperty>
         <ScalarProperty Name="IsMultiSet" ColumnName="IsMultiSet" />
       </ComplexProperty>
+      <ScalarProperty Name="IsIdentity" ColumnName="IsIdentity" />
+      <ScalarProperty Name="IsStoreGenerated" ColumnName="IsStoreGenerated" />
+      <ScalarProperty Name="Default" ColumnName="Default" />
     </EntitySetMapping>
 
     <EntitySetMapping Name="TableForeignKeys" StoreEntitySet="STableForeignKeys" TypeName="Store.ForeignKey">
@@ -262,8 +262,6 @@
       <ScalarProperty Name="Id" ColumnName="Id" />
       <ScalarProperty Name="Name" ColumnName="Name" />
       <ScalarProperty Name="Ordinal" ColumnName="Ordinal" />
-      <ScalarProperty Name="Mode" ColumnName="Mode" />
-      <ScalarProperty Name="Default" ColumnName="Default" />
       <ComplexProperty Name="ParameterType">
         <ScalarProperty Name="TypeName" ColumnName="TypeName" />
         <ScalarProperty Name="MaxLength" ColumnName="MaxLength" />
@@ -282,6 +280,8 @@
         </ComplexProperty>
         <ScalarProperty Name="IsMultiSet" ColumnName="IsMultiSet" />
       </ComplexProperty>
+      <ScalarProperty Name="Mode" ColumnName="Mode" />
+      <ScalarProperty Name="Default" ColumnName="Default" />
     </EntitySetMapping>
 
     <AssociationSetMapping Name="TableTableColumns" StoreEntitySet="STableColumns" TypeName="Store.TableOrViewColumn">
