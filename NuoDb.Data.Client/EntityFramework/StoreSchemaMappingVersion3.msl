@@ -44,8 +44,8 @@
       <ComplexProperty Name="ColumnType">
         <ScalarProperty Name="TypeName" ColumnName="TypeName" />
         <ScalarProperty Name="MaxLength" ColumnName="MaxLength" />
-        <ScalarProperty Name="DateTimePrecision" ColumnName="DateTimePrecision" />
         <ScalarProperty Name="Precision" ColumnName="Precision" />
+        <ScalarProperty Name="DateTimePrecision" ColumnName="DateTimePrecision" />
         <ScalarProperty Name="Scale" ColumnName="Scale" />
         <ComplexProperty Name="Collation">
           <ScalarProperty Name="CatalogName" ColumnName="CollationCatalog" />
@@ -309,8 +309,8 @@
       <ComplexProperty Name="ParameterType">
         <ScalarProperty Name="TypeName" ColumnName="TypeName" />
         <ScalarProperty Name="MaxLength" ColumnName="MaxLength" />
-        <ScalarProperty Name="DateTimePrecision" ColumnName="DateTimePrecision" />
         <ScalarProperty Name="Precision" ColumnName="Precision" />
+        <ScalarProperty Name="DateTimePrecision" ColumnName="DateTimePrecision" />
         <ScalarProperty Name="Scale" ColumnName="Scale" />
         <ComplexProperty Name="Collation">
           <ScalarProperty Name="CatalogName" ColumnName="CollationCatalog" />
