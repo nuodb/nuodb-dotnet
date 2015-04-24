@@ -1715,5 +1715,24 @@ namespace NUnitTestProject
             }
         }
 #endif
+
+        [Test]
+        public void TestDbReaderGetObject()
+        {
+            NuoDbConnection connection = new NuoDbConnection(connectionString);
+            connection.Open();
+            Utils.DropTable(connection, "temp");
+
+            new NuoDbCommand("create table temp (col1 bigint, col2 int)", connection).ExecuteNonQuery();
+            new NuoDbCommand("insert into temp values (0, 0)", connection).ExecuteNonQuery();
+            DbDataReader reader = new NuoDbCommand("select * from temp", connection).ExecuteReader();
+            bool hasNext = reader.Read();
+            Assert.IsTrue(hasNext);
+            Assert.AreEqual(0L, reader.GetInt64(0));
+            Assert.AreEqual(0L, reader.GetInt64(1));
+            Assert.IsTrue(typeof(long) == reader[0].GetType(), "Type of col1 is " + reader[0].GetType().Name);
+            Assert.IsTrue(typeof(int) == reader[1].GetType(), "Type of col2 is " + reader[1].GetType().Name);
+        }
+
     }
 }
