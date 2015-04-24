@@ -516,20 +516,32 @@ namespace NuoDb.Data.Client
 
         public override object GetValue(int i)
         {
+            object value = getValue(i).Object;
+            Type declaredType = null;
             if (statement != null &&
                 statement.ExpectedColumnTypes != null) 
             {
-                if (statement.ExpectedColumnTypes.ElementAtOrDefault(i) == typeof(Guid))
+                declaredType = statement.ExpectedColumnTypes.ElementAtOrDefault(i);
+            }
+            else if (Value.IsNumeric(value))
+            {
+                // if we have received a numeric value, it could have been sent as a smaller datatype
+                // to save bandwidth, so get the official declared type
+                declaredType = GetFieldType(i);
+            }
+            if (declaredType != null)
+            {
+                if (declaredType == typeof(Guid))
                 {
                     return GetGuid(i);
                 }
                 else
                 {
-                    return Convert.ChangeType(getValue(i).Object, statement.ExpectedColumnTypes.ElementAtOrDefault(i));
+                    return Convert.ChangeType(value, declaredType);
                 }
             }
 
-            return getValue(i).Object;
+            return value;
         }
 
         public override int GetValues(object[] values)
