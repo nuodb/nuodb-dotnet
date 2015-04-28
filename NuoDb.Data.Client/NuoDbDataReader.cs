@@ -514,6 +514,11 @@ namespace NuoDb.Data.Client
             return (T)Convert.ChangeType(getValue(ordinal).Object, typeof(T));
         }
 
+        public virtual T GetFieldValue<T>(string name)
+        {
+            return GetFieldValue<T>(findColumn(name));
+        }
+
         public override object GetValue(int i)
         {
             object value = getValue(i).Object;

@@ -355,7 +355,7 @@ namespace NUnitTestProject
                 DbDataReader reader = updateCommand.ExecuteReader();
                 Assert.IsNotNull(reader, "The command should return a generated keys recordset");
                 Assert.IsTrue(reader.Read(), "There must be at least one ID in the generated keys recordset");
-                int lastId = (int)reader.GetValue(0);
+                long lastId = (long)reader.GetValue(0);
                 Assert.IsTrue(lastId > maxId, "The generated ID must be greater than the existing ones");
 
                 transaction.Rollback();
@@ -401,7 +401,7 @@ namespace NUnitTestProject
                 DbDataReader reader = updateCommand.ExecuteReader();
                 Assert.IsNotNull(reader, "The command should return a generated keys recordset");
                 Assert.IsTrue(reader.Read(), "There must be at least one ID in the generated keys recordset");
-                int lastId = (int)reader.GetValue(0);
+                long lastId = (long)reader.GetValue(0);
                 Assert.IsTrue(lastId > maxId, "The generated ID must be greater than the existing ones");
 
                 DbCommand selectCommand = connection.CreateCommand();
@@ -435,7 +435,7 @@ namespace NUnitTestProject
                 DbDataReader reader = updateCommand.ExecuteReader();
                 Assert.IsNotNull(reader, "The command should return a generated keys recordset");
                 Assert.IsTrue(reader.Read(), "There must be at least one ID in the generated keys recordset");
-                int lastId = (int)reader.GetValue(0);
+                long lastId = (long)reader.GetValue(0);
                 Assert.IsTrue(lastId > maxId, "The generated ID must be greater than the existing ones");
 
                 DbCommand selectCommand = connection.CreateCommand();
@@ -683,8 +683,8 @@ namespace NUnitTestProject
         [Test]
         public void TestDataTypeFloat()
         {
-            TestDataType("real", 45.3);
-            TestDataType("float", 45.3);
+            TestDataType("real", 45.3f);
+            TestDataType("float", 45.3f);
         }
 
         [Test]

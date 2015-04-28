@@ -1106,13 +1106,13 @@ namespace NuoDb.Data.Client
                         System.Diagnostics.Trace.WriteLine("-> " + reader["TABLE_NAME"] + ", " + reader["TABLE_TYPE"]);
 #endif
                             DataRow row = table.NewRow();
-                            row["TABLE_SCHEMA"] = reader["TABLE_SCHEM"];
-                            row["TABLE_NAME"] = reader["TABLE_NAME"];
-                            row["TABLE_TYPE"] = reader["TABLE_TYPE"];
-                            row["REMARKS"] = reader["REMARKS"];
+                            row["TABLE_SCHEMA"] = reader.GetFieldValue<string>("TABLE_SCHEM");
+                            row["TABLE_NAME"] = reader.GetFieldValue<string>("TABLE_NAME");
+                            row["TABLE_TYPE"] = reader.GetFieldValue<string>("TABLE_TYPE");
+                            row["REMARKS"] = reader.GetFieldValue<string>("REMARKS");
                             if (view_def_label.Length != 0)
                             {
-                                row["VIEW_DEF"] = reader[view_def_label];
+                                row["VIEW_DEF"] = reader.GetFieldValue<string>(view_def_label);
                             }
                             table.Rows.Add(row);
                         }
@@ -1154,32 +1154,34 @@ namespace NuoDb.Data.Client
                         while (reader.Read())
                         {
                             DataRow row = table.NewRow();
-                            row["COLUMN_SCHEMA"] = reader["TABLE_SCHEM"];
-                            row["COLUMN_TABLE"] = reader["TABLE_NAME"];
-                            row["COLUMN_NAME"] = reader["COLUMN_NAME"];
-                            row["COLUMN_POSITION"] = reader["ORDINAL_POSITION"];
-                            row["COLUMN_LENGTH"] = reader["COLUMN_SIZE"];
-                            row["COLUMN_PRECISION"] = reader["BUFFER_LENGTH"];
-                            row["COLUMN_SCALE"] = reader["DECIMAL_DIGITS"];
-                            if (isNumeric((string)reader["TYPE_NAME"]))
+                            row["COLUMN_SCHEMA"] = reader.GetFieldValue<string>("TABLE_SCHEM");
+                            row["COLUMN_TABLE"] = reader.GetFieldValue<string>("TABLE_NAME");
+                            row["COLUMN_NAME"] = reader.GetFieldValue<string>("COLUMN_NAME");
+                            row["COLUMN_POSITION"] = reader.GetFieldValue<int>("ORDINAL_POSITION");
+                            row["COLUMN_LENGTH"] = reader.GetFieldValue<int>("COLUMN_SIZE");
+                            row["COLUMN_PRECISION"] = reader.GetFieldValue<int>("BUFFER_LENGTH");
+                            row["COLUMN_SCALE"] = reader.GetFieldValue<int>("DECIMAL_DIGITS");
+                            if (isNumeric(reader.GetFieldValue<string>("TYPE_NAME")))
                             {
-                                if ((int)reader["DECIMAL_DIGITS"] != 0)
-                                    row["COLUMN_TYPE"] = reader["TYPE_NAME"] + "(" + reader["BUFFER_LENGTH"] + "," + reader["DECIMAL_DIGITS"] + ")";
+                                if (reader.GetFieldValue<int>("DECIMAL_DIGITS") != 0)
+                                    row["COLUMN_TYPE"] = reader.GetFieldValue<string>("TYPE_NAME") + 
+                                        "(" + reader.GetFieldValue<int>("BUFFER_LENGTH") + "," + reader.GetFieldValue<int>("DECIMAL_DIGITS") + ")";
                                 else
-                                    row["COLUMN_TYPE"] = reader["TYPE_NAME"];
+                                    row["COLUMN_TYPE"] = reader.GetFieldValue<string>("TYPE_NAME");
                             }
                             else
                             {
-                                if (isVarLenType((string)reader["TYPE_NAME"]) && (int)reader["COLUMN_SIZE"] != 0)
-                                    row["COLUMN_TYPE"] = reader["TYPE_NAME"] + "(" + reader["COLUMN_SIZE"] + ")";
+                                if (isVarLenType(reader.GetFieldValue<string>("TYPE_NAME")) && reader.GetFieldValue<int>("COLUMN_SIZE") != 0)
+                                    row["COLUMN_TYPE"] = reader.GetFieldValue<string>("TYPE_NAME") + 
+                                        "(" + reader.GetFieldValue<int>("COLUMN_SIZE") + ")";
                                 else
-                                    row["COLUMN_TYPE"] = reader["TYPE_NAME"];
+                                    row["COLUMN_TYPE"] = reader.GetFieldValue<string>("TYPE_NAME");
                             }
                             if (!reader.IsDBNull(reader.GetOrdinal("IS_NULLABLE")))
-                                row["COLUMN_NULLABLE"] = reader["IS_NULLABLE"].Equals("YES");
+                                row["COLUMN_NULLABLE"] = reader.GetFieldValue<string>("IS_NULLABLE").Equals("YES");
                             if (!reader.IsDBNull(reader.GetOrdinal("IS_AUTOINCREMENT")))
-                                row["COLUMN_IDENTITY"] = reader["IS_AUTOINCREMENT"].Equals("YES");
-                            row["COLUMN_DEFAULT"] = reader["COLUMN_DEF"];
+                                row["COLUMN_IDENTITY"] = reader.GetFieldValue<string>("IS_AUTOINCREMENT").Equals("YES");
+                            row["COLUMN_DEFAULT"] = reader.GetFieldValue<string>("COLUMN_DEF");
 
 #if DEBUG
                             System.Diagnostics.Trace.WriteLine("-> " + row["COLUMN_NAME"] + " " + row["COLUMN_TYPE"]);
@@ -1224,15 +1226,15 @@ namespace NuoDb.Data.Client
                             {
                                 // enforce the restriction on the index name
                                 if (restrictionValues != null && restrictionValues.Length > 3 && restrictionValues[3] != null &&
-                                    !restrictionValues[3].Equals(reader["INDEX_NAME"]))
+                                    !restrictionValues[3].Equals(reader.GetFieldValue<string>("INDEX_NAME")))
                                     continue;
-                                if (!unique.Add((string)reader["INDEX_NAME"]))
+                                if (!unique.Add(reader.GetFieldValue<string>("INDEX_NAME")))
                                     continue;
                                 DataRow row = table.NewRow();
-                                row["INDEX_SCHEMA"] = reader["TABLE_SCHEM"];
-                                row["INDEX_TABLE"] = reader["TABLE_NAME"];
-                                row["INDEX_NAME"] = reader["INDEX_NAME"];
-                                switch ((int)reader["TYPE"])
+                                row["INDEX_SCHEMA"] = reader.GetFieldValue<string>("TABLE_SCHEM");
+                                row["INDEX_TABLE"] = reader.GetFieldValue<string>("TABLE_NAME");
+                                row["INDEX_NAME"] = reader.GetFieldValue<string>("INDEX_NAME");
+                                switch (reader.GetFieldValue<int>("TYPE"))
                                 {
                                     case 0:
                                         row["INDEX_TYPE"] = "Primary";
@@ -1247,8 +1249,8 @@ namespace NuoDb.Data.Client
                                         row["INDEX_TYPE"] = "Foreign Key";
                                         break;
                                 }
-                                row["INDEX_UNIQUE"] = ((int)reader["NON_UNIQUE"] == 0) ? true : false;
-                                row["INDEX_PRIMARY"] = ((int)reader["TYPE"] == 0) ? true : false;
+                                row["INDEX_UNIQUE"] = (reader.GetFieldValue<int>("NON_UNIQUE") == 0) ? true : false;
+                                row["INDEX_PRIMARY"] = (reader.GetFieldValue<int>("TYPE") == 0) ? true : false;
                                 table.Rows.Add(row);
                             }
                             table.EndLoadData();
@@ -1281,14 +1283,14 @@ namespace NuoDb.Data.Client
                             {
                                 // enforce the restriction on the index name
                                 if (restrictionValues != null && restrictionValues.Length > 3 && restrictionValues[3] != null &&
-                                    !restrictionValues[3].Equals(reader[indexName]))
+                                    !restrictionValues[3].Equals(reader.GetFieldValue<string>(indexName)))
                                     continue;
-                                if (!unique.Add((string)reader[indexName]))
+                                if (!unique.Add(reader.GetFieldValue<string>(indexName)))
                                     continue;
                                 DataRow row = table.NewRow();
-                                row["INDEX_SCHEMA"] = reader["TABLE_SCHEM"];
-                                row["INDEX_TABLE"] = reader["TABLE_NAME"];
-                                row["INDEX_NAME"] = reader[indexName];
+                                row["INDEX_SCHEMA"] = reader.GetFieldValue<string>("TABLE_SCHEM");
+                                row["INDEX_TABLE"] = reader.GetFieldValue<string>("TABLE_NAME");
+                                row["INDEX_NAME"] = reader.GetFieldValue<string>(indexName);
                                 row["INDEX_TYPE"] = "Primary";
                                 row["INDEX_UNIQUE"] = true;
                                 row["INDEX_PRIMARY"] = true;
@@ -1331,17 +1333,17 @@ namespace NuoDb.Data.Client
                             {
                                 // enforce the restriction on the index name
                                 if (restrictionValues != null && restrictionValues.Length > 3 && restrictionValues[3] != null &&
-                                    !restrictionValues[3].Equals(reader["INDEX_NAME"]))
+                                    !restrictionValues[3].Equals(reader.GetFieldValue<string>("INDEX_NAME")))
                                     continue;
 #if DEBUG
                                 System.Diagnostics.Trace.WriteLine("-> " + reader["TABLE_SCHEM"] + "." + reader["TABLE_NAME"] + "=" + reader["COLUMN_NAME"]);
 #endif
                                 DataRow row = table.NewRow();
-                                row["INDEXCOLUMN_SCHEMA"] = reader["TABLE_SCHEM"];
-                                row["INDEXCOLUMN_TABLE"] = reader["TABLE_NAME"];
-                                row["INDEXCOLUMN_INDEX"] = reader["INDEX_NAME"];
-                                row["INDEXCOLUMN_NAME"] = reader["COLUMN_NAME"];
-                                row["INDEXCOLUMN_POSITION"] = reader["ORDINAL_POSITION"];
+                                row["INDEXCOLUMN_SCHEMA"] = reader.GetFieldValue<string>("TABLE_SCHEM");
+                                row["INDEXCOLUMN_TABLE"] = reader.GetFieldValue<string>("TABLE_NAME");
+                                row["INDEXCOLUMN_INDEX"] = reader.GetFieldValue<string>("INDEX_NAME");
+                                row["INDEXCOLUMN_NAME"] = reader.GetFieldValue<string>("COLUMN_NAME");
+                                row["INDEXCOLUMN_POSITION"] = reader.GetFieldValue<int>("ORDINAL_POSITION");
                                 row["INDEXCOLUMN_ISPRIMARY"] = false;
                                 table.Rows.Add(row);
                             }
@@ -1375,17 +1377,17 @@ namespace NuoDb.Data.Client
                             {
                                 // enforce the restriction on the index name
                                 if (restrictionValues != null && restrictionValues.Length > 3 && restrictionValues[3] != null &&
-                                    !restrictionValues[3].Equals(reader[indexName]))
+                                    !restrictionValues[3].Equals(reader.GetFieldValue<string>(indexName)))
                                     continue;
 #if DEBUG
                                 System.Diagnostics.Trace.WriteLine("-> " + reader["TABLE_SCHEM"] + "." + reader["TABLE_NAME"] + " (Primary) =" + reader["COLUMN_NAME"]);
 #endif
                                 DataRow row = table.NewRow();
-                                row["INDEXCOLUMN_SCHEMA"] = reader["TABLE_SCHEM"];
-                                row["INDEXCOLUMN_TABLE"] = reader["TABLE_NAME"];
-                                row["INDEXCOLUMN_INDEX"] = reader[indexName];
-                                row["INDEXCOLUMN_NAME"] = reader["COLUMN_NAME"];
-                                row["INDEXCOLUMN_POSITION"] = reader["KEY_SEQ"];
+                                row["INDEXCOLUMN_SCHEMA"] = reader.GetFieldValue<string>("TABLE_SCHEM");
+                                row["INDEXCOLUMN_TABLE"] = reader.GetFieldValue<string>("TABLE_NAME");
+                                row["INDEXCOLUMN_INDEX"] = reader.GetFieldValue<string>(indexName);
+                                row["INDEXCOLUMN_NAME"] = reader.GetFieldValue<string>("COLUMN_NAME");
+                                row["INDEXCOLUMN_POSITION"] = reader.GetFieldValue<int>("KEY_SEQ");
                                 row["INDEXCOLUMN_ISPRIMARY"] = true;
                                 table.Rows.Add(row);
                             }
@@ -1422,19 +1424,22 @@ namespace NuoDb.Data.Client
                             table.BeginLoadData();
                             while (reader.Read())
                             {
-                                // enforce the restriction on the index name
-                                string name = "[" + reader["FKTABLE_SCHEM"] + "]" + reader["FKTABLE_NAME"] + "." + reader["FKCOLUMN_NAME"] + "->" +
-                                                "[" + reader["PKTABLE_SCHEM"] + "]" + reader["PKTABLE_NAME"] + "." + reader["PKCOLUMN_NAME"];
+                                string name = "[" + reader.GetFieldValue<string>("FKTABLE_SCHEM") + "]" + 
+                                                reader.GetFieldValue<string>("FKTABLE_NAME") + "." + 
+                                                reader.GetFieldValue<string>("FKCOLUMN_NAME") + "->" +
+                                                "[" + reader.GetFieldValue<string>("PKTABLE_SCHEM") + "]" + 
+                                                reader.GetFieldValue<string>("PKTABLE_NAME") + "." + 
+                                                reader.GetFieldValue<string>("PKCOLUMN_NAME");
                                 // enforce the restriction on the index name
                                 if (restrictionValues != null && restrictionValues.Length > 3 && restrictionValues[3] != null &&
                                     !restrictionValues[3].Equals(name))
                                     continue;
                                 DataRow row = table.NewRow();
-                                row["FOREIGNKEY_SCHEMA"] = reader["FKTABLE_SCHEM"];
-                                row["FOREIGNKEY_TABLE"] = reader["FKTABLE_NAME"];
+                                row["FOREIGNKEY_SCHEMA"] = reader.GetFieldValue<string>("FKTABLE_SCHEM");
+                                row["FOREIGNKEY_TABLE"] = reader.GetFieldValue<string>("FKTABLE_NAME");
                                 row["FOREIGNKEY_NAME"] = name;
-                                row["FOREIGNKEY_OTHER_SCHEMA"] = reader["PKTABLE_SCHEM"];
-                                row["FOREIGNKEY_OTHER_TABLE"] = reader["PKTABLE_NAME"];
+                                row["FOREIGNKEY_OTHER_SCHEMA"] = reader.GetFieldValue<string>("PKTABLE_SCHEM");
+                                row["FOREIGNKEY_OTHER_TABLE"] = reader.GetFieldValue<string>("PKTABLE_NAME");
                                 table.Rows.Add(row);
                             }
                             table.EndLoadData();
@@ -1470,9 +1475,12 @@ namespace NuoDb.Data.Client
                             table.BeginLoadData();
                             while (reader.Read())
                             {
-                                // enforce the restriction on the index name
-                                string name = "[" + reader["FKTABLE_SCHEM"] + "]" + reader["FKTABLE_NAME"] + "." + reader["FKCOLUMN_NAME"] + "->" +
-                                                "[" + reader["PKTABLE_SCHEM"] + "]" + reader["PKTABLE_NAME"] + "." + reader["PKCOLUMN_NAME"];
+                                string name = "[" + reader.GetFieldValue<string>("FKTABLE_SCHEM") + "]" +
+                                                reader.GetFieldValue<string>("FKTABLE_NAME") + "." +
+                                                reader.GetFieldValue<string>("FKCOLUMN_NAME") + "->" +
+                                                "[" + reader.GetFieldValue<string>("PKTABLE_SCHEM") + "]" +
+                                                reader.GetFieldValue<string>("PKTABLE_NAME") + "." +
+                                                reader.GetFieldValue<string>("PKCOLUMN_NAME");
                                 // enforce the restriction on the index name
                                 if (restrictionValues != null && restrictionValues.Length > 3 && restrictionValues[3] != null &&
                                     !restrictionValues[3].Equals(name))
@@ -1481,12 +1489,12 @@ namespace NuoDb.Data.Client
                                 System.Diagnostics.Trace.WriteLine("-> " + reader["FKTABLE_SCHEM"] + "." + reader["FKTABLE_NAME"] + "=" + reader["FKCOLUMN_NAME"]);
 #endif
                                 DataRow row = table.NewRow();
-                                row["FOREIGNKEYCOLUMN_SCHEMA"] = reader["FKTABLE_SCHEM"];
-                                row["FOREIGNKEYCOLUMN_TABLE"] = reader["FKTABLE_NAME"];
+                                row["FOREIGNKEYCOLUMN_SCHEMA"] = reader.GetFieldValue<string>("FKTABLE_SCHEM");
+                                row["FOREIGNKEYCOLUMN_TABLE"] = reader.GetFieldValue<string>("FKTABLE_NAME");
                                 row["FOREIGNKEYCOLUMN_KEY"] = name;
-                                row["FOREIGNKEYCOLUMN_NAME"] = reader["FKCOLUMN_NAME"];
-                                row["FOREIGNKEYCOLUMN_ORDINAL"] = reader["KEY_SEQ"];
-                                row["FOREIGNKEYCOLUMN_OTHER_COLUMN_NAME"] = reader["PKCOLUMN_NAME"];
+                                row["FOREIGNKEYCOLUMN_NAME"] = reader.GetFieldValue<string>("FKCOLUMN_NAME");
+                                row["FOREIGNKEYCOLUMN_ORDINAL"] = reader.GetFieldValue<int>("KEY_SEQ");
+                                row["FOREIGNKEYCOLUMN_OTHER_COLUMN_NAME"] = reader.GetFieldValue<string>("PKCOLUMN_NAME");
                                 table.Rows.Add(row);
                             }
                             table.EndLoadData();
@@ -1525,8 +1533,8 @@ namespace NuoDb.Data.Client
                                 System.Diagnostics.Trace.WriteLine("-> " + reader["PROCEDURE_NAME"]);
 #endif
                                 DataRow row = table.NewRow();
-                                row["PROCEDURE_SCHEMA"] = reader["PROCEDURE_SCHEM"];
-                                row["PROCEDURE_NAME"] = reader["PROCEDURE_NAME"];
+                                row["PROCEDURE_SCHEMA"] = reader.GetFieldValue<string>("PROCEDURE_SCHEM");
+                                row["PROCEDURE_NAME"] = reader.GetFieldValue<string>("PROCEDURE_NAME");
                                 row["IS_SYSTEM_PROCEDURE"] = false;
                                 table.Rows.Add(row);
                             }
@@ -1574,17 +1582,17 @@ namespace NuoDb.Data.Client
                                 System.Diagnostics.Trace.WriteLine("-> " + reader["PROCEDURE_NAME"] + ", " + reader["COLUMN_NAME"]);
 #endif
                                 DataRow row = table.NewRow();
-                                row["PROCEDURE_SCHEMA"] = reader["PROCEDURE_SCHEM"];
-                                row["PROCEDURE_NAME"] = reader["PROCEDURE_NAME"];
-                                row["PARAMETER_NAME"] = reader["COLUMN_NAME"];
-                                row["ORDINAL_POSITION"] = reader["ORDINAL_POSITION"];
-                                row["PARAMETER_TYPE_NAME"] = reader["TYPE_NAME"];
-                                row["PARAMETER_DATA_TYPE"] = reader["DATA_TYPE"];
-                                row["PARAMETER_SIZE"] = reader["LENGTH"];
-                                row["NUMERIC_PRECISION"] = reader["PRECISION"];
-                                row["NUMERIC_SCALE"] = reader["SCALE"];
-                                row["PARAMETER_DIRECTION"] = reader["COLUMN_TYPE"];
-                                row["IS_NULLABLE"] = !reader["IS_NULLABLE"].Equals("NO");
+                                row["PROCEDURE_SCHEMA"] = reader.GetFieldValue<string>("PROCEDURE_SCHEM");
+                                row["PROCEDURE_NAME"] = reader.GetFieldValue<string>("PROCEDURE_NAME");
+                                row["PARAMETER_NAME"] = reader.GetFieldValue<string>("COLUMN_NAME");
+                                row["ORDINAL_POSITION"] = reader.GetFieldValue<int>("ORDINAL_POSITION");
+                                row["PARAMETER_TYPE_NAME"] = reader.GetFieldValue<string>("TYPE_NAME");
+                                row["PARAMETER_DATA_TYPE"] = reader.GetFieldValue<int>("DATA_TYPE");
+                                row["PARAMETER_SIZE"] = reader.GetFieldValue<int>("LENGTH");
+                                row["NUMERIC_PRECISION"] = reader.GetFieldValue<int>("PRECISION");
+                                row["NUMERIC_SCALE"] = reader.GetFieldValue<int>("SCALE");
+                                row["PARAMETER_DIRECTION"] = reader.GetFieldValue<int>("COLUMN_TYPE");
+                                row["IS_NULLABLE"] = !reader.GetFieldValue<string>("IS_NULLABLE").Equals("NO");
                                 table.Rows.Add(row);
                             }
                             table.EndLoadData();
