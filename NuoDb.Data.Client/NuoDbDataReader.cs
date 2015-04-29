@@ -532,7 +532,18 @@ namespace NuoDb.Data.Client
             {
                 // if we have received a numeric value, it could have been sent as a smaller datatype
                 // to save bandwidth, so get the official declared type
-                declaredType = GetFieldType(i);
+                try
+                {
+                    declaredType = GetFieldType(i);
+                    // if we have a mismatch between the actual type and the declared type, prefer the
+                    // actual type
+                    if (!Value.IsNumeric(declaredType))
+                        declaredType = null;
+                }
+                catch (Exception)
+                {
+                    // if we cannot get the declared type, return the data we have
+                }
             }
             if (declaredType != null)
             {

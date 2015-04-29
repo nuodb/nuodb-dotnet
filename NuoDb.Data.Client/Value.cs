@@ -378,23 +378,20 @@ namespace NuoDb.Data.Client
             return number;
         }
 
+        public static bool IsNumeric(Type type)
+        {
+            if (type == null)
+                return false;
+            HashSet<string> numericTypes = new HashSet<string>(new string[] {
+                "System.Byte", "System.Int16", "System.Int32", "System.Int64", "System.SByte", 
+                "System.UInt16", "System.UInt32", "System.UInt64", "System.Decimal",
+                "System.Double", "System.Single" });
+            return numericTypes.Contains(type.FullName);
+        }
+
         public static bool IsNumeric(object value)
         {
-            if (value is ValueType &&
-                    (value is Byte ||
-                    value is Int16 ||
-                    value is Int32 ||
-                    value is Int64 ||
-                    value is SByte ||
-                    value is UInt16 ||
-                    value is UInt32 ||
-                    value is UInt64 ||
-                    value is Decimal ||
-                    value is Double ||
-                    value is Single))
-                return true;
-            else
-                return false;
+            return (value is ValueType && IsNumeric(value.GetType()));
         }
     }
 
