@@ -1636,7 +1636,7 @@ namespace NuoDb.Data.Client
                     using (NuoDbDataReader reader = new NuoDbDataReader(conn, handle, conn.InternalConnection.dataStream, null, true))
                     {
                         while (reader.Read())
-                            tables.Add(new KeyValuePair<string, string>((string)reader["TABLE_SCHEM"], (string)reader["TABLE_NAME"]));
+                            tables.Add(new KeyValuePair<string, string>(reader.GetFieldValue<string>("TABLE_SCHEM"), reader.GetFieldValue<string>("TABLE_NAME")));
                     }
                 }
             }
