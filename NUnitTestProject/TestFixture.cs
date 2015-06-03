@@ -1734,5 +1734,27 @@ namespace NUnitTestProject
             Assert.IsTrue(typeof(int) == reader[1].GetType(), "Type of col2 is " + reader[1].GetType().Name);
         }
 
+        [Test]
+        public void TestAutoClose()
+        {
+            int index;
+            for (index = 0; index < 2000; index++)
+            {
+                using (var connection = new NuoDbConnection(connectionString))
+                {
+                    using (var command = connection.CreateCommand())
+                    {
+                        command.CommandType = CommandType.Text;
+                        command.CommandText = "select * from hockey limit 1";
+                        connection.Open();
+                        using (var reader = command.ExecuteReader())
+                        {
+                            Assert.True(reader.Read());
+                        }
+                    }
+                }
+            }
+            Assert.AreEqual(2000, index);
+        }
     }
 }

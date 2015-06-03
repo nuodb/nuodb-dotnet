@@ -137,7 +137,10 @@ namespace NuoDb.Data.Client
                 if (_internalConnection.transaction != null)
                     _internalConnection.transaction.Rollback();
                 if (_pooled)
+                {
+                    _internalConnection.CloseOpenItems();
                     ConnectionPoolManager.Instance.Release(_internalConnection);
+                }
                 else
                     _internalConnection.Close();
                 _pooled = false;
