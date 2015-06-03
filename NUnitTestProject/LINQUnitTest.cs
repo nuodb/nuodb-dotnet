@@ -1350,5 +1350,18 @@ namespace NUnitTestProject
             }
         }
 
+        [Test]
+        public void TestAutoClose()
+        {
+            int index;
+            for (index = 0; index < 2000; index++)
+            {
+                using (var context = new testEntities())
+                {
+                    var handler = context.HOCKEY.FirstOrDefault();
+                }
+            }
+            Assert.AreEqual(2000, index);
+        }
     }
 }

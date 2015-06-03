@@ -475,17 +475,8 @@ namespace NuoDb.Data.Client
                 listResultSets.Remove(handle);
         }
 
-        public void Close()
+        public void CloseOpenItems()
         {
-            if (socket == null || !socket.Connected)
-            {
-                return;
-            }
-
-#if DEBUG
-            System.Diagnostics.Trace.WriteLine("NuoDBConnection::Close()");
-#endif
-
             List<int> tmpResultSet = new List<int>(listResultSets);
             listResultSets.Clear();
 
@@ -501,6 +492,19 @@ namespace NuoDb.Data.Client
             {
                 CloseCommand(r);
             }
+        }
+
+        public void Close()
+        {
+            if (socket == null || !socket.Connected)
+            {
+                return;
+            }
+
+#if DEBUG
+            System.Diagnostics.Trace.WriteLine("NuoDBConnection::Close()");
+#endif
+            CloseOpenItems();
 
             dataStream.startMessage(Protocol.CloseConnection);
             sendAndReceive(dataStream);
