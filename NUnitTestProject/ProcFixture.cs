@@ -292,5 +292,31 @@ namespace NUnitTestProject
                 }
             }
         }
+
+        [Test]
+        public void TestPrepareLotsOfParams()
+        {
+            using (NuoDbConnection connection = new NuoDbConnection(TestFixture1.connectionString))
+            {
+                connection.Open();
+                new NuoDbCommand("drop procedure nunit_test if exists", connection).ExecuteNonQuery();
+                new NuoDbCommand("create procedure nunit_test(inout p1 string, in p2 string, out p3 int, inout p4 float, in p5 double, out p6 boolean, "+
+                    "inout p7 string, in p8 string, out p9 int, inout p10 float, in p11 double, out p12 boolean, "+
+                    "inout p13 string, in p14 string, out p15 int, inout p16 float, in p17 double, out p18 boolean, "+
+                    "inout p19 string, in p20 string, out p21 int, inout p22 float, in p23 double, out p24 boolean) "+
+                    " returns output(p00 string, p01 int, p02 float, p04 double, p05 boolean, p06 blob) "+
+                    " as if(p1='goodbye') p1='hello'; end_if; end_procedure", connection).ExecuteNonQuery();
+
+                NuoDbCommand cmd = new NuoDbCommand("nunit_test", connection);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Prepare();
+                int index = 1;
+                foreach (DbParameter param in cmd.Parameters)
+                {
+                    Assert.AreEqual(String.Format("P{0}", index++), param.ParameterName);
+                }
+                Assert.AreEqual(25, index);
+            }
+        }
     }
 }

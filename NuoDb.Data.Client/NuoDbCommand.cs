@@ -675,38 +675,38 @@ namespace NuoDb.Data.Client
                     paramTable = NuoDbConnectionInternal.GetSchemaHelper(connection, "ProcedureParameters", new string[] { null, schema, parts[0].Trim(quotes), null });
                 }
                 int numParams = 0;
-                foreach (DataRow row in paramTable.Rows) 
+                foreach (DataRow row in paramTable.Select("PARAMETER_DIRECTION <> 3", "ORDINAL_POSITION ASC")) 
                 {
+                    int ordinal = row.Field<int>("ORDINAL_POSITION");
+                    if (ordinal != ++numParams)
+                        throw new NuoDbSqlException(String.Format("Internal error: unexpected ordering of the parameters of the procedure {0}", nuodbSqlString));
                     int direction = row.Field<int>("PARAMETER_DIRECTION");
-                    if (direction != 3)
+                    switch (direction)
                     {
-                        numParams++;
-                        // either add a new parameter, or carry over the user-provided one
-                        string paramName = row.Field<string>("PARAMETER_NAME");
-                        if (parameters.Contains(paramName))
-                            newParams.Add(parameters[paramName]);
-                        else if (parameters.Contains("@" + paramName))
-                            newParams.Add(parameters["@" + paramName]);
-                        else if (parameters.Count > newParams.Count)
-                        {
-                            if (parameters[newParams.Count].ParameterName.Length == 0)
-                                parameters[newParams.Count].ParameterName = paramName;
-                            newParams.Add(parameters[newParams.Count]);
-                        }
-                        else
-                        {
-                            NuoDbParameter p = new NuoDbParameter();
-                            p.ParameterName = paramName;
-                            newParams.Add(p);
-                        }
-                        switch (direction)
-                        {
-                            case 1: newParams[newParams.Count - 1].Direction = ParameterDirection.Input; break;
-                            case 2: newParams[newParams.Count - 1].Direction = ParameterDirection.InputOutput; break;
-                            case 4: newParams[newParams.Count - 1].Direction = ParameterDirection.Output; break;
-                        }
-                        newParams[newParams.Count - 1].DbType = NuoDbConnectionInternal.mapJavaSqlToDbType(row.Field<int>("PARAMETER_DATA_TYPE"));
+                        case 1: newParams[newParams.Count - 1].Direction = ParameterDirection.Input; break;
+                        case 2: newParams[newParams.Count - 1].Direction = ParameterDirection.InputOutput; break;
+                        case 4: newParams[newParams.Count - 1].Direction = ParameterDirection.Output; break;
+                        default: throw new NuoDbSqlException(String.Format("Internal error: unexpected parameter type for procedure {0}", nuodbSqlString));
                     }
+                    // either add a new parameter, or carry over the user-provided one
+                    string paramName = row.Field<string>("PARAMETER_NAME");
+                    if (parameters.Contains(paramName))
+                        newParams.Add(parameters[paramName]);
+                    else if (parameters.Contains("@" + paramName))
+                        newParams.Add(parameters["@" + paramName]);
+                    else if (parameters.Count > newParams.Count)
+                    {
+                        if (parameters[newParams.Count].ParameterName.Length == 0)
+                            parameters[newParams.Count].ParameterName = paramName;
+                        newParams.Add(parameters[newParams.Count]);
+                    }
+                    else
+                    {
+                        NuoDbParameter p = new NuoDbParameter();
+                        p.ParameterName = paramName;
+                        newParams.Add(p);
+                    }
+                    newParams[newParams.Count - 1].DbType = NuoDbConnectionInternal.mapJavaSqlToDbType(row.Field<int>("PARAMETER_DATA_TYPE"));
                 }
                 StringBuilder strBuilder = new StringBuilder("EXECUTE ");
                 strBuilder.Append(nuodbSqlString);
