@@ -681,11 +681,12 @@ namespace NuoDb.Data.Client
                     if (ordinal != ++numParams)
                         throw new NuoDbSqlException(String.Format("Internal error: unexpected ordering of the parameters of the procedure {0}", nuodbSqlString));
                     int direction = row.Field<int>("PARAMETER_DIRECTION");
+                    ParameterDirection paramDirection;
                     switch (direction)
                     {
-                        case 1: newParams[newParams.Count - 1].Direction = ParameterDirection.Input; break;
-                        case 2: newParams[newParams.Count - 1].Direction = ParameterDirection.InputOutput; break;
-                        case 4: newParams[newParams.Count - 1].Direction = ParameterDirection.Output; break;
+                        case 1: paramDirection = ParameterDirection.Input; break;
+                        case 2: paramDirection = ParameterDirection.InputOutput; break;
+                        case 4: paramDirection = ParameterDirection.Output; break;
                         default: throw new NuoDbSqlException(String.Format("Internal error: unexpected parameter type for procedure {0}", nuodbSqlString));
                     }
                     // either add a new parameter, or carry over the user-provided one
@@ -707,6 +708,7 @@ namespace NuoDb.Data.Client
                         newParams.Add(p);
                     }
                     newParams[newParams.Count - 1].DbType = NuoDbConnectionInternal.mapJavaSqlToDbType(row.Field<int>("PARAMETER_DATA_TYPE"));
+                    newParams[newParams.Count - 1].Direction = paramDirection;
                 }
                 StringBuilder strBuilder = new StringBuilder("EXECUTE ");
                 strBuilder.Append(nuodbSqlString);
