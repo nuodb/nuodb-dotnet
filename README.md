@@ -20,4 +20,4 @@ file (.travis.yml) in the order listed.
 
 License
 -------------------
-[NuoDB License](https://github.com/nuodb/nuodb-dotne/blob/master/LICENSE)
+[NuoDB License](https://github.com/nuodb/nuodb-dotnet/blob/master/LICENSE)
