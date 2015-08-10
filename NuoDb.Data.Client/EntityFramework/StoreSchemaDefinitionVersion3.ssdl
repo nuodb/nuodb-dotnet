@@ -649,7 +649,7 @@
     <Property Name="ReturnCharacterSetCatalog" Type="string" MaxLength="128" />
     <Property Name="ReturnCharacterSetSchema" Type="string" MaxLength="128" />
     <Property Name="ReturnCharacterSetName" Type="string" MaxLength="128" />
-    <Property Name="ReturnIsMultiSet" Nullable="false" Type="boolean" />
+    <Property Name="ReturnIsMultiSet" Type="boolean" />
     <Property Name="IsAggregate" Type="boolean" />
     <Property Name="IsBuiltIn" Type="boolean" />
     <Property Name="IsNiladic" Type="boolean" />

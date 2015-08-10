@@ -44,7 +44,6 @@ using System.Data.Entity.Infrastructure;
 using System.Data.Entity.Infrastructure.DependencyResolution;
 using System.Data.Entity.Migrations.Sql;
 using NuoDb.Data.Client.EntityFramework6.SqlGen;
-using NuoDb.Data.Client;
 
 namespace NuoDb.Data.Client.EntityFramework6
 #else
@@ -217,11 +216,7 @@ namespace NuoDb.Data.Client.EntityFramework
             if (connection == null)
                 throw new ArgumentNullException("connection");
 
-            if (!(connection is NuoDbConnection))
-                throw new ArgumentException("Connection is not a valid NuoDbConnection");
-
-            NuoDbConnection conn = (NuoDbConnection)connection;
-            DataTable dsInfo = conn.GetSchema(DbMetaDataCollectionNames.DataSourceInformation);
+            DataTable dsInfo = connection.GetSchema(DbMetaDataCollectionNames.DataSourceInformation);
             if (dsInfo.Rows.Count == 0)
                 return "0";
             string version = dsInfo.Rows[0].Field<string>("DataSourceInternalProductVersion");

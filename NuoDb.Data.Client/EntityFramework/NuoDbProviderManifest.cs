@@ -39,7 +39,6 @@ using System.Text;
 #if EF6
 using System.Data.Entity.Core.Common;
 using System.Data.Entity.Core.Metadata.Edm;
-using NuoDb.Data.Client;
 
 namespace NuoDb.Data.Client.EntityFramework6
 #else
