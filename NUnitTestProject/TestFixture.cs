@@ -91,15 +91,12 @@ namespace NUnitTestProject
                 DbCommand command = connection.CreateCommand();
                 connection.Open();
 
-                command.CommandText = "select * from hockey where id = ?";
+                command.CommandText = "select * from hockey where number = ?";
                 command.Prepare();
                 command.Parameters[0].Value = "2";
 
                 DbDataReader reader = command.ExecuteReader();
-                while (reader.Read())
-                {
-                    Console.WriteLine("\t{0}\t{1}\t{2}\t{3}", reader[0], reader[1], reader[2], reader["id"]);
-                }
+                Assert.IsFalse(reader.Read());
                 reader.Close();
             }
         }
@@ -118,10 +115,9 @@ namespace NUnitTestProject
                 command.Parameters[1].Value = "Bruins";
 
                 DbDataReader reader = command.ExecuteReader();
-                while (reader.Read())
-                {
-                    Console.WriteLine("\t{0}\t{1}\t{2}\t{3}", reader[0], reader[1], reader[2], reader["id"]);
-                }
+                Assert.IsTrue(reader.Read());
+                Assert.AreEqual(1, reader["number"]);
+                Assert.IsFalse(reader.Read());
                 reader.Close();
             }
         }
@@ -146,10 +142,9 @@ namespace NUnitTestProject
                 command.Prepare();
 
                 DbDataReader reader = command.ExecuteReader();
-                while (reader.Read())
-                {
-                    Console.WriteLine("\t{0}\t{1}\t{2}\t{3}", reader[0], reader[1], reader[2], reader["id"]);
-                }
+                Assert.IsTrue(reader.Read());
+                Assert.AreEqual(1, reader["number"]);
+                Assert.IsFalse(reader.Read());
                 reader.Close();
             }
         }
@@ -174,10 +169,9 @@ namespace NUnitTestProject
                 command.Prepare();
 
                 DbDataReader reader = command.ExecuteReader();
-                while (reader.Read())
-                {
-                    Console.WriteLine("\t{0}", reader["'?"]);
-                }
+                Assert.IsTrue(reader.Read());
+                Assert.AreEqual("MAX SUMMIT", reader["'?"]);
+                Assert.IsFalse(reader.Read());
                 reader.Close();
             }
         }
@@ -196,10 +190,9 @@ namespace NUnitTestProject
                 command.Parameters["TEam"].Value = "Bruins";
 
                 DbDataReader reader = command.ExecuteReader();
-                while (reader.Read())
-                {
-                    Console.WriteLine("\t{0}\t{1}\t{2}\t{3}", reader[0], reader[1], reader[2], reader["ID"]);
-                }
+                Assert.IsTrue(reader.Read());
+                Assert.AreEqual(1, reader["NUMBER"]);
+                Assert.IsFalse(reader.Read());
                 reader.Close();
             }
         }
@@ -218,10 +211,29 @@ namespace NUnitTestProject
                 command.Parameters["TEam"].Value = "Bruins";
 
                 DbDataReader reader = command.ExecuteReader();
-                while (reader.Read())
-                {
-                    Console.WriteLine("\t{0}\t{1}\t{2}\t{3}", reader[0], reader[1], reader[2], reader["ID"]);
-                }
+                Assert.IsTrue(reader.Read());
+                Assert.AreEqual(1, reader["NUMBER"]);
+                Assert.IsFalse(reader.Read());
+                reader.Close();
+            }
+        }
+
+        [Test]
+        public void TestNamedParameters6()
+        {
+            using (NuoDbConnection connection = new NuoDbConnection(connectionString))
+            {
+                DbCommand command = connection.CreateCommand();
+                connection.Open();
+
+                command.CommandText = "select * from hockey where number = @number and team = @team";
+                command.Parameters.Add(new NuoDbParameter() { ParameterName = "@TEam", Value = "Bruins" });
+                command.Parameters.Add(new NuoDbParameter() { ParameterName = "@NumbER", Value = 1 });
+
+                DbDataReader reader = command.ExecuteReader();
+                Assert.IsTrue(reader.Read());
+                Assert.AreEqual(1, reader["Number"]);
+                Assert.IsFalse(reader.Read());
                 reader.Close();
             }
         }
@@ -234,14 +246,11 @@ namespace NUnitTestProject
                 DbCommand command = connection.CreateCommand();
                 connection.Open();
 
-                command.CommandText = "select * from hockey where id = 2";
+                command.CommandText = "select * from hockey where number = 2";
                 command.Prepare();
 
                 DbDataReader reader = command.ExecuteReader();
-                while (reader.Read())
-                {
-                    Console.WriteLine("\t{0}\t{1}\t{2}\t{3}", reader[0], reader[1], reader[2], reader["id"]);
-                }
+                Assert.IsFalse(reader.Read());
                 reader.Close();
             }
         }
