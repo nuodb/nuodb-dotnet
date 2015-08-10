@@ -726,7 +726,7 @@ namespace NuoDb.Data.Client
                 sendAndReceive(dataStream);
 
                 // if the caller requested a cipher of None and we got here then the
-                // server accpeted it and expects us to disable crypto now
+                // server accepted it and expects us to disable crypto now
 
                 if (cipher.Equals("None"))
                 {
@@ -787,6 +787,41 @@ namespace NuoDb.Data.Client
 
                 throw new NuoDbSqlException(exception.ToString());
             }
+
+
+            if (parsedConnectionString.ContainsKey(NuoDbConnectionStringBuilder.IsolationLevelKey))
+            {
+                string isolationLevel = parsedConnectionString.IsolationLevel;
+                int level = 0;
+                if (isolationLevel.Equals("ReadCommitted", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    // static const int TRANSACTION_READ_COMMITTED    = 2;
+                    level = 2;
+                }
+                else if (isolationLevel.Equals("Serializable", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    // static const int TRANSACTION_SERIALIZABLE      = 8;
+                    level = 8;
+                }
+                else if (isolationLevel.Equals("WriteCommitted", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    // static const int TRANSACTION_WRITE_COMMITTED   = 5;
+                    level = 5;
+                }
+                else if (isolationLevel.Equals("ConsistentRead", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    // static const int TRANSACTION_CONSISTENT_READ   = 7;
+                    level = 7;
+                }
+                else
+                {
+                    throw new NuoDbSqlException("\"" + isolationLevel + "\" is not a valid isolation level");
+                }
+                dataStream.startMessage(Protocol.SetTransactionIsolation);
+                dataStream.encodeInt(level);
+                sendAndReceive(dataStream);
+            }
+
         }
 
         [MethodImpl(MethodImplOptions.Synchronized)]
