@@ -645,6 +645,8 @@ namespace NuoDb.Data.Client
                 // if the user-provided parameters have a value for this name, preserve it
                 if (parameters.Contains(curParamName))
                     newParams.Add(parameters[curParamName]);
+                else if (parameters.Contains("@" + curParamName))
+                    newParams.Add(parameters["@" + curParamName]);
                 else
                 {
                     NuoDbParameter p = new NuoDbParameter();
