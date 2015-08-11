@@ -40,10 +40,7 @@ namespace NuoDb.Data.Client
         {
             if (value is DbParameter)
             {
-                if (!(value is NuoDbParameter))
-                    throw new ArgumentException("Parameter is not a NuoDB parameter", "value");
-
-                collection.Add((NuoDbParameter)value);
+                collection.Add(ImportParameter(value as DbParameter));
             }
             else
             {
@@ -52,6 +49,22 @@ namespace NuoDb.Data.Client
                 collection.Add(param);
             }
             return collection.Count - 1;
+        }
+
+        private static NuoDbParameter ImportParameter(DbParameter value)
+        {
+            if (value is NuoDbParameter)
+                return value as NuoDbParameter;
+            NuoDbParameter param = new NuoDbParameter();
+            param.ParameterName = value.ParameterName;
+            param.Value = value.Value;
+            param.DbType = value.DbType;
+            param.Direction = value.Direction;
+            param.Size = value.Size;
+            param.SourceColumn = value.SourceColumn;
+            param.SourceColumnNullMapping = value.SourceColumnNullMapping;
+            param.SourceVersion = value.SourceVersion;
+            return param;
         }
 
         public override void AddRange(Array values)
@@ -127,9 +140,9 @@ namespace NuoDb.Data.Client
 
         public override void Insert(int index, object value)
         {
-            if (!(value is NuoDbParameter))
-                throw new ArgumentException("Parameter is not a NuoDB parameter", "value");
-            collection.Insert(index, (NuoDbParameter)value);
+            if (!(value is DbParameter))
+                throw new ArgumentException("Parameter is not a DbParameter", "value");
+            collection.Insert(index, ImportParameter(value as DbParameter));
         }
 
         public override bool IsFixedSize
@@ -172,22 +185,19 @@ namespace NuoDb.Data.Client
 
         protected override void SetParameter(string parameterName, DbParameter value)
         {
-            if (!(value is NuoDbParameter))
-                throw new ArgumentException("Parameter is not a NuoDB parameter", "value");
+            NuoDbParameter param = ImportParameter(value);
             int index = IndexOf(parameterName);
             if (index == -1)
-                collection.Add((NuoDbParameter)value);
+                collection.Add(param);
             else
-                collection[index] = (NuoDbParameter)value;
+                collection[index] = param;
         }
 
         protected override void SetParameter(int index, DbParameter value)
         {
-            if (!(value is NuoDbParameter))
-                throw new ArgumentException("Parameter is not a NuoDB parameter", "value");
             if (index < 0 || index > collection.Count)
                 throw new IndexOutOfRangeException();
-            collection[index] = (NuoDbParameter)value;
+            collection[index] = ImportParameter(value);
         }
 
         public override object SyncRoot

@@ -36,6 +36,199 @@ using System.Data;
 
 namespace NuoDb.Data.Client
 {
+    /**
+     * Helper class used to enforce a set of specific types for the columns of a DbDataReader
+     * To be used when we cannot inject the specific types in the DbCommand because we cannot
+     * create a NuoDbCommand because we have to work through the interfaces of ADO.NET only
+     */
+    internal class TypedDbReader : DbDataReader
+    {
+        private Type[] declaredTypes;
+        private DbDataReader wrappedReader;
+
+        internal TypedDbReader(DbDataReader reader, Type[] declaredTypes)
+        {
+            this.wrappedReader = reader;
+            this.declaredTypes = declaredTypes;
+        }
+
+        public override void Close()
+        {
+            wrappedReader.Close();
+        }
+
+        public override int Depth
+        {
+            get { return wrappedReader.Depth; }
+        }
+
+        public override int FieldCount
+        {
+            get { return wrappedReader.FieldCount; }
+        }
+
+        public override bool GetBoolean(int ordinal)
+        {
+            return wrappedReader.GetBoolean(ordinal);
+        }
+
+        public override byte GetByte(int ordinal)
+        {
+            return wrappedReader.GetByte(ordinal);
+        }
+
+        public override long GetBytes(int ordinal, long dataOffset, byte[] buffer, int bufferOffset, int length)
+        {
+            return wrappedReader.GetBytes(ordinal, dataOffset, buffer, bufferOffset, length);
+        }
+
+        public override char GetChar(int ordinal)
+        {
+            return wrappedReader.GetChar(ordinal);
+        }
+
+        public override long GetChars(int ordinal, long dataOffset, char[] buffer, int bufferOffset, int length)
+        {
+            return wrappedReader.GetChars(ordinal, dataOffset, buffer, bufferOffset, length);
+        }
+
+        public override string GetDataTypeName(int ordinal)
+        {
+            return wrappedReader.GetDataTypeName(ordinal);
+        }
+
+        public override DateTime GetDateTime(int ordinal)
+        {
+            return wrappedReader.GetDateTime(ordinal);
+        }
+
+        public override decimal GetDecimal(int ordinal)
+        {
+            return wrappedReader.GetDecimal(ordinal);
+        }
+
+        public override double GetDouble(int ordinal)
+        {
+            return wrappedReader.GetDouble(ordinal);
+        }
+
+        public override System.Collections.IEnumerator GetEnumerator()
+        {
+            return wrappedReader.GetEnumerator();
+        }
+
+        public override Type GetFieldType(int ordinal)
+        {
+            return declaredTypes.ElementAtOrDefault(ordinal);
+        }
+
+        public override float GetFloat(int ordinal)
+        {
+            return wrappedReader.GetFloat(ordinal);
+        }
+
+        public override Guid GetGuid(int ordinal)
+        {
+            return wrappedReader.GetGuid(ordinal);
+        }
+
+        public override short GetInt16(int ordinal)
+        {
+            return wrappedReader.GetInt16(ordinal);
+        }
+
+        public override int GetInt32(int ordinal)
+        {
+            return wrappedReader.GetInt32(ordinal);
+        }
+
+        public override long GetInt64(int ordinal)
+        {
+            return wrappedReader.GetInt64(ordinal);
+        }
+
+        public override string GetName(int ordinal)
+        {
+            return wrappedReader.GetName(ordinal);
+        }
+
+        public override int GetOrdinal(string name)
+        {
+            return wrappedReader.GetOrdinal(name);
+        }
+
+        public override DataTable GetSchemaTable()
+        {
+            return wrappedReader.GetSchemaTable();
+        }
+
+        public override string GetString(int ordinal)
+        {
+            return wrappedReader.GetString(ordinal);
+        }
+
+        public override object GetValue(int ordinal)
+        {
+            object value = wrappedReader.GetValue(ordinal);
+            Type declaredType = declaredTypes.ElementAtOrDefault(ordinal);
+            if (declaredType == null)
+                return value;
+            if (declaredType == typeof(Guid))
+                return GetGuid(ordinal);
+            return Convert.ChangeType(value, declaredType);
+        }
+
+        public override int GetValues(object[] values)
+        {
+            int toRead = Math.Min(wrappedReader.FieldCount, values.Length);
+            for (int i = 0; i < toRead; i++)
+                values[i] = GetValue(i);
+            for (int i = toRead; i < values.Length; i++)
+                values[i] = null;
+            return toRead;
+        }
+
+        public override bool HasRows
+        {
+            get { return wrappedReader.HasRows; }
+        }
+
+        public override bool IsClosed
+        {
+            get { return wrappedReader.IsClosed; }
+        }
+
+        public override bool IsDBNull(int ordinal)
+        {
+            return wrappedReader.IsDBNull(ordinal);
+        }
+
+        public override bool NextResult()
+        {
+            return wrappedReader.NextResult();
+        }
+
+        public override bool Read()
+        {
+            return wrappedReader.Read();
+        }
+
+        public override int RecordsAffected
+        {
+            get { return wrappedReader.RecordsAffected; }
+        }
+
+        public override object this[string name]
+        {
+            get { return GetValue(wrappedReader.GetOrdinal(name)); }
+        }
+
+        public override object this[int ordinal]
+        {
+            get { return GetValue(ordinal); }
+        }
+    }
+
     // this declaration prevents VS2010 from trying to edit this class with the designer.
     // it would try to do that because the parent class derives from Component, but it's abstract
     // and it cannot be instanciated
@@ -44,7 +237,7 @@ namespace NuoDb.Data.Client
     {
         public static CommandType MultipleTexts = (CommandType)4096;
 
-        private NuoDbConnection connection;
+        private DbConnection connection;
         private string sqlText = "";
         private int timeout;
         private System.Data.CommandType commandType = CommandType.Text;
@@ -55,10 +248,8 @@ namespace NuoDb.Data.Client
 
         internal NuoDbMultipleCommands(string query, DbConnection conn)
         {
-            if (!(conn is NuoDbConnection))
-                throw new ArgumentException("Connection is not a NuoDB connection", "conn");
             sqlText = query;
-            connection = (NuoDbConnection)conn;
+            connection = conn;
         }
 
         internal NuoDbMultipleCommands(DbConnection conn)
@@ -132,9 +323,7 @@ namespace NuoDb.Data.Client
             }
             set
             {
-                if (value != null && !(value is NuoDbConnection))
-                    throw new ArgumentException("Connection is not a NuoDB connection", "conn");
-                connection = (NuoDbConnection)value;
+                connection = value;
             }
         }
 
@@ -149,7 +338,7 @@ namespace NuoDb.Data.Client
             {
                 if (connection == null || connection.State != ConnectionState.Open)
                     return null;
-                return connection.InternalConnection.transaction;
+                return ((NuoDbConnection)connection).InternalConnection.transaction;
             }
             set
             {
@@ -175,7 +364,7 @@ namespace NuoDb.Data.Client
             }
         }
 
-        private List<NuoDbCommand> splitStatements()
+        private List<DbCommand> splitStatements()
         {
             List<string> statements = new List<string>();
 
@@ -222,31 +411,35 @@ namespace NuoDb.Data.Client
                 statements.Add(curStatement.ToString());
             }
 
-            List<NuoDbCommand> cmds = new List<NuoDbCommand>();
+            List<DbCommand> cmds = new List<DbCommand>();
             if (statements.Count == 0)
                 return cmds;
 
             for (int i = 0; i < statements.Count - 1; i++)
             {
-                NuoDbCommand cmd = new NuoDbCommand(statements[i], Connection);
+                DbCommand cmd = Connection.CreateCommand();
+                cmd.CommandText = statements[i];
                 cmd.CommandTimeout = CommandTimeout;
                 cmd.UpdatedRowSource = UpdatedRowSource;
                 cmds.Add(cmd);
             }
-            NuoDbCommand lastCmd;
-            if (ExpectedColumnTypes == null)
-                lastCmd = new NuoDbCommand(statements[statements.Count - 1], Connection);
-            else
-            {
-                lastCmd = new NuoDbCommand(ExpectedColumnTypes);
-                lastCmd.CommandText = statements[statements.Count - 1];
-                lastCmd.Connection = Connection;
-            }
+            DbCommand lastCmd;
+            lastCmd = Connection.CreateCommand();
+            lastCmd.CommandText = statements[statements.Count - 1];
             lastCmd.CommandTimeout = CommandTimeout;
             lastCmd.UpdatedRowSource = UpdatedRowSource;
-            foreach (NuoDbParameter p in this.Parameters)
+            foreach (DbParameter p in this.Parameters)
             {
-                lastCmd.Parameters.Add(((ICloneable)p).Clone());
+                DbParameter param = lastCmd.CreateParameter();
+                param.ParameterName = p.ParameterName;
+                param.Value = p.Value;
+                param.Direction = p.Direction;
+                param.Size = p.Size;
+                param.DbType = p.DbType;
+                param.SourceVersion = p.SourceVersion;
+                param.SourceColumn = p.SourceColumn;
+                param.SourceColumnNullMapping = p.SourceColumnNullMapping;
+                lastCmd.Parameters.Add(param);
             }
             cmds.Add(lastCmd);
             return cmds;
@@ -254,17 +447,19 @@ namespace NuoDb.Data.Client
 
         protected override DbDataReader ExecuteDbDataReader(System.Data.CommandBehavior behavior)
         {
-            List<NuoDbCommand> statements = splitStatements();
+            List<DbCommand> statements = splitStatements();
             if (statements.Count == 0)
                 throw new NuoDbSqlException("No statement specified");
             for (int i = 0; i < statements.Count - 1; i++)
                 statements[i].ExecuteNonQuery();
+            if (ExpectedColumnTypes != null)
+                return new TypedDbReader(statements[statements.Count - 1].ExecuteReader(), ExpectedColumnTypes);
             return statements[statements.Count-1].ExecuteReader();
         }
 
         public override int ExecuteNonQuery()
         {
-            List<NuoDbCommand> statements = splitStatements();
+            List<DbCommand> statements = splitStatements();
             if (statements.Count == 0)
                 throw new NuoDbSqlException("No statement specified");
             for (int i = 0; i < statements.Count - 1; i++)
@@ -274,12 +469,15 @@ namespace NuoDb.Data.Client
 
         public override object ExecuteScalar()
         {
-            List<NuoDbCommand> statements = splitStatements();
+            List<DbCommand> statements = splitStatements();
             if (statements.Count == 0)
                 throw new NuoDbSqlException("No statement specified");
             for (int i = 0; i < statements.Count - 1; i++)
                 statements[i].ExecuteNonQuery();
-            return statements[statements.Count - 1].ExecuteScalar();
+            object value = statements[statements.Count - 1].ExecuteScalar();
+            if (ExpectedColumnTypes != null && ExpectedColumnTypes.Length > 0)
+                return Convert.ChangeType(value, ExpectedColumnTypes[0]);
+            return value;
         }
 
         public override void Prepare()
@@ -307,7 +505,6 @@ namespace NuoDb.Data.Client
 
             command.CommandText = this.CommandText;
             command.Connection = this.Connection;
-            command.Transaction = this.Transaction;
             command.CommandType = this.CommandType;
             command.CommandTimeout = this.CommandTimeout;
             command.UpdatedRowSource = this.UpdatedRowSource;
@@ -315,7 +512,7 @@ namespace NuoDb.Data.Client
             if (this.ExpectedColumnTypes != null)
                 command.ExpectedColumnTypes = (Type[])this.ExpectedColumnTypes.Clone();
 
-            foreach (NuoDbParameter p in this.Parameters)
+            foreach (DbParameter p in this.Parameters)
             {
                 command.Parameters.Add(((ICloneable)p).Clone());
             }
