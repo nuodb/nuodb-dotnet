@@ -232,9 +232,29 @@ namespace NuoDb.Data.Client
                 throw new ArgumentException("The name of the destination table hasn't been specified", "DestinationTableName");
 
             StringBuilder builder = new StringBuilder();
-            builder.Append("INSERT INTO `");
-            builder.Append(this.tableName.Replace("`", "``"));
-            builder.Append("` ");
+            builder.Append("INSERT INTO ");
+            if (this.tableName.Contains("."))
+            {
+                string[] parts = this.tableName.Split(new char[] { '.' });
+                bool first = true;
+                foreach (string part in parts)
+                {
+                    if (first)
+                        first = false;
+                    else
+                        builder.Append(".");
+                    builder.Append("`");
+                    builder.Append(part.Replace("`", "``"));
+                    builder.Append("`");
+                }
+            }
+            else
+            {
+                builder.Append("`");
+                builder.Append(this.tableName.Replace("`", "``"));
+                builder.Append("`");
+            }
+            builder.Append(" ");
             if (mappings.Count == 0)
             {
                 // the target table has the same number and names of the columns as in the specified input rows
