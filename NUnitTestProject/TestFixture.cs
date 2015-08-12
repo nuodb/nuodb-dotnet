@@ -854,7 +854,7 @@ namespace NUnitTestProject
 
             NuoDbBulkLoader loader = new NuoDbBulkLoader(connectionString);
             loader.BatchSize = 2;
-            loader.DestinationTableName = "TEMP";
+            loader.DestinationTableName = schema+".TEMP";
             DataTable metadata = new DataTable("dummy");
             metadata.Columns.Add("xyz", typeof(string));
             DataRow[] rows = new DataRow[10];
