@@ -62,22 +62,14 @@ namespace NuoDb.Data.Client
         protected internal DataSegment firstSegment;
         protected internal DataSegment currentSegment;
         protected internal int available; // space available in current segment
-        protected internal char[] capturedString;
+        protected internal byte[] capturedString;
         protected internal int capturedLength; // the actual (used) length of the captured string
-        protected internal char[] codePoints;
-
+        
         internal static byte[] base64Digits;
         internal static byte[] base64Lookup;
 
         internal const int DEFAULT_SEGMENT_SIZE = 1024;
         public const int DEFAULT_STRING_SIZE = 512;
-
-        internal static readonly byte[] utf8Flags = { 0, 0, 0xC0, 0xE0, 0xF0, 0xF8, 0xFC };
-
-        internal static readonly int[] utf8Lengths = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-
-        internal static readonly int[] utf8Values = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 0, 1, 0, 1 };
-
 
         static DataStream()
         {
@@ -356,29 +348,7 @@ namespace NuoDb.Data.Client
 
         protected internal virtual void writeCapturedString()
         {
-            // This doesn't handle unicode > 16 bits
-
-            for (int n = 0; n < capturedLength; )
-            {
-                char c = capturedString[n++];
-                int utf8Length = (c <= 0x7f) ? 1 : (c <= 0x7ff) ? 2 : (c <= 0xffff) ? 3 : 4;
-
-                if (utf8Length == 1)
-                {
-                    write(c);
-                }
-                else
-                {
-                    int bits = (utf8Length - 1) * 6;
-                    write((c >> bits) | utf8Flags[utf8Length]);
-
-                    while (bits > 0)
-                    {
-                        bits -= 6;
-                        write(((c >> bits) & 0x3f) | 0x80);
-                    }
-                }
-            }
+            write(capturedString, 0, capturedLength);
         }
 
         /// <summary>
@@ -390,23 +360,15 @@ namespace NuoDb.Data.Client
 
         protected internal virtual int captureString(string @string)
         {
-            capturedLength = @string.Length;
-
-            if (capturedString == null || capturedString.Length < capturedLength)
+            int maxSize = Encoding.UTF8.GetMaxByteCount(@string.Length);
+            if (capturedString == null || capturedString.Length < maxSize)
             {
-                capturedString = new char[Math.Max(capturedLength, DEFAULT_STRING_SIZE)];
+                capturedString = new byte[Math.Max(maxSize, DEFAULT_STRING_SIZE)];
             }
 
-            @string.CopyTo(0, capturedString, 0, capturedLength - 0);
-            int utf8Length = 0;
+            capturedLength = Encoding.UTF8.GetBytes(@string, 0, @string.Length, capturedString, 0);
 
-            for (int n = 0; n < capturedLength; ++n)
-            {
-                char code = capturedString[n];
-                utf8Length += (code <= 0x7f) ? 1 : (code <= 0x7ff) ? 2 : (code <= 0xffff) ? 3 : 4;
-            }
-
-            return utf8Length;
+            return capturedLength;
         }
 
         /// <summary>
@@ -420,29 +382,7 @@ namespace NuoDb.Data.Client
 
         public virtual string getString(byte[] source, int sourceOffset, int length)
         {
-            if (codePoints == null || codePoints.Length < length)
-            {
-                codePoints = new char[Math.Max(length, 512)];
-            }
-
-            int offset = sourceOffset;
-            int count = 0;
-
-            while (offset - sourceOffset < length)
-            {
-                int b = 0xff & source[offset++];
-                int len = utf8Lengths[b];
-                int code = utf8Values[b];
-
-                for (; len > 1; --len)
-                {
-                    code = (code << 6) | (source[offset++] & 0x3f);
-                }
-
-                codePoints[count++] = (char)code;
-            }
-
-            return new string(codePoints, 0, count);
+            return Encoding.UTF8.GetString(source, sourceOffset, length);
         }
 
         /// <summary>
