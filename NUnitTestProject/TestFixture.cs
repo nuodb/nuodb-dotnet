@@ -1765,5 +1765,31 @@ namespace NUnitTestProject
             }
             Assert.AreEqual(2000, index);
         }
+
+        [Test]
+        public void TestUTFParams()
+        {
+            NuoDbConnection connection = new NuoDbConnection(connectionString);
+            connection.Open();
+            Utils.DropTable(connection, "temp");
+
+            string utf8String = "z a \u0306 \u01FD \u03B2";
+            new NuoDbCommand("create table temp (col1 string)", connection).ExecuteNonQuery();
+            using (NuoDbCommand cmd = new NuoDbCommand("insert into temp values (?)", connection))
+            {
+                cmd.Prepare();
+                cmd.Parameters[0].Value = utf8String;
+                Assert.AreEqual(1, cmd.ExecuteNonQuery());
+            }
+            using (NuoDbCommand cmd = new NuoDbCommand("select * from temp", connection))
+            {
+                using (DbDataReader reader = cmd.ExecuteReader())
+                {
+                    Assert.IsTrue(reader.Read());
+                    Assert.AreEqual(utf8String, reader.GetString(0));
+                }
+            }
+        }
     }
+
 }
