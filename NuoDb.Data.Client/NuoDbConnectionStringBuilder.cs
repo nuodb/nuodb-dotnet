@@ -180,6 +180,42 @@ namespace NuoDb.Data.Client
             set { this.SetValue(IsolationLevelKey, value); }
         }
 
+        internal const string LBTagKey = "LBTag";
+        [Category("Load Balancing")]
+        [Description("Specifies the tag of the connection that the load balancer will use")]
+        public string LBTag
+        {
+            get { return this.GetString(LBTagKey); }
+            set { this.SetValue(LBTagKey, value); }
+        }
+
+        internal const string ClientInfoKey = "ClientInfo";
+        [Category("Connection Description")]
+        [Description("Specifies the user-specific info of the connection that will appear in the SYSTEM.CONNECTIONS and SYSTEM.LOCALCONNECTIONS tables")]
+        public string ClientInfo
+        {
+            get { return this.GetString(ClientInfoKey); }
+            set { this.SetValue(ClientInfoKey, value); }
+        }
+
+        internal const string ClientHostKey = "ClientHost";
+        [Category("Connection Description")]
+        [Description("Specifies the user-specified hostname of the connection client that will appear in the SYSTEM.CONNECTIONS and SYSTEM.LOCALCONNECTIONS tables")]
+        public string ClientHost
+        {
+            get { return this.GetString(ClientHostKey); }
+            set { this.SetValue(ClientHostKey, value); }
+        }
+
+        internal const string ClientProcessIDKey = "ClientProcessID";
+        [Category("Connection Description")]
+        [Description("Specifies the user-specified process ID of the connection client that will appear in the SYSTEM.CONNECTIONS and SYSTEM.LOCALCONNECTIONS tables")]
+        public string ClientProcessID
+        {
+            get { return this.GetString(ClientProcessIDKey); }
+            set { this.SetValue(ClientProcessIDKey, value); }
+        }
+        
         public NuoDbConnectionStringBuilder()
         {
         }

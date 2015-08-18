@@ -43,6 +43,24 @@ namespace NUnitTestProject
         }
 
         [Test]
+        public void TestClientInfo()
+        {
+            using (NuoDbConnection connection = new NuoDbConnection(connectionString + ";ClientInfo=hello;ClientHost=localhost.localdomain;ClientProcessId=101"))
+            {
+                DbCommand cmd = new NuoDbCommand("select * from system.connections where connid=GetConnectionID()", connection);
+                connection.Open();
+                using (DbDataReader reader = cmd.ExecuteReader())
+                {
+                    Assert.IsTrue(reader.Read());
+                    Assert.AreEqual("hello", reader["clientinfo"]);
+                    Assert.AreEqual("localhost.localdomain", reader["clienthost"]);
+                    Assert.AreEqual("101", reader["clientprocessid"]);
+                    Assert.IsFalse(reader.Read());
+                }
+            }
+        }
+
+        [Test]
         public void TestCommand1()
         {
             using (NuoDbConnection connection = new NuoDbConnection(connectionString))
