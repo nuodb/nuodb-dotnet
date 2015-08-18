@@ -592,6 +592,23 @@ namespace NuoDb.Data.Client
                     tag.addAttribute("Schema", parsedConnectionString.Schema);
                     properties["Schema"] = parsedConnectionString.Schema;
                 }
+
+                if (parsedConnectionString.ContainsKey(NuoDbConnectionStringBuilder.LBTagKey))
+                {
+                    properties["LBTag"] = parsedConnectionString.LBTag;
+                }
+                if (parsedConnectionString.ContainsKey(NuoDbConnectionStringBuilder.ClientInfoKey))
+                {
+                    properties["clientInfo"] = parsedConnectionString.ClientInfo;
+                }
+                if (parsedConnectionString.ContainsKey(NuoDbConnectionStringBuilder.ClientHostKey))
+                {
+                    properties["clientHost"] = parsedConnectionString.ClientHost;
+                }
+                if (parsedConnectionString.ContainsKey(NuoDbConnectionStringBuilder.ClientProcessIDKey))
+                {
+                    properties["clientProcessID"] = parsedConnectionString.ClientProcessID;
+                }
                 // see comment below ... for now these are the only two types that
                 // we can support in the client code
                 if ((!cipher.Equals("RC4")) && (!cipher.Equals("None")))

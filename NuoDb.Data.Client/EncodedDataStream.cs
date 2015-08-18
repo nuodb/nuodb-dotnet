@@ -29,6 +29,7 @@
 using System;
 using NuoDb.Data.Client.Net;
 using NuoDb.Data.Client.Util;
+using NuoDb.Data.Client.Security;
 
 namespace NuoDb.Data.Client
 {
@@ -307,7 +308,24 @@ namespace NuoDb.Data.Client
         internal const int edsScaledTimestampLen7 = 223;
         internal const int edsScaledTimestampLen8 = 224;
 
-        internal const int edsMax = 225;
+        internal const int edsScaledCount2 = 225;
+
+        internal const int edsLobStream0 = 226;
+        internal const int edsLobStream1 = 227;
+        internal const int edsLobStream2 = 228;
+        internal const int edsLobStream3 = 229;
+        internal const int edsLobStream4 = 230;
+
+        internal const int edsArrayLen1 = 231;
+        internal const int edsArrayLen2 = 232;
+        internal const int edsArrayLen3 = 233;
+        internal const int edsArrayLen4 = 234;
+        internal const int edsArrayLen5 = 235;
+        internal const int edsArrayLen6 = 236;
+        internal const int edsArrayLen7 = 237;
+        internal const int edsArrayLen8 = 238;
+
+        internal const int edsMax = 239;
 
         internal const int edsIntMin = -10;
         internal const int edsIntMax = 31;
@@ -1206,29 +1224,52 @@ namespace NuoDb.Data.Client
                     type = edsTypeBlob;
                     break;
 
-                /*				case edsScaledCount1:
-                                {
-                                    // For some reason C++ EncodedStream expects the encoded
-                                    // length to be length+1.
+                case edsScaledCount1:
+                    {
+                        // For some reason C++ EncodedStream expects the encoded
+                        // length to be length+1.
 
-                                    length = (source[offset++] & 0xff) - 1;
-                                    int scale = source[offset++];
-                                    type = edsTypeBigInt;
-                                    bytes = new byte[length];
-                                    Array.Copy(source, offset, bytes, 0, length);
-                                    offset += length;
-                                    int sign = ((bytes[0] & 0x80) > 0) ? - 1 : 1;
+                        length = (source[offset++] & 0xff) - 1;
+                        scale = source[offset++];
+                        type = edsTypeBigInt;
+                        bytes = new byte[length];
+                        Array.Copy(source, offset, bytes, 0, length);
+                        offset += length;
+                        int sign = ((bytes[0] & 0x80) > 0) ? -1 : 1;
 
-                                    if (sign == -1)
-                                    {
-                                        bytes[0] &= 0x7f;
-                                    }
+                        if (sign == -1)
+                        {
+                            bytes[0] &= 0x7f;
+                        }
 
-                                    System.Numerics.BigInteger bi = new System.Numerics.BigInteger(sign, bytes);
-                                    bigDecimal = new decimal(bi, scale);
-                                }
-                                    break;
-                */
+                        BigInteger bi = new BigInteger(sign, bytes);
+                        bigDecimal = Decimal.Parse(bi.ToString());
+                    }
+                    break;
+
+                case edsScaledCount2:
+                    {
+                        // For some reason C++ EncodedStream expects the encoded
+                        // length to be length+1.
+
+                        scale = source[offset++];
+                        int sign = source[offset++];
+                        length = (source[offset++] & 0xff); // in bytes
+                        type = edsTypeBigInt;
+                        bytes = new byte[length];
+                        Array.Copy(source, offset, bytes, 0, length);
+                        offset += length;
+
+                        if (sign == -1)
+                            bytes[0] &= 0x7f;
+                        else
+                            sign = 1;
+
+                        BigInteger bi = new BigInteger(sign, bytes);
+                        bigDecimal = Decimal.Parse(bi.ToString());
+                    }
+                    break;
+
                 case edsUUID:
                     {
                         byte[] buff = new byte[16];
