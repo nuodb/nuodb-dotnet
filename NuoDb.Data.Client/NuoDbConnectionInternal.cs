@@ -587,6 +587,10 @@ namespace NuoDb.Data.Client
                 }
 
                 string cipher = DEFAULT_CIPHER;
+                if (parsedConnectionString.ContainsKey(NuoDbConnectionStringBuilder.CipherKey))
+                {
+                    properties["Cipher"] = cipher = parsedConnectionString.Cipher;
+                }
                 if (parsedConnectionString.ContainsKey(NuoDbConnectionStringBuilder.SchemaKey))
                 {
                     tag.addAttribute("Schema", parsedConnectionString.Schema);

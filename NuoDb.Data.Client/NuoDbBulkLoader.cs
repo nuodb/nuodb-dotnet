@@ -107,6 +107,8 @@ namespace NuoDb.Data.Client
         //     Initializes a new bulk loader using an existing connection.
         public NuoDbBulkLoader(NuoDbConnection connection)
         {
+            if (connection == null)
+                throw new ArgumentNullException("Connection is null", "connection");
             this.connection = connection;
         }
 

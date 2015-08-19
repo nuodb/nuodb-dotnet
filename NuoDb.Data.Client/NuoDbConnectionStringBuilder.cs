@@ -57,6 +57,28 @@ namespace NuoDb.Data.Client
         }
     }
 
+    public class EncryptionsListConverter : TypeConverter
+    {
+        // return true to signal we have a set of allowed values to display
+        public override bool GetStandardValuesSupported(ITypeDescriptorContext context)
+        {
+            return true;
+        }
+
+        // return true if the value can only be one of the allowed values (drop-list)
+        // return false if the user is allowed to type in a different value (drop-down)
+        public override bool GetStandardValuesExclusive(ITypeDescriptorContext context)
+        {
+            return true;
+        }
+
+        // return the allowed values
+        public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
+        {
+            return new StandardValuesCollection(new string[] { "", "None", "RC4" });
+        }
+    }
+
     public class NuoDbConnectionStringBuilder : DbConnectionStringBuilder
     {
         internal const string UserKey = "User";
@@ -215,7 +237,17 @@ namespace NuoDb.Data.Client
             get { return this.GetString(ClientProcessIDKey); }
             set { this.SetValue(ClientProcessIDKey, value); }
         }
-        
+
+        internal const string CipherKey = "Cypher";
+        [Category("Security")]
+        [Description("Specifies the encryption method used to secure the communication channel")]
+        [TypeConverter(typeof(EncryptionsListConverter))]
+        public string Cipher
+        {
+            get { return this.GetString(CipherKey); }
+            set { this.SetValue(CipherKey, value); }
+        }
+
         public NuoDbConnectionStringBuilder()
         {
         }
