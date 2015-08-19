@@ -360,7 +360,7 @@ namespace NuoDb.Data.Client
                 }
             }
 
-            throw new NuoDbSqlException("Column not found: " + columnLabel);
+            throw new IndexOutOfRangeException("Column not found: " + columnLabel);
         }
 
         private string findColumn(int columnIndex)
@@ -369,7 +369,7 @@ namespace NuoDb.Data.Client
 
             if (columnIndex < 0 || columnIndex > (numberColumns - 1))
             {
-                throw new NuoDbSqlException(String.Format("ResultSet column index of {0}, out of bounds.  Valid range 0-{1}", columnIndex, numberColumns));
+                throw new IndexOutOfRangeException(String.Format("ResultSet column index of {0}, out of bounds.  Valid range 0-{1}", columnIndex, numberColumns));
             }
 
             return columnNames[columnIndex];
