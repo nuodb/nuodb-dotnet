@@ -53,6 +53,8 @@ namespace NuoDb.Data.Client
         private volatile int currentRow = 0;
         private volatile bool afterLast_Renamed = false;
         private int recordsAffected = -1;
+        private Type[] declaredColumnTypes = null;
+        private string[] declaredColumnTypeNames = null;
 
         public NuoDbDataReader(NuoDbConnection connection, int handle, EncodedDataStream dataStream, NuoDbCommand statement, bool readColumnNames)
         {
@@ -60,6 +62,8 @@ namespace NuoDb.Data.Client
             this.handle = handle;
             this.pendingRows = dataStream;
             this.statement = statement;
+            if (statement != null)
+                this.declaredColumnTypes = statement.ExpectedColumnTypes;
 
             if (this.handle != -1)
                 this.connection.InternalConnection.RegisterResultSet(this.handle);
@@ -80,7 +84,6 @@ namespace NuoDb.Data.Client
                 //RemPreparedStatement ps = (RemPreparedStatement)statement;
                 //columnNames = ps.columnNames;
             }
-
         }
 
         protected override void Dispose(bool disposing)
@@ -447,22 +450,32 @@ namespace NuoDb.Data.Client
 
         public override string GetDataTypeName(int i)
         {
-            DataRow[] rows = GetSchemaTable().Select(String.Format("ColumnOrdinal = {0}", i));
-            if (rows != null && rows.Length > 0)
+            if (declaredColumnTypeNames == null)
             {
-                return Convert.ToString(rows[0]["DataType"]);
+                DataRowCollection rows = GetSchemaTable().Rows;
+                declaredColumnTypeNames = new string[rows.Count];
+                foreach (DataRow row in rows)
+                {
+                    int ordinal = (int)row["ColumnOrdinal"];
+                    declaredColumnTypeNames[ordinal] = (string)row["DataType"];
+                }
             }
-            throw new ArgumentOutOfRangeException("columnOrdinal", "Cannot find the requested column in the table metadata");
+            return declaredColumnTypeNames[i];
         }
 
         public override Type GetFieldType(int i)
         {
-            DataRow[] rows = GetSchemaTable().Select(String.Format("ColumnOrdinal = {0}", i));
-            if (rows != null && rows.Length > 0)
+            if (declaredColumnTypes == null)
             {
-                return Type.GetType(NuoDbConnectionInternal.mapDbTypeToNetType((int)rows[0]["ProviderType"]));
+                DataRowCollection rows = GetSchemaTable().Rows;
+                declaredColumnTypes = new Type[rows.Count];
+                foreach (DataRow row in rows)
+                {
+                    int ordinal = (int)row["ColumnOrdinal"];
+                    declaredColumnTypes[ordinal] = Type.GetType(NuoDbConnectionInternal.mapDbTypeToNetType((int)row["ProviderType"]));
+                }
             }
-            throw new ArgumentOutOfRangeException("columnOrdinal", "Cannot find the requested column in the table metadata");
+            return declaredColumnTypes[i];
         }
 
         public override float GetFloat(int i)
@@ -523,10 +536,9 @@ namespace NuoDb.Data.Client
         {
             object value = getValue(i).Object;
             Type declaredType = null;
-            if (statement != null &&
-                statement.ExpectedColumnTypes != null) 
+            if (declaredColumnTypes != null)
             {
-                declaredType = statement.ExpectedColumnTypes.ElementAtOrDefault(i);
+                declaredType = declaredColumnTypes.ElementAtOrDefault(i);
             }
             else if (Value.IsNumeric(value))
             {
