@@ -6,6 +6,7 @@ using System.Data;
 using System.Collections;
 using System.Threading;
 using System.Transactions;
+using System.Globalization;
 
 namespace NUnitTestProject
 {
@@ -706,6 +707,10 @@ namespace NUnitTestProject
         {
             TestDataType("integer", 45);
             TestDataType("int", 45);
+            TestDataType("int", -9);
+            TestDataType("integer", -45);
+            TestDataType("integer", 0);
+            TestDataType("integer", 4500);
         }
 
         [Test]
@@ -734,7 +739,13 @@ namespace NUnitTestProject
             TestDataType("numeric(18,12)", 45.3987654321M);
             TestDataType("numeric(18,3)", 45.3987654321, 45.399M);
             TestDataType("decimal(18,12)", 45.3987654321M);
+            TestDataType("numeric(18,12)", 0.0000000045M);
+            TestDataType("numeric(18,12)", -0.0000000045M);
             TestDataType("dec(18,12)", 45.3987654321M);
+            TestDataType("number", Decimal.Parse("12345678901234567.89999", new CultureInfo("en-US")));
+            TestDataType("number", Decimal.Parse("-12345678901234567.89999", new CultureInfo("en-US")));
+            TestDataType("number", Decimal.Parse("12345678901234567900000000", new CultureInfo("en-US")));
+            TestDataType("number", Decimal.Parse("-12345678901234567900000000", new CultureInfo("en-US")));
         }
 
         [Test]

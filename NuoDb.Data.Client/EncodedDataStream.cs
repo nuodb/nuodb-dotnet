@@ -365,6 +365,41 @@ namespace NuoDb.Data.Client
             write(b, 0, b.Length);
         }
 
+        private Decimal ScaleDecimal(Decimal bd, int scale)
+        {
+            Decimal result = bd;
+            if (scale > 0)
+            {
+                for (int i = 0; i < scale; i++)
+                    result /= 10.0M;
+            }
+            else if (scale < 0)
+            {
+                for (int i = 0; i > scale; i--)
+                    result *= 10.0M;
+            }
+            return result;
+        }
+
+        private static void ConvertToScaledDecimal(Decimal bd, out int scale, out Decimal temp)
+        {
+            scale = 0;
+            temp = bd;
+            while ((temp % 1) != 0)
+            {
+                scale++;
+                temp *= 10;
+            }
+            if (scale == 0)
+            {
+                while ((temp % 10) == 0)
+                {
+                    scale--;
+                    temp /= 10;
+                }
+            }
+        }
+
         internal virtual int byteCount(int n)
         {
             if (n > 0)
@@ -519,14 +554,7 @@ namespace NuoDb.Data.Client
             }
             else if (value is decimal)
             {
-                decimal d = (decimal)value;
-                int scale = 0;
-                while ((d % 1) != 0)
-                {
-                    scale++;
-                    d *= 10;
-                }
-                encodeLong((long)d, scale);
+                encodeBigDecimal((decimal)value);
             }
             else if (value is bool)
             {
@@ -875,7 +903,7 @@ namespace NuoDb.Data.Client
                 case edsScaledLen6:
                 case edsScaledLen7:
                 case edsScaledLen8:
-                    scale = source[offset++];
+                    scale = (sbyte)source[offset++];
                     l = code - edsScaledLen1;
                     integer64 = (sbyte)source[offset++];
 
@@ -1124,7 +1152,7 @@ namespace NuoDb.Data.Client
                 case edsScaledTimeLen6:
                 case edsScaledTimeLen7:
                 case edsScaledTimeLen8:
-                    scale = source[offset++];
+                    scale = (sbyte)source[offset++];
                     l = code - edsScaledTimeLen1 + 1;
                     integer64 = (sbyte)source[offset++];
 
@@ -1144,7 +1172,7 @@ namespace NuoDb.Data.Client
                 case edsScaledDateLen6:
                 case edsScaledDateLen7:
                 case edsScaledDateLen8:
-                    scale = source[offset++];
+                    scale = (sbyte)source[offset++];
                     l = code - edsScaledDateLen1 + 1;
                     integer64 = (sbyte)source[offset++];
 
@@ -1164,7 +1192,7 @@ namespace NuoDb.Data.Client
                 case edsScaledTimestampLen6:
                 case edsScaledTimestampLen7:
                 case edsScaledTimestampLen8:
-                    scale = source[offset++];
+                    scale = (sbyte)source[offset++];
                     l = code - edsScaledTimestampLen1 + 1;
                     integer64 = (sbyte)source[offset++];
 
@@ -1222,7 +1250,7 @@ namespace NuoDb.Data.Client
                         // length to be length+1.
 
                         length = (source[offset++] & 0xff) - 1;
-                        scale = source[offset++];
+                        scale = (sbyte)source[offset++];
                         type = edsTypeBigInt;
                         bytes = new byte[length];
                         Array.Copy(source, offset, bytes, 0, length);
@@ -1234,7 +1262,7 @@ namespace NuoDb.Data.Client
                             bytes[0] &= 0x7f;
                         }
 
-                        BigInteger bi = new BigInteger(sign, bytes);
+                        BigInteger bi = new BigInteger(bytes);
                         bigDecimal = Decimal.Parse(bi.ToString());
                     }
                     break;
@@ -1244,8 +1272,8 @@ namespace NuoDb.Data.Client
                         // For some reason C++ EncodedStream expects the encoded
                         // length to be length+1.
 
-                        scale = source[offset++];
-                        int sign = source[offset++];
+                        scale = (sbyte)source[offset++];
+                        sbyte sign = (sbyte)source[offset++];
                         length = (source[offset++] & 0xff); // in bytes
                         type = edsTypeBigInt;
                         bytes = new byte[length];
@@ -1257,8 +1285,10 @@ namespace NuoDb.Data.Client
                         else
                             sign = 1;
 
-                        BigInteger bi = new BigInteger(sign, bytes);
-                        bigDecimal = Decimal.Parse(bi.ToString());
+                        BigInteger bi = new BigInteger(bytes);
+                        if (sign == -1)
+                            bi = -bi;
+                        bigDecimal = ScaleDecimal(Decimal.Parse(bi.ToString()), scale);
                     }
                     break;
 
@@ -1420,24 +1450,7 @@ namespace NuoDb.Data.Client
                     return new ValueBytes(bytes);
 
                 case edsTypeScaled:
-                    {
-                        decimal d = new Decimal(integer64);
-                        if (scale > 0)
-                        {
-                            for (int n = 0; n < scale; ++n)
-                            {
-                                d /= 10;
-                            }
-                        }
-                        else if (scale < 0)
-                        {
-                            for (int n = 0; n > scale; --n)
-                            {
-                                d *= 10;
-                            }
-                        }
-                        return new ValueNumber(d);
-                    }
+                    return new ValueNumber(ScaleDecimal(integer64, scale));
 
                 case edsTypeInt32:
                     return new ValueInt(integer32, 0);
@@ -1574,29 +1587,50 @@ namespace NuoDb.Data.Client
             }
         }
 
-        /*		public virtual void encodeBigDecimal(decimal bd)
-                {
-                    int scale = bd.scale();
-                    int neg = bd.CompareTo(decimal.Zero) == -1 ? 1 : 0;
+        public virtual void encodeBigDecimal(Decimal bd)
+        {
+            int scale;
+            Decimal temp;
+            ConvertToScaledDecimal(bd, out scale, out temp);
+            if (temp.CompareTo(long.MinValue) > 0 && temp.CompareTo(long.MaxValue) < 0)
+                encodeLong((long)temp, scale);
+            else
+            {
+                BigInteger bi = new BigInteger(Decimal.Truncate(Math.Abs(temp)).ToString(), 10);
+                byte[] byteArray = bi.ToByteArray();
 
-                    // The server expects a byte array with a signed first byte.
-                    // BigInteger.toByteArray() creates an array of the value in two's compliment.
-                    // So get the unsigned value and set the sign bit manually.
+                write(edsScaledCount2);
+                write(scale);
+                write(bd.CompareTo(Decimal.Zero));
+                write(byteArray.Length);
+                write(byteArray);
+            }
+        }
 
-                    System.Numerics.BigInteger bi = bd.abs().unscaledValue();
-                    sbyte[] byteArray = bi.toByteArray();
+        public virtual void encodeOldBigDecimal(decimal bd)
+        {
+            int scale;
+            Decimal temp;
+            ConvertToScaledDecimal(bd, out scale, out temp);
+            int neg = bd.CompareTo(decimal.Zero) == -1 ? 1 : 0;
 
-                    if (neg == 1)
-                    {
-                        byteArray[0] |= 0x80;
-                    }
+            // The server expects a byte array with a signed first byte.
+            // BigInteger.toByteArray() creates an array of the value in two's compliment.
+            // So get the unsigned value and set the sign bit manually.
 
-                    write(edsScaledCount1);
-                    write(byteArray.Length + 1);
-                    write(scale);
-                    write(byteArray);
-                }
-                */
+            BigInteger bi = new BigInteger(Decimal.Truncate(Math.Abs(temp)).ToString(), 10);
+            byte[] byteArray = bi.ToByteArray();
+
+            if (neg == 1)
+            {
+                byteArray[0] |= 0x80;
+            }
+
+            write(edsScaledCount1);
+            write(byteArray.Length + 1);
+            write(scale);
+            write(byteArray);
+        }
 
         public virtual void encodeScaledTime(TimeSpan time)
         {
