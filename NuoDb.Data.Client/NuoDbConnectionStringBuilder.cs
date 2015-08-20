@@ -32,6 +32,8 @@
 using System.Data.Common;
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
+using System.Net;
 
 namespace NuoDb.Data.Client
 {
@@ -228,6 +230,10 @@ namespace NuoDb.Data.Client
             get { return this.GetString(ClientHostKey); }
             set { this.SetValue(ClientHostKey, value); }
         }
+        internal string ClientHostOrDefault
+        {
+            get { return ContainsKey(ClientHostKey) ? ClientHost : Dns.GetHostName(); }
+        }
 
         internal const string ClientProcessIDKey = "ClientProcessID";
         [Category("Connection Description")]
@@ -236,6 +242,10 @@ namespace NuoDb.Data.Client
         {
             get { return this.GetString(ClientProcessIDKey); }
             set { this.SetValue(ClientProcessIDKey, value); }
+        }
+        internal string ClientProcessIDOrDefault
+        {
+            get { return ContainsKey(ClientProcessIDKey) ? ClientProcessID : Process.GetCurrentProcess().Id.ToString(); }
         }
 
         internal const string CipherKey = "Cypher";
