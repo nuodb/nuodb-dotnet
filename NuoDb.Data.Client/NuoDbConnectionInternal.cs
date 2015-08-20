@@ -605,14 +605,8 @@ namespace NuoDb.Data.Client
                 {
                     properties["clientInfo"] = parsedConnectionString.ClientInfo;
                 }
-                if (parsedConnectionString.ContainsKey(NuoDbConnectionStringBuilder.ClientHostKey))
-                {
-                    properties["clientHost"] = parsedConnectionString.ClientHost;
-                }
-                if (parsedConnectionString.ContainsKey(NuoDbConnectionStringBuilder.ClientProcessIDKey))
-                {
-                    properties["clientProcessID"] = parsedConnectionString.ClientProcessID;
-                }
+                properties["clientHost"] = parsedConnectionString.ClientHostOrDefault;
+                properties["clientProcessID"] = parsedConnectionString.ClientProcessIDOrDefault;
                 // see comment below ... for now these are the only two types that
                 // we can support in the client code
                 if ((!cipher.Equals("RC4")) && (!cipher.Equals("None")))
