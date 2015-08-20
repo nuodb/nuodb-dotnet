@@ -704,16 +704,8 @@ namespace NuoDb.Data.Client
             }
 
             TimeSpan delta = val.ToUniversalTime() - baseDate;
-
-            long value = (long)((delta.TotalMilliseconds * 1000) * 1000000000); // convert to nanoseconds
+            long value = delta.Ticks * NANOSECONDS_PER_TICK; // convert to nanoseconds
             int count = byteCount(value);
-
-            if (value >= edsIntMin && value <= edsIntMax)
-            {
-                write(edsNanoSecLen0 + (int)value);
-
-                return;
-            }
 
             write(edsNanoSecLen1 + count - 1);
 
