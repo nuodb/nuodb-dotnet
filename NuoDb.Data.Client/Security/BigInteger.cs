@@ -249,7 +249,7 @@ namespace NuoDb.Data.Client.Security
         //
         //***********************************************************************
 
-        public BigInteger(int sign, byte[] inData)
+        public BigInteger(byte[] inData)
         {
             dataLength = inData.Length >> 2;
 
@@ -350,7 +350,7 @@ namespace NuoDb.Data.Client.Security
         }
 
         public BigInteger(int numBits, Random rnd)
-            : this(1, randomBits(numBits, rnd))
+            : this(randomBits(numBits, rnd))
         {
         }
 

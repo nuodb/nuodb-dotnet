@@ -94,6 +94,14 @@ namespace NuoDb.Data.Client
             }
         }
 
+        public override void encodeBigDecimal(Decimal bd)
+        {
+            if (protocolVersion >= Protocol.PROTOCOL_VERSION11)
+                base.encodeBigDecimal(bd);
+            else
+                base.encodeOldBigDecimal(bd);
+        }
+
     }
 
 }

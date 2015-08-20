@@ -61,14 +61,7 @@ namespace NuoDb.Data.Client
 
         internal override void encodeValue(EncodedDataStream dataStream)
         {
-            decimal d = value;
-            int scale = 0;
-            while ((d % 1) != 0)
-            {
-                scale++;
-                d *= 10;
-            }
-            dataStream.encodeLong((long)d, scale);
+            dataStream.encodeBigDecimal(BigDecimal);
         }
 
         public override string String

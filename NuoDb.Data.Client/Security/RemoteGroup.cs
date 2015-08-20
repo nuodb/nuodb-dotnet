@@ -51,7 +51,7 @@ namespace NuoDb.Data.Client.Security
 
 			generator = new BigInteger(2);
 			byte[] primeBytes = RemotePassword.getBytes(primeString);
-			prime = new BigInteger(1, primeBytes);
+			prime = new BigInteger(primeBytes);
 
 			byte[] generatorBytes = generator.ToByteArray();
 			int pad = primeBytes.Length - generatorBytes.Length;
@@ -59,7 +59,7 @@ namespace NuoDb.Data.Client.Security
             Array.Copy(primeBytes, 0, buffer, 0, primeBytes.Length);
             Array.Copy(generatorBytes, 0, buffer, primeBytes.Length + Math.Max(0, pad), generatorBytes.Length);
             byte[] kBytes = sha1.ComputeHash(buffer);
-			k = new BigInteger(1, kBytes);
+			k = new BigInteger(kBytes);
 		}
 
 		public static RemoteGroup getGroup(int groupSize)

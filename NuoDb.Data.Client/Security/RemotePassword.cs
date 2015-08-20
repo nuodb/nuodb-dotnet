@@ -125,7 +125,7 @@ namespace NuoDb.Data.Client.Security
 
 		public static BigInteger getBigInteger(string hex)
 		{
-			return new BigInteger(1, getBytes(hex));
+			return new BigInteger(getBytes(hex));
 		}
 
 		public static byte[] getBytes(string hex)
@@ -191,7 +191,7 @@ namespace NuoDb.Data.Client.Security
             Array.Copy(hash1, 0, buffer2, saltBytes.Length, hash1.Length);
 
             byte[] hash2 = sha1.ComputeHash(buffer2);
-			return new BigInteger(1, hash2);
+			return new BigInteger(hash2);
 		}
 
 		public virtual string computeVerifier(string account, string password, string salt)
@@ -205,7 +205,7 @@ namespace NuoDb.Data.Client.Security
 
 		public virtual string setClientPrivateKey(string key)
 		{
-			clientPrivateKey = new BigInteger(1, getBytes(key));
+			clientPrivateKey = new BigInteger(getBytes(key));
 			clientPublicKey = generator.modPow(clientPrivateKey, prime);
 
 			return getHex(clientPublicKey);
@@ -221,14 +221,14 @@ namespace NuoDb.Data.Client.Security
 
 		public virtual string setServerPrivateKey(string key, string verifier)
 		{
-			return genServerKey(new BigInteger(1, getBytes(key)), verifier);
+			return genServerKey(new BigInteger(getBytes(key)), verifier);
 		}
 
 		public virtual string genServerKey(BigInteger privateKey, string verifier)
 		{
 			serverPrivateKey = privateKey; // b
 			BigInteger gb = generator.modPow(serverPrivateKey, prime); // g^b
-			BigInteger v = new BigInteger(1, getBytes(verifier)); // v
+			BigInteger v = new BigInteger(getBytes(verifier)); // v
 			BigInteger kv = k * v;
 			kv = kv % prime;
 			serverPublicKey = kv + gb;
@@ -253,7 +253,7 @@ namespace NuoDb.Data.Client.Security
             Array.Copy(client, n1, buffer, 0, client.Length - n1);
             Array.Copy(server, n2, buffer, client.Length - n1, server.Length - n2);
             byte[] hash = sha1.ComputeHash(buffer);
-            scramble = new BigInteger(1, hash);
+            scramble = new BigInteger(hash);
         }
 
 		public virtual byte[] computeSessionKey(string account, string password, string salt, string serverPubKey)
