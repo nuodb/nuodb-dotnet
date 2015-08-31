@@ -318,5 +318,60 @@ namespace NUnitTestProject
                 Assert.AreEqual(25, index);
             }
         }
+
+        [Test]
+        public void TestMultipleReturnResultSets()
+        {
+            using (NuoDbConnection connection = new NuoDbConnection(TestFixture1.connectionString))
+            {
+                connection.Open();
+                new NuoDbCommand("drop procedure nunit_test if exists", connection).ExecuteNonQuery();
+
+                try
+                {
+                    new NuoDbCommand("create procedure nunit_test() " +
+                        " returns table t1(field1 string, field2 integer), t2(column1 string, column2 string, column3 integer) " +
+                        " as " +
+                        "   insert into t1 values ('rset 1, row1', 0), ('rset 1, row2',1); " +
+                        "   insert into t2 values ('rset 2, row1', 'first', 100), ('rset 2, row2','second', 101); " +
+                        " end_procedure", connection).ExecuteNonQuery();
+                }
+                catch (NuoDbSqlException e)
+                {
+                    if (e.Code.Code == -1)
+                    {
+                        // the server doesn't support multiple result sets as return value for procedures
+                        return;
+                    }
+                    else
+                        throw;
+                }
+                NuoDbCommand cmd = new NuoDbCommand("nunit_test", connection);
+                cmd.CommandType = CommandType.StoredProcedure;
+                using (DbDataReader reader = cmd.ExecuteReader())
+                {
+                    Assert.IsTrue(reader.Read());
+                    Assert.AreEqual("rset 1, row1", reader["field1"]);
+                    Assert.AreEqual(0, reader["field2"]);
+                    Assert.IsTrue(reader.Read());
+                    Assert.AreEqual("rset 1, row2", reader["field1"]);
+                    Assert.AreEqual(1, reader["field2"]);
+                    Assert.IsFalse(reader.Read());
+
+                    Assert.IsTrue(reader.NextResult());
+                    Assert.IsTrue(reader.Read());
+                    Assert.AreEqual("rset 2, row1", reader["column1"]);
+                    Assert.AreEqual("first", reader["column2"]);
+                    Assert.AreEqual(100, reader["column3"]);
+                    Assert.IsTrue(reader.Read());
+                    Assert.AreEqual("rset 2, row2", reader["column1"]);
+                    Assert.AreEqual("second", reader["column2"]);
+                    Assert.AreEqual(101, reader["column3"]);
+                    Assert.IsFalse(reader.Read());
+
+                    Assert.IsFalse(reader.NextResult());
+                }
+            }
+        }
     }
 }

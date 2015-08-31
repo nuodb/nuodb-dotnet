@@ -49,27 +49,38 @@ namespace NuoDb.Data.Client
         private DataTable metadata;
         private NuoDbCommand statement;
         private EncodedDataStream pendingRows;
-        private volatile bool closed = false;
-        private volatile int currentRow = 0;
-        private volatile bool afterLast_Renamed = false;
+        private volatile bool closed;
+        private volatile int currentRow;
+        private volatile bool afterLast;
         private int recordsAffected = -1;
-        private Type[] declaredColumnTypes = null;
+        private Type[] declaredColumnTypes;
         private string[] declaredColumnTypeNames = null;
 
         public NuoDbDataReader(NuoDbConnection connection, int handle, EncodedDataStream dataStream, NuoDbCommand statement, bool readColumnNames)
         {
             this.connection = connection;
+            this.statement = statement;
+            InitResultSet(handle, dataStream, readColumnNames);
+        }
+
+        private void InitResultSet(int handle, EncodedDataStream dataStream, bool readColumnNames)
+        {
             this.handle = handle;
             this.pendingRows = dataStream;
-            this.statement = statement;
-            if (statement != null)
-                this.declaredColumnTypes = statement.ExpectedColumnTypes;
-
+            this.metadata = null;
+            
             if (this.handle != -1)
                 this.connection.InternalConnection.RegisterResultSet(this.handle);
 
+            this.numberRecords = 0;
             this.numberColumns = this.pendingRows != null ? this.pendingRows.getInt() : 0;
             this.values = new Value[numberColumns];
+            this.lastValueNull = false;
+            this.closed = false;
+            this.currentRow = 0;
+            this.afterLast = false;
+            this.declaredColumnTypes = null;
+            this.declaredColumnTypeNames = null;
 
             if (readColumnNames)
             {
@@ -95,7 +106,7 @@ namespace NuoDb.Data.Client
             base.Dispose(disposing);
         }
 
-        public override void Close()
+        private void closeCurrentResultSet()
         {
             if (closed || handle == -1 || connection == null || (connection as IDbConnection).State == ConnectionState.Closed ||
                 !connection.InternalConnection.IsResultSetRegistered(handle))
@@ -104,7 +115,12 @@ namespace NuoDb.Data.Client
             }
 
             connection.InternalConnection.CloseResultSet(handle);
+            handle = -1;
+        }
 
+        public override void Close()
+        {
+            closeCurrentResultSet();
             statement = null;
             closed = true;
         }
@@ -271,7 +287,24 @@ namespace NuoDb.Data.Client
 
         public override bool NextResult()
         {
-            return false;
+            closeCurrentResultSet();
+
+            EncodedDataStream dataStream = new RemEncodedStream(connection.InternalConnection.protocolVersion);
+            dataStream.startMessage(Protocol.GetMoreResults);
+            dataStream.encodeInt(statement.handle);
+            connection.InternalConnection.sendAndReceive(dataStream);
+            if (dataStream.getInt() != 1)
+                return false;
+            
+            dataStream = new RemEncodedStream(connection.InternalConnection.protocolVersion);
+            dataStream.startMessage(Protocol.GetResultSet);
+            dataStream.encodeInt(statement.handle);
+            connection.InternalConnection.sendAndReceive(dataStream);
+            int rsHandle = dataStream.getInt();
+            if (rsHandle == -1)
+                return false;
+            InitResultSet(rsHandle, dataStream, true);
+            return true;
         }
 
         public override bool Read()
@@ -286,7 +319,7 @@ namespace NuoDb.Data.Client
             {
                 if (maxRows > 0 && currentRow >= maxRows)
                 {
-                    afterLast_Renamed = true;
+                    afterLast = true;
 
                     return false;
                 }
@@ -297,7 +330,7 @@ namespace NuoDb.Data.Client
 
                     if (result == 0)
                     {
-                        afterLast_Renamed = true;
+                        afterLast = true;
 
                         return false;
                     }
@@ -387,7 +420,7 @@ namespace NuoDb.Data.Client
                 throw new NuoDbSqlException("Before start of result set");
             }
 
-            if (afterLast_Renamed)
+            if (afterLast)
             {
                 throw new NuoDbSqlException("After end of result set");
             }
@@ -467,12 +500,18 @@ namespace NuoDb.Data.Client
         {
             if (declaredColumnTypes == null)
             {
-                DataRowCollection rows = GetSchemaTable().Rows;
-                declaredColumnTypes = new Type[rows.Count];
-                foreach (DataRow row in rows)
+                if (statement != null)
+                    declaredColumnTypes = statement.ExpectedColumnTypes;
+
+                if (declaredColumnTypes == null)
                 {
-                    int ordinal = (int)row["ColumnOrdinal"];
-                    declaredColumnTypes[ordinal] = Type.GetType(NuoDbConnectionInternal.mapDbTypeToNetType((int)row["ProviderType"]));
+                    DataRowCollection rows = GetSchemaTable().Rows;
+                    declaredColumnTypes = new Type[rows.Count];
+                    foreach (DataRow row in rows)
+                    {
+                        int ordinal = (int)row["ColumnOrdinal"];
+                        declaredColumnTypes[ordinal] = Type.GetType(NuoDbConnectionInternal.mapDbTypeToNetType((int)row["ProviderType"]));
+                    }
                 }
             }
             return declaredColumnTypes[i];
