@@ -30,6 +30,7 @@ using System;
 using NuoDb.Data.Client.Net;
 using NuoDb.Data.Client.Util;
 using NuoDb.Data.Client.Security;
+using System.Data;
 
 namespace NuoDb.Data.Client
 {
@@ -595,10 +596,72 @@ namespace NuoDb.Data.Client
             {
                 encodeGuid((Guid)value);
             }
+            else if (value is IDataRecord[])
+            {
+                encodeArray((IDataRecord[])value);
+            }
+            else if (value is DataTable)
+            {
+                encodeArray((DataTable)value);
+            }
             else
             {
                 System.Diagnostics.Trace.WriteLine(String.Format("Unsupported type of parameter: {0}, sending as a plain string", value.GetType().Name));
                 encodeString(value.ToString());
+            }
+        }
+
+        public void encodeArray(IDataRecord[] rows)
+        {
+            int count = byteCount(rows.Length);
+
+            write(edsArrayLen1 + count - 1);
+
+            for (int shift = (count - 1) * 8; shift >= 0; shift -= 8)
+            {
+                write(rows.Length >> shift);
+            }
+            foreach (IDataRecord record in rows)
+            {
+                int numFields = record.FieldCount;
+
+                write(edsArrayLen1 + numFields - 1);
+
+                for (int shift = (numFields - 1) * 8; shift >= 0; shift -= 8)
+                {
+                    write(numFields >> shift);
+                }
+                for (int column = 0; column < numFields; column++)
+                {
+                    encodeDotNetObject(record[column]);
+                }
+            }
+        }
+
+        public void encodeArray(DataTable rows)
+        {
+            int count = byteCount(rows.Rows.Count);
+
+            write(edsArrayLen1 + count - 1);
+
+            for (int shift = (count - 1) * 8; shift >= 0; shift -= 8)
+            {
+                write(rows.Rows.Count >> shift);
+            }
+            foreach (DataRow record in rows.Rows)
+            {
+                int numFields = record.ItemArray.Length;
+
+                write(edsArrayLen1 + numFields - 1);
+
+                for (int shift = (numFields - 1) * 8; shift >= 0; shift -= 8)
+                {
+                    write(numFields >> shift);
+                }
+                for (int column = 0; column < numFields; column++)
+                {
+                    encodeDotNetObject(record[column]);
+                }
             }
         }
 

@@ -373,5 +373,53 @@ namespace NUnitTestProject
                 }
             }
         }
+
+        [Test]
+        public void TestTableValuedArgument()
+        {
+            using (NuoDbConnection connection = new NuoDbConnection(TestFixture1.connectionString))
+            {
+                connection.Open();
+                new NuoDbCommand("drop procedure nunit_test if exists", connection).ExecuteNonQuery();
+
+                try
+                {
+                    new NuoDbCommand("create procedure nunit_test(input_data(field1 string, field2 integer), out output_data string) " +
+                        " as " +
+                        "   output_data = ''; " +
+                        "   for select field1 from input_data; " +
+                        "     output_data = output_data || field1 || ' '; " +
+                        "   end_for; " +
+                        " end_procedure", connection).ExecuteNonQuery();
+                }
+                catch (NuoDbSqlException e)
+                {
+                    if (e.Code.Code == -1)
+                    {
+                        // the server doesn't support table valued arguments for procedures
+                        return;
+                    }
+                    else
+                        throw;
+                }
+                NuoDbCommand cmd = new NuoDbCommand("nunit_test", connection);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Prepare();
+                DataTable table = new DataTable();
+                table.Columns.Add("f1", typeof(string));
+                table.Columns.Add("f2", typeof(int));
+                DataRow row1 = table.NewRow();
+                row1[0] = "hello";
+                row1[1] = 0;
+                table.Rows.Add(row1);
+                DataRow row2 = table.NewRow();
+                row2[0] = "world!";
+                row2[1] = 0;
+                table.Rows.Add(row2);
+                cmd.Parameters[0].Value = table;
+                cmd.ExecuteNonQuery();
+                Assert.AreEqual("hello world! ", cmd.Parameters[1].Value);
+            }
+        }
     }
 }
