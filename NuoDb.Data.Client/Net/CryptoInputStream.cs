@@ -45,13 +45,13 @@ namespace NuoDb.Data.Client.Net
         public CryptoInputStream(CryptoSocket cryptoSocket, Stream inputStream)
         {
             socket = cryptoSocket;
-            stream = new BufferedStream(inputStream);
+            stream = new BufferedStream(inputStream, 8192);
             lengthBuffer = new byte[4];
         }
 
         public CryptoInputStream(Stream inputStream)
         {
-            stream = new BufferedStream(inputStream);
+            stream = new BufferedStream(inputStream, 8192);
             lengthBuffer = new byte[4];
         }
 
