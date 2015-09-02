@@ -43,12 +43,12 @@ namespace NuoDb.Data.Client.Net
 		{
 			socket = cryptoSocket;
 			//stream = outputStream;
-            stream = new BufferedStream(outputStream);
+            stream = new BufferedStream(outputStream, 8192);
 		}
 
 		public CryptoOutputStream(Stream outputStream)
 		{
-            stream = new BufferedStream(outputStream);
+            stream = new BufferedStream(outputStream, 8192);
 		}
 
 		public virtual void encrypt(Cipher encryptionEngine)
