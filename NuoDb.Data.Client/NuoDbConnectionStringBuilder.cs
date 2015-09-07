@@ -222,19 +222,6 @@ namespace NuoDb.Data.Client
             set { this.SetValue(ClientInfoKey, value); }
         }
 
-        internal const string ClientHostKey = "ClientHost";
-        [Category("Connection Description")]
-        [Description("Specifies the user-specified hostname of the connection client that will appear in the SYSTEM.CONNECTIONS and SYSTEM.LOCALCONNECTIONS tables")]
-        public string ClientHost
-        {
-            get { return this.GetString(ClientHostKey); }
-            set { this.SetValue(ClientHostKey, value); }
-        }
-        internal string ClientHostOrDefault
-        {
-            get { return ContainsKey(ClientHostKey) ? ClientHost : Dns.GetHostName(); }
-        }
-
         internal const string ClientProcessIDKey = "ClientProcessID";
         [Category("Connection Description")]
         [Description("Specifies the user-specified process ID of the connection client that will appear in the SYSTEM.CONNECTIONS and SYSTEM.LOCALCONNECTIONS tables")]

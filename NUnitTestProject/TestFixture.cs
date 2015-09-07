@@ -46,7 +46,7 @@ namespace NUnitTestProject
         [Test]
         public void TestClientInfo()
         {
-            using (NuoDbConnection connection = new NuoDbConnection(connectionString + ";ClientInfo=hello;ClientHost=localhost.localdomain;ClientProcessId=101"))
+            using (NuoDbConnection connection = new NuoDbConnection(connectionString + ";ClientInfo=hello;ClientProcessId=101"))
             {
                 DbCommand cmd = new NuoDbCommand("select * from system.connections where connid=GetConnectionID()", connection);
                 connection.Open();
@@ -56,7 +56,6 @@ namespace NUnitTestProject
                     try
                     {
                         Assert.AreEqual("hello", reader["clientinfo"]);
-                        Assert.AreEqual("localhost.localdomain", reader["clienthost"]);
                         Assert.AreEqual("101", reader["clientprocessid"]);
                     }
                     catch (IndexOutOfRangeException)

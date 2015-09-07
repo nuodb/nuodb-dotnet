@@ -605,7 +605,6 @@ namespace NuoDb.Data.Client
                 {
                     properties["clientInfo"] = parsedConnectionString.ClientInfo;
                 }
-                properties["clientHost"] = parsedConnectionString.ClientHostOrDefault;
                 properties["clientProcessID"] = parsedConnectionString.ClientProcessIDOrDefault;
                 // see comment below ... for now these are the only two types that
                 // we can support in the client code
