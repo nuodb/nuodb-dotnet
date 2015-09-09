@@ -81,7 +81,8 @@ namespace NuoDb.Data.Client.Net
 
             try
             {
-				Connect(ipAddresses, port);
+                NoDelay = true;
+                Connect(ipAddresses, port);
             }
             catch (SocketException exception)
             {
@@ -107,6 +108,7 @@ namespace NuoDb.Data.Client.Net
 
             try
             {
+                NoDelay = true;
                 Connect(socketAddr);
             }
             catch (SocketException exception)
