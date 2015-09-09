@@ -1,7 +1,7 @@
 language: c
 
 env:
-  - NUODB_HOME=/opt/nuodb NUODB_VERSION=2.2.0.9
+  - NUODB_HOME=/opt/nuodb NUODB_VERSION=2.3.2.3
 
 before_install:
   - wget http://download.nuohub.org/nuodb_${NUODB_VERSION}_amd64.deb --output-document=/var/tmp/nuodb.deb
