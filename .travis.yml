@@ -8,6 +8,7 @@ before_install:
   - sudo dpkg -i /var/tmp/nuodb.deb
   - sleep 5
   - sudo chmod 777 $NUODB_HOME/etc/default.properties
+  - echo "" >> $NUODB_HOME/etc/default.properties
   - echo "domainPassword = bird" >> $NUODB_HOME/etc/default.properties
   - sudo chmod 600 $NUODB_HOME/etc/default.properties
   - sudo service nuoagent start
