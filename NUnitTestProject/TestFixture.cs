@@ -869,7 +869,7 @@ namespace NUnitTestProject
                 }
             }
         }
-        
+
         private static void CreateTargetForBulkLoad()
         {
             using (NuoDbConnection connection = new NuoDbConnection(connectionString))
@@ -907,7 +907,7 @@ namespace NUnitTestProject
 
             NuoDbBulkLoader loader = new NuoDbBulkLoader(connectionString);
             loader.BatchSize = 2;
-            loader.DestinationTableName = schema+".TEMP";
+            loader.DestinationTableName = schema + ".TEMP";
             DataTable metadata = new DataTable("dummy");
             metadata.Columns.Add("xyz", typeof(string));
             DataRow[] rows = new DataRow[10];
@@ -1601,7 +1601,7 @@ namespace NUnitTestProject
 
             connection.Open();
             AsyncCallback callback = new AsyncCallback(HandleCallback2);
-            for(int i=0;i<20;i++)
+            for (int i = 0; i < 20; i++)
                 countCommand.BeginExecuteScalar(callback, countCommand);
         }
 
@@ -1822,27 +1822,55 @@ namespace NUnitTestProject
         [Test]
         public void TestUTFParams()
         {
-            NuoDbConnection connection = new NuoDbConnection(connectionString);
-            connection.Open();
-            Utils.DropTable(connection, "temp");
+            using (NuoDbConnection connection = new NuoDbConnection(connectionString))
+            {
+                connection.Open();
+                Utils.DropTable(connection, "temp");
 
-            string utf8String = "z a \u0306 \u01FD \u03B2";
-            new NuoDbCommand("create table temp (col1 string)", connection).ExecuteNonQuery();
-            using (NuoDbCommand cmd = new NuoDbCommand("insert into temp values (?)", connection))
-            {
-                cmd.Prepare();
-                cmd.Parameters[0].Value = utf8String;
-                Assert.AreEqual(1, cmd.ExecuteNonQuery());
-            }
-            using (NuoDbCommand cmd = new NuoDbCommand("select * from temp", connection))
-            {
-                using (DbDataReader reader = cmd.ExecuteReader())
+                string utf8String = "z a \u0306 \u01FD \u03B2";
+                new NuoDbCommand("create table temp (col1 string)", connection).ExecuteNonQuery();
+                using (NuoDbCommand cmd = new NuoDbCommand("insert into temp values (?)", connection))
                 {
-                    Assert.IsTrue(reader.Read());
-                    Assert.AreEqual(utf8String, reader.GetString(0));
+                    cmd.Prepare();
+                    cmd.Parameters[0].Value = utf8String;
+                    Assert.AreEqual(1, cmd.ExecuteNonQuery());
+                }
+                using (NuoDbCommand cmd = new NuoDbCommand("select * from temp", connection))
+                {
+                    using (DbDataReader reader = cmd.ExecuteReader())
+                    {
+                        Assert.IsTrue(reader.Read());
+                        Assert.AreEqual(utf8String, reader.GetString(0));
+                    }
                 }
             }
         }
+
+        [Test]
+        public void TestBulkLoadOnCommand()
+        {
+            CreateTargetForBulkLoad();
+
+            DataTable metadata = new DataTable("dummy");
+            metadata.Columns.Add("xyz", typeof(string));
+            DataRow[] rows = new DataRow[10];
+            for (int i = 0; i < rows.Length; i++)
+            {
+                rows[i] = metadata.NewRow();
+                rows[i][0] = Convert.ToString(i);
+            }
+
+            using (NuoDbConnection connection = new NuoDbConnection(connectionString))
+            {
+                connection.Open();
+                NuoDbCommand loader = new NuoDbCommand("insert into temp values (?) ", connection);
+                
+                loader.ExecuteBatch(rows);
+            }
+
+            VerifyBulkLoad(rows.Length, "0");
+        }
+
     }
 
 }

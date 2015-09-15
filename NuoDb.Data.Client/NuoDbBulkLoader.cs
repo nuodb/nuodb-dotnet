@@ -119,116 +119,7 @@ namespace NuoDb.Data.Client
             this.connection = new NuoDbConnection(connectionString);
         }
 
-        private interface Feeder
-        {
-            bool MoveNext();
-            int FieldCount { get; }
-            object this[int i] { get; }
-            object this[string name] { get; }
-        }
-
-        private class WrapDataRowAsFeeder : Feeder
-        {
-            int pos = -1;
-            DataRow[] wrappedRow;
-
-            public WrapDataRowAsFeeder(DataRow[] rows)
-            {
-                wrappedRow = rows;
-            }
-
-            public int FieldCount
-            {
-                get { return wrappedRow[0].ItemArray.Length; }
-            }
-            public object this[string name]
-            {
-                get { return wrappedRow[pos][name]; }
-            }
-            public object this[int i]
-            {
-                get { return wrappedRow[pos][i]; }
-            }
-            public bool MoveNext()
-            {
-                if ((pos + 1) >= wrappedRow.Length)
-                    return false;
-
-                pos++;
-                return true;
-            }
-        }
-
-        private class WrapDataRowCollectionAsFeeder : Feeder
-        {
-            int pos = -1;
-            DataRowCollection wrappedRow;
-            DataRowState rowState;
-
-            public WrapDataRowCollectionAsFeeder(DataRowCollection rows, DataRowState state)
-            {
-                wrappedRow = rows;
-                rowState = state;
-            }
-
-            public int FieldCount
-            {
-                get { return wrappedRow[0].ItemArray.Length; }
-            }
-            public object this[string name]
-            {
-                get { return wrappedRow[pos][name]; }
-            }
-            public object this[int i]
-            {
-                get { return wrappedRow[pos][i]; }
-            }
-            public bool MoveNext()
-            {
-                while (true)
-                {
-                    if ((pos + 1) >= wrappedRow.Count)
-                        return false;
-
-                    if ((wrappedRow[++pos].RowState & rowState) != 0)
-                        return true;
-                }
-                // never reached
-            }
-        }
-
-        private class WrapDataReaderAsFeeder : Feeder
-        {
-            private IDataReader wrappedReader;
-
-            public WrapDataReaderAsFeeder(IDataReader reader)
-            {
-                wrappedReader = reader;
-            }
-
-            public int FieldCount
-            {
-                get { return wrappedReader.FieldCount; }
-            }
-
-            public object this[int i]
-            {
-                get { return wrappedReader[i]; }
-            }
-
-            public object this[string name]
-            {
-                get { return wrappedReader[name]; }
-            }
-
-            public bool MoveNext()
-            {
-                return wrappedReader.Read();
-            }
-
-        }
-
-        private void WriteToServer(Feeder feeder)
+        private void WriteToServer(DataFeeder feeder)
         {
             if (this.tableName.Length == 0)
                 throw new ArgumentException("The name of the destination table hasn't been specified", "DestinationTableName");
@@ -325,89 +216,26 @@ namespace NuoDb.Data.Client
 
             using (NuoDbCommand command = new NuoDbCommand(sqlString, this.connection))
             {
-                command.Prepare();
-                int totalSize = 0;
-
-                // do the check for out-of-range values just once
-                foreach (NuoDbBulkLoaderColumnMapping mapping in mappings)
+                if (mappings.Count > 0)
                 {
-                    if (mapping.SourceColumn == null && mapping.SourceOrdinal < 0 || mapping.SourceOrdinal > feeder.FieldCount)
-                        throw new IndexOutOfRangeException(String.Format("The specified ordinal of the source column ({0}) is outside the range of the column count ({1})",
-                            new object[] { mapping.SourceOrdinal, feeder.FieldCount }));
+                    // do the check for out-of-range values just once
+                    foreach (NuoDbBulkLoaderColumnMapping mapping in mappings)
+                    {
+                        if (mapping.SourceColumn == null && mapping.SourceOrdinal < 0 || mapping.SourceOrdinal > feeder.FieldCount)
+                            throw new IndexOutOfRangeException(String.Format("The specified ordinal of the source column ({0}) is outside the range of the column count ({1})",
+                                mapping.SourceOrdinal, feeder.FieldCount));
+                    }
+                    feeder = new FeederOrderer(feeder, mappings);
                 }
 
-                while (true)
+                int batchCount = 0;
+                int totalSize = 0;
+                while ((batchCount = command.ExecuteBatch(feeder, this.batchSize)) > 0)
                 {
-                    EncodedDataStream dataStream = new RemEncodedStream(connection.InternalConnection.protocolVersion);
-                    dataStream.startMessage(Protocol.ExecuteBatchPreparedStatement);
-                    dataStream.encodeInt(command.handle);
-                    int batchCount = 0;
-
-                    for (; batchCount < this.batchSize && feeder.MoveNext(); batchCount++)
-                    {
-                        dataStream.encodeInt(command.Parameters.Count);
-                        if (mappings.Count == 0)
-                        {
-                            for (int i = 0; i < feeder.FieldCount; i++)
-                            {
-                                dataStream.encodeDotNetObject(feeder[i]);
-                            }
-                        }
-                        else
-                        {
-                            foreach (NuoDbBulkLoaderColumnMapping mapping in mappings)
-                            {
-                                if (mapping.SourceColumn == null)
-                                {
-                                    dataStream.encodeDotNetObject(feeder[mapping.SourceOrdinal]);
-                                }
-                                else
-                                {
-                                    dataStream.encodeDotNetObject(feeder[mapping.SourceColumn]);
-                                }
-                            }
-                        }
-                    }
-
-                    // the iterator hasn't found any more data to import, let's break out
-                    if (batchCount == 0)
-                        break;
-
-                    dataStream.encodeInt(-1);
-                    dataStream.encodeInt(batchCount);
                     totalSize += batchCount;
 #if DEBUG
-                    System.Diagnostics.Trace.WriteLine("NuoDbBulkLoader::WriteToServer: sending a batch of " + batchCount + " rows");
+                    System.Diagnostics.Trace.WriteLine("NuoDbBulkLoader::WriteToServer: sent a batch of " + batchCount + " rows");
 #endif
-                    this.connection.InternalConnection.sendAndReceive(dataStream);
-
-                    bool hasErrors = false;
-                    string errorMessage = string.Empty;
-
-                    for (int i = 0; i < batchCount; i++)
-                    {
-                        int result = dataStream.getInt();
-                        if (result == EXECUTE_FAILED)
-                        {
-                            if (this.connection.InternalConnection.protocolVersion >= Protocol.PROTOCOL_VERSION6)
-                            {
-                                int sqlCode = dataStream.getInt();
-                                string message = dataStream.getString();
-
-                                errorMessage = AppendError(errorMessage, message, i);
-                            }
-                            hasErrors = true;
-                        }
-                    }
-
-                    if (this.connection.InternalConnection.protocolVersion >= Protocol.PROTOCOL_VERSION3)
-                    {
-                        long txnId = dataStream.getLong();
-                        int nodeId = dataStream.getInt();
-                        long commitSequence = dataStream.getLong();
-                        this.connection.InternalConnection.setLastTransaction(txnId, nodeId, commitSequence);
-                    }
-
                     if (handlers.Count != 0)
                     {
                         BatchProcessedEventHandler[] tmpArray = new BatchProcessedEventHandler[handlers.Count];
@@ -415,16 +243,11 @@ namespace NuoDb.Data.Client
                         BatchProcessedEventArgs args = new BatchProcessedEventArgs();
                         args.BatchSize = batchCount;
                         args.TotalSize = totalSize;
-                        args.HasErrors = hasErrors;
+                        args.HasErrors = false;
                         foreach (BatchProcessedEventHandler h in tmpArray)
                         {
                             h.Invoke(this, args);
                         }
-                    }
-
-                    if (hasErrors)
-                    {
-                        throw new NuoDbSqlException(errorMessage, NuoDbSqlCode.FindError("BATCH_UPDATE_ERROR"));
                     }
                 }
             }
@@ -447,7 +270,7 @@ namespace NuoDb.Data.Client
             if (rows.Length == 0)
                 return;     // empty array, nothing to do
 
-            Feeder feeder = new WrapDataRowAsFeeder(rows);
+            DataFeeder feeder = new WrapDataRowAsFeeder(rows);
             WriteToServer(feeder);
         }
 
@@ -486,7 +309,7 @@ namespace NuoDb.Data.Client
             if (table.Rows.Count == 0)
                 return;     // empty array, nothing to do
 
-            Feeder feeder = new WrapDataRowCollectionAsFeeder(table.Rows, state);
+            DataFeeder feeder = new WrapDataRowCollectionAsFeeder(table.Rows, state);
             WriteToServer(feeder);
         }
 
@@ -504,17 +327,27 @@ namespace NuoDb.Data.Client
         //     If the server returns an error
         public void WriteToServer(IDataReader reader)
         {
-            Feeder feeder = new WrapDataReaderAsFeeder(reader);
+            DataFeeder feeder = new WrapDataReaderAsFeeder(reader);
             WriteToServer(feeder);
         }
 
-        private string AppendError(string currentMessage, string error, int index)
+        // Summary:
+        //     Fetch the data from the specified list of IDataRecord objects and stores it into the target table
+        //
+        // Exceptions:
+        //   System.ArgumentException:
+        //     If the name of the target table hasn't been specified
+        //
+        //   System.IndexOutOfRangeException:
+        //     If the mapping specifies a column ordinal that is outside of the allowed range
+        //
+        //   NuoDb.Data.Client.NuoDbSqlException:
+        //     If the server returns an error
+        public void WriteToServer(List<IDataRecord> reader)
         {
-            var builder = new StringBuilder(currentMessage);
-            if (builder.Length > 0)
-                builder.AppendLine();
-            builder.AppendFormat("{0} (item #{1})", error, index);
-            return builder.ToString();
+            DataFeeder feeder = new WrapDataRecordAsFeeder(reader);
+            WriteToServer(feeder);
         }
+
     }
 }

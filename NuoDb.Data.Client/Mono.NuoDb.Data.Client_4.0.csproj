@@ -51,7 +51,7 @@
     <Compile Include="BatchProcessedEventArgs.cs" />
     <Compile Include="BatchProcessedEventHandler.cs" />
     <Compile Include="ConnectionPoolManager.cs" />
-    <Compile Include="Net\SocketListener.cs" />
+    <Compile Include="DataFeeder.cs" />
     <Compile Include="NuoDbBulkLoader.cs" />
     <Compile Include="NuoDbBulkLoaderColumnMapping .cs" />
     <Compile Include="NuoDbBulkLoaderColumnMappingCollection.cs" />

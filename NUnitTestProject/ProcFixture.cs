@@ -300,11 +300,11 @@ namespace NUnitTestProject
             {
                 connection.Open();
                 new NuoDbCommand("drop procedure nunit_test if exists", connection).ExecuteNonQuery();
-                new NuoDbCommand("create procedure nunit_test(inout p1 string, in p2 string, out p3 int, inout p4 float, in p5 double, out p6 boolean, "+
-                    "inout p7 string, in p8 string, out p9 int, inout p10 float, in p11 double, out p12 boolean, "+
-                    "inout p13 string, in p14 string, out p15 int, inout p16 float, in p17 double, out p18 boolean, "+
-                    "inout p19 string, in p20 string, out p21 int, inout p22 float, in p23 double, out p24 boolean) "+
-                    " returns output(p00 string, p01 int, p02 float, p04 double, p05 boolean, p06 blob) "+
+                new NuoDbCommand("create procedure nunit_test(inout p1 string, in p2 string, out p3 int, inout p4 float, in p5 double, out p6 boolean, " +
+                    "inout p7 string, in p8 string, out p9 int, inout p10 float, in p11 double, out p12 boolean, " +
+                    "inout p13 string, in p14 string, out p15 int, inout p16 float, in p17 double, out p18 boolean, " +
+                    "inout p19 string, in p20 string, out p21 int, inout p22 float, in p23 double, out p24 boolean) " +
+                    " returns output(p00 string, p01 int, p02 float, p04 double, p05 boolean, p06 blob) " +
                     " as if(p1='goodbye') p1='hello'; end_if; end_procedure", connection).ExecuteNonQuery();
 
                 NuoDbCommand cmd = new NuoDbCommand("nunit_test", connection);
@@ -419,6 +419,46 @@ namespace NUnitTestProject
                 cmd.Parameters[0].Value = table;
                 cmd.ExecuteNonQuery();
                 Assert.AreEqual("hello world! ", cmd.Parameters[1].Value);
+            }
+        }
+
+        [Test]
+        public void TestBulkLoadOnStoredProcedureCommand()
+        {
+            using (NuoDbConnection connection = new NuoDbConnection(TestFixture1.connectionString))
+            {
+                connection.Open();
+                new NuoDbCommand("drop table temp if exists", connection).ExecuteNonQuery();
+                new NuoDbCommand("create table temp (col string)", connection).ExecuteNonQuery();
+                new NuoDbCommand("drop procedure nunit_test if exists", connection).ExecuteNonQuery();
+                new NuoDbCommand("create procedure nunit_test(input_data string) " +
+                    " as " +
+                    "   insert into temp values (input_data); " +
+                    " end_procedure", connection).ExecuteNonQuery();
+
+                DataTable metadata = new DataTable("dummy");
+                metadata.Columns.Add("xyz", typeof(string));
+                DataRow[] rows = new DataRow[10];
+                for (int i = 0; i < rows.Length; i++)
+                {
+                    rows[i] = metadata.NewRow();
+                    rows[i][0] = Convert.ToString(i);
+                }
+
+                NuoDbCommand loader = new NuoDbCommand(connection);
+                loader.CommandType = CommandType.StoredProcedure;
+                loader.CommandText = "nunit_test";
+                loader.ExecuteBatch(rows);
+
+                DbCommand command = new NuoDbCommand("select count(*) from temp", connection);
+                object val = command.ExecuteScalar();
+
+                Assert.AreEqual(10, val);
+
+                command = new NuoDbCommand("select col from temp", connection);
+                val = command.ExecuteScalar();
+
+                Assert.AreEqual("0", val);
             }
         }
     }

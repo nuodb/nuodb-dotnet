@@ -48,7 +48,7 @@
     <Compile Include="..\NuoDb.Data.Client\BatchProcessedEventArgs.cs" />
     <Compile Include="..\NuoDb.Data.Client\BatchProcessedEventHandler.cs" />
     <Compile Include="..\NuoDb.Data.Client\ConnectionPoolManager.cs" />
-    <Compile Include="..\NuoDb.Data.Client\Net\SocketListener.cs" />
+    <Compile Include="..\NuoDb.Data.Client\DataFeeder.cs" />
     <Compile Include="..\NuoDb.Data.Client\NuoDbBulkLoader.cs" />
     <Compile Include="..\NuoDb.Data.Client\NuoDbBulkLoaderColumnMapping .cs" />
     <Compile Include="..\NuoDb.Data.Client\NuoDbBulkLoaderColumnMappingCollection.cs" />
