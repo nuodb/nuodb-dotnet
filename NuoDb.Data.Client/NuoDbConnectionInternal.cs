@@ -803,7 +803,16 @@ namespace NuoDb.Data.Client
                 throw new NuoDbSqlException(exception.ToString());
             }
 
-
+            if (parsedConnectionString.ContainsKey(NuoDbConnectionStringBuilder.ApplicationIntentKey))
+            {
+                string applicationIntent = parsedConnectionString.ApplicationIntent;
+                if (applicationIntent.Equals("ReadOnly", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    dataStream.startMessage(Protocol.SetReadOnly);
+                    dataStream.encodeBoolean(true);
+                    sendAsync(dataStream);
+                }
+            }
             if (parsedConnectionString.ContainsKey(NuoDbConnectionStringBuilder.IsolationLevelKey))
             {
                 string isolationLevel = parsedConnectionString.IsolationLevel;
