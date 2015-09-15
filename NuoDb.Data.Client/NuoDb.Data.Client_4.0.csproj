@@ -56,6 +56,7 @@
     <Compile Include="BatchProcessedEventArgs.cs" />
     <Compile Include="BatchProcessedEventHandler.cs" />
     <Compile Include="ConnectionPoolManager.cs" />
+    <Compile Include="DataFeeder.cs" />
     <Compile Include="EntityFramework\NuoDbConnectionFactory.cs" />
     <Compile Include="EntityFramework\NuoDbProviderManifest.cs" />
     <Compile Include="EntityFramework\NuoDbProviderServices.cs" />
@@ -72,7 +73,6 @@
     <Compile Include="EntityFramework\SqlGen\Symbol.cs" />
     <Compile Include="EntityFramework\SqlGen\SymbolPair.cs" />
     <Compile Include="EntityFramework\SqlGen\SymbolTable.cs" />
-    <Compile Include="Net\SocketListener.cs" />
     <Compile Include="NuoDbBulkLoader.cs" />
     <Compile Include="NuoDbBulkLoaderColumnMapping .cs" />
     <Compile Include="NuoDbBulkLoaderColumnMappingCollection.cs" />

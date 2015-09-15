@@ -33,6 +33,7 @@ using System.Data.Common;
 using System;
 using System.Data;
 using System.Text;
+using System.Collections.Generic;
 
 namespace NuoDb.Data.Client
 {
@@ -286,7 +287,7 @@ namespace NuoDb.Data.Client
             // has been closed on the server, and we must re-create it
             if (handle == -1 || !connection.InternalConnection.IsCommandRegistered(handle))
             {
-                if (CommandType==CommandType.StoredProcedure || parameters.Count > 0)
+                if (CommandType == CommandType.StoredProcedure || parameters.Count > 0)
                 {
                     Prepare(generatingKeys);
                 }
@@ -365,13 +366,127 @@ namespace NuoDb.Data.Client
 
         #endregion
 
+        // Summary:
+        //     Execute the command multiple times, each time using a new set of parameters as stored in 
+        //     the entries of the provided array
+        //
+        public void ExecuteBatch(DataRow[] parameters)
+        {
+            DataFeeder feeder = new WrapDataRowAsFeeder(parameters);
+            ExecuteBatch(feeder);
+        }
+        // Summary:
+        //     Execute the command multiple times, each time using a new set of parameters as stored in 
+        //     the rows of the provided table
+        //
+        public void ExecuteBatch(DataTable parameters)
+        {
+            ExecuteBatch(parameters, DataRowState.Added | DataRowState.Deleted | DataRowState.Detached | DataRowState.Modified | DataRowState.Unchanged);
+        }
+        // Summary:
+        //     Execute the command multiple times, each time using a new set of parameters as stored in 
+        //     the rows of the provided table that have the specified state
+        //
+        public void ExecuteBatch(DataTable parameters, DataRowState state)
+        {
+            DataFeeder feeder = new WrapDataRowCollectionAsFeeder(parameters.Rows, state);
+            ExecuteBatch(feeder);
+        }
+        // Summary:
+        //     Execute the command multiple times, each time using a new set of parameters as stored in 
+        //     the rows of the provided IDataReader
+        //
+        public void ExecuteBatch(IDataReader parameters)
+        {
+            DataFeeder feeder = new WrapDataReaderAsFeeder(parameters);
+            ExecuteBatch(feeder);
+        }
+        // Summary:
+        //     Execute the command multiple times, each time using a new set of parameters as stored in 
+        //     the provided list
+        //
+        public void ExecuteBatch(List<IDataRecord> parameters)
+        {
+            DataFeeder feeder = new WrapDataRecordAsFeeder(parameters);
+            ExecuteBatch(feeder);
+        }
+
+        internal int ExecuteBatch(DataFeeder feed, int maxBatchSize = Int32.MaxValue)
+        {
+            checkConnection();
+            if (isPrepared)
+            {
+                Close();
+            }
+            Prepare(false);
+            EncodedDataStream dataStream = new RemEncodedStream(connection.InternalConnection.protocolVersion);
+            dataStream.startMessage(Protocol.ExecuteBatchPreparedStatement);
+            dataStream.encodeInt(handle);
+            int batchCount = 0;
+            while (batchCount < maxBatchSize && feed.MoveNext())
+            {
+                batchCount++;
+                dataStream.encodeInt(feed.FieldCount);
+                for (int i = 0; i < feed.FieldCount; i++)
+                {
+                    dataStream.encodeDotNetObject(feed[i]);
+                }
+            }
+            // the iterator hasn't found any more data to import, let's break out
+            if (batchCount > 0)
+            {
+                dataStream.encodeInt(-1);
+                dataStream.encodeInt(batchCount);
+                connection.InternalConnection.sendAndReceive(dataStream);
+                bool hasErrors = false;
+                string errorMessage = string.Empty;
+
+                for (int i = 0; i < batchCount; i++)
+                {
+                    int result = dataStream.getInt();
+                    if (result < 0)
+                    {
+                        if (connection.InternalConnection.protocolVersion >= Protocol.PROTOCOL_VERSION6)
+                        {
+                            int sqlCode = dataStream.getInt();
+                            string message = dataStream.getString();
+
+                            errorMessage = AppendError(errorMessage, message, i);
+                        }
+                        hasErrors = true;
+                    }
+                }
+
+                if (connection.InternalConnection.protocolVersion >= Protocol.PROTOCOL_VERSION3)
+                {
+                    long txnId = dataStream.getLong();
+                    int nodeId = dataStream.getInt();
+                    long commitSequence = dataStream.getLong();
+                    connection.InternalConnection.setLastTransaction(txnId, nodeId, commitSequence);
+                }
+
+                if (hasErrors)
+                    throw new NuoDbSqlException(errorMessage, NuoDbSqlCode.FindError("BATCH_UPDATE_ERROR"));
+            }
+            return batchCount;
+        }
+
+        private string AppendError(string currentMessage, string error, int index)
+        {
+            var builder = new StringBuilder(currentMessage);
+            if (builder.Length > 0)
+                builder.AppendLine();
+            builder.AppendFormat("{0} (item #{1})", error, index);
+            return builder.ToString();
+        }
+
         protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior)
         {
             string trimmedSql = CommandText.TrimStart(null);
-            if (CommandType == CommandType.Text && 
+            if (CommandType == CommandType.Text &&
                 !trimmedSql.StartsWith("SELECT ", StringComparison.InvariantCultureIgnoreCase) &&
                 !trimmedSql.StartsWith("CALL ", StringComparison.InvariantCultureIgnoreCase) &&
-                !trimmedSql.StartsWith("EXECUTE ", StringComparison.InvariantCultureIgnoreCase) )
+                !trimmedSql.StartsWith("EXECUTE ", StringComparison.InvariantCultureIgnoreCase))
             {
 #if DEBUG
                 System.Diagnostics.Trace.WriteLine("The statement is not a SELECT: redirecting to ExecuteNonQuery");
@@ -608,7 +723,7 @@ namespace NuoDb.Data.Client
                         // if the user-provided parameters have a value for this name, preserve it
                         if (parameters.Contains(curParamName))
                             newParams.Add(parameters[curParamName]);
-                        else if (parameters.Contains("@"+curParamName))
+                        else if (parameters.Contains("@" + curParamName))
                             newParams.Add(parameters["@" + curParamName]);
                         else
                         {
@@ -659,7 +774,7 @@ namespace NuoDb.Data.Client
             string nuodbSqlString = sqlString.ToString().TrimStart(null);
 
             // if we are given just the name of the stored procedure, retrieve the number of parameters and generate the full command
-            if(CommandType == CommandType.StoredProcedure && 
+            if (CommandType == CommandType.StoredProcedure &&
                 !nuodbSqlString.StartsWith("EXECUTE ", StringComparison.InvariantCultureIgnoreCase) &&
                 !nuodbSqlString.StartsWith("CALL ", StringComparison.InvariantCultureIgnoreCase))
             {
@@ -672,12 +787,12 @@ namespace NuoDb.Data.Client
                 {
                     NuoDbConnectionStringBuilder builder = new NuoDbConnectionStringBuilder(connection.ConnectionString);
                     string schema = builder.Schema;
-                    if(schema.Length==0)
+                    if (schema.Length == 0)
                         schema = "USER";
                     paramTable = NuoDbConnectionInternal.GetSchemaHelper(connection, "ProcedureParameters", new string[] { null, schema, parts[0].Trim(quotes), null });
                 }
                 int numParams = 0;
-                foreach (DataRow row in paramTable.Select("PARAMETER_DIRECTION <> 3", "ORDINAL_POSITION ASC")) 
+                foreach (DataRow row in paramTable.Select("PARAMETER_DIRECTION <> 3", "ORDINAL_POSITION ASC"))
                 {
                     int ordinal = row.Field<int>("ORDINAL_POSITION");
                     if (ordinal != ++numParams)
@@ -725,10 +840,10 @@ namespace NuoDb.Data.Client
                 nuodbSqlString = strBuilder.ToString();
             }
 
-            if (nuodbSqlString.StartsWith("EXECUTE ", StringComparison.InvariantCultureIgnoreCase) || 
+            if (nuodbSqlString.StartsWith("EXECUTE ", StringComparison.InvariantCultureIgnoreCase) ||
                 nuodbSqlString.StartsWith("CALL ", StringComparison.InvariantCultureIgnoreCase))
             {
-                if(connection.InternalConnection.protocolVersion < Protocol.PROTOCOL_VERSION12)
+                if (connection.InternalConnection.protocolVersion < Protocol.PROTOCOL_VERSION12)
                     throw new NuoDbSqlException(String.Format("server protocol {0} doesn't support prepareCall", connection.InternalConnection.protocolVersion));
                 EncodedDataStream dataStream = new RemEncodedStream(connection.InternalConnection.protocolVersion);
                 dataStream.startMessage(Protocol.PrepareCall);
@@ -737,16 +852,17 @@ namespace NuoDb.Data.Client
                 handle = dataStream.getInt();
                 connection.InternalConnection.RegisterCommand(handle);
                 int numberParameters = dataStream.getInt();
-                for (int i = 0; i < numberParameters; i++) {
-                    int     direction = dataStream.getInt();
-                    String  name = dataStream.getString();
-                    switch(direction)
+                for (int i = 0; i < numberParameters; i++)
+                {
+                    int direction = dataStream.getInt();
+                    String name = dataStream.getString();
+                    switch (direction)
                     {
                         case 0: newParams[i].Direction = ParameterDirection.Input; break;
                         case 1: newParams[i].Direction = ParameterDirection.InputOutput; break;
                         case 2: newParams[i].Direction = ParameterDirection.Output; break;
                     }
-                    if(newParams[i].ParameterName.Length == 0)
+                    if (newParams[i].ParameterName.Length == 0)
                         newParams[i].ParameterName = name;
                 }
                 parameters = newParams;
