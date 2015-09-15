@@ -43,6 +43,7 @@ using NuoDb.Data.Client.Util;
 using System.Collections.Generic;
 using System;
 using System.Data;
+using System.Diagnostics;
 
 namespace NuoDb.Data.Client
 {
@@ -605,7 +606,7 @@ namespace NuoDb.Data.Client
                 {
                     properties["clientInfo"] = parsedConnectionString.ClientInfo;
                 }
-                properties["clientProcessID"] = parsedConnectionString.ClientProcessIDOrDefault;
+                properties["clientProcessID"] = Process.GetCurrentProcess().Id.ToString();
                 // see comment below ... for now these are the only two types that
                 // we can support in the client code
                 if ((!cipher.Equals("RC4")) && (!cipher.Equals("None")))
