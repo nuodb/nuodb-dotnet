@@ -67,6 +67,25 @@ namespace NUnitTestProject
         }
 
         [Test]
+        public void TestReadOnly()
+        {
+            using (NuoDbConnection connection = new NuoDbConnection(connectionString + ";ApplicationIntent=readOnly"))
+            {
+                DbCommand cmd = new NuoDbCommand("insert into hockey (number, team) values (9999, 'none')", connection);
+                connection.Open();
+                try
+                {
+                    int rows = cmd.ExecuteNonQuery();
+                    Assert.Fail("Read-only connection inserted {0} rows", rows);
+                }
+                catch (Exception e)
+                {
+                    Assert.AreEqual("attempted update on readonly connection", e.Message);
+                }
+            }
+        }
+
+        [Test]
         public void TestCommand1()
         {
             using (NuoDbConnection connection = new NuoDbConnection(connectionString))

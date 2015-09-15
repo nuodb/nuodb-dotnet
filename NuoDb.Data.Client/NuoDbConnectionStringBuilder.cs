@@ -35,6 +35,28 @@ using System.ComponentModel;
 
 namespace NuoDb.Data.Client
 {
+    public class ApplicationIntentListConverter : TypeConverter
+    {
+        // return true to signal we have a set of allowed values to display
+        public override bool GetStandardValuesSupported(ITypeDescriptorContext context)
+        {
+            return true;
+        }
+
+        // return true if the value can only be one of the allowed values (drop-list)
+        // return false if the user is allowed to type in a different value (drop-down)
+        public override bool GetStandardValuesExclusive(ITypeDescriptorContext context)
+        {
+            return true;
+        }
+
+        // return the allowed values
+        public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
+        {
+            return new StandardValuesCollection(new string[] { "", "ReadOnly", "ReadWrite" });
+        }
+    }
+    
     public class IsolationLevelsListConverter : TypeConverter
     {
         // return true to signal we have a set of allowed values to display
@@ -220,7 +242,7 @@ namespace NuoDb.Data.Client
             set { this.SetValue(ClientInfoKey, value); }
         }
 
-        internal const string CipherKey = "Cypher";
+        internal const string CipherKey = "Cipher";
         [Category("Security")]
         [Description("Specifies the encryption method used to secure the communication channel")]
         [TypeConverter(typeof(EncryptionsListConverter))]
@@ -228,6 +250,16 @@ namespace NuoDb.Data.Client
         {
             get { return this.GetString(CipherKey); }
             set { this.SetValue(CipherKey, value); }
+        }
+
+        internal const string ApplicationIntentKey = "ApplicationIntent";
+        [Category("General")]
+        [Description("Specifies whether this connection is allowed to perform update operation")]
+        [TypeConverter(typeof(ApplicationIntentListConverter))]
+        public string ApplicationIntent
+        {
+            get { return this.GetString(ApplicationIntentKey); }
+            set { this.SetValue(ApplicationIntentKey, value); }
         }
 
         public NuoDbConnectionStringBuilder()
