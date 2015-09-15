@@ -1630,12 +1630,6 @@ namespace NuoDb.Data.Client
         public virtual void encodeDouble(double dbl)
         {
             long value = BitConverter.DoubleToInt64Bits(dbl);
-            int count = 8;
-
-            for (long l = value; (l & 0xff) == 0 && (count > 0); l >>= 8)
-            {
-                --count;
-            }
 
             write(edsDoubleLen0 + 8);
 
