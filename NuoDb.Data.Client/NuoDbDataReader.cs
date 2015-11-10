@@ -45,7 +45,6 @@ namespace NuoDb.Data.Client
         private int numberRecords;
         internal string[] columnNames;
         private Value[] values;
-        private bool lastValueNull;
         private DataTable metadata;
         private NuoDbCommand statement;
         private EncodedDataStream pendingRows;
@@ -75,7 +74,6 @@ namespace NuoDb.Data.Client
             this.numberRecords = 0;
             this.numberColumns = this.pendingRows != null ? this.pendingRows.getInt() : 0;
             this.values = new Value[numberColumns];
-            this.lastValueNull = false;
             this.closed = false;
             this.currentRow = 0;
             this.afterLast = false;
@@ -405,7 +403,7 @@ namespace NuoDb.Data.Client
 
             if (columnIndex < 0 || columnIndex > (numberColumns - 1))
             {
-                throw new IndexOutOfRangeException(String.Format("ResultSet column index of {0}, out of bounds.  Valid range 0-{1}", columnIndex, numberColumns));
+                throw new IndexOutOfRangeException(String.Format("ResultSet column index of {0}, out of bounds.  Valid range 0-{1}", columnIndex, numberColumns-1));
             }
 
             return columnNames[columnIndex];
@@ -432,13 +430,10 @@ namespace NuoDb.Data.Client
 
             if (columnIndex < 0 || columnIndex > (numberColumns - 1))
             {
-                throw new NuoDbSqlException(String.Format("ResultSet column index of {0}, out of bounds.  Valid range 0-{1}", columnIndex, numberColumns));
+                throw new IndexOutOfRangeException(String.Format("ResultSet column index of {0}, out of bounds.  Valid range 0-{1}", columnIndex, numberColumns-1));
             }
 
-            Value value = values[columnIndex];
-            lastValueNull = value == null || value.Type == Value.Null;
-
-            return value;
+            return values[columnIndex];
         }
 
         public override bool GetBoolean(int i)
@@ -563,6 +558,11 @@ namespace NuoDb.Data.Client
 
         public virtual T GetFieldValue<T>(int ordinal)
         {
+            object value = getValue(ordinal).Object;
+            if (value == null)
+            {
+                return default(T);
+            }
             return (T)Convert.ChangeType(getValue(ordinal).Object, typeof(T));
         }
 
@@ -574,6 +574,10 @@ namespace NuoDb.Data.Client
         public override object GetValue(int i)
         {
             object value = getValue(i).Object;
+            if (value == null)
+            {
+                return value;
+            }
             Type declaredType = null;
             if (declaredColumnTypes != null)
             {
