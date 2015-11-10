@@ -1871,6 +1871,46 @@ namespace NUnitTestProject
             VerifyBulkLoad(rows.Length, "0");
         }
 
+        [Test]
+        public void testDB13047()
+        {
+            using (NuoDbConnection connection = new NuoDbConnection(connectionString))
+            {
+                connection.Open();
+                using (DbCommand cmd = connection.CreateCommand())
+                {
+                    cmd.CommandText = "drop table tmp if exists";
+                    cmd.ExecuteNonQuery();
+                    cmd.CommandText = "create table tmp (strvalue string, numvalue int)";
+                    cmd.ExecuteNonQuery();
+                    cmd.CommandText = "insert into tmp values ('first', 1), (null, null)";
+                    cmd.ExecuteNonQuery();
+                    cmd.CommandText = "select * from tmp";
+                    using (DbDataReader reader = cmd.ExecuteReader())
+                    {
+                        Assert.IsTrue(reader.Read());
+                        Assert.IsFalse(reader.IsDBNull(0));
+                        Assert.IsFalse(reader.IsDBNull(1));
+
+                        Assert.AreEqual("first", reader.GetString(0));
+                        Assert.AreEqual("first", reader.GetValue(0));
+                        Assert.AreEqual(1, reader.GetInt32(1));
+                        Assert.AreEqual(1, reader.GetValue(1));
+                        
+                        Assert.IsTrue(reader.Read());
+                        Assert.IsTrue(reader.IsDBNull(0));
+                        Assert.IsTrue(reader.IsDBNull(1));
+
+                        Assert.IsNull(reader.GetString(0));
+                        Assert.IsNull(reader.GetValue(0));
+                        Assert.AreEqual(0, reader.GetInt32(1));
+                        Assert.IsNull(reader.GetValue(1));
+                        
+                        Assert.IsFalse(reader.Read());
+                    }
+                }
+            }
+        }
     }
 
 }
