@@ -5,8 +5,8 @@ env:
 
 before_install:
   - sudo cat /sys/kernel/mm/transparent_hugepage/enabled
-  - sudo echo 'never' > /sys/kernel/mm/transparent_hugepage/enabled
-  - sudo echo 'never' > /sys/kernel/mm/transparent_hugepage/defrag
+  - echo madvise | sudo tee /sys/kernel/mm/transparent_hugepage/enabled > /dev/null
+  - echo madvise | sudo tee /sys/kernel/mm/transparent_hugepage/defrag > /dev/null
   - wget http://download.nuohub.org/nuodb_${NUODB_VERSION}_amd64.deb --output-document=/var/tmp/nuodb.deb
   - sudo dpkg -i /var/tmp/nuodb.deb
   - sleep 5
