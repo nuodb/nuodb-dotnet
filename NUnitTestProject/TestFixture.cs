@@ -399,7 +399,7 @@ namespace NUnitTestProject
 
                 DbCommand maxIdCmd = connection.CreateCommand();
                 maxIdCmd.CommandText = "select max(id) from hockey";
-                long maxId = (long)maxIdCmd.ExecuteScalar();
+                long maxId = ((IConvertible)maxIdCmd.ExecuteScalar()).ToInt64(null);
 
                 DbCommand updateCommand = connection.CreateCommand();
                 updateCommand.CommandText = "insert into hockey (number, name) values (99, 'xxxx')";
@@ -443,7 +443,7 @@ namespace NUnitTestProject
 
                 DbCommand maxIdCmd = connection.CreateCommand();
                 maxIdCmd.CommandText = "select max(id) from hockey";
-                long maxId = (long)maxIdCmd.ExecuteScalar();
+                long maxId = ((IConvertible)maxIdCmd.ExecuteScalar()).ToInt64(null);
 
                 DbCommand updateCommand = connection.CreateCommand();
                 updateCommand.CommandText = "insert into hockey (number, name) values (?, ?)";
@@ -476,7 +476,7 @@ namespace NUnitTestProject
 
                 DbCommand maxIdCmd = connection.CreateCommand();
                 maxIdCmd.CommandText = "select max(id) from hockey";
-                long maxId = (long)maxIdCmd.ExecuteScalar();
+                long maxId = ((IConvertible)maxIdCmd.ExecuteScalar()).ToInt64(null);
 
                 DbCommand updateCommand = connection.CreateCommand();
                 updateCommand.CommandText = "insert into hockey (number, name) values (?, ?)";
