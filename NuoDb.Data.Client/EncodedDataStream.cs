@@ -393,7 +393,7 @@ namespace NuoDb.Data.Client
             }
             if (scale == 0)
             {
-                while ((temp % 10) == 0)
+                while (temp >= 10 && (temp % 10) == 0)
                 {
                     scale--;
                     temp /= 10;
