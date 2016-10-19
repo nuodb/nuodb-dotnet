@@ -1911,6 +1911,39 @@ namespace NUnitTestProject
                 }
             }
         }
+
+        [Test]
+        public void testDB16326()
+        {
+            using (NuoDbConnection connection = new NuoDbConnection(connectionString))
+            {
+                connection.Open();
+                using (DbCommand cmd = connection.CreateCommand())
+                {
+                    cmd.CommandText = "drop table tmp if exists";
+                    cmd.ExecuteNonQuery();
+                    cmd.CommandText = "create table tmp (strvalue string, numvalue number)";
+                    cmd.ExecuteNonQuery();
+                    cmd.CommandText = "insert into tmp values ('label', ?)";
+                    cmd.Prepare();
+                    decimal d0 = 0;
+                    cmd.Parameters[0].Value = d0;
+                    cmd.ExecuteNonQuery();
+                    cmd.CommandText = "select * from tmp";
+                    using (DbDataReader reader = cmd.ExecuteReader())
+                    {
+                        Assert.IsTrue(reader.Read());
+                        
+                        Assert.AreEqual(0, reader.GetInt32(1));
+                        Assert.AreEqual(0, reader.GetValue(1));
+
+                        Assert.IsFalse(reader.Read());
+                    }
+                }
+            }
+        }
+
+    
     }
 
 }
