@@ -1928,14 +1928,14 @@ namespace NUnitTestProject
                     cmd.CommandText = "insert into tmp values (?, ?)";
                     cmd.Prepare();
 
-                    HashSet<decimal> values = new HashSet<decimal>();
-                    values.Add(0m);
-                    values.Add(30000m);
-                    values.Add(-2.3m);
-                    values.Add(-1000000m);
-                    values.Add(13m);
-                    values.Add(0.000034m);
-                    values.Add(-0.01m);
+                    LinkedList<decimal> values = new LinkedList<decimal>();
+                    values.AddLast(0m);
+                    values.AddLast(30000m);
+                    values.AddLast(-2.3m);
+                    values.AddLast(-1000000m);
+                    values.AddLast(13m);
+                    values.AddLast(0.000034m);
+                    values.AddLast(-0.01m);
                     foreach (decimal d in values)
                     {
                         cmd.Parameters[0].Value = d;
@@ -1949,12 +1949,12 @@ namespace NUnitTestProject
                         {
                             decimal d0 = reader.GetDecimal(0);
                             decimal d1 = reader.GetDecimal(1);
-                            Assert.AreEqual(d0, d1);
-                            bool found = values.Remove(d1);
-                            Assert.IsTrue(found, "Value "+d1+" was not inserted");
+                            Assert.AreEqual(d0, d1, "Decimal(15,6) and number store different values");
+                            decimal expected = values.First.Value;
+                            values.RemoveFirst();
+                            Assert.AreEqual(expected, d1, "Decimal value is different from inserted one");
                         }
                     }
-                    Assert.AreEqual(0, values.Count, "Values not found in table: " + values.ToString());
                 }
             }
         }
