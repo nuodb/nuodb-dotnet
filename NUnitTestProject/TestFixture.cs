@@ -7,6 +7,7 @@ using System.Collections;
 using System.Threading;
 using System.Transactions;
 using System.Globalization;
+using System.Collections.Generic;
 
 namespace NUnitTestProject
 {
@@ -1922,23 +1923,38 @@ namespace NUnitTestProject
                 {
                     cmd.CommandText = "drop table tmp if exists";
                     cmd.ExecuteNonQuery();
-                    cmd.CommandText = "create table tmp (strvalue string, numvalue number)";
+                    cmd.CommandText = "create table tmp (numvalue1 decimal(15,6), numvalue2 number)";
                     cmd.ExecuteNonQuery();
-                    cmd.CommandText = "insert into tmp values ('label', ?)";
+                    cmd.CommandText = "insert into tmp values (?, ?)";
                     cmd.Prepare();
-                    decimal d0 = 0;
-                    cmd.Parameters[0].Value = d0;
-                    cmd.ExecuteNonQuery();
+
+                    HashSet<decimal> values = new HashSet<decimal>();
+                    values.Add(0m);
+                    values.Add(30000m);
+                    values.Add(-2.3m);
+                    values.Add(-1000000m);
+                    values.Add(13m);
+                    values.Add(0.000034m);
+                    values.Add(-0.01m);
+                    foreach (decimal d in values)
+                    {
+                        cmd.Parameters[0].Value = d;
+                        cmd.Parameters[1].Value = d;
+                        cmd.ExecuteNonQuery();
+                    }
                     cmd.CommandText = "select * from tmp";
                     using (DbDataReader reader = cmd.ExecuteReader())
                     {
-                        Assert.IsTrue(reader.Read());
-                        
-                        Assert.AreEqual(0, reader.GetInt32(1));
-                        Assert.AreEqual(0, reader.GetValue(1));
-
-                        Assert.IsFalse(reader.Read());
+                        while (reader.Read())
+                        {
+                            decimal d0 = reader.GetDecimal(0);
+                            decimal d1 = reader.GetDecimal(1);
+                            Assert.AreEqual(d0, d1);
+                            bool found = values.Remove(d1);
+                            Assert.IsTrue(found, "Value "+d1+" was not inserted");
+                        }
                     }
+                    Assert.AreEqual(0, values.Count, "Values not found in table: " + values.ToString());
                 }
             }
         }
