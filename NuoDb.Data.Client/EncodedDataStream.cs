@@ -391,14 +391,7 @@ namespace NuoDb.Data.Client
                 scale++;
                 temp *= 10;
             }
-            if (scale == 0)
-            {
-                while (temp >= 10 && (temp % 10) == 0)
-                {
-                    scale--;
-                    temp /= 10;
-                }
-            }
+            // scale must be a positive number only
         }
 
         internal virtual int byteCount(int n)
