@@ -341,9 +341,9 @@ namespace NUnitTestProject
                     DbCommand updateCommand = connection.CreateCommand();
                     updateCommand.CommandText = "insert into hockey (number, name) values (99, 'xxxx')";
 
-                    count1 = (int)countCommand.ExecuteScalar();
+                    count1 = Utils.ToInt(countCommand.ExecuteScalar());
                     updateCommand.ExecuteNonQuery();
-                    int count2 = (int)countCommand.ExecuteScalar();
+                    int count2 = Utils.ToInt(countCommand.ExecuteScalar());
 
                     Assert.AreEqual(count2, count1 + 1);
 
@@ -358,7 +358,7 @@ namespace NUnitTestProject
                 DbCommand countCommand = connection.CreateCommand();
                 countCommand.CommandText = "select count(*) from hockey";
 
-                int count3 = (int)countCommand.ExecuteScalar();
+                int count3 = Utils.ToInt(countCommand.ExecuteScalar());
                 Assert.AreEqual(count3, count1);
             }
         }
@@ -377,15 +377,15 @@ namespace NUnitTestProject
                 DbCommand updateCommand = connection.CreateCommand();
                 updateCommand.CommandText = "insert into hockey (number, name) values (99, 'xxxx')";
 
-                int count1 = (int)countCommand.ExecuteScalar();
+                int count1 = Utils.ToInt(countCommand.ExecuteScalar());
                 updateCommand.ExecuteNonQuery();
-                int count2 = (int)countCommand.ExecuteScalar();
+                int count2 = Utils.ToInt(countCommand.ExecuteScalar());
 
                 Assert.AreEqual(count2, count1 + 1);
 
                 transaction.Rollback();
 
-                int count3 = (int)countCommand.ExecuteScalar();
+                int count3 = Utils.ToInt(countCommand.ExecuteScalar());
                 Assert.AreEqual(count3, count1);
             }
         }
@@ -892,7 +892,7 @@ namespace NUnitTestProject
                 DbCommand command = new NuoDbCommand("select count(*) from temp", connection);
                 object val = command.ExecuteScalar();
 
-                Assert.AreEqual(expectedCount, val);
+                Assert.AreEqual(expectedCount, Utils.ToInt(val));
 
                 command = new NuoDbCommand("select col from temp", connection);
                 val = command.ExecuteScalar();
@@ -1207,8 +1207,7 @@ namespace NUnitTestProject
 
                 command = new NuoDbCommand("select count(*) from hockey", connection);
                 object val = command.ExecuteScalar();
-
-                VerifyBulkLoad((int)val, "Fan");
+                VerifyBulkLoad(Utils.ToInt(val), "Fan");
             }
         }
 
@@ -1233,8 +1232,7 @@ namespace NUnitTestProject
 
                 command = new NuoDbCommand("select count(*) from hockey", connection);
                 object val = command.ExecuteScalar();
-
-                VerifyBulkLoad((int)val, "Fan");
+                VerifyBulkLoad(Utils.ToInt(val), "Fan");
             }
 
         }
@@ -1260,8 +1258,7 @@ namespace NUnitTestProject
 
                 command = new NuoDbCommand("select count(*) from hockey", connection);
                 object val = command.ExecuteScalar();
-
-                VerifyBulkLoad((int)val, "Fan");
+                VerifyBulkLoad(Utils.ToInt(val), "Fan");
             }
 
         }
@@ -1287,8 +1284,7 @@ namespace NUnitTestProject
 
                 command = new NuoDbCommand("select count(*) from hockey", connection);
                 object val = command.ExecuteScalar();
-
-                VerifyBulkLoad((int)val, "Fan");
+                VerifyBulkLoad(Utils.ToInt(val), "Fan");
             }
         }
 
@@ -1313,8 +1309,7 @@ namespace NUnitTestProject
 
                 command = new NuoDbCommand("select count(*) from hockey", connection);
                 object val = command.ExecuteScalar();
-
-                VerifyBulkLoad((int)val, "Fan");
+                VerifyBulkLoad(Utils.ToInt(val), "Fan");
             }
         }
 
@@ -1576,7 +1571,7 @@ namespace NUnitTestProject
 
                 IAsyncResult result = countCommand.BeginExecuteScalar();
 
-                int count = (int)countCommand.EndExecuteScalar(result);
+                int count = Utils.ToInt(countCommand.EndExecuteScalar(result));
             }
         }
 
@@ -1609,7 +1604,7 @@ namespace NUnitTestProject
         void HandleCallback2(IAsyncResult result)
         {
             NuoDbCommand command = (NuoDbCommand)result.AsyncState;
-            int count = (int)command.EndExecuteScalar(result);
+            int count = Utils.ToInt(command.EndExecuteScalar(result));
         }
 
         [Test]

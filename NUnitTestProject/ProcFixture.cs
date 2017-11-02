@@ -38,7 +38,7 @@ namespace NUnitTestProject
                 }
                 catch (Exception e)
                 {
-                    Assert.IsTrue(e.Message.EndsWith("hello"), "Expected error: 'hello', received "+e.Message);
+                    Assert.IsTrue(e.Message.Contains("hello"), "Expected error: 'hello', received "+e.Message);
                 }
             }
         }
@@ -62,7 +62,7 @@ namespace NUnitTestProject
                 }
                 catch (Exception e)
                 {
-                    Assert.IsTrue(e.Message.EndsWith("hello"), "Expected error: 'hello', received " + e.Message);
+                    Assert.IsTrue(e.Message.Contains("hello"), "Expected error: 'hello', received " + e.Message);
                 }
             }
         }
@@ -95,7 +95,7 @@ namespace NUnitTestProject
                 }
                 catch (Exception e)
                 {
-                    Assert.IsTrue(e.Message.EndsWith("hello"), "Expected error: 'hello', received " + e.Message);
+                    Assert.IsTrue(e.Message.Contains("hello"), "Expected error: 'hello', received " + e.Message);
                 }
             }
         }

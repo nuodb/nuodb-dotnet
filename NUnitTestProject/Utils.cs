@@ -6,6 +6,12 @@ namespace NUnitTestProject
 {
     class Utils
     {
+        internal static int ToInt(object value)
+        {
+            // go through a parse step to accomodate both 32 and 64 bit return values
+            return Int32.Parse(value.ToString());
+        }
+
         internal static void DropTable(NuoDbConnection cnn, string tableName)
         {
             DbCommand dropCommand = new NuoDbCommand("drop table if exists " + tableName, cnn);

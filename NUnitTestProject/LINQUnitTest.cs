@@ -27,7 +27,7 @@ namespace NUnitTestProject
                 DbCommand command = new NuoDbCommand("select count(*) from hockey", connection);
 
                 connection.Open();
-                tableRows = (int)command.ExecuteScalar();
+                tableRows = Utils.ToInt(command.ExecuteScalar());
             }
         }
 
