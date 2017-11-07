@@ -16,6 +16,12 @@ namespace NUnitEFCodeFirstTestProject
         static string schema = "hockey";
         static internal string connectionString = "Server=  " + host + "; Database=\"" + database + "\"; User = " + user + " ;Password   = '" + password + "';Schema=\"" + schema + "\"";
 
+        internal static int ToInt(object value)
+        {
+            // go through a parse step to accomodate both 32 and 64 bit return values
+            return Int32.Parse(value.ToString());
+        }
+
         internal static void DropTable(NuoDbConnection cnn, string tableName)
         {
             try
@@ -250,7 +256,7 @@ namespace NUnitEFCodeFirstTestProject
                 DbCommand command = new NuoDbCommand("select count(*) from hockey", connection);
 
                 connection.Open();
-                return (int)command.ExecuteScalar();
+                return Utils.ToInt(command.ExecuteScalar());
             }
         }
     }
