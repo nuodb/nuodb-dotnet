@@ -778,7 +778,6 @@ namespace NUnitTestProject
             DateTime now = DateTime.Now;
             TestDataType("date", now, now.Date);
             TestDataType("date", "1999-01-31");
-            TestDataType("dateonly", "1999-01-31");
         }
 
         [Test]
@@ -788,7 +787,6 @@ namespace NUnitTestProject
             TestDataType("time", now, now.TimeOfDay);
             TestDataType("time", new TimeSpan(10, 30, 22));
             TestDataType("time", "10:30:22");
-            TestDataType("timeonly", "10:30:22");
         }
 
         [Test]
