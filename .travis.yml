@@ -1,28 +1,36 @@
 language: c
 
 env:
-  - NUODB_HOME=/opt/nuodb NUODB_VERSION=2.4.1.2
+  global:
+    - NUODB_HOME=/opt/nuodb
+    - TZ=America/New_York
+    - NUO_ADD_DOMAIN_PASS=yes
+    - NUO_START_AGENT=yes
+  matrix:
+    - NUO_VERSION=3.1.2.1
+    - NUO_VERSION=3.2.0.2
 
 before_install:
-  - sudo cat /sys/kernel/mm/transparent_hugepage/enabled
-  - echo madvise | sudo tee /sys/kernel/mm/transparent_hugepage/enabled > /dev/null
-  - echo madvise | sudo tee /sys/kernel/mm/transparent_hugepage/defrag > /dev/null
-  - wget http://download.nuohub.org/nuodb_${NUODB_VERSION}_amd64.deb --output-document=/var/tmp/nuodb.deb
+  - echo madvise | sudo tee /sys/kernel/mm/transparent_hugepage/enabled >/dev/null
+  - echo madvise | sudo tee /sys/kernel/mm/transparent_hugepage/defrag >/dev/null
+
+  # There's a bug in the Trusty images where this gives a syntax error
+  # See https://github.com/travis-ci/travis-ci/issues/8906
+  - sudo mv /opt/jdk_switcher/jdk_switcher.sh /tmp
+
+  - wget -q "http://download.nuohub.org/nuodb-ce_${NUO_VERSION}_amd64.deb" --output-document=/var/tmp/nuodb.deb
   - sudo dpkg -i /var/tmp/nuodb.deb
-  - sleep 5
-  - sudo chmod 777 $NUODB_HOME/etc/default.properties
-  - echo "" >> $NUODB_HOME/etc/default.properties
-  - echo "domainPassword = bird" >> $NUODB_HOME/etc/default.properties
-  - sudo chmod 600 $NUODB_HOME/etc/default.properties
-  - sudo service nuoagent start
 
 install:
- - sudo apt-get update && sudo apt-get install mono-devel mono-gmcs mono-complete cli-common-dev nunit-console
+ - sudo apt-get update
+ - sudo apt-get install mono-devel mono-gmcs mono-complete cli-common-dev nunit-console
 
 before_script:
-  - ${NUODB_HOME}/bin/nuodbmgr --broker localhost --password bird --command "start process sm host localhost database test archive /var/tmp/nuodb initialize true"
+  - if [ "$NUO_ADD_DOMAIN_PASS" = yes ]; then printf '\ndomainPassword = bird\n' | sudo tee -a "$NUODB_HOME"/etc/default.properties >/dev/null; fi
+  - if [ "$NUO_START_AGENT" = yes ]; then sudo service nuoagent start; fi
+  - $NUODB_HOME/bin/nuodbmgr --broker localhost --password bird --command "start process sm host localhost database test archive /var/tmp/nuodb initialize true"
   - sleep 5
-  - ${NUODB_HOME}/bin/nuodbmgr --broker localhost --password bird --command "start process te host localhost database test options '--dba-user dba --dba-password goalie'"
+  - $NUODB_HOME/bin/nuodbmgr --broker localhost --password bird --command "start process te host localhost database test options '--dba-user dba --dba-password goalie'"
   - sleep 5
 
 script:
