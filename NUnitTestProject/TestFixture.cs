@@ -1399,7 +1399,7 @@ namespace NUnitTestProject
                 pooledItems = NuoDbConnection.GetPooledConnectionCount(cnn);
                 Assert.AreEqual(2, pooledItems);
 
-                Thread.Sleep(3000);
+                Thread.Sleep(13000);
 
                 // 1 busy
                 pooledItems = NuoDbConnection.GetPooledConnectionCount(cnn);
@@ -1423,7 +1423,7 @@ namespace NUnitTestProject
             pooledItems = NuoDbConnection.GetPooledConnectionCount(newConnString);
             Assert.AreEqual(1, pooledItems);
 
-            Thread.Sleep(3000);
+            Thread.Sleep(13000);
 
             // empty pool
             pooledItems = NuoDbConnection.GetPooledConnectionCount(newConnString);
