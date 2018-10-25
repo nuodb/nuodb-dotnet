@@ -8,7 +8,7 @@ env:
 
 matrix:
   include:
-    - dotnet: latest
+    - mono: latest
       script:
         - xbuild /p:TargetFrameworkProfile="" /p:Configuration=Release NuoDb.Data.Client.3.5/Mono.NuoDb.Data.Client_3.5.csproj
         - xbuild /p:TargetFrameworkProfile="" /p:Configuration=Release NuoDb.Data.Client/Mono.NuoDb.Data.Client_4.0.csproj
@@ -20,8 +20,9 @@ matrix:
         - xbuild /p:TargetFrameworkProfile="" /p:Configuration=Release NUnitTestProject/Mono.NUnitTestProject.csproj
         - TZ=America/New_York mono NUnitTestProject/bin/Release/NUnitTestProject.exe
       env:
-        - NUO_VERSION=3.2.2.1
-        - NUO_VERSION=3.3.0.1
+        matrix:
+          - NUO_VERSION=3.2.2.1
+          - NUO_VERSION=3.3.0.1
 
 before_install:
   - echo madvise | sudo tee /sys/kernel/mm/transparent_hugepage/enabled >/dev/null
