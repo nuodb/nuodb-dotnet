@@ -1,15 +1,5 @@
 language: csharp
 mono: latest
-  script:
-    - xbuild /p:TargetFrameworkProfile="" /p:Configuration=Release NuoDb.Data.Client.3.5/Mono.NuoDb.Data.Client_3.5.csproj
-    - xbuild /p:TargetFrameworkProfile="" /p:Configuration=Release NuoDb.Data.Client/Mono.NuoDb.Data.Client_4.0.csproj
-    - mkdir -p ConsoleSample/bin/Release
-    - cp NuoDb.Data.Client/bin/Release/NuoDb.Data.Client.dll ConsoleSample/bin/Release
-    - xbuild /p:TargetFrameworkProfile="" /p:Configuration=Release ConsoleSample/ConsoleSample.csproj
-    - mono ConsoleSample/bin/Release/ConsoleSample.exe test
-    - xbuild /p:TargetFrameworkProfile="" /p:Configuration=Release NUnitTestProject/Mono.NUnitTestProject.csproj
-    - mono NUnitTestProject/bin/Release/NUnitTestProject.exe
-
 sudo: required
 env:
   global:
@@ -39,3 +29,12 @@ before_script:
   - $NUODB_HOME/bin/nuodbmgr --broker localhost --password bird --command "start process te host localhost database test options '--dba-user dba --dba-password goalie'"
   - sleep 5
 
+script:
+  - xbuild /p:TargetFrameworkProfile="" /p:Configuration=Release NuoDb.Data.Client.3.5/Mono.NuoDb.Data.Client_3.5.csproj
+  - xbuild /p:TargetFrameworkProfile="" /p:Configuration=Release NuoDb.Data.Client/Mono.NuoDb.Data.Client_4.0.csproj
+  - mkdir -p ConsoleSample/bin/Release
+  - cp NuoDb.Data.Client/bin/Release/NuoDb.Data.Client.dll ConsoleSample/bin/Release
+  - xbuild /p:TargetFrameworkProfile="" /p:Configuration=Release ConsoleSample/ConsoleSample.csproj
+  - mono ConsoleSample/bin/Release/ConsoleSample.exe test
+  - xbuild /p:TargetFrameworkProfile="" /p:Configuration=Release NUnitTestProject/Mono.NUnitTestProject.csproj
+  - mono NUnitTestProject/bin/Release/NUnitTestProject.exe
