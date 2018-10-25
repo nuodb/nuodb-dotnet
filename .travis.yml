@@ -1,28 +1,24 @@
 language: csharp
+mono: latest
+  script:
+    - xbuild /p:TargetFrameworkProfile="" /p:Configuration=Release NuoDb.Data.Client.3.5/Mono.NuoDb.Data.Client_3.5.csproj
+    - xbuild /p:TargetFrameworkProfile="" /p:Configuration=Release NuoDb.Data.Client/Mono.NuoDb.Data.Client_4.0.csproj
+    - mkdir -p ConsoleSample/bin/Release
+    - cp NuoDb.Data.Client/bin/Release/NuoDb.Data.Client.dll ConsoleSample/bin/Release
+    - xbuild /p:TargetFrameworkProfile="" /p:Configuration=Release ConsoleSample/ConsoleSample.csproj
+    - mono ConsoleSample/bin/Release/ConsoleSample.exe test
+    - xbuild /p:TargetFrameworkProfile="" /p:Configuration=Release NUnitTestProject/Mono.NUnitTestProject.csproj
+    - mono NUnitTestProject/bin/Release/NUnitTestProject.exe
+
 sudo: required
 env:
   global:
     - NUODB_HOME=/opt/nuodb
     - NUO_ADD_DOMAIN_PASS=yes
     - NUO_START_AGENT=yes
-
-matrix:
-  include:
-    - mono: latest
-      script:
-        - xbuild /p:TargetFrameworkProfile="" /p:Configuration=Release NuoDb.Data.Client.3.5/Mono.NuoDb.Data.Client_3.5.csproj
-        - xbuild /p:TargetFrameworkProfile="" /p:Configuration=Release NuoDb.Data.Client/Mono.NuoDb.Data.Client_4.0.csproj
-        - sudo gacutil -i NuoDb.Data.Client/bin/Release/NuoDb.Data.Client.dll
-        - mkdir -p ConsoleSample/bin/Release
-        - cp NuoDb.Data.Client/bin/Release/NuoDb.Data.Client.dll ConsoleSample/bin/Release
-        - xbuild /p:TargetFrameworkProfile="" /p:Configuration=Release ConsoleSample/ConsoleSample.csproj
-        - ConsoleSample/bin/Release/ConsoleSample.exe test
-        - xbuild /p:TargetFrameworkProfile="" /p:Configuration=Release NUnitTestProject/Mono.NUnitTestProject.csproj
-        - TZ=America/New_York mono NUnitTestProject/bin/Release/NUnitTestProject.exe
-      env:
-        matrix:
-          - NUO_VERSION=3.2.2.1
-          - NUO_VERSION=3.3.0.1
+  matrix:
+    - NUO_VERSION=3.2.2.1
+    - NUO_VERSION=3.3.0.1        
 
 before_install:
   - echo madvise | sudo tee /sys/kernel/mm/transparent_hugepage/enabled >/dev/null
