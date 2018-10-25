@@ -1,18 +1,27 @@
+language: csharp
+sudo: required
 env:
   global:
     - NUODB_HOME=/opt/nuodb
-    - TZ=America/New_York
     - NUO_ADD_DOMAIN_PASS=yes
     - NUO_START_AGENT=yes
-  matrix:
-    - NUO_VERSION=3.2.2.1
-    - NUO_VERSION=3.3.0.1
-    
+
 matrix:
   include:
-    - language: csharp
-      mono: latest
-      sudo: required
+    - dotnet: latest
+      script:
+        - xbuild /p:TargetFrameworkProfile="" /p:Configuration=Release NuoDb.Data.Client.3.5/Mono.NuoDb.Data.Client_3.5.csproj
+        - xbuild /p:TargetFrameworkProfile="" /p:Configuration=Release NuoDb.Data.Client/Mono.NuoDb.Data.Client_4.0.csproj
+        - sudo gacutil -i NuoDb.Data.Client/bin/Release/NuoDb.Data.Client.dll
+        - mkdir -p ConsoleSample/bin/Release
+        - cp NuoDb.Data.Client/bin/Release/NuoDb.Data.Client.dll ConsoleSample/bin/Release
+        - xbuild /p:TargetFrameworkProfile="" /p:Configuration=Release ConsoleSample/ConsoleSample.csproj
+        - ConsoleSample/bin/Release/ConsoleSample.exe test
+        - xbuild /p:TargetFrameworkProfile="" /p:Configuration=Release NUnitTestProject/Mono.NUnitTestProject.csproj
+        - TZ=America/New_York mono NUnitTestProject/bin/Release/NUnitTestProject.exe
+      env:
+        - NUO_VERSION=3.2.2.1
+        - NUO_VERSION=3.3.0.1
 
 before_install:
   - echo madvise | sudo tee /sys/kernel/mm/transparent_hugepage/enabled >/dev/null
@@ -33,12 +42,3 @@ before_script:
   - $NUODB_HOME/bin/nuodbmgr --broker localhost --password bird --command "start process te host localhost database test options '--dba-user dba --dba-password goalie'"
   - sleep 5
 
-script:
- - xbuild /p:TargetFrameworkProfile="" /p:Configuration=Release NuoDb.Data.Client.3.5/Mono.NuoDb.Data.Client_3.5.csproj
- - sudo gacutil -i NuoDb.Data.Client.3.5/bin/Release/NuoDb.Data.Client.dll
- - xbuild /p:TargetFrameworkProfile="" /p:Configuration=Release NuoDb.Data.Client/Mono.NuoDb.Data.Client_4.0.csproj
- - sudo gacutil -i NuoDb.Data.Client/bin/Release/NuoDb.Data.Client.dll
- - xbuild /p:TargetFrameworkProfile="" /p:Configuration=Release ConsoleSample/ConsoleSample.csproj
- - ConsoleSample/bin/Release/ConsoleSample.exe test
- - xbuild /p:TargetFrameworkProfile="" /p:Configuration=Release NUnitTestProject/Mono.NUnitTestProject.csproj
- - mono NUnitTestProject/bin/Release/NUnitTestProject.exe
