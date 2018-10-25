@@ -16,8 +16,6 @@ implied. See the License for the specific language governing permissions
 and limitations under the License.
 */
 
-#if !__MonoCS__
-
 using System.Diagnostics;
 
 #if EF6
@@ -64,5 +62,3 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
         #endregion
     }
 }
-
-#endif

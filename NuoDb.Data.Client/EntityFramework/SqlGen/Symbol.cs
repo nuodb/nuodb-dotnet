@@ -16,8 +16,6 @@ implied. See the License for the specific language governing permissions
 and limitations under the License.
 */
 
-#if !__MonoCS__
-
 using System.Collections.Generic;
 using System.Globalization;
 using System;
@@ -170,5 +168,3 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
         #endregion
     }
 }
-
-#endif

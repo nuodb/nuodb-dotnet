@@ -3,8 +3,6 @@
 *  Adapted from Firebird ADO.NET Data provider
 ****************************************************************************/
 
-#if !__MonoCS__
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -20,7 +18,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 {
     internal sealed class SqlSelectStatement : ISqlFragment
     {
-        #region · Fields ·
+        #region Fields
 
         private bool isDistinct;
         private List<Symbol> allJoinExtents;
@@ -39,7 +37,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 
         #endregion
 
-        #region · Properties ·
+        #region Properties
 
         public SqlBuilder OrderBy
         {
@@ -55,7 +53,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 
         #endregion
 
-        #region · Internal Properties ·
+        #region Internal Properties
 
         /// <summary>
         /// Do we need to add a DISTINCT at the beginning of the SELECT
@@ -160,7 +158,7 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
 
         #endregion
 
-        #region · ISqlFragment Members ·
+        #region ISqlFragment Members
 
         public void WriteSql(SqlWriter writer, SqlGenerator sqlGenerator)
         {
@@ -302,5 +300,3 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
         #endregion
     }
 }
-
-#endif

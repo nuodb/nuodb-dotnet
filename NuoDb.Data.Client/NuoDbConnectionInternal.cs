@@ -658,7 +658,7 @@ namespace NuoDb.Data.Client
                 getProcessConnection(databaseName);
                 string dbUUId = processConnection.DatabaseUUId.ToString();
 
-#if __MonoCS__
+#if MONO
                 // On Mono, timezone support is too much platform dependent
                 sqlContext.TimeZone = TimeZoneInfo.Local;
 #else

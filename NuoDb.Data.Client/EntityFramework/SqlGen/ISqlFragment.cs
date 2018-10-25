@@ -16,8 +16,6 @@ implied. See the License for the specific language governing permissions
 and limitations under the License.
 */
 
-#if !__MonoCS__
-
 #if EF6
 namespace NuoDb.Data.Client.EntityFramework6.SqlGen
 #else
@@ -51,5 +49,3 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
         void WriteSql(SqlWriter writer, SqlGenerator sqlGenerator);
     }
 }
-
-#endif

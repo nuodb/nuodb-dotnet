@@ -1651,7 +1651,7 @@ namespace NUnitTestProject
             command.Connection.Close();
         }
 
-#if !__MonoCS__
+#if !MONO
         [Test]
         public void TestTimeZone()
         {

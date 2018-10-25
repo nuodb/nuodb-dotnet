@@ -1,5 +1,3 @@
-language: csharp
-
 env:
   global:
     - NUODB_HOME=/opt/nuodb
@@ -7,15 +5,14 @@ env:
     - NUO_ADD_DOMAIN_PASS=yes
     - NUO_START_AGENT=yes
   matrix:
-    - NUO_VERSION=3.1.2.1
-    - NUO_VERSION=3.2.0.2
-
+    - NUO_VERSION=3.2.2.1
+    - NUO_VERSION=3.3.0.1
+    
 matrix:
   include:
-    - mono: latest
+    - language: csharp
+      mono: latest
       sudo: required
-      install:
-        - sudo apt-get nunit-console
 
 before_install:
   - echo madvise | sudo tee /sys/kernel/mm/transparent_hugepage/enabled >/dev/null

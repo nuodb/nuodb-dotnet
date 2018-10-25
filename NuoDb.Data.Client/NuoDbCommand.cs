@@ -794,10 +794,10 @@ namespace NuoDb.Data.Client
                 int numParams = 0;
                 foreach (DataRow row in paramTable.Select("PARAMETER_DIRECTION <> 3", "ORDINAL_POSITION ASC"))
                 {
-                    int ordinal = row.Field<int>("ORDINAL_POSITION");
+                    int ordinal = (int)row["ORDINAL_POSITION"];
                     if (ordinal != ++numParams)
                         throw new NuoDbSqlException(String.Format("Internal error: unexpected ordering of the parameters of the procedure {0}", nuodbSqlString));
-                    int direction = row.Field<int>("PARAMETER_DIRECTION");
+                    int direction = (int)row["PARAMETER_DIRECTION"];
                     ParameterDirection paramDirection;
                     switch (direction)
                     {
@@ -807,7 +807,7 @@ namespace NuoDb.Data.Client
                         default: throw new NuoDbSqlException(String.Format("Internal error: unexpected parameter type for procedure {0}", nuodbSqlString));
                     }
                     // either add a new parameter, or carry over the user-provided one
-                    string paramName = row.Field<string>("PARAMETER_NAME");
+                    string paramName = (string)row["PARAMETER_NAME"];
                     if (parameters.Contains(paramName))
                         newParams.Add(parameters[paramName]);
                     else if (parameters.Contains("@" + paramName))
@@ -824,7 +824,7 @@ namespace NuoDb.Data.Client
                         p.ParameterName = paramName;
                         newParams.Add(p);
                     }
-                    newParams[newParams.Count - 1].DbType = NuoDbConnectionInternal.mapJavaSqlToDbType(row.Field<int>("PARAMETER_DATA_TYPE"));
+                    newParams[newParams.Count - 1].DbType = NuoDbConnectionInternal.mapJavaSqlToDbType((int)row["PARAMETER_DATA_TYPE"]);
                     newParams[newParams.Count - 1].Direction = paramDirection;
                 }
                 StringBuilder strBuilder = new StringBuilder("EXECUTE ");

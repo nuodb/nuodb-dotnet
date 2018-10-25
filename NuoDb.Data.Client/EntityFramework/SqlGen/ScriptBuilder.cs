@@ -2,8 +2,6 @@
 *  Author: Jiri Cincura (jiri@cincura.net)
 ****************************************************************************/
 
-#if !__MonoCS__
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -94,5 +92,3 @@ namespace NuoDb.Data.Client.EntityFramework.SqlGen
         }
     }
 }
-
-#endif
