@@ -74,7 +74,7 @@
     <Compile Include="EntityFramework\SqlGen\SymbolPair.cs" />
     <Compile Include="EntityFramework\SqlGen\SymbolTable.cs" />
     <Compile Include="NuoDbBulkLoader.cs" />
-    <Compile Include="NuoDbBulkLoaderColumnMapping .cs" />
+    <Compile Include="NuoDbBulkLoaderColumnMapping.cs" />
     <Compile Include="NuoDbBulkLoaderColumnMappingCollection.cs" />
     <Compile Include="NuoDbCommandBuilder.cs" />
     <Compile Include="NuoDbConnection.cs" />

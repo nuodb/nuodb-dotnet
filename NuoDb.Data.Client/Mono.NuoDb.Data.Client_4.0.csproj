@@ -53,7 +53,7 @@
     <Compile Include="ConnectionPoolManager.cs" />
     <Compile Include="DataFeeder.cs" />
     <Compile Include="NuoDbBulkLoader.cs" />
-    <Compile Include="NuoDbBulkLoaderColumnMapping .cs" />
+    <Compile Include="NuoDbBulkLoaderColumnMapping.cs" />
     <Compile Include="NuoDbBulkLoaderColumnMappingCollection.cs" />
     <Compile Include="NuoDbCommandBuilder.cs" />
     <Compile Include="NuoDbConnection.cs" />

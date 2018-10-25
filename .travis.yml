@@ -1,4 +1,4 @@
-language: c
+language: csharp
 
 env:
   global:
@@ -10,6 +10,13 @@ env:
     - NUO_VERSION=3.1.2.1
     - NUO_VERSION=3.2.0.2
 
+matrix:
+  include:
+    - mono: latest
+      sudo: required
+      install:
+        - sudo apt-get nunit-console
+
 before_install:
   - echo madvise | sudo tee /sys/kernel/mm/transparent_hugepage/enabled >/dev/null
   - echo madvise | sudo tee /sys/kernel/mm/transparent_hugepage/defrag >/dev/null
@@ -20,10 +27,6 @@ before_install:
 
   - wget -q "http://download.nuohub.org/nuodb-ce_${NUO_VERSION}_amd64.deb" --output-document=/var/tmp/nuodb.deb
   - sudo dpkg -i /var/tmp/nuodb.deb
-
-install:
- - sudo apt-get update
- - sudo apt-get install mono-devel mono-gmcs mono-complete cli-common-dev nunit-console
 
 before_script:
   - if [ "$NUO_ADD_DOMAIN_PASS" = yes ]; then printf '\ndomainPassword = bird\n' | sudo tee -a "$NUODB_HOME"/etc/default.properties >/dev/null; fi

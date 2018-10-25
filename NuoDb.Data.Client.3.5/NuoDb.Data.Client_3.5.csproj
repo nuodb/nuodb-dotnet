@@ -93,7 +93,7 @@
       <Link>EntityFramework\SqlGen\SymbolTable.cs</Link>
     </Compile>
     <Compile Include="..\NuoDb.Data.Client\NuoDbBulkLoader.cs" />
-    <Compile Include="..\NuoDb.Data.Client\NuoDbBulkLoaderColumnMapping .cs" />
+    <Compile Include="..\NuoDb.Data.Client\NuoDbBulkLoaderColumnMapping.cs" />
     <Compile Include="..\NuoDb.Data.Client\NuoDbBulkLoaderColumnMappingCollection.cs" />
     <Compile Include="..\NuoDb.Data.Client\NuoDbCommandBuilder.cs" />
     <Compile Include="..\NuoDb.Data.Client\NuoDbConnectionInternal.cs" />
