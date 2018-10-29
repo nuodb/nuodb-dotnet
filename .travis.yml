@@ -30,11 +30,6 @@ before_script:
   - sleep 5
 
 script:
-  - xbuild /p:TargetFrameworkProfile="" /p:Configuration=Release NuoDb.Data.Client.3.5/Mono.NuoDb.Data.Client_3.5.csproj
-  - xbuild /p:TargetFrameworkProfile="" /p:Configuration=Release NuoDb.Data.Client/Mono.NuoDb.Data.Client_4.0.csproj
-  - mkdir -p ConsoleSample/bin/Release
-  - cp NuoDb.Data.Client/bin/Release/NuoDb.Data.Client.dll ConsoleSample/bin/Release
-  - xbuild /p:TargetFrameworkProfile="" /p:Configuration=Release ConsoleSample/ConsoleSample.csproj
+  - xbuild /p:TargetFrameworkProfile="" /p:Configuration=Release ADO.NET.Mono.sln
   - mono ConsoleSample/bin/Release/ConsoleSample.exe test
-  - xbuild /p:TargetFrameworkProfile="" /p:Configuration=Release NUnitTestProject/Mono.NUnitTestProject.csproj
   - mono NUnitTestProject/bin/Release/NUnitTestProject.exe
