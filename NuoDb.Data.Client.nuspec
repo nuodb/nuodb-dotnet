@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>NuoDb.Data.Client</id>
-    <version>2.3.0.9</version>
+    <version>2.3.0.10</version>
     <title>NuoDB ADO.NET Driver</title>
     <authors>NuoDB</authors>
     <owners>NuoDB</owners>
@@ -21,5 +21,6 @@
   <files>
     <file src="NuoDb.Data.Client.3.5\bin\Release\NuoDb.Data.Client.dll" target="lib\net35" />
     <file src="NuoDb.Data.Client\bin\Release\NuoDb.Data.Client.dll" target="lib\net40" />
+    <file src="NuoDb.Data.Client\bin\Release\netcoreapp2.1\NuoDb.Data.ClientCore.dll" target="lib\netcore" />
   </files>
 </package>
