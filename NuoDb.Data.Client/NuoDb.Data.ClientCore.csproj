@@ -1,0 +1,99 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <RootNamespace>NuoDb.Data.Client</RootNamespace>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>Key.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Transactions" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="BatchProcessedEventArgs.cs" />
+    <Compile Include="BatchProcessedEventHandler.cs" />
+    <Compile Include="ConnectionPoolManager.cs" />
+    <Compile Include="DataFeeder.cs" />
+    <Compile Include="NuoDbBulkLoader.cs" />
+    <Compile Include="NuoDbBulkLoaderColumnMapping.cs" />
+    <Compile Include="NuoDbBulkLoaderColumnMappingCollection.cs" />
+    <Compile Include="NuoDbCommandBuilder.cs" />
+    <Compile Include="NuoDbConnection.cs" />
+    <Compile Include="NuoDbConnectionStringBuilder.cs" />
+    <Compile Include="NuoDbDataAdapter.cs" />
+    <Compile Include="NuoDbDataParameterCollection.cs" />
+    <Compile Include="NuoDbParameter.cs" />
+    <Compile Include="NuoDbProviderFactory.cs" />
+    <Compile Include="NuoDbRowUpdatedEventHandler.cs" />
+    <Compile Include="NuoDbRowUpdatingEventHandler.cs" />
+    <Compile Include="NuoDbTransaction.cs" />
+    <Compile Include="Protocol.cs" />
+    <Compile Include="RemEncodedStream.cs" />
+    <Compile Include="NuoDbSqlCode.cs" />
+    <Compile Include="SQLContext.cs" />
+    <Compile Include="Util\Extensions.cs" />
+    <Compile Include="Util\Op.cs" />
+    <Compile Include="Util\StringUtils.cs" />
+    <Compile Include="NuoDbCommand.cs" />
+    <Compile Include="NuoDbMultipleCommands.cs" />
+    <Compile Include="NuoDbConnectionInternal.cs" />
+    <Compile Include="NuoDbSqlException.cs" />
+    <Compile Include="Net\CryptoInputStream.cs" />
+    <Compile Include="Net\CryptoOutputStream.cs" />
+    <Compile Include="Net\CryptoSocket.cs" />
+    <Compile Include="Security\BigInteger.cs" />
+    <Compile Include="Security\RemoteGroup.cs" />
+    <Compile Include="Security\RemotePassword.cs" />
+    <Compile Include="Security\Cypher.cs" />
+    <Compile Include="Security\CypherRC4.cs" />
+    <Compile Include="NuoDbDataReader.cs" />
+    <Compile Include="DataStream.cs" />
+    <Compile Include="EncodedDataStream.cs" />
+    <Compile Include="Xml\Attribute.cs" />
+    <Compile Include="Xml\Doc.cs" />
+    <Compile Include="Xml\Tag.cs" />
+    <Compile Include="Value.cs" />
+    <Compile Include="ValueBoolean.cs" />
+    <Compile Include="ValueByte.cs" />
+    <Compile Include="ValueBytes.cs" />
+    <Compile Include="ValueDate.cs" />
+    <Compile Include="ValueDouble.cs" />
+    <Compile Include="ValueInt.cs" />
+    <Compile Include="ValueLong.cs" />
+    <Compile Include="ValueNull.cs" />
+    <Compile Include="ValueNumber.cs" />
+    <Compile Include="ValueShort.cs" />
+    <Compile Include="ValueString.cs" />
+    <Compile Include="ValueTime.cs" />
+    <Compile Include="ValueTimestamp.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="DataTypes.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="TimeZones.xml" />
+  </ItemGroup>
+  
+</Project>

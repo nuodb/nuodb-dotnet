@@ -61,6 +61,11 @@ namespace NuoDb.Data.Client
             }
         }
 
+        public static Boolean IsOlsonTimeZone(string PossibleOlsonName)
+        {
+            string WindowsZone;
+            return db.TryGetValue(PossibleOlsonName, out WindowsZone);
+        }
         public static TimeZoneInfo FindWindowsTimeZone(string OlsonTimeZone)
         {
             string WindowsZone;

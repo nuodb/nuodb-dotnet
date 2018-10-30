@@ -29,7 +29,7 @@
 using System.Data.Common;
 using System.Security;
 using System.Security.Permissions;
-#if !MONO
+#if !MONO && !NETCOREAPP
 using NuoDb.Data.Client.EntityFramework;
 #endif
 using System;
@@ -84,10 +84,12 @@ namespace NuoDb.Data.Client
             return new NuoDbParameter();
         }
 
+#if !NETCOREAPP
         public override CodeAccessPermission CreatePermission(PermissionState state)
         {
             return null;
         }
+#endif
 
 #if !MONO
         #region IServiceProvider Members
@@ -97,10 +99,12 @@ namespace NuoDb.Data.Client
 #if DEBUG
             System.Diagnostics.Trace.WriteLine(String.Format("NuoDbProviderFactory::GetService({0})", serviceType));
 #endif
+#if !NETCOREAPP
             if (serviceType == typeof(DbProviderServices))
             {
                 return NuoDbProviderServices.Instance;
             }
+#endif
             return null;
         }
 

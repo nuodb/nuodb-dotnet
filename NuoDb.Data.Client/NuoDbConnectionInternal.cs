@@ -675,7 +675,17 @@ namespace NuoDb.Data.Client
                 {
                     // Save the default at the time the connection was opened
                     string tzone = TimeZoneInfo.Local.Id;
-                    properties["TimeZone"] = OlsonDatabase.FindOlsonTimeZone(tzone);
+                    if (OlsonDatabase.IsOlsonTimeZone(tzone))
+                    {
+                        // it should mean we are on linux/macOS, where the
+                        // timezone is already an Olson name (and FindSystemTimeZoneById
+                        // can process it correctly)
+                        properties["TimeZone"] = tzone;
+                    }
+                    else
+                    {
+                        properties["TimeZone"] = OlsonDatabase.FindOlsonTimeZone(tzone);
+                    }
                     // As described in http://msdn.microsoft.com/en-us/library/system.timezoneinfo.local.aspx TimeZoneInfo.Local
                     // always applies the DST setting of the current time, even if the DST settings of the tested date used different
                     // rules; so we fetch the complete definition from the database

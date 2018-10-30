@@ -1,5 +1,6 @@
 language: csharp
 mono: latest
+dotnet: 2.1.0
 sudo: required
 env:
   global:
@@ -33,3 +34,5 @@ script:
   - xbuild /p:TargetFrameworkProfile="" /p:Configuration=Release ADO.NET.Mono.sln
   - mono ConsoleSample/bin/Release/ConsoleSample.exe test
   - mono NUnitTestProject/bin/Release/NUnitTestProject.exe
+  - dotnet build ADO.NET.Core.sln
+  - dotnet ConsoleSample/bin/Release/netcoreapp2.1/ConsoleSampleCore.dll test
