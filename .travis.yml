@@ -1,6 +1,6 @@
 language: csharp
 mono: latest
-dotnet: 2.1.0
+dotnet: 2.1
 sudo: required
 env:
   global:
