@@ -134,8 +134,7 @@ namespace NuoDb.Data.Client
         {
             if (_internalConnection != null)
             {
-                if (_internalConnection.transaction != null)
-                    _internalConnection.transaction.Rollback();
+                _internalConnection.Rollback();
                 if (_pooled)
                 {
                     _internalConnection.CloseOpenItems();
