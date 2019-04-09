@@ -8,8 +8,8 @@ This is the official NuoDB .NET driver. It is actively supported by NuoDB, updat
 Windows Support
 ---------------
 
-The .NET distribution for Windows is provided as part of the official
-NuoDB distribution.
+The .NET and .Net Core distribution for Windows is provided as part of the official
+NuGet package at [https://www.nuget.org/packages/NuoDb.Data.Client](https://www.nuget.org/packages/NuoDb.Data.Client)
 
 Linux Support (Mono)
 -------------------
@@ -20,4 +20,4 @@ file (.travis.yml) in the order listed.
 
 License
 -------------------
-[NuoDB License](https://github.com/nuodb/nuodb-dotnet/blob/master/LICENSE)
+[NuoDB License](https://github.com/nuodb/nuodb-dotnet/blob/master/LICENSE.txt)
