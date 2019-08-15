@@ -1,7 +1,7 @@
 nuodb-dotnet
 ============
 
-This is the official NuoDB .NET driver. It is actively supported by NuoDB, updated and tested with each new release of NuoDB.
+This is the official NuoDB .NET driver. It is no longer actively supported by NuoDB. The driver will be updated and tested periodically.
 
 [![Build Status](https://travis-ci.org/nuodb/nuodb-dotnet.png)](https://travis-ci.org/nuodb/nuodb-dotnet)
 
