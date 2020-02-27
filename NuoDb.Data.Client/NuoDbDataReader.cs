@@ -563,7 +563,11 @@ namespace NuoDb.Data.Client
             {
                 return default(T);
             }
-            return (T)Convert.ChangeType(getValue(ordinal).Object, typeof(T));
+            if (value is IConvertible)
+            {
+                return (T)Convert.ChangeType(value, typeof(T));
+            }
+            return (T)value;
         }
 
         public virtual T GetFieldValue<T>(string name)
@@ -606,7 +610,7 @@ namespace NuoDb.Data.Client
                 {
                     return GetGuid(i);
                 }
-                else
+                else if (value is IConvertible)
                 {
                     return Convert.ChangeType(value, declaredType);
                 }
