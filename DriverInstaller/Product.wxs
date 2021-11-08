@@ -2,7 +2,7 @@
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
      xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
   <Product Name="ADO.NET Driver for NuoDB" Language="1033" 
-           Version="!(bind.FileVersion.NuoDb.Data.Client.35.dll)" Manufacturer="NuoDB Inc."
+           Version="!(bind.FileVersion.NuoDb.Data.Client.48.dll)" Manufacturer="NuoDB Inc."
            Id="17D57F76-85C1-4535-83DB-BB8B5FF2F2C5" UpgradeCode="01d136dd-8f3c-4e8a-8343-d76b584caec2">
     <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
     <UIRef Id="WixUI_InstallDir" />
@@ -23,9 +23,9 @@
 
     <Feature Id="AspNetMembershipFeature" Title="Installing ASP.NET Membership Provider" Level="1">
       <ComponentRef Id="Install_MembershipProvider" />
-      <ComponentRef Id="Register_MembershipProvider_35" />
+      <ComponentRef Id="Register_MembershipProvider_48" />
       <ComponentRef Id="Register_MembershipProvider_40" />
-      <ComponentRef Id="Register_MembershipProvider64_35" />
+      <ComponentRef Id="Register_MembershipProvider64_48" />
       <ComponentRef Id="Register_MembershipProvider64_40" />
     </Feature>
 

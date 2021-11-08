@@ -9,7 +9,7 @@
     <projectUrl>http://doc.nuodb.com/display/doc/NuoDB+ADO.NET+Driver</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="file">LICENSE.txt</license>
-    <description>The ADO.NET Driver for NuoDB® enables you to develop .NET applications that connect to the NuoDB database. It is a fully managed ADO.NET driver, written in C# for .NET 3.5, implements all the required ADO.NET interfaces and integrates with ADO.NET aware tools.</description>
+    <description>The ADO.NET Driver for NuoDB® enables you to develop .NET applications that connect to the NuoDB database. It is a fully managed ADO.NET driver, written in C# for .NET 5.0 using .NET Framework 4.8 , implements all the required ADO.NET interfaces and integrates with ADO.NET aware tools.</description>
     <summary>NuoDB ADO.NET Driver</summary>
     <tags>nuodb newsql nosql cloud</tags>
     <frameworkAssemblies>
@@ -21,7 +21,7 @@
   </metadata>
   <files>
     <file src="LICENSE.txt" target="" />
-    <file src="NuoDb.Data.Client.3.5\bin\Release\NuoDb.Data.Client.dll" target="lib\net35" />
+    <file src="NuoDb.Data.Client.4.8\bin\Release\NuoDb.Data.Client.dll" target="lib\net48" />
     <file src="NuoDb.Data.Client\bin\Release\NuoDb.Data.Client.dll" target="lib\net40" />
     <file src="NuoDb.Data.Client\bin\Release\netcoreapp2.1\NuoDb.Data.ClientCore.dll" target="lib\netcoreapp2.1" />
     <file src="NuoDb.Data.Client\bin\Release\netcoreapp2.2\NuoDb.Data.ClientCore.dll" target="lib\netcoreapp2.2" />

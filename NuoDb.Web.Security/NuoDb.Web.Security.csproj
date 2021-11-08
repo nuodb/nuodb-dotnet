@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>NuoDb.Web.Security</RootNamespace>
     <AssemblyName>NuoDb.Web.Security</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -52,9 +52,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NuoDb.Data.Client.3.5\NuoDb.Data.Client_3.5.csproj">
+    <ProjectReference Include="..\NuoDb.Data.Client.4.8\NuoDb.Data.Client_4.8.csproj">
       <Project>{0660AC83-4B1B-4DE0-9D8E-6049DE12E0CD}</Project>
-      <Name>NuoDb.Data.Client_3.5</Name>
+      <Name>NuoDb.Data.Client_4.8</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
