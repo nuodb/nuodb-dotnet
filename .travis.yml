@@ -14,7 +14,6 @@ notifications:
   recipients:
     - drivers@nuodb.com
 
-
 before_install:
   - echo madvise | sudo tee /sys/kernel/mm/transparent_hugepage/enabled >/dev/null
   - echo madvise | sudo tee /sys/kernel/mm/transparent_hugepage/defrag >/dev/null
