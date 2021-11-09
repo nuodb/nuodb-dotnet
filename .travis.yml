@@ -44,3 +44,4 @@ script:
 after_failure:
   - cat /var/log/nuodb/nuoadmin.log*
   - grep ssl /etc/nuodb/nuoadmin.conf
+  
