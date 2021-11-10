@@ -17,10 +17,6 @@ notifications:
 before_install:
   - echo madvise | sudo tee /sys/kernel/mm/transparent_hugepage/enabled >/dev/null
   - echo madvise | sudo tee /sys/kernel/mm/transparent_hugepage/defrag >/dev/null
-
-  # There's a bug in the Trusty images where this gives a syntax error
-  # See https://github.com/travis-ci/travis-ci/issues/8906
-  - sudo mv /opt/jdk_switcher/jdk_switcher.sh /tmp
   - wget -q "$NUO_DOWNLOAD/supportedversions.txt" --output-document=/tmp/supportedversions.txt
   - wget -q "$NUO_DOWNLOAD/${NUO_PREFIX}_$(tail -n1 /tmp/supportedversions.txt)_amd64.deb" --output-document=/var/tmp/nuodb.deb
   - sudo dpkg -i /var/tmp/nuodb.deb
@@ -44,4 +40,3 @@ script:
 after_failure:
   - cat /var/log/nuodb/nuoadmin.log*
   - grep ssl /etc/nuodb/nuoadmin.conf
-  
