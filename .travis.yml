@@ -26,8 +26,6 @@ before_script:
   - sudo -n $NUODB_HOME/etc/nuoadmin tls $NUO_SET_TLS
   - sudo -n systemctl start nuoadmin
   # In a future state, this could be done by the test harness using the driver itself as it is in the python repo
-  - $NUODB_HOME/bin/nuocmd show domain
-  - $NUODB_HOME/bin/nuocmd get servers
   - $NUODB_HOME/bin/nuocmd create archive --db-name test --archive-path /var/tmp/nuodb --server-id `$NUODB_HOME/bin/nuocmd get servers | awk -F, '{print $5}' | awk -F= '{print $2}'`
   - $NUODB_HOME/bin/nuocmd create database --db-name test --dba-user dba --dba-password goalie
   - $NUODB_HOME/bin/nuocmd start process --engine-type TE --db-name test --this-server
