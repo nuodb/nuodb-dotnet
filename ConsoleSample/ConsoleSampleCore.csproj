@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp2.1;netcoreapp2.2</TargetFrameworks>
+    <TargetFrameworks>net5.0</TargetFrameworks>
     <RootNamespace>ConsoleSample</RootNamespace>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <DebugType>pdbonly</DebugType>
@@ -16,7 +16,7 @@
   
   <ItemGroup>
     <Reference Include="NuoDb.Data.Client">
-      <HintPath>..\NuoDb.Data.Client\bin\Release\netcoreapp2.1\NuoDb.Data.ClientCore.dll</HintPath>
+      <HintPath>..\NuoDb.Data.Client\bin\Release\net5.0\NuoDb.Data.ClientCore.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

@@ -35,7 +35,7 @@ script:
   - mono ConsoleSample/bin/Release/ConsoleSample.exe test
   - mono NUnitTestProject/bin/Release/NUnitTestProject.exe
   - dotnet build ADO.NET.Core.sln
-  - dotnet ConsoleSample/bin/Release/netcoreapp5.0/ConsoleSampleCore.dll test
+  - dotnet ConsoleSample/bin/Release/net5.0/ConsoleSampleCore.dll test
 
 after_failure:
   - cat /var/log/nuodb/nuoadmin.log*

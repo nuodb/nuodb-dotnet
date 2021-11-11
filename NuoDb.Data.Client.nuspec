@@ -23,7 +23,6 @@
     <file src="LICENSE.txt" target="" />
     <file src="NuoDb.Data.Client.4.8\bin\Release\NuoDb.Data.Client.dll" target="lib\net48" />
     <file src="NuoDb.Data.Client\bin\Release\NuoDb.Data.Client.dll" target="lib\net40" />
-    <file src="NuoDb.Data.Client\bin\Release\netcoreapp2.1\NuoDb.Data.ClientCore.dll" target="lib\netcoreapp2.1" />
-    <file src="NuoDb.Data.Client\bin\Release\netcoreapp2.2\NuoDb.Data.ClientCore.dll" target="lib\netcoreapp2.2" />
+    <file src="NuoDb.Data.Client\bin\Release\net5.0\NuoDb.Data.ClientCore.dll" target="lib\net5.0" />
   </files>
 </package>
