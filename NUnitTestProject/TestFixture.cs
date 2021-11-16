@@ -1916,7 +1916,7 @@ namespace NUnitTestProject
                 {
                     cmd.CommandText = "drop table tmp if exists";
                     cmd.ExecuteNonQuery();
-                    cmd.CommandText = "create table tmp (numvalue1 decimal(15,6), numvalue2 numeric(19,10)";
+                    cmd.CommandText = "create table tmp (numvalue1 decimal(15,6), numvalue2 numeric(19,10))";
                     cmd.ExecuteNonQuery();
                     cmd.CommandText = "insert into tmp values (?, ?)";
                     cmd.Prepare();
