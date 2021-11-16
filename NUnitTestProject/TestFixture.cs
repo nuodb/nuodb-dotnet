@@ -762,7 +762,7 @@ namespace NUnitTestProject
             TestDataType("dec(18,12)", 45.3987654321M);
             TestDataType("numeric(22,5)", Decimal.Parse("12345678901234567.89999", new CultureInfo("en-US")));
             TestDataType("numeric(22,5)", Decimal.Parse("-12345678901234567.89999", new CultureInfo("en-US")));
-            TestDataType("numeric(17)", Decimal.Parse("12345678901234567900000000", new CultureInfo("en-US")));
+            TestDataType("numeric(26)", Decimal.Parse("12345678901234567900000000", new CultureInfo("en-US")));
             TestDataType("numeric(26)", Decimal.Parse("-12345678901234567900000000", new CultureInfo("en-US")));
         }
 
