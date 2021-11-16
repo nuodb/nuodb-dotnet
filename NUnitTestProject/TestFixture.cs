@@ -760,10 +760,10 @@ namespace NUnitTestProject
             TestDataType("numeric(18,12)", 0.0000000045M);
             TestDataType("numeric(18,12)", -0.0000000045M);
             TestDataType("dec(18,12)", 45.3987654321M);
-            TestDataType("number", Decimal.Parse("12345678901234567.89999", new CultureInfo("en-US")));
-            TestDataType("number", Decimal.Parse("-12345678901234567.89999", new CultureInfo("en-US")));
-            TestDataType("number", Decimal.Parse("12345678901234567900000000", new CultureInfo("en-US")));
-            TestDataType("number", Decimal.Parse("-12345678901234567900000000", new CultureInfo("en-US")));
+            TestDataType("numeric(22,5)", Decimal.Parse("12345678901234567.89999", new CultureInfo("en-US")));
+            TestDataType("numeric(22,5)", Decimal.Parse("-12345678901234567.89999", new CultureInfo("en-US")));
+            TestDataType("numeric(17)", Decimal.Parse("12345678901234567900000000", new CultureInfo("en-US")));
+            TestDataType("numeric(17)", Decimal.Parse("-12345678901234567900000000", new CultureInfo("en-US")));
         }
 
         [Test]
@@ -1916,7 +1916,7 @@ namespace NUnitTestProject
                 {
                     cmd.CommandText = "drop table tmp if exists";
                     cmd.ExecuteNonQuery();
-                    cmd.CommandText = "create table tmp (numvalue1 decimal(15,6), numvalue2 number)";
+                    cmd.CommandText = "create table tmp (numvalue1 decimal(15,6), numvalue2 numeric(19,10)";
                     cmd.ExecuteNonQuery();
                     cmd.CommandText = "insert into tmp values (?, ?)";
                     cmd.Prepare();
