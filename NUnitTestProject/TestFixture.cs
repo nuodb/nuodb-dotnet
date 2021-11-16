@@ -81,7 +81,10 @@ namespace NUnitTestProject
                 }
                 catch (Exception e)
                 {
-                    Assert.AreEqual("attempted update on readonly connection", e.Message);
+                    Assert.IsTrue(
+                        String.Compare("attempted update on readonly connection", e.Message) ||
+                        String.Compare("Read only transactions cannot change data", e.Message)
+                        );
                 }
             }
         }
