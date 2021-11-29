@@ -68,6 +68,30 @@ namespace NUnitTestProject
         }
 
         [Test]
+        public void TestSQLEngineLegacy()
+        {
+            //temporary test to ensure that legacy engine is used
+            using (NuoDbConnection connection = new NuoDbConnection(connectionString))
+            {
+                DbCommand cmd = new NuoDbCommand("select * from system.connections where connid=GetConnectionID()", connection);
+                connection.Open();
+                using (DbDataReader reader = cmd.ExecuteReader())
+                {
+                    Assert.IsTrue(reader.Read());
+                    try
+                    {
+                        Assert.AreNotEqual("Vectorized", reader["sqlengine"]);
+                        Console.WriteLine(reader["sqlengine"]);
+                    }
+                    catch (IndexOutOfRangeException)
+                    {
+                        // the version of NuoDB doesn't expose the client info columns
+                    }
+                    Assert.IsFalse(reader.Read());
+                }
+            }
+        }
+        [Test]
         public void TestReadOnly()
         {
             using (NuoDbConnection connection = new NuoDbConnection(connectionString + ";ApplicationIntent=readOnly"))
