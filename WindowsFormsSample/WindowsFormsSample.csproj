@@ -34,7 +34,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="NuoDb.Data.Client"/>
+    <Reference Include="NuoDb.Data.Client">
+      <HintPath>..\NuoDb.Data.Client\bin\$(Configuration)\NuoDb.Data.Client.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data.Entity" />
