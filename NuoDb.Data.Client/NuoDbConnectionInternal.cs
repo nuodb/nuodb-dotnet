@@ -597,7 +597,10 @@ namespace NuoDb.Data.Client
                     tag.addAttribute("Schema", parsedConnectionString.Schema);
                     properties["Schema"] = parsedConnectionString.Schema;
                 }
-
+                if (parsedConnectionString.ContainsKey(NuoDbConnectionStringBuilder.SQLEngineKey))
+                {
+                    properties["SQLEngine"] = parsedConnectionString.SQLEngine;
+                }
                 if (parsedConnectionString.ContainsKey(NuoDbConnectionStringBuilder.LBTagKey))
                 {
                     properties["LBTag"] = parsedConnectionString.LBTag;
