@@ -41,7 +41,7 @@
     <Reference Include="NuoDb.Data.Client">
       <HintPath>..\NuoDb.Data.Client\bin\$(Configuration)\NuoDb.Data.Client.dll</HintPath>
     </Reference>
-    <Reference Include="EntityFramework.NuoDb, Version=2.3.0.12, Culture=neutral, PublicKeyToken=e49f105b7fb49b38, processorArchitecture=MSIL">
+    <Reference Include="EntityFramework.NuoDb, Version=2.4.0.0, Culture=neutral, PublicKeyToken=e49f105b7fb49b38, processorArchitecture=MSIL">
       <Private>True</Private>
       <HintPath>..\EF 6.0\EntityFramework.NuoDb.dll</HintPath>
     </Reference>

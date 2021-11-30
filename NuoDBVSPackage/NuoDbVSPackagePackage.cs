@@ -55,14 +55,14 @@ namespace NuoDb.VisualStudio.DataTools
     [PackageRegistration(UseManagedResourcesOnly = true)]
     // This attribute is used to register the informations needed to show the this package
     // in the Help/About dialog of Visual Studio.
-    [InstalledProductRegistration("#110", "#112", "2.3.0.12", IconResourceID = 400)]
+    [InstalledProductRegistration("#110", "#112", "2.4.0.0", IconResourceID = 400)]
     // In order be loaded inside Visual Studio in a machine that has not the VS SDK installed, 
     // package needs to have a valid load key (it can be requested at 
     // http://msdn.microsoft.com/vstudio/extend/). 
     // This attributes tells the shell that at the resource index 111 there is a Package Load Key (PLK)
     // corresponding to the company NuoDB for the version 1.0 of the product "DDEX Provider for NuoDB"
     // that can be loaded on any version (Standard, Professional) of Visual Studio 2008 and greater
-    [ProvideLoadKey("Standard", "2.3.0.12", "DDEX Provider for NuoDB", "NuoDB", 111)]
+    [ProvideLoadKey("Standard", "2.4.0.0", "DDEX Provider for NuoDB", "NuoDB", 111)]
     [ProvideService(typeof(NuoDbDataProviderObjectFactory), ServiceName = "NuoDB Provider Object Factory")]
     [ProvideDataSource(DataSourceGuid = GuidList.guidNuoDBDataSourceString, 
                        DataSourceName = "NuoDB Data Source", 
