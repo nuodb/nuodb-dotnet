@@ -71,7 +71,7 @@ namespace NUnitTestProject
         public void TestSQLEngineLegacy()
         {
             //temporary test to ensure that legacy engine is used
-            using (NuoDbConnection connection = new NuoDbConnection(connectionString))
+            using (NuoDbConnection connection = new NuoDbConnection("Server=  " + host + "; Database=\"" + database + "\"; User = " + user + " ;Password   = " + password + ";Schema=\"" + schema + "\""+";SQLEngine=legacy"));
             {
                 DbCommand cmd = new NuoDbCommand("select * from system.connections where connid=GetConnectionID()", connection);
                 connection.Open();
