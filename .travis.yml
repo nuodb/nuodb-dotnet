@@ -23,6 +23,7 @@ before_install:
   - echo "NuoDB Version:" && $NUODB_HOME/bin/nuodb --version
 
 before_script:
+  - sudo timedatectl set-timezone EST
   - sudo -n $NUODB_HOME/etc/nuoadmin tls $NUO_SET_TLS
   - sudo -n systemctl start nuoadmin
   # In a future state, this could be done by the test harness using the driver itself as it is in the python repo
@@ -40,3 +41,4 @@ script:
 after_failure:
   - cat /var/log/nuodb/nuoadmin.log*
   - grep ssl /etc/nuodb/nuoadmin.conf
+  - timedatectl
