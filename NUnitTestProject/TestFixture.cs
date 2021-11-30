@@ -19,7 +19,7 @@ namespace NUnitTestProject
         static string password = "goalie";
         static string database = "test";
         static string schema = "hockey";
-        static internal string connectionString = "Server=  " + host + "; Database=\"" + database + "\"; User = " + user + " ;Password   = " + password + ";Schema=\"" + schema + "\"";
+        static internal string connectionString = "Server=  " + host + "; Database=\"" + database + "\"; User = " + user + " ;Password   = " + password + ";Schema=\"" + schema + "\""+";SQLEngine=omega";
 
         [TestFixtureSetUp]
         public static void Init()
@@ -81,7 +81,10 @@ namespace NUnitTestProject
                 }
                 catch (Exception e)
                 {
-                    Assert.AreEqual("attempted update on readonly connection", e.Message);
+                    Assert.IsTrue(
+                        String.Compare("attempted update on readonly connection", e.Message) == 0 ||
+                        String.Compare("Read only transactions cannot change data", e.Message) == 0
+                        );
                 }
             }
         }
@@ -760,10 +763,10 @@ namespace NUnitTestProject
             TestDataType("numeric(18,12)", 0.0000000045M);
             TestDataType("numeric(18,12)", -0.0000000045M);
             TestDataType("dec(18,12)", 45.3987654321M);
-            TestDataType("number", Decimal.Parse("12345678901234567.89999", new CultureInfo("en-US")));
-            TestDataType("number", Decimal.Parse("-12345678901234567.89999", new CultureInfo("en-US")));
-            TestDataType("number", Decimal.Parse("12345678901234567900000000", new CultureInfo("en-US")));
-            TestDataType("number", Decimal.Parse("-12345678901234567900000000", new CultureInfo("en-US")));
+            TestDataType("numeric(22,5)", Decimal.Parse("12345678901234567.89999", new CultureInfo("en-US")));
+            TestDataType("numeric(22,5)", Decimal.Parse("-12345678901234567.89999", new CultureInfo("en-US")));
+            TestDataType("numeric(26)", Decimal.Parse("12345678901234567900000000", new CultureInfo("en-US")));
+            TestDataType("numeric(26)", Decimal.Parse("-12345678901234567900000000", new CultureInfo("en-US")));
         }
 
         [Test]
@@ -1916,7 +1919,7 @@ namespace NUnitTestProject
                 {
                     cmd.CommandText = "drop table tmp if exists";
                     cmd.ExecuteNonQuery();
-                    cmd.CommandText = "create table tmp (numvalue1 decimal(15,6), numvalue2 number)";
+                    cmd.CommandText = "create table tmp (numvalue1 decimal(15,6), numvalue2 numeric(19,10))";
                     cmd.ExecuteNonQuery();
                     cmd.CommandText = "insert into tmp values (?, ?)";
                     cmd.Prepare();

@@ -91,15 +91,15 @@
     </Property>
 
     <DirectoryRef Id="INSTALLFOLDER">
-      <Directory Id="NET35" Name="NET 3.5">
-        <Component Id="Install_DotNetDriver_35" Guid="A04B6218-AD90-40E5-8001-918CF0D3EAF2">
-          <File Id="NuoDb.Data.Client.35.dll"
+      <Directory Id="NET48" Name="NET 4.8">
+        <Component Id="Install_DotNetDriver_48" Guid="A04B6218-AD90-40E5-8001-918CF0D3EAF2">
+          <File Id="NuoDb.Data.Client.48.dll"
                 KeyPath="yes"
-                Source="../NuoDb.Data.Client.3.5/bin/$(var.Configuration)/NuoDb.Data.Client.dll"/>
-          <RegistryValue Id="R_DT_AssemblyFolders_35"
+                Source="../NuoDb.Data.Client.4.8/bin/$(var.Configuration)/NuoDb.Data.Client.dll"/>
+          <RegistryValue Id="R_DT_AssemblyFolders_48"
                           Root="HKLM"
-                          Key="SOFTWARE\Microsoft\.NETFramework\AssemblyFolders\[ProductName]_35"
-                          Value="[$Install_DotNetDriver_35]"
+                          Key="SOFTWARE\Microsoft\.NETFramework\AssemblyFolders\[ProductName]_48"
+                          Value="[$Install_DotNetDriver_48]"
                           Type="string"/>
         </Component>
       </Directory>
@@ -124,8 +124,8 @@
                 Assembly=".net"
                 Source="../NuoDb.Web.Security/bin/$(var.Configuration)/NuoDb.Web.Security.dll"/>
         </Component>
-        <!-- .NET 2.0 - 3.5 -->
-        <Component Id="Register_MembershipProvider_35" Guid="8CB8F917-5842-4752-BDFF-011ECFD9D71F">
+        <!-- .NET 2.0 - 4.8 -->
+        <Component Id="Register_MembershipProvider_48" Guid="8CB8F917-5842-4752-BDFF-011ECFD9D71F">
           <CreateFolder/>
           <util:EventSource Name="NuoDbMembershipProvider"
                             Log="Application"
@@ -140,8 +140,8 @@
                             EventMessageFile="[DOTNET_40_EVENTLOGMESSAGES]"/>
           <Condition>DOTNET_40_EVENTLOGMESSAGES</Condition>
         </Component>
-        <!-- 64 bit .NET 2.0 - 3.5 -->
-        <Component Id="Register_MembershipProvider64_35" Guid="5C3E4170-B4D1-4EA7-9E08-F628EE08E06D">
+        <!-- 64 bit .NET 2.0 - 4.8 -->
+        <Component Id="Register_MembershipProvider64_48" Guid="5C3E4170-B4D1-4EA7-9E08-F628EE08E06D">
           <CreateFolder/>
           <util:EventSource Name="NuoDbMembershipProvider"
                             Log="Application"
@@ -205,20 +205,20 @@
         </Directory>
       </Directory>
 
-      <Directory Id="GAC35" Name="GAC35">
-        <Component Id="Register_GAC_35" Guid="36FCC7E2-FCC8-431B-8C94-EB9E92B84CE6">
-          <File Id="NuoDb.Data.Client.35.dll_GAC"
+      <Directory Id="GAC48" Name="GAC48">
+        <Component Id="Register_GAC_48" Guid="36FCC7E2-FCC8-431B-8C94-EB9E92B84CE6">
+          <File Id="NuoDb.Data.Client.48.dll_GAC"
                 Name="NuoDb.Data.Client.dll"
                 Assembly=".net"
                 KeyPath="yes"
-                Source="../NuoDb.Data.Client.3.5/bin/$(var.Configuration)/NuoDb.Data.Client.dll"/>
+                Source="../NuoDb.Data.Client.4.8/bin/$(var.Configuration)/NuoDb.Data.Client.dll"/>
         </Component>
 
         <Component Id="Register_DotNetProvider_20" Guid="30E05F54-C856-4645-8701-0AF31EF27BA6">
           <RegistryKey Root="HKLM" Key="Software\NuoDB">
             <RegistryValue KeyPath="yes" Name=".NET 2.0" Value="1" Type="integer"/>
           </RegistryKey>
-          <!-- .NET 2.0 - 3.5 -->
+          <!-- .NET 2.0 - 4.8 -->
           <util:XmlConfig Id="MachineConfigDbProviderFactories20"
                       File="[DOTNET_20_CONFIG]"
                       Action="create"
@@ -250,7 +250,7 @@
                       File="[DOTNET_20_CONFIG]"
                       ElementPath="MachineConfigDbProviderFactories20"
                       Name="type"
-                      Value="NuoDb.Data.Client.NuoDbProviderFactory, NuoDb.Data.Client, Version=!(bind.FileVersion.NuoDb.Data.Client.35.dll), Culture=neutral, PublicKeyToken=e49f105b7fb49b38"
+                      Value="NuoDb.Data.Client.NuoDbProviderFactory, NuoDb.Data.Client, Version=!(bind.FileVersion.NuoDb.Data.Client.48.dll), Culture=neutral, PublicKeyToken=e49f105b7fb49b38"
                       Sequence="2" />
 
           <util:XmlConfig Id="MachineConfigDbProviderFactories_Uninstall20"
@@ -268,7 +268,7 @@
           <RegistryKey Root="HKLM" Key="Software\NuoDB">
             <RegistryValue KeyPath="yes" Name=".NET 2.0 64 bit" Value="1" Type="integer"/>
           </RegistryKey>
-          <!-- .NET 2.0 - 3.5 64 it-->
+          <!-- .NET 2.0 - 4.8 64 it-->
           <util:XmlConfig Id="MachineConfigDbProviderFactories20_x64"
                       File="[DOTNET64_20_CONFIG]"
                       Action="create"
@@ -300,7 +300,7 @@
                       File="[DOTNET64_20_CONFIG]"
                       ElementPath="MachineConfigDbProviderFactories20_x64"
                       Name="type"
-                      Value="NuoDb.Data.Client.NuoDbProviderFactory, NuoDb.Data.Client, Version=!(bind.FileVersion.NuoDb.Data.Client.35.dll), Culture=neutral, PublicKeyToken=e49f105b7fb49b38"
+                      Value="NuoDb.Data.Client.NuoDbProviderFactory, NuoDb.Data.Client, Version=!(bind.FileVersion.NuoDb.Data.Client.48.dll), Culture=neutral, PublicKeyToken=e49f105b7fb49b38"
                       Sequence="2" />
 
           <util:XmlConfig Id="MachineConfigDbProviderFactories_Uninstall20_x64"
@@ -479,12 +479,12 @@
     </ComponentGroup>
 
     <ComponentGroup Id="Install_DotNetDriver">
-      <ComponentRef Id="Install_DotNetDriver_35" />
+      <ComponentRef Id="Install_DotNetDriver_48" />
       <ComponentRef Id="Install_DotNetDriver_40" />
       <ComponentRef Id="Install_EntityFramework_NuoDb" />
     </ComponentGroup>
     <ComponentGroup Id="Register_DotNetDriver">
-      <ComponentRef Id="Register_GAC_35"/>
+      <ComponentRef Id="Register_GAC_48"/>
       <ComponentRef Id="Register_GAC_40"/>
       <ComponentRef Id="Register_GAC_EF"/>
       <ComponentRef Id="Register_DotNetProvider_20"/>

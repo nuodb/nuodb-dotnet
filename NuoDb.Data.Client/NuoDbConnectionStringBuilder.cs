@@ -56,7 +56,29 @@ namespace NuoDb.Data.Client
             return new StandardValuesCollection(new string[] { "", "ReadOnly", "ReadWrite" });
         }
     }
-    
+
+    public class SQLEngineListConverter : TypeConverter
+    {
+        // return true to signal we have a set of allowed values to display
+        public override bool GetStandardValuesSupported(ITypeDescriptorContext context)
+        {
+            return true;
+        }
+
+        // return true if the value can only be one of the allowed values (drop-list)
+        // return false if the user is allowed to type in a different value (drop-down)
+        public override bool GetStandardValuesExclusive(ITypeDescriptorContext context)
+        {
+            return true;
+        }
+
+        // return the allowed values
+        public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
+        {
+            return new StandardValuesCollection(new string[] { "", "VEE", "Legacy" });
+        }
+    }
+
     public class IsolationLevelsListConverter : TypeConverter
     {
         // return true to signal we have a set of allowed values to display
@@ -260,6 +282,15 @@ namespace NuoDb.Data.Client
         {
             get { return this.GetString(ApplicationIntentKey); }
             set { this.SetValue(ApplicationIntentKey, value); }
+        }
+        internal const string SQLEngineKey = "SQLEngine";
+        [Category("General")]
+        [Description("Specifies the SQL engine that will be used to process commands in this connection")]
+        [TypeConverter(typeof(SQLEngineListConverter))]
+        public string SQLEngine
+        {
+            get { return this.GetString(SQLEngineKey); }
+            set { this.SetValue(SQLEngineKey, value); }
         }
 
         public NuoDbConnectionStringBuilder()

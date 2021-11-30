@@ -1,39 +1,44 @@
 language: csharp
 mono: latest
-dotnet: 2.1
+dotnet: 5.0
 sudo: required
 env:
   global:
+    - TZ=America/New_York
+    - NUO_DOWNLOAD=https://ce-downloads.nuohub.org
+    - NUO_PREFIX=nuodb-ce
+    - NUO_SET_TLS=disable
     - NUODB_HOME=/opt/nuodb
-    - NUO_ADD_DOMAIN_PASS=yes
-    - NUO_START_AGENT=yes
-  matrix:
-    - NUO_VERSION=3.2.5.1
-    - NUO_VERSION=3.3.2.2
-    - NUO_VERSION=3.4.1.1
+
+notifications:
+  recipients:
+    - drivers@nuodb.com
 
 before_install:
   - echo madvise | sudo tee /sys/kernel/mm/transparent_hugepage/enabled >/dev/null
   - echo madvise | sudo tee /sys/kernel/mm/transparent_hugepage/defrag >/dev/null
-
-  # There's a bug in the Trusty images where this gives a syntax error
-  # See https://github.com/travis-ci/travis-ci/issues/8906
-  - sudo mv /opt/jdk_switcher/jdk_switcher.sh /tmp
-
-  - wget -q "http://download.nuohub.org/nuodb-ce_${NUO_VERSION}_amd64.deb" --output-document=/var/tmp/nuodb.deb
+  - wget -q "$NUO_DOWNLOAD/supportedversions.txt" --output-document=/tmp/supportedversions.txt
+  - wget -q "$NUO_DOWNLOAD/${NUO_PREFIX}_$(tail -n1 /tmp/supportedversions.txt)_amd64.deb" --output-document=/var/tmp/nuodb.deb
   - sudo dpkg -i /var/tmp/nuodb.deb
+  - echo "NuoDB Version:" && $NUODB_HOME/bin/nuodb --version
 
 before_script:
-  - if [ "$NUO_ADD_DOMAIN_PASS" = yes ]; then printf '\ndomainPassword = bird\n' | sudo tee -a "$NUODB_HOME"/etc/default.properties >/dev/null; fi
-  - if [ "$NUO_START_AGENT" = yes ]; then sudo service nuoagent start; fi
-  - $NUODB_HOME/bin/nuodbmgr --broker localhost --password bird --command "start process sm host localhost database test archive /var/tmp/nuodb initialize true"
-  - sleep 5
-  - $NUODB_HOME/bin/nuodbmgr --broker localhost --password bird --command "start process te host localhost database test options '--dba-user dba --dba-password goalie'"
-  - sleep 5
+  - sudo timedatectl set-timezone EST
+  - sudo -n $NUODB_HOME/etc/nuoadmin tls $NUO_SET_TLS
+  - sudo -n systemctl start nuoadmin
+  # In a future state, this could be done by the test harness using the driver itself as it is in the python repo
+  - $NUODB_HOME/bin/nuocmd create archive --db-name test --archive-path /var/tmp/nuodb --server-id `$NUODB_HOME/bin/nuocmd show domain --server-format '==={id}' | sed -n 's/ *===\([^ ]*\).*/\1/p'`
+  - $NUODB_HOME/bin/nuocmd create database --db-name test --dba-user dba --dba-password goalie
+  - $NUODB_HOME/bin/nuocmd start process --engine-type TE --db-name test --this-server
 
 script:
   - xbuild /p:TargetFrameworkProfile="" /p:Configuration=Release ADO.NET.Mono.sln
   - mono ConsoleSample/bin/Release/ConsoleSample.exe test
   - mono NUnitTestProject/bin/Release/NUnitTestProject.exe
   - dotnet build ADO.NET.Core.sln
-  - dotnet ConsoleSample/bin/Release/netcoreapp2.1/ConsoleSampleCore.dll test
+  - dotnet ConsoleSample/bin/Release/net5.0/ConsoleSampleCore.dll test
+
+after_failure:
+  - cat /var/log/nuodb/nuoadmin.log*
+  - grep ssl /etc/nuodb/nuoadmin.conf
+  - timedatectl

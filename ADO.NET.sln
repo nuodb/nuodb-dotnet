@@ -46,7 +46,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EF6ConsoleSample", "EF6Cons
 		{96F008F5-3984-4074-B3BD-D60C7FDC7DA7} = {96F008F5-3984-4074-B3BD-D60C7FDC7DA7}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuoDb.Data.Client_3.5", "NuoDb.Data.Client.3.5\NuoDb.Data.Client_3.5.csproj", "{0660AC83-4B1B-4DE0-9D8E-6049DE12E0CD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuoDb.Data.Client_4.8", "NuoDb.Data.Client.4.8\NuoDb.Data.Client_4.8.csproj", "{0660AC83-4B1B-4DE0-9D8E-6049DE12E0CD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuoDb.Web.Security", "NuoDb.Web.Security\NuoDb.Web.Security.csproj", "{5E6AA469-27C5-4E97-AD01-2C83C6AEDE12}"
 EndProject

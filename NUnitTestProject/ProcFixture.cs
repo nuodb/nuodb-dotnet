@@ -394,7 +394,7 @@ namespace NUnitTestProject
                 }
                 catch (NuoDbSqlException e)
                 {
-                    if (e.Code.Code == -1)
+                    if (e.Code.Code == -2)
                     {
                         // the server doesn't support table valued arguments for procedures
                         return;
