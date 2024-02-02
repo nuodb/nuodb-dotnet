@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33603.86
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuoDb.Data.Client_4.8", "NuoDb.Data.Client_4.8.csproj", "{0660AC83-4B1B-4DE0-9D8E-6049DE12E0CD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0660AC83-4B1B-4DE0-9D8E-6049DE12E0CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0660AC83-4B1B-4DE0-9D8E-6049DE12E0CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0660AC83-4B1B-4DE0-9D8E-6049DE12E0CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0660AC83-4B1B-4DE0-9D8E-6049DE12E0CD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {62605D1F-4593-4F45-85BE-8208FB8F3EC8}
+	EndGlobalSection
+EndGlobal
