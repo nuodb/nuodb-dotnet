@@ -76,7 +76,7 @@ namespace NuoDb.Data.Client
             this.values = new Value[numberColumns];
             this.closed = false;
             this.currentRow = 0;
-            this.afterLast = false;
+            // this.afterLast = false;
             this.declaredColumnTypes = null;
             this.declaredColumnTypeNames = null;
 
@@ -93,6 +93,9 @@ namespace NuoDb.Data.Client
                 //RemPreparedStatement ps = (RemPreparedStatement)statement;
                 //columnNames = ps.columnNames;
             }
+
+            // Set afterLast to true if the ResultSet is empty.
+            this.afterLast = (this.pendingRows == null || this.pendingRows.getInt() == 0);
         }
 
         protected override void Dispose(bool disposing)
@@ -307,7 +310,8 @@ namespace NuoDb.Data.Client
 
         public override bool Read()
         {
-            if (this.pendingRows == null)
+            //afterLast can only be false if pendingRows was non-null in InitResultSet().
+            if (afterLast)
                 return false;
 
             //int maxRows = statement == null ? 0 : statement.MaxRows;
@@ -315,6 +319,7 @@ namespace NuoDb.Data.Client
 
             for (; ; )
             {
+                // NOTE: this is a LOCAL maxRows which is hiding this.maxRows.
                 if (maxRows > 0 && currentRow >= maxRows)
                 {
                     afterLast = true;
@@ -324,7 +329,8 @@ namespace NuoDb.Data.Client
 
                 if (!pendingRows.EndOfMessage)
                 {
-                    int result = pendingRows.getInt();
+                    // InitResultSet() performs the pendingRows.getInt() for currentRow == 0
+                    int result = currentRow > 0 ? pendingRows.getInt() : -1;
 
                     if (result == 0)
                     {
@@ -653,7 +659,7 @@ namespace NuoDb.Data.Client
 
         public override bool HasRows
         {
-            get { throw new NotImplementedException(); }
+            get { return (!afterLast); }
         }
     }
 }
