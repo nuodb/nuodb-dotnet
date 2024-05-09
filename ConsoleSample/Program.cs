@@ -10,14 +10,14 @@ namespace ConsoleSample
     {
         static int Main(string[] args)
         {
-            if (args.Count() != 1) 
-            {
-                Console.Out.WriteLine("Usage: ConsoleSample.exe <dbname>\n");
-                return 1;
-            }
+            // if (args.Count() != 1) 
+            // {
+            //     Console.Out.WriteLine("Usage: ConsoleSample.exe <dbname>\n");
+            //     return 1;
+            // }
 
             try {
-                HelloDB helloDB = new HelloDB(args[0]);
+                HelloDB helloDB = new HelloDB("demo");
 
                 helloDB.CreateTable();
                 helloDB.AddNames();

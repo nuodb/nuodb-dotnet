@@ -22,7 +22,7 @@ namespace ConsoleSample
             builder.Server = "localhost";
             builder.Database = dbName;
             builder.User = "dba";
-            builder.Password = "goalie";
+            builder.Password = "dba";
             builder.Schema = "hello";
 
             this.connection = new NuoDbConnection(builder.ConnectionString);

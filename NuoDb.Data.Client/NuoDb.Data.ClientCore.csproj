@@ -5,7 +5,7 @@
     <RootNamespace>NuoDb.Data.Client</RootNamespace>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
+    <Optimize>False</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <ErrorReport>prompt</ErrorReport>
