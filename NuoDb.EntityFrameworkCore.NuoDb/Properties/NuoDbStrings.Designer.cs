@@ -324,7 +324,6 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Internal
             return (EventDefinition<string?, string?, string?, string?>)definition;
         }
 
-       
         /// <summary>
         ///     The model was configured with the database sequence '{sequence}'. NuoDb does not support sequences.
         /// </summary>

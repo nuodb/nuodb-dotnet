@@ -7,6 +7,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.VisualBasic.CompilerServices;
 
 namespace NuoDb.EntityFrameworkCore.NuoDb.Storage.Internal
 {
@@ -28,10 +29,12 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Storage.Internal
        
         private const string IntegerTypeName = "INTEGER";
         private const string LongTypeName = "BIGINT";
+        private const string ShortTypeName = "SMALLINT";
         private const string RealTypeName = "DOUBLE";
         private const string BlobTypeName = "BLOB";
         private const string TextTypeName = "STRING";
 
+        private static readonly ShortTypeMapping _short = new(ShortTypeName);
         private static readonly IntTypeMapping _integer = new(IntegerTypeName);
         private static readonly LongTypeMapping _long = new(LongTypeName);
         private static readonly DoubleTypeMapping _real = new(RealTypeName);
@@ -48,7 +51,7 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Storage.Internal
             { typeof(int), new IntTypeMapping(IntegerTypeName) },
             { typeof(long), _integer },
             { typeof(sbyte), new SByteTypeMapping(IntegerTypeName) },
-            { typeof(short), new ShortTypeMapping(IntegerTypeName) },
+            { typeof(short), new ShortTypeMapping(ShortTypeName) },
             { typeof(ulong), new NuoDbULongTypeMapping(IntegerTypeName) },
             { typeof(ushort), new UShortTypeMapping(IntegerTypeName) },
             { typeof(DateTime), new NuoDbDateTimeTypeMapping(TextTypeName) },
@@ -68,7 +71,8 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Storage.Internal
             { LongTypeName, _long},
             { RealTypeName, _real },
             { BlobTypeName, _blob },
-            { TextTypeName, _text }
+            { TextTypeName, _text },
+            { ShortTypeName, _short}
         };
 
         /// <summary>
