@@ -11,7 +11,6 @@ namespace NuoDb.EntityFrameworkCore.Tests.Query
     {
         protected override ITestStoreFactory TestStoreFactory
             => NuoDbNorthwindTestStoreFactory.Instance;
-
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
             base.OnModelCreating(modelBuilder, context);
@@ -20,18 +19,21 @@ namespace NuoDb.EntityFrameworkCore.Tests.Query
                 .Property(c => c.CustomerID)
                 .HasColumnType("nchar(5)");
 
+          
+                
+
             modelBuilder.Entity<Employee>(
                 b =>
                 {
-                    b.Property(c => c.EmployeeID).HasColumnType("integer");
-                    b.Property(c => c.ReportsTo).HasColumnType("integer");
+                    //b.Property(c => c.EmployeeID).HasColumnType("integer");
+                    //b.Property(c => c.ReportsTo).HasColumnType("integer");
                 });
 
             modelBuilder.Entity<Order>(
                 b =>
                 {
-                    b.Property(o => o.EmployeeID).HasColumnType("integer");
-                    b.Property(o => o.OrderDate).HasColumnType("datetime");
+                    //b.Property(o => o.EmployeeID).HasColumnType("integer");
+                    b.Property(o => o.OrderDate).HasColumnType("timestamp without timezone");
                 });
 
             modelBuilder.Entity<OrderDetail>()
@@ -41,13 +43,12 @@ namespace NuoDb.EntityFrameworkCore.Tests.Query
             modelBuilder.Entity<Product>(
                 b =>
                 {
-                    b.Property(p => p.UnitPrice).HasColumnType("money");
-                    b.Property(p => p.UnitsInStock).HasColumnType("smallint");
+                    b.Property(p => p.UnitPrice).HasColumnType("decimal");
                 });
-
+            modelBuilder.Entity<MostExpensiveProduct>().HasKey(mep => mep.TenMostExpensiveProducts);
             modelBuilder.Entity<MostExpensiveProduct>()
                 .Property(p => p.UnitPrice)
-                .HasColumnType("money");
+                .HasColumnType("decimal");
         }
     }
 }

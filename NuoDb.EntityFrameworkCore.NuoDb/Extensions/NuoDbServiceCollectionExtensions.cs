@@ -116,6 +116,8 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAdd<IRelationalAnnotationProvider, NuoDbAnnotationProvider>()
                 .TryAdd<IModelValidator, NuoDbModelValidator>()
                 .TryAdd<IProviderConventionSetBuilder, NuoDbConventionSetBuilder>()
+                .TryAdd<IRelationalParameterBasedSqlProcessorFactory, NuoDbParameterBasedSqlProcessorFactory>()
+                .TryAdd<ISqlExpressionFactory, NuoDbSqlExpressionFactory>()
                 .TryAdd<IUpdateSqlGenerator, NuoDbUpdateSqlGenerator>()
                 .TryAdd<IModificationCommandBatchFactory, NuoDbModificationCommandBatchFactory>()
                 .TryAdd<IRelationalConnection>(p => p.GetRequiredService<INuoDbRelationalConnection>())

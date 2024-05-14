@@ -28,38 +28,42 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Storage.Internal
     {
        
         private const string IntegerTypeName = "INTEGER";
+        private const string DecimalTypeName = "DECIMAL";
         private const string LongTypeName = "BIGINT";
         private const string ShortTypeName = "SMALLINT";
         private const string RealTypeName = "DOUBLE";
         private const string BlobTypeName = "BLOB";
         private const string TextTypeName = "STRING";
+        private const string BooleanTypeName = "BOOLEAN";
+        private const string TimestampTypeName = "TIMESTAMP WITHOUT TIMEZONE";
 
         private static readonly ShortTypeMapping _short = new(ShortTypeName);
+        private static readonly DecimalTypeMapping _decimal = new(DecimalTypeName);
         private static readonly IntTypeMapping _integer = new(IntegerTypeName);
         private static readonly LongTypeMapping _long = new(LongTypeName);
         private static readonly DoubleTypeMapping _real = new(RealTypeName);
         private static readonly ByteArrayTypeMapping _blob = new(BlobTypeName);
         private static readonly NuoDbStringTypeMapping _text = new(TextTypeName);
+        private static readonly DateTimeTypeMapping _dateTime = new(TimestampTypeName);
+        private static readonly BoolTypeMapping _bool = new(BooleanTypeName);
 
         private readonly Dictionary<Type, RelationalTypeMapping> _clrTypeMappings = new()
         {
             { typeof(string), _text },
             { typeof(byte[]), _blob },
-            { typeof(bool), new BoolTypeMapping(IntegerTypeName) },
+            { typeof(bool), new NuoDbBooleanTypeMapping(BooleanTypeName) },
             { typeof(byte), new ByteTypeMapping(IntegerTypeName) },
             { typeof(char), new CharTypeMapping(TextTypeName) },
             { typeof(int), new IntTypeMapping(IntegerTypeName) },
-            { typeof(long), _integer },
+            { typeof(long), new LongTypeMapping(LongTypeName) },
             { typeof(sbyte), new SByteTypeMapping(IntegerTypeName) },
             { typeof(short), new ShortTypeMapping(ShortTypeName) },
-            { typeof(ulong), new NuoDbULongTypeMapping(IntegerTypeName) },
-            { typeof(ushort), new UShortTypeMapping(IntegerTypeName) },
-            { typeof(DateTime), new NuoDbDateTimeTypeMapping(TextTypeName) },
+            { typeof(DateTime), new NuoDbDateTimeTypeMapping(TimestampTypeName) },
             { typeof(DateTimeOffset), new NuoDbDateTimeOffsetTypeMapping(TextTypeName) },
-            { typeof(TimeSpan), new TimeSpanTypeMapping(TextTypeName) },
+            // { typeof(TimeSpan), new TimeSpanTypeMapping(TextTypeName) },
             { typeof(DateOnly), new NuoDbDateOnlyTypeMapping(TextTypeName) },
-            { typeof(TimeOnly), new NuoDbTimeOnlyTypeMapping(TextTypeName) },
-            { typeof(decimal), new NuoDbDecimalTypeMapping(TextTypeName) },
+            // { typeof(TimeOnly), new NuoDbTimeOnlyTypeMapping(TextTypeName) },
+            { typeof(decimal), new NuoDbDecimalTypeMapping(DecimalTypeName) },
             { typeof(double), _real },
             { typeof(float), new FloatTypeMapping(RealTypeName) },
             { typeof(Guid), new NuoDbGuidTypeMapping(TextTypeName) }
@@ -72,7 +76,10 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Storage.Internal
             { RealTypeName, _real },
             { BlobTypeName, _blob },
             { TextTypeName, _text },
-            { ShortTypeName, _short}
+            { ShortTypeName, _short},
+            { DecimalTypeName, _decimal },
+            { TimestampTypeName, _dateTime },
+            { BooleanTypeName, _bool }
         };
 
         /// <summary>
@@ -141,6 +148,9 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Storage.Internal
 
         private readonly Func<string, RelationalTypeMapping?>[] _typeRules =
         {
+            name => Contains(name, "SMALLINT")
+                ? _short
+                : null,
             name => Contains(name, "INTEGER")
                 ? _integer
                 : null,
@@ -151,6 +161,9 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Storage.Internal
                 || Contains(name, "CLOB")
                 || Contains(name, "TEXT")
                     ? _text
+                    : null,
+            name => Contains(name, "DECIMAL")
+                    ? _decimal
                     : null,
             name => Contains(name, "BLOB")
                 || Contains(name, "BIN")

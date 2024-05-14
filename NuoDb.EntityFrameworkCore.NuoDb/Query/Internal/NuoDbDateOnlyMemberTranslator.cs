@@ -61,7 +61,7 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
 
             return member.DeclaringType == typeof(DateOnly) && _datePartMapping.TryGetValue(member.Name, out var datePart)
                 ? _sqlExpressionFactory.Convert(
-                    NuoDbExpression.Strftime(
+                    NuoDbExpression.DateToStr(
                         _sqlExpressionFactory,
                         typeof(string),
                         datePart,

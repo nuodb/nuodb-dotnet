@@ -62,4 +62,9 @@
     </EmbeddedResource>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Query\ExpressionVisitors\Internal\" />
+    <Folder Include="Storage\ValueConversion\" />
+  </ItemGroup>
+
 </Project>

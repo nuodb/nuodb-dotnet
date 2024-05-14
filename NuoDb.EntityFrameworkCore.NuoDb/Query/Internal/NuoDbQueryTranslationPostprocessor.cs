@@ -60,12 +60,19 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
                     return extensionExpression;
                 }
 
-                if (extensionExpression is SelectExpression selectExpression
-                    && selectExpression.Tables.Any(t => t is CrossApplyExpression || t is OuterApplyExpression))
+                if (extensionExpression is SelectExpression selectExpression)
                 {
-                    throw new InvalidOperationException(NuoDbStrings.ApplyNotSupported);
-                }
+                    if(selectExpression.Tables.Any(t => t is CrossApplyExpression || t is OuterApplyExpression))
+                    {
+                        throw new InvalidOperationException(NuoDbStrings.ApplyNotSupported);
+                    }
 
+                    if(selectExpression.Tables.Any(x=>x is CrossJoinExpression))
+                    {
+                        throw new InvalidOperationException(NuoDbStrings.CrossJoinNotSupported);
+                    }
+
+                }
                 return base.VisitExtension(extensionExpression);
             }
         }

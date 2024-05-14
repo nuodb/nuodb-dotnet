@@ -38,6 +38,12 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Internal
             => GetString("ApplyNotSupported");
 
         /// <summary>
+        ///     Translating this query requires the SQL APPLY operation, which is not supported on NuoDb.
+        /// </summary>
+        public static string CrossJoinNotSupported
+            => GetString("CrossJoinNotSupported");
+
+        /// <summary>
         ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different SRIDs.
         /// </summary>
         public static string DuplicateColumnNameSridMismatch(object? entityType1, object? property1, object? entityType2, object? property2, object? columnName, object? table)

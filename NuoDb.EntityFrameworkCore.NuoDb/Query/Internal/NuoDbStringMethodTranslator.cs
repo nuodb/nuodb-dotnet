@@ -237,7 +237,6 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
                         {
                             return _sqlExpressionFactory.Constant(true);
                         }
-
                         return patternValue.Any(IsLikeWildChar)
                             ? _sqlExpressionFactory.Like(
                                 instance,

@@ -36,7 +36,6 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Update.Internal
             : base(dependencies)
         {
         }
-
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -53,28 +52,28 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Update.Internal
                 .Append("last_insert_rowid()");
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected override ResultSetMapping AppendSelectAffectedCountCommand(
-            StringBuilder commandStringBuilder,
-            string name,
-            string? schema,
-            int commandPosition)
-        {
-            Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
-            Check.NotEmpty(name, nameof(name));
-
-            commandStringBuilder
-                .Append("SELECT changes()")
-                .AppendLine(SqlGenerationHelper.StatementTerminator)
-                .AppendLine();
-
-            return ResultSetMapping.LastInResultSet;
-        }
+        // /// <summary>
+        // ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        // ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        // ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        // ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        // /// </summary>
+        // protected override ResultSetMapping AppendSelectAffectedCountCommand(
+        //     StringBuilder commandStringBuilder,
+        //     string name,
+        //     string? schema,
+        //     int commandPosition)
+        // {
+        //     Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
+        //     Check.NotEmpty(name, nameof(name));
+        //
+        //     commandStringBuilder
+        //         .Append("SELECT changes()")
+        //         .AppendLine(SqlGenerationHelper.StatementTerminator)
+        //         .AppendLine();
+        //
+        //     return ResultSetMapping.LastInResultSet;
+        // }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

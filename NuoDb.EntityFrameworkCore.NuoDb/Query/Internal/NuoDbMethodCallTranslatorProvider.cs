@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Query;
+using NuoDb.EntityFrameworkCore.NuoDb.Storage.Internal;
 
 namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
 {
@@ -29,7 +30,7 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
                 {
                     new NuoDbByteArrayMethodTranslator(sqlExpressionFactory, dependencies.RelationalTypeMappingSource),
                     new NuoDbCharMethodTranslator(sqlExpressionFactory),
-                    new NuoDbDateTimeAddTranslator(sqlExpressionFactory),
+                    new NuoDbDateTimeAddTranslator(sqlExpressionFactory, (NuoDbTypeMappingSource)dependencies.RelationalTypeMappingSource),
                     new NuoDbGlobMethodTranslator(sqlExpressionFactory),
                     new NuoDbHexMethodTranslator(sqlExpressionFactory),
                     new NuoDbMathTranslator(sqlExpressionFactory),

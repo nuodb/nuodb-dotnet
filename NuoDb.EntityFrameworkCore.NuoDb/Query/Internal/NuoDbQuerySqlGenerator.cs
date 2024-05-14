@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
@@ -43,6 +44,29 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
                     : base.GetOperator(binaryExpression);
         }
 
+        public virtual Expression VisitNuoDbComplexFunctionArgumentExpression(NuoDbComplexFunctionArgumentExpression nuoDbComplexFunctionArgumentExpression)
+        {
+            Check.NotNull(nuoDbComplexFunctionArgumentExpression, nameof(nuoDbComplexFunctionArgumentExpression));
+
+            var first = true;
+            foreach (var argument in nuoDbComplexFunctionArgumentExpression.ArgumentParts)
+            {
+                if (first)
+                {
+                    first = false;
+                }
+                else
+                {
+                    Sql.Append(nuoDbComplexFunctionArgumentExpression.Delimiter);
+                }
+
+                Visit(argument);
+            }
+
+            return nuoDbComplexFunctionArgumentExpression;
+        }
+
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -72,6 +96,27 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
             }
         }
 
+        // protected override Expression VisitSqlFragment(SqlFragmentExpression sqlFragmentExpression)
+        // {
+        //     Check.NotNull(sqlFragmentExpression, nameof(sqlFragmentExpression));
+        //
+        //     return sqlFragmentExpression;
+        // }
+
+        protected override Expression VisitSqlUnary(SqlUnaryExpression sqlUnaryExpression)
+            => sqlUnaryExpression.OperatorType == ExpressionType.Convert
+                ? VisitConvert(sqlUnaryExpression)
+                : base.VisitSqlUnary(sqlUnaryExpression);
+
+
+        private SqlUnaryExpression VisitConvert(SqlUnaryExpression sqlUnaryExpression)
+        {
+
+            Visit(sqlUnaryExpression.Operand);
+
+            return sqlUnaryExpression;
+        }
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -85,6 +130,11 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
 
             // NuoDb doesn't support parentheses around set operation operands
             Visit(operand);
+        }
+
+        protected override void CheckComposableSql(string sql)
+        {
+
         }
     }
 }

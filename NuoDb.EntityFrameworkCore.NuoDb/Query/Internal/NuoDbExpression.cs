@@ -24,7 +24,7 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static SqlFunctionExpression Strftime(
+        public static SqlFunctionExpression DateToStr(
             ISqlExpressionFactory sqlExpressionFactory,
             Type returnType,
             string format,
@@ -52,16 +52,38 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
                 modifiers = strftimeFunction.Arguments.Skip(2).Concat(modifiers);
             }
 
-            var finalArguments = new[] { sqlExpressionFactory.Constant(format), timestring }.Concat(modifiers);
+            var finalArguments = new[] { timestring, sqlExpressionFactory.Constant(format) }.Concat(modifiers);
 
             return sqlExpressionFactory.Function(
-                "strftime",
+                "DATE_TO_STR",
                 finalArguments,
                 nullable: true,
                 argumentsPropagateNullability: finalArguments.Select(a => true),
                 returnType,
                 typeMapping);
         }
+        
+        // public static SqlFunctionExpression DateAdd(
+        //     ISqlExpressionFactory sqlExpressionFactory,
+        //     Type returnType,
+        //     SqlExpression timeSource,
+        //     string unit, 
+        //     SqlExpression amount,
+        //     IEnumerable<SqlExpression>? modifiers,
+        //     RelationalTypeMapping? typeMapping = null
+        // )
+        // {
+        //     var finalArguments = new[] { timeSource, sqlExpressionFactory.Constant($"INTERVAL {amount} {unit}") };
+        //
+        //     return sqlExpressionFactory.Function(
+        //         "DATE_ADD",
+        //         finalArguments,
+        //         nullable: true,
+        //         argumentsPropagateNullability: finalArguments.Select(a => true),
+        //         returnType,
+        //         typeMapping
+        //     );
+        // }
     }
 
     // public static SqlFunctionExpression Position(

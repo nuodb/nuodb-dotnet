@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Utilities;
+using NuoDb.EntityFrameworkCore.NuoDb.Storage.Internal;
 
 namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
 {
@@ -28,19 +29,20 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
 
         private readonly Dictionary<MethodInfo, string> _methodInfoToUnitSuffix = new()
         {
-            { typeof(DateTime).GetRequiredRuntimeMethod(nameof(DateTime.AddYears), typeof(int)), " years" },
-            { typeof(DateTime).GetRequiredRuntimeMethod(nameof(DateTime.AddMonths), typeof(int)), " months" },
-            { typeof(DateTime).GetRequiredRuntimeMethod(nameof(DateTime.AddDays), typeof(double)), " days" },
-            { typeof(DateTime).GetRequiredRuntimeMethod(nameof(DateTime.AddHours), typeof(double)), " hours" },
-            { typeof(DateTime).GetRequiredRuntimeMethod(nameof(DateTime.AddMinutes), typeof(double)), " minutes" },
-            { typeof(DateTime).GetRequiredRuntimeMethod(nameof(DateTime.AddSeconds), typeof(double)), " seconds" },
+            { typeof(DateTime).GetRequiredRuntimeMethod(nameof(DateTime.AddYears), typeof(int)), "YEAR" },
+            { typeof(DateTime).GetRequiredRuntimeMethod(nameof(DateTime.AddMonths), typeof(int)), "MONTH" },
+            { typeof(DateTime).GetRequiredRuntimeMethod(nameof(DateTime.AddDays), typeof(double)), "DAY" },
+            { typeof(DateTime).GetRequiredRuntimeMethod(nameof(DateTime.AddHours), typeof(double)), "HOUR" },
+            { typeof(DateTime).GetRequiredRuntimeMethod(nameof(DateTime.AddMinutes), typeof(double)), "MINUTE" },
+            { typeof(DateTime).GetRequiredRuntimeMethod(nameof(DateTime.AddSeconds), typeof(double)), "SECOND" },
 
-            { typeof(DateOnly).GetRequiredRuntimeMethod(nameof(DateOnly.AddYears), typeof(int)), " years" },
-            { typeof(DateOnly).GetRequiredRuntimeMethod(nameof(DateOnly.AddMonths), typeof(int)), " months" },
-            { typeof(DateOnly).GetRequiredRuntimeMethod(nameof(DateOnly.AddDays), typeof(int)), " days" },
+            { typeof(DateOnly).GetRequiredRuntimeMethod(nameof(DateOnly.AddYears), typeof(int)), "YEAR" },
+            { typeof(DateOnly).GetRequiredRuntimeMethod(nameof(DateOnly.AddMonths), typeof(int)), "MONTH" },
+            { typeof(DateOnly).GetRequiredRuntimeMethod(nameof(DateOnly.AddDays), typeof(int)), " DAY" },
         };
 
-        private readonly ISqlExpressionFactory _sqlExpressionFactory;
+        private readonly NuoDbSqlExpressionFactory _sqlExpressionFactory;
+        private readonly NuoDbTypeMappingSource _typeMappingSource;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -48,9 +50,10 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public NuoDbDateTimeAddTranslator(ISqlExpressionFactory sqlExpressionFactory)
+        public NuoDbDateTimeAddTranslator(ISqlExpressionFactory sqlExpressionFactory, NuoDbTypeMappingSource nuodbTypeMappingSource)
         {
-            _sqlExpressionFactory = sqlExpressionFactory;
+            _sqlExpressionFactory = (NuoDbSqlExpressionFactory)sqlExpressionFactory;
+            _typeMappingSource = nuodbTypeMappingSource;
         }
 
         /// <summary>
@@ -81,62 +84,37 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
             MethodInfo method,
             IReadOnlyList<SqlExpression> arguments)
         {
-            SqlExpression? modifier = null;
-            if (_addMilliseconds.Equals(method))
+            if (instance is SqlConstantExpression instanceConstant)
             {
-                modifier = _sqlExpressionFactory.Add(
-                    _sqlExpressionFactory.Convert(
-                        _sqlExpressionFactory.Divide(
-                            arguments[0],
-                            _sqlExpressionFactory.Constant(1000.0)),
-                        typeof(string)),
-                    _sqlExpressionFactory.Constant(" seconds"));
-            }
-            else if (_addTicks.Equals(method))
-            {
-                modifier = _sqlExpressionFactory.Add(
-                    _sqlExpressionFactory.Convert(
-                        _sqlExpressionFactory.Divide(
-                            arguments[0],
-                            _sqlExpressionFactory.Constant((double)TimeSpan.TicksPerDay)),
-                        typeof(string)),
-                    _sqlExpressionFactory.Constant(" seconds"));
-            }
-            else if (_methodInfoToUnitSuffix.TryGetValue(method, out var unitSuffix))
-            {
-                modifier = _sqlExpressionFactory.Add(
-                    _sqlExpressionFactory.Convert(arguments[0], typeof(string)),
-                    _sqlExpressionFactory.Constant(unitSuffix));
+                instance = instanceConstant.ApplyTypeMapping(_typeMappingSource.FindMapping(typeof(DateTime), "TIMESTAMP"));
             }
 
-            if (modifier != null)
+            if(_methodInfoToUnitSuffix.TryGetValue(method, out var datePart))
             {
-                return _sqlExpressionFactory.Function(
-                    "rtrim",
-                    new SqlExpression[]
-                    {
-                        _sqlExpressionFactory.Function(
-                            "rtrim",
-                            new SqlExpression[]
-                            {
-                                NuoDbExpression.Strftime(
-                                    _sqlExpressionFactory,
-                                    method.ReturnType,
-                                    "%Y-%m-%d %H:%M:%f",
-                                    instance!,
-                                    new[] { modifier }),
-                                _sqlExpressionFactory.Constant("0")
-                            },
-                            nullable: true,
-                            argumentsPropagateNullability: new[] { true, false },
-                            method.ReturnType),
-                        _sqlExpressionFactory.Constant(".")
-                    },
-                    nullable: true,
-                    argumentsPropagateNullability: new[] { true, false },
-                    method.ReturnType);
+                return _sqlExpressionFactory.NullableFunction(
+                        "DATE_ADD",
+                        new[]
+                        {
+                            instance,
+                            _sqlExpressionFactory.ComplexFunctionArgument(
+                                new SqlExpression[]
+                                {
+                                    _sqlExpressionFactory.Fragment("INTERVAL"),
+                                    _sqlExpressionFactory.Convert(arguments[0], typeof(int)),
+                                    _sqlExpressionFactory.Fragment(datePart)
+                                },
+                                " ",
+                                typeof(string))
+                        },
+                        instance.Type,
+                        instance.TypeMapping,
+                        true,
+                        new[] {true, false});
+                // var amount = arguments[0];
+                // return NuoDbExpression.DateAdd(_sqlExpressionFactory, method.ReturnType, instance!, unitSuffix, amount,
+                //     Array.Empty<SqlExpression>());
             }
-
+            
             return null;
         }
 

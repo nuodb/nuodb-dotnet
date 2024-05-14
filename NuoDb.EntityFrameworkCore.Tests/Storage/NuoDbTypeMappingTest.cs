@@ -2,14 +2,7 @@
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
 using System.Data.Common;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using NuoDb.Data.Client;
 using NuoDb.EntityFrameworkCore.NuoDb.Storage.Internal;
 
@@ -56,7 +49,6 @@ namespace NuoDb.EntityFrameworkCore.Tests.Storage
         [InlineData(typeof(NuoDbDateTimeTypeMapping), typeof(DateTime))]
         [InlineData(typeof(NuoDbDecimalTypeMapping), typeof(decimal))]
         [InlineData(typeof(NuoDbGuidTypeMapping), typeof(Guid))]
-        [InlineData(typeof(NuoDbULongTypeMapping), typeof(ulong))]
         public override void Create_and_clone_with_converter(Type mappingType, Type type)
         {
             base.Create_and_clone_with_converter(mappingType, type);
@@ -73,8 +65,8 @@ namespace NuoDb.EntityFrameworkCore.Tests.Storage
         [InlineData("VARCHAR(255)", typeof(string))]
         [InlineData("nchar(55)", typeof(string))]
         [InlineData("datetime", typeof(byte[]))]
-        [InlineData("decimal(10,4)", typeof(byte[]))]
-        [InlineData("boolean", typeof(byte[]))]
+        [InlineData("decimal(10,4)", typeof(decimal))]
+        [InlineData("boolean", typeof(bool))]
         [InlineData("unknown_type", typeof(byte[]))]
         [InlineData("", typeof(byte[]))]
         public void It_maps_strings_to_not_null_types(string typeName, Type type)
@@ -150,7 +142,7 @@ namespace NuoDb.EntityFrameworkCore.Tests.Storage
 
         public override void ULong_literal_generated_correctly()
         {
-            var typeMapping = new NuoDbULongTypeMapping("INTEGER");
+            var typeMapping = new LongTypeMapping("BIGINT");
 
             Test_GenerateSqlLiteral_helper(typeMapping, ulong.MinValue, "0");
             Test_GenerateSqlLiteral_helper(typeMapping, ulong.MaxValue, "-1");

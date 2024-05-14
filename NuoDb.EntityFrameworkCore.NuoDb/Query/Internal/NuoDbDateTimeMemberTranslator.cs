@@ -23,17 +23,17 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
         private static readonly Dictionary<string, string> _datePartMapping
             = new()
             {
-                { nameof(DateTime.Year), "%Y" },
-                { nameof(DateTime.Month), "%m" },
-                { nameof(DateTime.DayOfYear), "%j" },
-                { nameof(DateTime.Day), "%d" },
-                { nameof(DateTime.Hour), "%H" },
-                { nameof(DateTime.Minute), "%M" },
-                { nameof(DateTime.Second), "%S" },
-                { nameof(DateTime.DayOfWeek), "%w" }
+                { nameof(DateTime.Year), "yyyy" },
+                { nameof(DateTime.Month), "MM" },
+                { nameof(DateTime.DayOfYear), "D" },
+                { nameof(DateTime.Day), "dd" },
+                { nameof(DateTime.Hour), "HH" },
+                { nameof(DateTime.Minute), "mm" },
+                { nameof(DateTime.Second), "ss" },
+                { nameof(DateTime.DayOfWeek), "e" }
             };
 
-        private readonly ISqlExpressionFactory _sqlExpressionFactory;
+        private readonly NuoDbSqlExpressionFactory _sqlExpressionFactory;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -43,7 +43,7 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
         /// </summary>
         public NuoDbDateTimeMemberTranslator(ISqlExpressionFactory sqlExpressionFactory)
         {
-            _sqlExpressionFactory = sqlExpressionFactory;
+            _sqlExpressionFactory = (NuoDbSqlExpressionFactory)sqlExpressionFactory;
         }
 
         /// <summary>
@@ -69,7 +69,7 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
                 if (_datePartMapping.TryGetValue(memberName, out var datePart))
                 {
                     return _sqlExpressionFactory.Convert(
-                        NuoDbExpression.Strftime(
+                        NuoDbExpression.DateToStr(
                             _sqlExpressionFactory,
                             typeof(string),
                             datePart,
@@ -98,35 +98,44 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
                     return _sqlExpressionFactory.Modulo(
                         _sqlExpressionFactory.Multiply(
                             _sqlExpressionFactory.Convert(
-                                NuoDbExpression.Strftime(
+                                NuoDbExpression.DateToStr(
                                     _sqlExpressionFactory,
                                     typeof(string),
-                                    "%f",
+                                    "SSS",
                                     instance!),
                                 typeof(double)),
                             _sqlExpressionFactory.Constant(1000)),
                         _sqlExpressionFactory.Constant(1000));
                 }
 
-                var format = "%Y-%m-%d %H:%M:%f";
+                var format = "yyyy-MM-dd HH:mm:ss.SSS";
                 SqlExpression timestring;
                 var modifiers = new List<SqlExpression>();
 
                 switch (memberName)
                 {
                     case nameof(DateTime.Now):
-                        timestring = _sqlExpressionFactory.Constant("now");
-                        modifiers.Add(_sqlExpressionFactory.Constant("localtime"));
-                        break;
-
+                        return _sqlExpressionFactory.Function("now", Array.Empty<SqlExpression>(),typeof(DateTime));
                     case nameof(DateTime.UtcNow):
-                        timestring = _sqlExpressionFactory.Constant("now");
-                        break;
+                        return _sqlExpressionFactory.Function("now", Array.Empty<SqlExpression>(),typeof(DateTime));
 
                     case nameof(DateTime.Date):
+                        format = "yyyy-MM-dd";
                         timestring = instance!;
-                        modifiers.Add(_sqlExpressionFactory.Constant("start of day"));
-                        break;
+                        return _sqlExpressionFactory.ComplexFunctionArgument(
+                            new SqlExpression[]
+                            {
+                                NuoDbExpression.DateToStr(
+                                    _sqlExpressionFactory,
+                                    returnType,
+                                    format,
+                                    timestring,
+                                    modifiers),
+                                _sqlExpressionFactory.Fragment("||' 00:00:00'"),
+                            },
+                            " ",
+                            typeof(string));
+                       
 
                     case nameof(DateTime.Today):
                         timestring = _sqlExpressionFactory.Constant("now");
@@ -135,7 +144,7 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
                         break;
 
                     case nameof(DateTime.TimeOfDay):
-                        format = "%H:%M:%f";
+                        format = "HH:mm:ss.SSS";
                         timestring = instance!;
                         break;
 
@@ -145,30 +154,37 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
 
                 Check.DebugAssert(timestring != null, "timestring is null");
 
-                return _sqlExpressionFactory.Function(
-                    "rtrim",
-                    new SqlExpression[]
-                    {
-                        _sqlExpressionFactory.Function(
-                            "rtrim",
-                            new SqlExpression[]
-                            {
-                                NuoDbExpression.Strftime(
-                                    _sqlExpressionFactory,
-                                    returnType,
-                                    format,
-                                    timestring,
-                                    modifiers),
-                                _sqlExpressionFactory.Constant("0")
-                            },
-                            nullable: true,
-                            argumentsPropagateNullability: new[] { true, false },
-                            returnType),
-                        _sqlExpressionFactory.Constant(".")
-                    },
-                    nullable: true,
-                    argumentsPropagateNullability: new[] { true, false },
-                    returnType);
+                return
+                    NuoDbExpression.DateToStr(
+                        _sqlExpressionFactory,
+                        returnType,
+                        format,
+                        timestring,
+                        modifiers);
+                    // _sqlExpressionFactory.Function(
+                    // "rtrim",
+                    // new SqlExpression[]
+                    // {
+                    //     _sqlExpressionFactory.Function(
+                    //         "rtrim",
+                    //         new SqlExpression[]
+                    //         {
+                    //             NuoDbExpression.DateToStr(
+                    //                 _sqlExpressionFactory,
+                    //                 returnType,
+                    //                 format,
+                    //                 timestring,
+                    //                 modifiers),
+                    //             _sqlExpressionFactory.Constant("0")
+                    //         },
+                    //         nullable: true,
+                    //         argumentsPropagateNullability: new[] { true, false },
+                    //         returnType),
+                    //     _sqlExpressionFactory.Constant(".")
+                    // },
+                    // nullable: true,
+                    // argumentsPropagateNullability: new[] { true, false },
+                    // returnType);
             }
 
             return null;

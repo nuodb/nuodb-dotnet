@@ -123,6 +123,9 @@
   <data name="ApplyNotSupported" xml:space="preserve">
     <value>Translating this query requires the SQL APPLY operation, which is not supported on NuoDb.</value>
   </data>
+  <data name="CrossJoinNotSupported" xml:space="preserve">
+    <value>NuoDb does not support Cross Joins</value>
+  </data>
   <data name="DuplicateColumnNameSridMismatch" xml:space="preserve">
     <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different SRIDs.</value>
   </data>
