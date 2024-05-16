@@ -8597,5 +8597,12 @@ INSERT "Suppliers"("SupplierID","CompanyName","ContactName","ContactTitle","Addr
 INSERT "Suppliers"("SupplierID","CompanyName","ContactName","ContactTitle","Address","City","Region","PostalCode","Country","Phone","Fax","HomePage") VALUES(28,'Gai pâturage','Eliane Noz','Sales Representative','Bat. B 3, rue des Alpes','Annecy',NULL,'74000','France','38.76.98.06','38.76.98.58',NULL);
 INSERT "Suppliers"("SupplierID","CompanyName","ContactName","ContactTitle","Address","City","Region","PostalCode","Country","Phone","Fax","HomePage") VALUES(29,'Forêts d''érables','Chantal Goulet','Accounting Manager','148 rue Chasseur','Ste-Hyacinthe','Québec','J2S 7S8','Canada','(514) 555-2955','(514) 555-2921',NULL);
 go
+ALTER TABLE "Categories" CHANGE COLUMN "CategoryID" UPDATE SEQUENCE RANGE;
+ALTER TABLE "Employees" CHANGE COLUMN "EmployeeID" UPDATE SEQUENCE RANGE;
+ALTER TABLE "Orders" CHANGE COLUMN "OrderID" UPDATE SEQUENCE RANGE;
+ALTER TABLE "Shippers" CHANGE COLUMN "ShipperId" UPDATE SEQUENCE RANGE;
+ALTER TABLE "Suppliers" CHANGE COLUMN "SupplierID" UPDATE SEQUENCE RANGE;
+ALTER TABLE "Products" CHANGE COLUMN "ProductID" UPDATE SEQUENCE RANGE;
+go
 --select * from NORTHWIND2.Categories
 commit;

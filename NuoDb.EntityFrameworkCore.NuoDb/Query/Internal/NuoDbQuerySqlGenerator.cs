@@ -5,6 +5,7 @@ using System;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
@@ -17,6 +18,7 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
     /// </summary>
     public class NuoDbQuerySqlGenerator : QuerySqlGenerator
     {
+       
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -26,6 +28,7 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
         public NuoDbQuerySqlGenerator(QuerySqlGeneratorDependencies dependencies)
             : base(dependencies)
         {
+            
         }
 
         /// <summary>
@@ -80,17 +83,17 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
             if (selectExpression.Limit != null
                 || selectExpression.Offset != null)
             {
-                Sql.AppendLine()
-                    .Append("LIMIT ");
-
-                Visit(
-                    selectExpression.Limit
-                    ?? new SqlConstantExpression(Expression.Constant(-1), selectExpression.Offset!.TypeMapping));
+                
+                Sql.AppendLine();
+                if (selectExpression.Limit != null)
+                {
+                    Sql.Append("Limit ");
+                    Visit(selectExpression.Limit);
+                }
 
                 if (selectExpression.Offset != null)
                 {
                     Sql.Append(" OFFSET ");
-
                     Visit(selectExpression.Offset);
                 }
             }
@@ -130,6 +133,11 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
 
             // NuoDb doesn't support parentheses around set operation operands
             Visit(operand);
+        }
+
+        protected override void GeneratePseudoFromClause()
+        {
+            Sql.Append(" FROM DUAL");
         }
 
         protected override void CheckComposableSql(string sql)

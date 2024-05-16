@@ -38,7 +38,7 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Internal
             => GetString("ApplyNotSupported");
 
         /// <summary>
-        ///     Translating this query requires the SQL APPLY operation, which is not supported on NuoDb.
+        ///     NuoDb does not support Cross Joins
         /// </summary>
         public static string CrossJoinNotSupported
             => GetString("CrossJoinNotSupported");
@@ -78,6 +78,12 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Internal
         /// </summary>
         public static string SequencesNotSupported
             => GetString("SequencesNotSupported");
+
+        /// <summary>
+        ///     NuoDb does not support subqueries in order by
+        /// </summary>
+        public static string SubqueriesInOrderByNotSupported
+            => GetString("SubqueriesInOrderByNotSupported");
 
         private static string GetString(string name, params string[] formatterNames)
         {

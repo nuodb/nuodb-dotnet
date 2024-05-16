@@ -197,4 +197,7 @@
   <data name="SequencesNotSupported" xml:space="preserve">
     <value>NuoDb does not support sequences. See http://go.microsoft.com/fwlink/?LinkId=723262 for more information.</value>
   </data>
+  <data name="SubqueriesInOrderByNotSupported" xml:space="preserve">
+    <value>NuoDb does not support subqueries in order by</value>
+  </data>
 </root>

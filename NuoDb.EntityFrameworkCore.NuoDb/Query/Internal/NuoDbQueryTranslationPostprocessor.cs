@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using NuoDb.EntityFrameworkCore.NuoDb.Internal;
@@ -59,6 +60,14 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
 
                     return extensionExpression;
                 }
+
+                // if (extensionExpression is OrderingExpression orderingExpression)
+                // {
+                //     if (orderingExpression.Expression is ScalarSubqueryExpression || orderingExpression.Expression is SqlBinaryExpression)
+                //     {
+                //         throw new InvalidOperationException(NuoDbStrings.SubqueriesInOrderByNotSupported);
+                //     }
+                // }
 
                 if (extensionExpression is SelectExpression selectExpression)
                 {

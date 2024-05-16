@@ -22,31 +22,6 @@ namespace NuoDb.EntityFrameworkCore.Tests.Query
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-        public override async Task Distinct_SelectMany_correlated_subquery_take(bool async)
-        {
-            // THIS CRASHES NUODB
-        }
-
-        public override async Task Distinct_SelectMany_correlated_subquery_take_2(bool async)
-        {
-            // THIS CRASHES NUODB
-        }
-
-        public override async Task Condition_on_entity_with_include(bool async)
-        {
-            // THIS CRASHES NUODB
-        }
-
-        public override async Task SelectMany_correlated_subquery_take(bool async)
-        {
-            // THIS CRASHES NUODB
-        }
-
-        public override async Task Take_SelectMany_correlated_subquery_take(bool async)
-        {
-            // THIS CRASHES NUODB
-        }
-
         public override async Task GroupJoin_subquery_projection_outer_mixed(bool async)
         {
             await Assert.ThrowsAsync<InvalidOperationException>(()=> base.GroupJoin_subquery_projection_outer_mixed(async));

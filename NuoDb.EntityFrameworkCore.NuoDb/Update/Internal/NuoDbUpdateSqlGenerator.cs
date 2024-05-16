@@ -47,9 +47,9 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Update.Internal
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
             Check.NotNull(columnModification, nameof(columnModification));
 
-            SqlGenerationHelper.DelimitIdentifier(commandStringBuilder, "rowid");
+            SqlGenerationHelper.DelimitIdentifier(commandStringBuilder, columnModification.ColumnName);
             commandStringBuilder.Append(" = ")
-                .Append("last_insert_rowid()");
+                .Append("LAST_INSERT_ID()");
         }
 
         // /// <summary>
@@ -84,8 +84,8 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Update.Internal
         protected override void AppendRowsAffectedWhereCondition(StringBuilder commandStringBuilder, int expectedRowsAffected)
         {
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
-
-            commandStringBuilder.Append("changes() = ").Append(expectedRowsAffected);
+        
+            commandStringBuilder.Append("GETUPDATECOUNT() = ").Append(expectedRowsAffected);
         }
 
         /// <summary>

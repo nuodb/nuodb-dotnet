@@ -37,5 +37,15 @@ namespace NuoDb.EntityFrameworkCore.Tests.Query
             await Assert.ThrowsAsync<InvalidOperationException>(()=> base.Include_collection_on_additional_from_clause2(async));
         }
 
+        public override async Task Include_collection_order_by_collection_column(bool async)
+        {
+            await Assert.ThrowsAsync<InvalidOperationException>(()=> base.Include_collection_order_by_collection_column(async));
+        }
+
+        public override async Task Include_collection_order_by_subquery(bool async)
+        {
+            await Assert.ThrowsAsync<InvalidOperationException>(()=> base.Include_collection_order_by_subquery(async));
+        }
+
     }
 }
