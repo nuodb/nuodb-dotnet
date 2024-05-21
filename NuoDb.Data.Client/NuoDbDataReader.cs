@@ -310,12 +310,13 @@ namespace NuoDb.Data.Client
 
         public override bool Read()
         {
-            //afterLast can only be false if pendingRows was non-null in InitResultSet().
-            if (afterLast)
+            // CUrrently, afterLast can only be false if pendingRows was non-null in InitResultSet();
+            // - but InitResultSet could be changed in the future.
+            if (afterLast || pendingRows == null)
                 return false;
 
             //int maxRows = statement == null ? 0 : statement.MaxRows;
-            int maxRows = 0;
+            int maxRows = 0;        // this local maxRows HIDES this.maxRows
 
             for (; ; )
             {
