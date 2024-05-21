@@ -310,7 +310,7 @@ namespace NuoDb.Data.Client
 
         public override bool Read()
         {
-            // CUrrently, afterLast can only be false if pendingRows was non-null in InitResultSet();
+            // Currently, afterLast can only be false if pendingRows was non-null in InitResultSet();
             // - but InitResultSet could be changed in the future.
             if (afterLast || pendingRows == null)
                 return false;
