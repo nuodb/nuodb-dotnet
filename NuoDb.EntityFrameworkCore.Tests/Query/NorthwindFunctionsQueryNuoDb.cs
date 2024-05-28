@@ -91,27 +91,16 @@ namespace NuoDb.EntityFrameworkCore.Tests.Query
             dateParam.DbType = DbType.DateTime;
             dateParam.ParameterName = "@indate";
 
-            var date = new DateTime(1998, 5, 4,7,0,0);
+            var date = new DateTime(1998, 5, 4);
             dateParam.Value = date;
             using (var ctx = this.CreateContext())
             {
                 var cmd = ctx.Database.GetDbConnection().CreateCommand();
                 cmd.CommandText = sql;
                 cmd.Parameters.Add(dateParam);
-                var res = cmd.ExecuteScalar();
-               // var orders = await ctx.Orders.FromSqlRaw(sql, dateParam).ToListAsync();
+                var res = (long)Convert.ChangeType(cmd.ExecuteScalar(), typeof(long));
+                Assert.Equal(3, res);
             }
-        }
-
-        public override async Task Select_mathf_truncate(bool async)
-        {
-            using (var ctx = this.CreateContext())
-            {
-                var results = await ctx.Set<OrderDetail>()
-                    .Where(od => od.Quantity < 5)
-                    .Select(od => MathF.Truncate((float)od.UnitPrice)).ToListAsync();
-            }
-            await base.Select_mathf_truncate(async);
         }
     }
 }
