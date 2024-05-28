@@ -24,7 +24,7 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
         private static readonly MethodInfo _regexIsMatchMethodInfo
             = typeof(Regex).GetRequiredRuntimeMethod(nameof(Regex.IsMatch), typeof(string), typeof(string));
 
-        private readonly ISqlExpressionFactory _sqlExpressionFactory;
+        private readonly NuoDbSqlExpressionFactory _sqlExpressionFactory;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -36,7 +36,7 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
         {
             Check.NotNull(sqlExpressionFactory, nameof(sqlExpressionFactory));
 
-            _sqlExpressionFactory = sqlExpressionFactory;
+            _sqlExpressionFactory = (NuoDbSqlExpressionFactory)sqlExpressionFactory;
         }
 
         /// <summary>
@@ -61,15 +61,15 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
                 var pattern = arguments[1];
                 var stringTypeMapping = ExpressionExtensions.InferTypeMapping(input, pattern);
 
-                return _sqlExpressionFactory.Function(
-                    "regexp",
+                return _sqlExpressionFactory.ComplexFunctionArgument(
                     new[]
                     {
+                        _sqlExpressionFactory.ApplyTypeMapping(input, stringTypeMapping),
+                        _sqlExpressionFactory.Fragment("regexp"),
                         _sqlExpressionFactory.ApplyTypeMapping(pattern, stringTypeMapping),
-                        _sqlExpressionFactory.ApplyTypeMapping(input, stringTypeMapping)
+                        
                     },
-                    nullable: true,
-                    argumentsPropagateNullability: new[] { true, true },
+                    " ",
                     typeof(bool));
             }
 

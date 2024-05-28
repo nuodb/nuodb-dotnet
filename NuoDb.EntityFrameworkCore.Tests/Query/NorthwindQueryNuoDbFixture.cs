@@ -33,17 +33,17 @@ namespace NuoDb.EntityFrameworkCore.Tests.Query
                 b =>
                 {
                     //b.Property(o => o.EmployeeID).HasColumnType("integer");
-                    b.Property(o => o.OrderDate).HasColumnType("timestamp without timezone");
+                    //b.Property(o => o.OrderDate).HasColumnType("timestamp without timezone");
                 });
 
-            modelBuilder.Entity<OrderDetail>()
-                .Property(od => od.UnitPrice)
-                .HasColumnType("money");
+            // modelBuilder.Entity<OrderDetail>()
+            //     .Property(od => od.UnitPrice)
+            //     .HasColumnType("money");
 
             modelBuilder.Entity<Product>(
                 b =>
                 {
-                    b.Property(p => p.UnitPrice).HasColumnType("decimal");
+                    //b.Property(p => p.UnitPrice).HasColumnType("decimal");
                 });
             modelBuilder.Entity<MostExpensiveProduct>().HasKey(mep => mep.TenMostExpensiveProducts);
             modelBuilder.Entity<MostExpensiveProduct>()

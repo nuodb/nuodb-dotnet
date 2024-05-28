@@ -14,7 +14,7 @@ create index CAT_NAME on "Categories"("CategoryName");
 go
 create table IF NOT EXISTS "Customers"
 (
-    "CustomerID"   char(5)     not null primary key,
+    "CustomerID"   varchar(5)     not null primary key,
     "CompanyName"  varchar(40) not null,
     "ContactName"  varchar(30),
     "ContactTitle" varchar(30),
@@ -126,9 +126,9 @@ create table IF NOT EXISTS "Order Details"
 (
     "OrderID"   integer references "Orders"("OrderID"),
     "ProductID" integer     not null references "Products"("ProductID"),
-    "UnitPrice" decimal(18) not null DEFAULT(0),
+    "UnitPrice" decimal(18,4) not null DEFAULT(0),
     "Quantity"  smallint not null DEFAULT(1),
-    "Discount" decimal(8) not null DEFAULT(0),
+    "Discount" double not null DEFAULT(0),
     constraint "PK_Order_Details"
         primary key ("OrderID", "ProductID")
 );

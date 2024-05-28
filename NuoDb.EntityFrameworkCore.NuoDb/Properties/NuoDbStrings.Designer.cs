@@ -52,6 +52,18 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Internal
                 entityType1, property1, entityType2, property2, columnName, table);
 
         /// <summary>
+        ///     NuoDb does not support Except set operations
+        /// </summary>
+        public static string ExceptNotSupported
+            => GetString("ExceptNotSupported");
+
+        /// <summary>
+        ///     NuoDb does not support Intercept set operations
+        /// </summary>
+        public static string InterceptNotSupported
+            => GetString("InterceptNotSupported");
+
+        /// <summary>
         ///     NuoDb does not support this migration operation ('{operation}'). See http://go.microsoft.com/fwlink/?LinkId=723262 for more information.
         /// </summary>
         public static string InvalidMigrationOperation(object? operation)
@@ -336,6 +348,7 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Internal
             return (EventDefinition<string?, string?, string?, string?>)definition;
         }
 
+      
         /// <summary>
         ///     The model was configured with the database sequence '{sequence}'. NuoDb does not support sequences.
         /// </summary>

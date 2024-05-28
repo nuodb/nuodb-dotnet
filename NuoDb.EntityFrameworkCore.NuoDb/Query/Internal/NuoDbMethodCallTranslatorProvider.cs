@@ -28,6 +28,7 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
             AddTranslators(
                 new IMethodCallTranslator[]
                 {
+                    new NuoDbConvertTranslator(sqlExpressionFactory),
                     new NuoDbByteArrayMethodTranslator(sqlExpressionFactory, dependencies.RelationalTypeMappingSource),
                     new NuoDbCharMethodTranslator(sqlExpressionFactory),
                     new NuoDbDateTimeAddTranslator(sqlExpressionFactory, (NuoDbTypeMappingSource)dependencies.RelationalTypeMappingSource),

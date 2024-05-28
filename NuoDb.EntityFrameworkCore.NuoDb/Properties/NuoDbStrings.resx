@@ -129,6 +129,12 @@
   <data name="DuplicateColumnNameSridMismatch" xml:space="preserve">
     <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different SRIDs.</value>
   </data>
+  <data name="ExceptNotSupported" xml:space="preserve">
+    <value>NuoDb does not support Except set operations</value>
+  </data>
+  <data name="InterceptNotSupported" xml:space="preserve">
+    <value>NuoDb does not support Intercept set operations</value>
+  </data>
   <data name="InvalidMigrationOperation" xml:space="preserve">
     <value>NuoDb does not support this migration operation ('{operation}'). See http://go.microsoft.com/fwlink/?LinkId=723262 for more information.</value>
   </data>

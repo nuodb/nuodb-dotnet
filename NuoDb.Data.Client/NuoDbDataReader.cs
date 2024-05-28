@@ -457,7 +457,7 @@ namespace NuoDb.Data.Client
 
         public override char GetChar(int i)
         {
-            throw new NotImplementedException();
+            return getValue(i).String.FirstOrDefault();
         }
 
         public override long GetChars(int i, long fieldoffset, char[] buffer, int bufferoffset, int length)

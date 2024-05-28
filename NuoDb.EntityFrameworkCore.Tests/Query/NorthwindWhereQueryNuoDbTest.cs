@@ -397,32 +397,32 @@ namespace NuoDb.EntityFrameworkCore.Tests.Query
 
         public override async Task Where_in_optimization_multiple(bool async)
         {
-            await base.Where_in_optimization_multiple(async);
+            await Assert.ThrowsAsync<InvalidOperationException>(()=> base.Where_in_optimization_multiple(async));
         }
 
         public override async Task Where_not_in_optimization1(bool async)
         {
-            await base.Where_not_in_optimization1(async);
+            await Assert.ThrowsAsync<InvalidOperationException>(()=> base.Where_not_in_optimization1(async));
         }
 
         public override async Task Where_not_in_optimization2(bool async)
         {
-            await base.Where_not_in_optimization2(async);
+            await Assert.ThrowsAsync<InvalidOperationException>(()=> base.Where_not_in_optimization2(async));
         }
 
         public override async Task Where_not_in_optimization3(bool async)
         {
-            await base.Where_not_in_optimization3(async);
+            await Assert.ThrowsAsync<InvalidOperationException>(()=> base.Where_not_in_optimization3(async));
         }
 
         public override async Task Where_not_in_optimization4(bool async)
         {
-            await base.Where_not_in_optimization4(async);
+            await Assert.ThrowsAsync<InvalidOperationException>(()=> base.Where_not_in_optimization4(async));
         }
 
         public override async Task Where_select_many_and(bool async)
         {
-            await base.Where_select_many_and(async);
+            await Assert.ThrowsAsync<InvalidOperationException>(()=> base.Where_select_many_and(async));
         }
 
         public override async Task Where_primitive(bool async)

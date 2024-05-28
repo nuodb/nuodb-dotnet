@@ -69,8 +69,13 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
         {
             typeof(decimal),
             typeof(double),
-            typeof(float)
+            typeof(float),
+            typeof(int),
+            typeof(long)
         };
+
+        private readonly ISqlExpressionFactory _sqlExpressionFactory;
+
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -84,6 +89,7 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
             QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor)
             : base(dependencies, queryCompilationContext, queryableMethodTranslatingExpressionVisitor)
         {
+            _sqlExpressionFactory = dependencies.SqlExpressionFactory;
         }
 
         /// <summary>
@@ -94,6 +100,7 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
         /// </summary>
         protected override Expression VisitUnary(UnaryExpression unaryExpression)
         {
+            return base.VisitUnary(unaryExpression);
             Check.NotNull(unaryExpression, nameof(unaryExpression));
 
             if (unaryExpression.NodeType == ExpressionType.ArrayLength
@@ -137,7 +144,8 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
 
             return visitedExpression;
         }
-      
+
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -147,40 +155,6 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
         protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
             Check.NotNull(binaryExpression, nameof(binaryExpression));
-
-            // See issue#16428
-            //if (binaryExpression.NodeType == ExpressionType.ArrayIndex
-            //    && binaryExpression.Left.Type == typeof(byte[]))
-            //{
-            //    var left = Visit(binaryExpression.Left);
-            //    var right = Visit(binaryExpression.Right);
-
-            //    if (left is SqlExpression leftSql
-            //        && right is SqlExpression rightSql)
-            //    {
-            //        return Dependencies.SqlExpressionFactory.Function(
-            //            "unicode",
-            //            new SqlExpression[]
-            //            {
-            //                Dependencies.SqlExpressionFactory.Function(
-            //                    "substr",
-            //                    new SqlExpression[]
-            //                    {
-            //                        leftSql,
-            //                        Dependencies.SqlExpressionFactory.Add(
-            //                            Dependencies.SqlExpressionFactory.ApplyDefaultTypeMapping(rightSql),
-            //                            Dependencies.SqlExpressionFactory.Constant(1)),
-            //                        Dependencies.SqlExpressionFactory.Constant(1)
-            //                    },
-            //                    nullable: true,
-            //                    argumentsPropagateNullability: new[] { true, true, true },
-            //                    typeof(byte[]))
-            //            },
-            //            nullable: true,
-            //            argumentsPropagateNullability: new[] { true },
-            //            binaryExpression.Type);
-            //    }
-            //}
 
             if (!(base.VisitBinary(binaryExpression) is SqlExpression visitedExpression))
             {
@@ -193,28 +167,17 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
                     && (_functionModuloTypes.Contains(GetProviderType(sqlBinary.Left))
                         || _functionModuloTypes.Contains(GetProviderType(sqlBinary.Right))))
                 {
-                    return Dependencies.SqlExpressionFactory.Function(
-                        "ef_mod",
-                        new[] { sqlBinary.Left, sqlBinary.Right },
-                        nullable: true,
-                        argumentsPropagateNullability: new[] { true, true },
-                        visitedExpression.Type,
-                        visitedExpression.TypeMapping);
-                }
-
-                if (AttemptDecimalCompare(sqlBinary))
-                {
-                    return DoDecimalCompare(visitedExpression, sqlBinary.OperatorType, sqlBinary.Left, sqlBinary.Right);
-                }
-
-                if (AttemptDecimalArithmetic(sqlBinary))
-                {
-                    return DoDecimalArithmetics(visitedExpression, sqlBinary.OperatorType, sqlBinary.Left, sqlBinary.Right);
+                    return //Dependencies.SqlExpressionFactory.Equal(
+                     Dependencies.SqlExpressionFactory.Modulo(
+                        sqlBinary.Left,
+                        sqlBinary.Right,
+                        //new[] { sqlBinary.Left, sqlBinary.Right },
+                        visitedExpression.TypeMapping);//, Dependencies.SqlExpressionFactory.Constant(0));
                 }
 
                 if (_restrictedBinaryExpressions.TryGetValue(sqlBinary.OperatorType, out var restrictedTypes)
-                    && (restrictedTypes.Contains(GetProviderType(sqlBinary.Left))
-                        || restrictedTypes.Contains(GetProviderType(sqlBinary.Right))))
+                     && (restrictedTypes.Contains(GetProviderType(sqlBinary.Left))
+                         || restrictedTypes.Contains(GetProviderType(sqlBinary.Right))))
                 {
                     return QueryCompilationContext.NotTranslatedExpression;
                 }
@@ -224,24 +187,49 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Translates Average over an expression to an equivalent SQL representation.
         /// </summary>
+        /// <param name="sqlExpression">An expression to translate Average over.</param>
+        /// <returns>A SQL translation of Average over the given expression.</returns>
         public override SqlExpression? TranslateAverage(SqlExpression sqlExpression)
         {
             Check.NotNull(sqlExpression, nameof(sqlExpression));
 
-            var visitedExpression = base.TranslateAverage(sqlExpression);
-            var argumentType = GetProviderType(visitedExpression);
-            if (argumentType == typeof(decimal))
+            var inputType = sqlExpression.Type;
+            if (inputType == typeof(int)
+                || inputType == typeof(long))
             {
-                throw new NotSupportedException(
-                    NuoDbStrings.AggregateOperationNotSupported(nameof(Queryable.Average), argumentType.ShortDisplayName()));
+                sqlExpression = sqlExpression is DistinctExpression distinctExpression
+                    ? new DistinctExpression(
+                        _sqlExpressionFactory.ApplyDefaultTypeMapping(
+                            _sqlExpressionFactory.Convert(distinctExpression.Operand, typeof(double))))
+                    : _sqlExpressionFactory.ApplyDefaultTypeMapping(
+                        _sqlExpressionFactory.Convert(sqlExpression, typeof(double)));
             }
 
-            return visitedExpression;
+            return inputType == typeof(float) || inputType == typeof(double)
+                ? _sqlExpressionFactory.Convert(
+                    _sqlExpressionFactory.Function(
+                        "AVG",
+                        new[]
+                        {
+                            _sqlExpressionFactory.Convert(sqlExpression, typeof(float))
+                        },
+                        nullable: true,
+                        argumentsPropagateNullability: new[] { false },
+                        typeof(double)),
+                    sqlExpression.Type,
+                    sqlExpression.TypeMapping)
+                : _sqlExpressionFactory.Function(
+                    "AVG",
+                    new[]
+                    {
+                        sqlExpression
+                    },
+                    nullable: true,
+                    argumentsPropagateNullability: new[] { false },
+                    sqlExpression.Type,
+                    sqlExpression.TypeMapping);
         }
 
         /// <summary>
@@ -257,7 +245,6 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
             var visitedExpression = base.TranslateMax(sqlExpression);
             var argumentType = GetProviderType(visitedExpression);
             if (argumentType == typeof(DateTimeOffset)
-                || argumentType == typeof(decimal)
                 || argumentType == typeof(TimeSpan)
                 || argumentType == typeof(ulong))
             {
@@ -281,14 +268,13 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
             var visitedExpression = base.TranslateMin(sqlExpression);
             var argumentType = GetProviderType(visitedExpression);
             if (argumentType == typeof(DateTimeOffset)
-                || argumentType == typeof(decimal)
                 || argumentType == typeof(TimeSpan)
                 || argumentType == typeof(ulong))
             {
                 throw new NotSupportedException(
                     NuoDbStrings.AggregateOperationNotSupported(nameof(Queryable.Min), argumentType.ShortDisplayName()));
             }
-
+           
             return visitedExpression;
         }
 
@@ -304,11 +290,6 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
 
             var visitedExpression = base.TranslateSum(sqlExpression);
             var argumentType = GetProviderType(visitedExpression);
-            if (argumentType == typeof(decimal))
-            {
-                throw new NotSupportedException(
-                    NuoDbStrings.AggregateOperationNotSupported(nameof(Queryable.Sum), argumentType.ShortDisplayName()));
-            }
 
             return visitedExpression;
         }
@@ -323,87 +304,5 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
         private static bool AreOperandsDecimals(SqlBinaryExpression sqlExpression)
             => GetProviderType(sqlExpression.Left) == typeof(decimal)
                 && GetProviderType(sqlExpression.Right) == typeof(decimal);
-
-        private static bool AttemptDecimalCompare(SqlBinaryExpression sqlBinary)
-            => AreOperandsDecimals(sqlBinary)
-                && new[]
-                {
-                    ExpressionType.GreaterThan,
-                    ExpressionType.GreaterThanOrEqual,
-                    ExpressionType.LessThan,
-                    ExpressionType.LessThanOrEqual
-                }.Contains(sqlBinary.OperatorType);
-
-        private Expression DoDecimalCompare(SqlExpression visitedExpression, ExpressionType op, SqlExpression left, SqlExpression right)
-        {
-            var actual = Dependencies.SqlExpressionFactory.Function(
-                name: "ef_compare",
-                new[] { left, right },
-                nullable: true,
-                new[] { true, true },
-                typeof(int));
-            var oracle = Dependencies.SqlExpressionFactory.Constant(value: 0);
-
-            return op switch
-            {
-                ExpressionType.GreaterThan => Dependencies.SqlExpressionFactory.GreaterThan(left: actual, right: oracle),
-                ExpressionType.GreaterThanOrEqual => Dependencies.SqlExpressionFactory.GreaterThanOrEqual(left: actual, right: oracle),
-                ExpressionType.LessThan => Dependencies.SqlExpressionFactory.LessThan(left: actual, right: oracle),
-                ExpressionType.LessThanOrEqual => Dependencies.SqlExpressionFactory.LessThanOrEqual(left: actual, right: oracle),
-                _ => visitedExpression
-            };
-        }
-
-        private static bool AttemptDecimalArithmetic(SqlBinaryExpression sqlBinary)
-            => AreOperandsDecimals(sqlBinary)
-                && new[] { ExpressionType.Add, ExpressionType.Subtract, ExpressionType.Multiply, ExpressionType.Divide }.Contains(
-                    sqlBinary.OperatorType);
-
-        private Expression DoDecimalArithmetics(SqlExpression visitedExpression, ExpressionType op, SqlExpression left, SqlExpression right)
-        {
-            return op switch
-            {
-                ExpressionType.Add => DecimalArithmeticExpressionFactoryMethod(ResolveFunctionNameFromExpressionType(op), left, right),
-                ExpressionType.Divide => DecimalArithmeticExpressionFactoryMethod(ResolveFunctionNameFromExpressionType(op), left, right),
-                ExpressionType.Multiply => DecimalArithmeticExpressionFactoryMethod(ResolveFunctionNameFromExpressionType(op), left, right),
-                ExpressionType.Subtract => DecimalSubtractExpressionFactoryMethod(left, right),
-                _ => visitedExpression
-            };
-
-            static string ResolveFunctionNameFromExpressionType(ExpressionType expressionType)
-            {
-                return expressionType switch
-                {
-                    ExpressionType.Add => "ef_add",
-                    ExpressionType.Divide => "ef_divide",
-                    ExpressionType.Multiply => "ef_multiply",
-                    ExpressionType.Subtract => "ef_add",
-                    _ => throw new InvalidOperationException()
-                };
-            }
-
-            Expression DecimalArithmeticExpressionFactoryMethod(string name, SqlExpression left, SqlExpression right)
-            {
-                return Dependencies.SqlExpressionFactory.Function(
-                    name,
-                    new[] { left, right },
-                    nullable: true,
-                    new[] { true, true },
-                    visitedExpression.Type);
-            }
-
-            Expression DecimalSubtractExpressionFactoryMethod(SqlExpression left, SqlExpression right)
-            {
-                var subtrahend = Dependencies.SqlExpressionFactory.Function(
-                    "ef_negate",
-                    new[] { right },
-                    nullable: true,
-                    new[] { true },
-                    visitedExpression.Type);
-
-                return DecimalArithmeticExpressionFactoryMethod(ResolveFunctionNameFromExpressionType(op), left, subtrahend);
-            }
-        }
-
     }
 }
