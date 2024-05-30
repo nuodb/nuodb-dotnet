@@ -76,7 +76,7 @@ namespace NuoDb.Data.Client
             this.values = new Value[numberColumns];
             this.closed = false;
             this.currentRow = 0;
-            //this.afterLast = false;
+            //this.afterLast = null;
             this.declaredColumnTypes = null;
             this.declaredColumnTypeNames = null;
 
@@ -218,8 +218,12 @@ namespace NuoDb.Data.Client
                 row["BaseCatalogName"] = dataStream.getString();
                 row["BaseSchemaName"] = dataStream.getString();
                 row["BaseTableName"] = dataStream.getString();
-                row["BaseColumnName"] = dataStream.getString();
-                row["ColumnName"] = dataStream.getString();
+                string baseColumn = dataStream.getString();
+                row["BaseColumnName"] = isSqlLiteral(baseColumn) ? null : baseColumn;
+                //row["BaseColumnName"] = baseColumn;
+                string columnName = dataStream.getString();
+                row["ColumnName"] = isSqlLiteral(columnName) ? null : columnName;
+                //row["ColumnName"] = columnName;
                 string collationSequence = dataStream.getString();
                 row["DataTypeName"] = dataStream.getString();
                 row["ProviderType"] = NuoDbConnectionInternal.mapJavaSqlToDbType(dataStream.getInt());
@@ -279,6 +283,15 @@ namespace NuoDb.Data.Client
                 }
             }
             return metadata;
+        }
+
+        protected Boolean isSqlLiteral(string name)
+        {
+            if (name == null || name.Length == 0)
+                return true;
+
+            // literals begin with a single quote (string) or a digit (number)
+            return "'0123456789".IndexOf(name[0]) >= 0;
         }
 
         public override bool IsClosed
