@@ -61,14 +61,31 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
                     return extensionExpression;
                 }
 
-                // if (extensionExpression is OrderingExpression orderingExpression)
-                // {
-                //     if (orderingExpression.Expression is ScalarSubqueryExpression || orderingExpression.Expression is SqlBinaryExpression)
-                //     {
-                //         throw new InvalidOperationException(NuoDbStrings.SubqueriesInOrderByNotSupported);
-                //     }
-                // }
+                if (extensionExpression is OrderingExpression orderingExpression)
+                {
+                    if (orderingExpression.Expression is ScalarSubqueryExpression)
+                    {
+                        throw new InvalidOperationException(NuoDbStrings.SubqueriesInOrderByNotSupported);
+                    }
 
+                   
+                    if (orderingExpression.Expression is SqlBinaryExpression binaryExpression)
+                    {
+                        if (binaryExpression.Left is ScalarSubqueryExpression ||
+                            binaryExpression.Right is ScalarSubqueryExpression)
+                            throw new InvalidOperationException(NuoDbStrings.SubqueriesInOrderByNotSupported);
+                    }
+                }
+
+                if (extensionExpression is ExceptExpression)
+                {
+                    throw new InvalidOperationException(NuoDbStrings.ExceptNotSupported);
+                }
+
+                if (extensionExpression is IntersectExpression)
+                {
+                    throw new InvalidOperationException(NuoDbStrings.InterceptNotSupported);
+                }
                 if (extensionExpression is SelectExpression selectExpression)
                 {
                     if(selectExpression.Tables.Any(t => t is CrossApplyExpression || t is OuterApplyExpression))

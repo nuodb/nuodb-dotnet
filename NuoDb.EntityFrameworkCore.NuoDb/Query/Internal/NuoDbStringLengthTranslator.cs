@@ -51,7 +51,7 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
             return instance?.Type == typeof(string)
                 && member.Name == nameof(string.Length)
                     ? _sqlExpressionFactory.Function(
-                        "length",
+                        "CHAR_LENGTH",
                         new[] { instance },
                         nullable: true,
                         argumentsPropagateNullability: new[] { true },

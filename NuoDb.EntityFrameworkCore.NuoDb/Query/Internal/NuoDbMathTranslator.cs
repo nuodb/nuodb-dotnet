@@ -30,31 +30,41 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
             { typeof(Math).GetRequiredMethod(nameof(Math.Abs), typeof(long)), "abs" },
             { typeof(Math).GetRequiredMethod(nameof(Math.Abs), typeof(sbyte)), "abs" },
             { typeof(Math).GetRequiredMethod(nameof(Math.Abs), typeof(short)), "abs" },
-            { typeof(Math).GetRequiredMethod(nameof(Math.Max), typeof(byte), typeof(byte)), "max" },
-            { typeof(Math).GetRequiredMethod(nameof(Math.Max), typeof(double), typeof(double)), "max" },
-            { typeof(Math).GetRequiredMethod(nameof(Math.Max), typeof(float), typeof(float)), "max" },
-            { typeof(Math).GetRequiredMethod(nameof(Math.Max), typeof(int), typeof(int)), "max" },
-            { typeof(Math).GetRequiredMethod(nameof(Math.Max), typeof(long), typeof(long)), "max" },
-            { typeof(Math).GetRequiredMethod(nameof(Math.Max), typeof(sbyte), typeof(sbyte)), "max" },
-            { typeof(Math).GetRequiredMethod(nameof(Math.Max), typeof(short), typeof(short)), "max" },
-            { typeof(Math).GetRequiredMethod(nameof(Math.Max), typeof(uint), typeof(uint)), "max" },
-            { typeof(Math).GetRequiredMethod(nameof(Math.Max), typeof(ushort), typeof(ushort)), "max" },
-            { typeof(Math).GetRequiredMethod(nameof(Math.Min), typeof(byte), typeof(byte)), "min" },
-            { typeof(Math).GetRequiredMethod(nameof(Math.Min), typeof(double), typeof(double)), "min" },
-            { typeof(Math).GetRequiredMethod(nameof(Math.Min), typeof(float), typeof(float)), "min" },
-            { typeof(Math).GetRequiredMethod(nameof(Math.Min), typeof(int), typeof(int)), "min" },
-            { typeof(Math).GetRequiredMethod(nameof(Math.Min), typeof(long), typeof(long)), "min" },
-            { typeof(Math).GetRequiredMethod(nameof(Math.Min), typeof(sbyte), typeof(sbyte)), "min" },
-            { typeof(Math).GetRequiredMethod(nameof(Math.Min), typeof(short), typeof(short)), "min" },
-            { typeof(Math).GetRequiredMethod(nameof(Math.Min), typeof(uint), typeof(uint)), "min" },
-            { typeof(Math).GetRequiredMethod(nameof(Math.Min), typeof(ushort), typeof(ushort)), "min" },
+            { typeof(Math).GetRequiredMethod(nameof(Math.Abs), typeof(decimal)), "abs" },
+            { typeof(Math).GetRequiredMethod(nameof(Math.Acos), typeof(double)), "acos" },
+            { typeof(Math).GetRequiredMethod(nameof(Math.Asin), typeof(double)), "asin" },
+            { typeof(Math).GetRequiredMethod(nameof(Math.Atan), typeof(double)), "atan" },
+            { typeof(Math).GetRequiredMethod(nameof(Math.Tan), typeof(double)), "tan" },
+            { typeof(Math).GetRequiredMethod(nameof(Math.Sin), typeof(double)), "sin" },
+            { typeof(Math).GetRequiredMethod(nameof(Math.Sqrt), typeof(double)), "sqrt" },
+            { typeof(Math).GetRequiredMethod(nameof(Math.Atan2), typeof(double), typeof(double)), "atan2" },
+            { typeof(Math).GetRequiredMethod(nameof(Math.Pow), typeof(double), typeof(double)), "power" },
+            { typeof(Math).GetRequiredMethod(nameof(Math.Ceiling), typeof(double)), "CEIL" },
+            { typeof(Math).GetRequiredMethod(nameof(Math.Ceiling), typeof(decimal)), "CEIL" },
+            { typeof(Math).GetRequiredMethod(nameof(Math.Floor), typeof(double)), "floor" },
+            { typeof(Math).GetRequiredMethod(nameof(Math.Floor), typeof(decimal)), "floor" },
+            { typeof(Math).GetRequiredMethod(nameof(Math.Cos), typeof(double)), "cos" },
             { typeof(Math).GetRequiredMethod(nameof(Math.Round), typeof(double)), "round" },
+            { typeof(Math).GetRequiredMethod(nameof(Math.Round), typeof(decimal)), "round" },
+            { typeof(Math).GetRequiredMethod(nameof(Math.Round), typeof(decimal), typeof(int)), "round" },
             { typeof(Math).GetRequiredMethod(nameof(Math.Round), typeof(double), typeof(int)), "round" },
+
             { typeof(MathF).GetRequiredMethod(nameof(MathF.Abs), typeof(float)), "abs" },
             { typeof(MathF).GetRequiredMethod(nameof(MathF.Max), typeof(float), typeof(float)), "max" },
-            { typeof(MathF).GetRequiredMethod(nameof(MathF.Min), typeof(float), typeof(float)), "min" },
+            { typeof(MathF).GetRequiredMethod(nameof(MathF.Acos), typeof(float)), "acos" },
+            { typeof(MathF).GetRequiredMethod(nameof(MathF.Cos), typeof(float)), "cos" },
+            { typeof(MathF).GetRequiredMethod(nameof(MathF.Asin), typeof(float)), "asin" },
+            { typeof(MathF).GetRequiredMethod(nameof(MathF.Sin), typeof(float)), "sin" },
+            { typeof(MathF).GetRequiredMethod(nameof(MathF.Atan), typeof(float)), "atan" },
+            { typeof(MathF).GetRequiredMethod(nameof(MathF.Tan), typeof(float)), "tan" },
+            { typeof(MathF).GetRequiredMethod(nameof(MathF.Sqrt), typeof(float)), "sqrt" },
+            { typeof(MathF).GetRequiredMethod(nameof(MathF.Ceiling), typeof(float)), "ceil" },
+            { typeof(MathF).GetRequiredMethod(nameof(MathF.Floor), typeof(float)), "floor" },
             { typeof(MathF).GetRequiredMethod(nameof(MathF.Round), typeof(float)), "round" },
-            { typeof(MathF).GetRequiredMethod(nameof(MathF.Round), typeof(float), typeof(int)), "round" }
+            { typeof(MathF).GetRequiredMethod(nameof(MathF.Round), typeof(float), typeof(int)), "round" },
+            { typeof(MathF).GetRequiredMethod(nameof(MathF.Atan2), typeof(float), typeof(float)), "atan2" },
+            { typeof(MathF).GetRequiredMethod(nameof(MathF.Pow), typeof(float), typeof(float)), "power" },
+
         };
 
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
@@ -102,6 +112,17 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
                 else
                 {
                     typeMapping = arguments[0].TypeMapping;
+                }
+
+                // nuo db expects these arguments in inverse order, so rebuild arguments list
+                if (sqlFunctionName == "atan2")
+                {
+                    typeMapping = ExpressionExtensions.InferTypeMapping(arguments![0]!, arguments[1]!);
+                    newArguments = new List<SqlExpression>
+                    {
+                        _sqlExpressionFactory.ApplyTypeMapping(arguments[1], typeMapping),
+                        _sqlExpressionFactory.ApplyTypeMapping(arguments[0], typeMapping)
+                    };
                 }
 
                 var finalArguments = newArguments ?? arguments;

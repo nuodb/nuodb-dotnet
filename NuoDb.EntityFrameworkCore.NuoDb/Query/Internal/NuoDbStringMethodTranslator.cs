@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -91,7 +92,7 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
                 m => m.Name == nameof(Enumerable.LastOrDefault)
                     && m.GetParameters().Length == 1).MakeGenericMethod(typeof(char));
 
-        private readonly ISqlExpressionFactory _sqlExpressionFactory;
+        private readonly NuoDbSqlExpressionFactory _sqlExpressionFactory;
         private const char LikeEscapeChar = '\\';
 
         /// <summary>
@@ -102,7 +103,7 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
         /// </summary>
         public NuoDbStringMethodTranslator(ISqlExpressionFactory sqlExpressionFactory)
         {
-            _sqlExpressionFactory = sqlExpressionFactory;
+            _sqlExpressionFactory = (NuoDbSqlExpressionFactory)sqlExpressionFactory;
         }
         private const string LikeEscapeString = "\\";
         /// <summary>
@@ -128,18 +129,28 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
                     var argument = arguments[0];
                     var stringTypeMapping = ExpressionExtensions.InferTypeMapping(instance, argument);
 
-                    return _sqlExpressionFactory.Subtract(
-                        _sqlExpressionFactory.Function(
-                            "instr",
-                            new[]
-                            {
-                                _sqlExpressionFactory.ApplyTypeMapping(instance, stringTypeMapping),
-                                _sqlExpressionFactory.ApplyTypeMapping(argument, stringTypeMapping)
-                            },
-                            nullable: true,
-                            argumentsPropagateNullability: new[] { true, true },
-                            method.ReturnType),
-                        _sqlExpressionFactory.Constant(1));
+
+
+                    var locateFunction = _sqlExpressionFactory.Function(
+                        "LOCATE",
+                        new[]
+                        {
+                            _sqlExpressionFactory.ApplyTypeMapping(argument, stringTypeMapping),
+                            instance
+                        },
+                        nullable: false,
+                        argumentsPropagateNullability: new[] { true, true },
+                        typeof(int));
+
+                    if (argument is SqlConstantExpression sqlConstantExpression )
+                    {
+                        if (string.IsNullOrWhiteSpace((string)sqlConstantExpression.Value))
+                        { 
+                            return locateFunction;
+                        }
+                    }
+                    return _sqlExpressionFactory.Subtract(locateFunction, _sqlExpressionFactory.Constant(1));
+                    
                 }
 
                 if (_replaceMethodInfo.Equals(method))
@@ -217,13 +228,15 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
                     return ProcessTrimMethod(instance, arguments, "trim");
                 }
 
+
+
                 if (_containsMethodInfo.Equals(method))
                 {
                     var pattern = arguments[0];
                     var stringTypeMapping = ExpressionExtensions.InferTypeMapping(instance, pattern);
-
                     instance = _sqlExpressionFactory.ApplyTypeMapping(instance, stringTypeMapping);
                     pattern = _sqlExpressionFactory.ApplyTypeMapping(pattern, stringTypeMapping);
+
                     if (pattern is SqlConstantExpression constantPattern)
                     {
                         if (!(constantPattern.Value is string patternValue))
@@ -237,6 +250,7 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
                         {
                             return _sqlExpressionFactory.Constant(true);
                         }
+
                         return patternValue.Any(IsLikeWildChar)
                             ? _sqlExpressionFactory.Like(
                                 instance,
@@ -246,13 +260,13 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
                     }
 
                     return _sqlExpressionFactory.OrElse(
-                        _sqlExpressionFactory.Equal(
+                        _sqlExpressionFactory.Like(
                             pattern,
                             _sqlExpressionFactory.Constant(string.Empty, stringTypeMapping)),
                         _sqlExpressionFactory.GreaterThan(
                             _sqlExpressionFactory.Function(
-                                "position",
-                                new[] { _sqlExpressionFactory.In(pattern,instance, false)},
+                                "locate",
+                                new[] { pattern, instance },
                                 nullable: true,
                                 argumentsPropagateNullability: new[] { true, true },
                                 typeof(int)),
@@ -466,20 +480,74 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
                 {
                     return null;
                 }
-
+                TrimSides side = functionName switch
+                {
+                    "ltrim" => TrimSides.Start,
+                    "rtrim" => TrimSides.End,
+                    _ => TrimSides.Both
+                };
                 if (charactersToTrim.Count > 0)
                 {
                     sqlArguments.Add(_sqlExpressionFactory.Constant(new string(charactersToTrim.ToArray()), typeMapping));
+                   
+                    return GetTrim(side, instance,
+                        _sqlExpressionFactory.Constant(new string(charactersToTrim.ToArray()), typeMapping));
+                }
+                else
+                {
+                    return GetTrim(side, instance);
                 }
             }
 
+          
+                return _sqlExpressionFactory.Function(
+                    functionName,
+                    sqlArguments,
+                    nullable: true,
+                    argumentsPropagateNullability: sqlArguments.Select(a => true).ToList(),
+                    typeof(string),
+                    typeMapping);
+        }
+        private enum TrimSides
+        {
+            Start,
+            End,
+            Both
+        }
+
+        private SqlExpression GetTrim(TrimSides sides, SqlExpression instance, SqlExpression trimCharacters = null)
+        {
+            string side = sides switch
+            {
+                TrimSides.Start => "LEADING",
+                TrimSides.End => "TRAILING",
+                _ => "BOTH"
+            };
+
+            var args = new List<SqlExpression>();
+            args.Add(_sqlExpressionFactory.Fragment(side));
+
+            if (trimCharacters != null)
+            {
+                args.Add(trimCharacters);
+            }
+            args.Add(_sqlExpressionFactory.Fragment("FROM"));
+            args.Add(instance);
+
             return _sqlExpressionFactory.Function(
-                functionName,
-                sqlArguments,
+                "trim",
+                new[]
+                {
+                    _sqlExpressionFactory.ComplexFunctionArgument(
+                        args,
+                        " ",
+                        typeof(string)
+                    )
+                },
                 nullable: true,
-                argumentsPropagateNullability: sqlArguments.Select(a => true).ToList(),
-                typeof(string),
-                typeMapping);
+                argumentsPropagateNullability: new []{true},
+                instance.Type,
+                instance.TypeMapping);
         }
     }
 }

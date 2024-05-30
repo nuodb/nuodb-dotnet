@@ -10,37 +10,6 @@ namespace NuoDb.EntityFrameworkCore.Tests.Storage
 {
     public class NuoDbTypeMappingTest: RelationalTypeMappingTest
     {
-        // private class YouNoTinyContext : DbContext
-        // {
-        //     private readonly NuoDbConnection _connection;
-        //
-        //     public YouNoTinyContext(NuoDbConnection connection)
-        //         => _connection = connection;
-        //
-        //     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        //         => optionsBuilder.UseNuoDb(_connection);
-        //
-        //     public DbSet<NoTiny> NoTinnies { get; set; }
-        // }
-        //
-        // private enum TinyState : byte
-        // {
-        //     One,
-        //     Two,
-        //     Three
-        // }
-        //
-        // private class NoTiny
-        // {
-        //     [Key]
-        //     public int Id { get; set; }
-        //
-        //     [Required]
-        //     [Column(TypeName = "tinyint")]
-        //     public TinyState TinyState { get; set; }
-        // }
-
-       
         protected override DbCommand CreateTestCommand()
             => new NuoDbCommand();
 
@@ -55,12 +24,12 @@ namespace NuoDb.EntityFrameworkCore.Tests.Storage
         }
 
         [ConditionalTheory]
-        [InlineData("TEXT", typeof(string))]
+        [InlineData("string", typeof(string))]
         [InlineData("Integer", typeof(int))]
         [InlineData("Blob", typeof(byte[]))]
         [InlineData("numeric", typeof(byte[]))]
-        [InlineData("real", typeof(double))]
-        [InlineData("doub", typeof(double))]
+        [InlineData("float", typeof(float?))]
+        [InlineData("double", typeof(double))]
         [InlineData("SMALLINT", typeof(short))]
         [InlineData("VARCHAR(255)", typeof(string))]
         [InlineData("nchar(55)", typeof(string))]
@@ -142,16 +111,15 @@ namespace NuoDb.EntityFrameworkCore.Tests.Storage
 
         public override void ULong_literal_generated_correctly()
         {
-            var typeMapping = new LongTypeMapping("BIGINT");
+            var typeMapping = new ULongTypeMapping("BIGINT");
 
             Test_GenerateSqlLiteral_helper(typeMapping, ulong.MinValue, "0");
-            Test_GenerateSqlLiteral_helper(typeMapping, ulong.MaxValue, "-1");
-            Test_GenerateSqlLiteral_helper(typeMapping, long.MaxValue + 1ul, "-9223372036854775808");
+            Test_GenerateSqlLiteral_helper(typeMapping, ulong.MaxValue, "18446744073709551615");
         }
 
         protected override DbContextOptions ContextOptions { get; }
             = new DbContextOptionsBuilder()
                 .UseInternalServiceProvider(new ServiceCollection().AddEntityFrameworkNuoDb().BuildServiceProvider(validateScopes: true))
-                .UseNuoDb("Filename=dummy.db").Options;
+                .UseNuoDb("dummy string").Options;
     }
 }

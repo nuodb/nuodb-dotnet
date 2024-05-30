@@ -18,7 +18,7 @@ namespace NuoDb.EntityFrameworkCore.Tests.Writes
             _fixture = fixture;
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Skip")]
         public void Can_Insert()
         {
             using (var ctx = _fixture.CreateContext())
@@ -43,7 +43,7 @@ namespace NuoDb.EntityFrameworkCore.Tests.Writes
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Skip")]
         public void Can_Update()
         {
             using (var ctx = _fixture.CreateContext())

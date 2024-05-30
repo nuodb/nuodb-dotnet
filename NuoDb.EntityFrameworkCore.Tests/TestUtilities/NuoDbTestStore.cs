@@ -208,43 +208,7 @@ namespace NuoDb.EntityFrameworkCore.Tests.TestUtilities
                 }
             }
         }
-
-        private static string GetCreateDatabaseStatement(string name, string fileName)
-        {
-            var result = $"CREATE DATABASE [{name}]";
-
-
-            if (!string.IsNullOrEmpty(fileName))
-            {
-                var logFileName = Path.ChangeExtension(fileName, ".ldf");
-                result += Environment.NewLine
-                    + $" ON (NAME = '{name}', FILENAME = '{fileName}')"
-                    + $" LOG ON (NAME = '{name}_log', FILENAME = '{logFileName}')";
-            }
-
-            return result;
-        }
-
-        private void DropSchema(string schema)
-        {
-            using var connection = new NuoDbConnection(CreateConnectionString());
-
-        }
-
-        public void DeleteDatabase()
-        {
-            using var master = new NuoDbConnection(CreateConnectionString());
-            ExecuteNonQuery(
-                master, string.Format(
-                    @"IF EXISTS (SELECT * FROM sys.databases WHERE name = N'{0}')
-                      BEGIN
-                          ALTER DATABASE [{0}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
-                          DROP DATABASE [{0}];
-                      END", Name));
-
-            NuoDbConnection.ClearAllPools();
-        }
-
+        
         public override void OpenConnection()
             => new TestNuoDbRetryingExecutionStrategy().Execute(Connection, connection => connection.Open());
 

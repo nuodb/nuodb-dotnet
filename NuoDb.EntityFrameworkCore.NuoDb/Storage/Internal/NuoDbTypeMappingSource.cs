@@ -31,17 +31,18 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Storage.Internal
         private const string DecimalTypeName = "DECIMAL";
         private const string LongTypeName = "BIGINT";
         private const string ShortTypeName = "SMALLINT";
-        private const string RealTypeName = "DOUBLE";
+        private const string DoubleTypeName = "DOUBLE";
         private const string BlobTypeName = "BLOB";
         private const string TextTypeName = "STRING";
         private const string BooleanTypeName = "BOOLEAN";
         private const string TimestampTypeName = "TIMESTAMP WITHOUT TIMEZONE";
+        private const string NumericTypeName = "NUMERIC";
 
         private static readonly ShortTypeMapping _short = new(ShortTypeName);
-        private static readonly DecimalTypeMapping _decimal = new(DecimalTypeName);
+        private static readonly NuoDbDecimalTypeMapping _decimal = new(DecimalTypeName);
         private static readonly IntTypeMapping _integer = new(IntegerTypeName);
         private static readonly LongTypeMapping _long = new(LongTypeName);
-        private static readonly DoubleTypeMapping _real = new(RealTypeName);
+        private static readonly DoubleTypeMapping _double = new(DoubleTypeName);
         private static readonly ByteArrayTypeMapping _blob = new(BlobTypeName);
         private static readonly NuoDbStringTypeMapping _text = new(TextTypeName);
         private static readonly DateTimeTypeMapping _dateTime = new(TimestampTypeName);
@@ -64,22 +65,22 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Storage.Internal
             { typeof(DateOnly), new NuoDbDateOnlyTypeMapping(TextTypeName) },
             // { typeof(TimeOnly), new NuoDbTimeOnlyTypeMapping(TextTypeName) },
             { typeof(decimal), new NuoDbDecimalTypeMapping(DecimalTypeName) },
-            { typeof(double), _real },
-            { typeof(float), new FloatTypeMapping(RealTypeName) },
-            { typeof(Guid), new NuoDbGuidTypeMapping(TextTypeName) }
+            { typeof(double), _double },
+            { typeof(Guid), new NuoDbGuidTypeMapping(TextTypeName) },
+            { typeof(float), new FloatTypeMapping(DoubleTypeName)}
         };
 
         private readonly Dictionary<string, RelationalTypeMapping> _storeTypeMappings = new(StringComparer.OrdinalIgnoreCase)
         {
             { IntegerTypeName, _integer },
             { LongTypeName, _long},
-            { RealTypeName, _real },
+            { DoubleTypeName, _double },
             { BlobTypeName, _blob },
             { TextTypeName, _text },
             { ShortTypeName, _short},
             { DecimalTypeName, _decimal },
             { TimestampTypeName, _dateTime },
-            { BooleanTypeName, _bool }
+            { BooleanTypeName, _bool },
         };
 
         /// <summary>
@@ -151,9 +152,7 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Storage.Internal
             name => Contains(name, "SMALLINT")
                 ? _short
                 : null,
-            name => Contains(name, "INTEGER")
-                ? _integer
-                : null,
+           
             name => Contains(name, "BIGINT")
                 ? _long
                 : null,
@@ -165,14 +164,15 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Storage.Internal
             name => Contains(name, "DECIMAL")
                     ? _decimal
                     : null,
+            name => Contains(name, "INTEGER")
+                ? _integer
+                : null,
             name => Contains(name, "BLOB")
                 || Contains(name, "BIN")
                     ? _blob
                     : null,
-            name => Contains(name, "REAL")
-                || Contains(name, "FLOA")
-                || Contains(name, "DOUB")
-                    ? _real
+            name => Contains(name, "DOUBLE")
+                    ? _double
                     : null
         };
 

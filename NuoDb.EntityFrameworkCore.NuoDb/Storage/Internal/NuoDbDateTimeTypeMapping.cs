@@ -14,7 +14,7 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Storage.Internal
     /// </summary>
     public class NuoDbDateTimeTypeMapping : DateTimeTypeMapping
     {
-        private const string DateTimeFormatConst = @"'{0:yyyy\-MM\-dd HH\:mm\:ss.FFFFFFF}'";
+        private const string DateTimeFormatConst = @"'{0:yyyy-MM-dd HH:mm:ss.fff}'";
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
