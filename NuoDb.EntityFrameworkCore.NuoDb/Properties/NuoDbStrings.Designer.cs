@@ -32,6 +32,12 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Internal
                 aggregateOperator, type);
 
         /// <summary>
+        ///     To change the IDENTITY property of a column, the column needs to be dropped and recreated.
+        /// </summary>
+        public static string AlterIdentityColumn
+            => GetString("AlterIdentityColumn");
+
+        /// <summary>
         ///     Translating this query requires the SQL APPLY operation, which is not supported on NuoDb.
         /// </summary>
         public static string ApplyNotSupported
@@ -176,7 +182,7 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Internal
         /// <summary>
         ///     Found foreign key on table '{tableName}', id: {id}, principal table: {principalTableName}, delete action: {deleteAction}.
         /// </summary>
-        public static EventDefinition<string?, long, string?, string?> LogFoundForeignKey(IDiagnosticsLogger logger)
+        public static EventDefinition<string, string, string, string> LogFoundForeignKey(IDiagnosticsLogger logger)
         {
             var definition = ((Diagnostics.Internal.NuoDbLoggingDefinitions)logger.Definitions).LogFoundForeignKey;
             if (definition == null)
@@ -184,18 +190,18 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Internal
                 definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.NuoDbLoggingDefinitions)logger.Definitions).LogFoundForeignKey,
                     logger,
-                    static logger => new EventDefinition<string?, long, string?, string?>(
+                    static logger => new EventDefinition<string, string, string, string>(
                         logger.Options,
                         NuoDbEventId.ForeignKeyFound,
                         LogLevel.Debug,
                         "NuoDbEventId.ForeignKeyFound",
-                        level => LoggerMessage.Define<string?, long, string?, string?>(
+                        level => LoggerMessage.Define<string, string, string, string>(
                             level,
                             NuoDbEventId.ForeignKeyFound,
                             _resourceManager.GetString("LogFoundForeignKey")!)));
             }
 
-            return (EventDefinition<string?, long, string?, string?>)definition;
+            return (EventDefinition<string, string, string, string>)definition;
         }
 
         /// <summary>
@@ -246,6 +252,28 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Internal
             }
 
             return (EventDefinition<string?, string?>)definition;
+        }
+
+        /// <summary>
+        ///     Found sequence with '{name}'
+        /// </summary>
+        public static FallbackEventDefinition LogFoundSequence(IDiagnosticsLogger logger)
+        {
+            var definition = ((Diagnostics.Internal.NuoDbLoggingDefinitions)logger.Definitions).LogFoundSequence;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((Diagnostics.Internal.NuoDbLoggingDefinitions)logger.Definitions).LogFoundSequence,
+                    logger,
+                    static logger => new FallbackEventDefinition(
+                        logger.Options,
+                        NuoDbEventId.SequenceFound,
+                        LogLevel.Debug,
+                        "NuoDbEventId.SequenceFound",
+                        _resourceManager.GetString("LogFoundSequence")!));
+            }
+
+            return (FallbackEventDefinition)definition;
         }
 
         /// <summary>
@@ -348,7 +376,31 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Internal
             return (EventDefinition<string?, string?, string?, string?>)definition;
         }
 
-      
+        /// <summary>
+        ///     The entity type '{entityType}' is configured to use schema '{schema}', but NuoDb does not support schemas. This configuration will be ignored by the NuoDb provider.
+        /// </summary>
+        public static EventDefinition<string, string> LogSchemaConfigured(IDiagnosticsLogger logger)
+        {
+            var definition = ((Diagnostics.Internal.NuoDbLoggingDefinitions)logger.Definitions).LogSchemaConfigured;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((Diagnostics.Internal.NuoDbLoggingDefinitions)logger.Definitions).LogSchemaConfigured,
+                    logger,
+                    static logger => new EventDefinition<string, string>(
+                        logger.Options,
+                        NuoDbEventId.SchemaConfigured,
+                        LogLevel.Warning,
+                        "NuoDbEventId.SchemaConfiguredWarning",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            NuoDbEventId.SchemaConfigured,
+                            _resourceManager.GetString("LogSchemaConfigured")!)));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
+
         /// <summary>
         ///     The model was configured with the database sequence '{sequence}'. NuoDb does not support sequences.
         /// </summary>

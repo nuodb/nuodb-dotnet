@@ -66,6 +66,25 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
             {
                 var memberName = member.Name;
 
+                if (memberName == nameof(DateTime.DayOfWeek))
+                {
+                    return _sqlExpressionFactory.ComplexFunctionArgument(
+                            new SqlExpression[]
+                            {
+                                _sqlExpressionFactory.NullableFunction(
+                                "DAYOFWEEK",
+                                new SqlExpression[]
+                                {
+                                    instance
+                                },
+                                instance.Type,
+                                instance.TypeMapping,
+                                true,
+                                new[] {true, false}),
+                                _sqlExpressionFactory.Fragment(" - 1") //apply an offset to account for nuodb's day of week being 1 based index
+                            }," ", typeof(string));
+                }
+
                 if (_datePartMapping.TryGetValue(memberName, out var datePart))
                 {
                     return _sqlExpressionFactory.Convert(
@@ -77,21 +96,21 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
                         returnType);
                 }
 
-                if (memberName == nameof(DateTime.Ticks))
-                {
-                    return _sqlExpressionFactory.Convert(
-                        _sqlExpressionFactory.Multiply(
-                            _sqlExpressionFactory.Subtract(
-                                _sqlExpressionFactory.Function(
-                                    "julianday",
-                                    new[] { instance! },
-                                    nullable: true,
-                                    argumentsPropagateNullability: new[] { true },
-                                    typeof(double)),
-                                _sqlExpressionFactory.Constant(1721425.5)), // NB: Result of julianday('0001-01-01 00:00:00')
-                            _sqlExpressionFactory.Constant(TimeSpan.TicksPerDay)),
-                        typeof(long));
-                }
+                // if (memberName == nameof(DateTime.Ticks))
+                // {
+                //     return _sqlExpressionFactory.Convert(
+                //         _sqlExpressionFactory.Multiply(
+                //             _sqlExpressionFactory.Subtract(
+                //                 _sqlExpressionFactory.Function(
+                //                     "julianday",
+                //                     new[] { instance! },
+                //                     nullable: true,
+                //                     argumentsPropagateNullability: new[] { true },
+                //                     typeof(double)),
+                //                 _sqlExpressionFactory.Constant(1721425.5)), // NB: Result of julianday('0001-01-01 00:00:00')
+                //             _sqlExpressionFactory.Constant(TimeSpan.TicksPerDay)),
+                //         typeof(long));
+                // }
 
                 if (memberName == nameof(DateTime.Millisecond))
                 {
@@ -107,6 +126,9 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
                             _sqlExpressionFactory.Constant(1000)),
                         _sqlExpressionFactory.Constant(1000));
                 }
+
+                
+                
 
                 var format = "yyyy-MM-dd HH:mm:ss.SSS";
                 SqlExpression timestring;

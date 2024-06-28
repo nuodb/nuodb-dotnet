@@ -27,17 +27,14 @@ namespace NuoDb.EntityFrameworkCore.Tests.Storage
         [InlineData("string", typeof(string))]
         [InlineData("Integer", typeof(int))]
         [InlineData("Blob", typeof(byte[]))]
-        [InlineData("numeric", typeof(byte[]))]
-        [InlineData("float", typeof(float?))]
+        [InlineData("numeric", typeof(decimal))]
         [InlineData("double", typeof(double))]
         [InlineData("SMALLINT", typeof(short))]
         [InlineData("VARCHAR(255)", typeof(string))]
         [InlineData("nchar(55)", typeof(string))]
-        [InlineData("datetime", typeof(byte[]))]
+        [InlineData("TIMESTAMP WITHOUT TIMEZONE", typeof(DateTime))]
         [InlineData("decimal(10,4)", typeof(decimal))]
         [InlineData("boolean", typeof(bool))]
-        [InlineData("unknown_type", typeof(byte[]))]
-        [InlineData("", typeof(byte[]))]
         public void It_maps_strings_to_not_null_types(string typeName, Type type)
         {
             Assert.Equal(type, CreateTypeMapper().FindMapping(typeName)?.ClrType);
@@ -95,10 +92,10 @@ namespace NuoDb.EntityFrameworkCore.Tests.Storage
 
         public override void Decimal_literal_generated_correctly()
         {
-            var typeMapping = new NuoDbDecimalTypeMapping("TEXT");
+            var typeMapping = new NuoDbDecimalTypeMapping("DECIMAL");
 
-            Test_GenerateSqlLiteral_helper(typeMapping, decimal.MinValue, "'-79228162514264337593543950335.0'");
-            Test_GenerateSqlLiteral_helper(typeMapping, decimal.MaxValue, "'79228162514264337593543950335.0'");
+            Test_GenerateSqlLiteral_helper(typeMapping, decimal.MinValue, "-79228162514264337593543950335.0");
+            Test_GenerateSqlLiteral_helper(typeMapping, decimal.MaxValue, "79228162514264337593543950335.0");
         }
 
         public override void Guid_literal_generated_correctly()

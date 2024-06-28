@@ -652,7 +652,7 @@ namespace NuoDb.Data.Client
 
         public override System.Collections.IEnumerator GetEnumerator()
         {
-            throw new NotImplementedException();
+            return new DbEnumerator(this, false);
         }
 
         public override bool HasRows

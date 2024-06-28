@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -96,47 +94,6 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
                 _ => base.ApplyTypeMapping(sqlExpression, typeMapping)
             };
 
-        private SqlBinaryExpression ApplyTypeMappingOnSqlBinary(SqlBinaryExpression sqlBinaryExpression, RelationalTypeMapping typeMapping)
-        {
-            // The default SqlExpressionFactory behavior is to assume that the two operands have the same type, and so to infer one side's
-            // mapping from the other if needed. Here we take care of some heterogeneous operand cases where this doesn't work.
-
-            var left = sqlBinaryExpression.Left;
-            var right = sqlBinaryExpression.Right;
-
-            var newSqlBinaryExpression = (SqlBinaryExpression)base.ApplyTypeMapping(sqlBinaryExpression, typeMapping);
-
-            // // Handle the special case, that a JSON value is compared to a string (e.g. when used together with
-            // // JSON_EXTRACT()).
-            // // The string argument should not be interpreted as a JSON value, which it normally would due to inference
-            // // if its type mapping hasn't been explicitly set before, but just as a string.
-            // if (newSqlBinaryExpression.Left.TypeMapping is MySqlJsonTypeMapping newLeftTypeMapping &&
-            //     newLeftTypeMapping.ClrType == typeof(string) &&
-            //     right.TypeMapping is null &&
-            //     right.Type == typeof(string))
-            // {
-            //     newSqlBinaryExpression = new SqlBinaryExpression(
-            //         sqlBinaryExpression.OperatorType,
-            //         ApplyTypeMapping(left, newLeftTypeMapping),
-            //         ApplyTypeMapping(right, _typeMappingSource.FindMapping(right.Type)),
-            //         newSqlBinaryExpression.Type,
-            //         newSqlBinaryExpression.TypeMapping);
-            // }
-            // else if (newSqlBinaryExpression.Right.TypeMapping is MySqlJsonTypeMapping newRightTypeMapping &&
-            //          newRightTypeMapping.ClrType == typeof(string) &&
-            //          left.TypeMapping is null &&
-            //          left.Type == typeof(string))
-            // {
-            //     newSqlBinaryExpression = new SqlBinaryExpression(
-            //         sqlBinaryExpression.OperatorType,
-            //         ApplyTypeMapping(left, _typeMappingSource.FindMapping(left.Type)),
-            //         ApplyTypeMapping(right, newRightTypeMapping),
-            //         newSqlBinaryExpression.Type,
-            //         newSqlBinaryExpression.TypeMapping);
-            // }
-
-            return newSqlBinaryExpression;
-        }
         private NuoDbComplexFunctionArgumentExpression ApplyTypeMappingOnComplexFunctionArgument(NuoDbComplexFunctionArgumentExpression complexFunctionArgumentExpression)
         {
             var inferredTypeMapping = ExpressionExtensions.InferTypeMapping(complexFunctionArgumentExpression.ArgumentParts.ToArray())

@@ -40,6 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             // Scaffolding events
             ColumnFound = CoreEventId.ProviderDesignBaseId,
+            SequenceFound,
             ForeignKeyFound,
             ForeignKeyPrincipalColumnMissingWarning,
             ForeignKeyReferencesMissingTableWarning,
@@ -148,9 +149,21 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public static readonly EventId PrimaryKeyFound = MakeScaffoldingId(Id.PrimaryKeyFound);
 
         /// <summary>
+        ///     A sequence was found.
+        ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
+        /// </summary>
+        public static readonly EventId SequenceFound = MakeScaffoldingId(Id.SequenceFound);
+
+        /// <summary>
         ///     A unique constraint was found.
         ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
         /// </summary>
         public static readonly EventId UniqueConstraintFound = MakeScaffoldingId(Id.UniqueConstraintFound);
+
+        /// <summary>
+        ///     A schema was configured
+        ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
+        /// </summary>
+        public static readonly EventId SchemaConfigured = MakeScaffoldingId(Id.SchemaConfiguredWarning);
     }
 }

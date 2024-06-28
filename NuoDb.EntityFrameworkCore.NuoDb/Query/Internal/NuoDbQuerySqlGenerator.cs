@@ -80,7 +80,7 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
             return nuoDbComplexFunctionArgumentExpression;
         }
 
-
+         
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -110,7 +110,7 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
             }
         }
 
-        protected override Expression VisitOrdering(OrderingExpression orderingExpression)
+       protected override Expression VisitOrdering(OrderingExpression orderingExpression)
         {
             Check.NotNull(orderingExpression, nameof(orderingExpression));
 
@@ -131,21 +131,6 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
 
             return orderingExpression;
         }
-
-        // protected override Expression VisitSqlFragment(SqlFragmentExpression sqlFragmentExpression)
-        // {
-        //     Check.NotNull(sqlFragmentExpression, nameof(sqlFragmentExpression));
-        //
-        //     return sqlFragmentExpression;
-        // }
-
-        // protected override Expression VisitSqlUnary(SqlUnaryExpression sqlUnaryExpression)
-        // {
-        //     return sqlUnaryExpression.OperatorType == ExpressionType.Convert
-        //         ? VisitConvert(sqlUnaryExpression)
-        //         : base.VisitSqlUnary(sqlUnaryExpression);
-        // }
-
 
         private SqlUnaryExpression VisitConvert(SqlUnaryExpression sqlUnaryExpression)
         {

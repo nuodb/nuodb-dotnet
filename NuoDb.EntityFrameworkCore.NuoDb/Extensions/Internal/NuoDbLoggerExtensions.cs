@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.Extensions.Logging;
 using NuoDb.EntityFrameworkCore.NuoDb.Diagnostics.Internal;
 using NuoDb.EntityFrameworkCore.NuoDb.Internal;
 
@@ -19,7 +20,24 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Extensions.Internal
     /// </summary>
     public static class NuoDbLoggerExtensions
     {
-       
+        public static void SequenceFound(
+            this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            string sequenceName)
+        {
+            // No DiagnosticsSource events because these are purely design-time messages
+            var definition = NuoDbResources.LogFoundSequence(diagnostics);
+
+            if (diagnostics.ShouldLog(definition))
+            {
+                definition.Log(
+                    diagnostics,
+                    l => l.LogDebug(
+                        definition.EventId,
+                        null,
+                        definition.MessageFormat,
+                        sequenceName));
+            }
+        }
         private static string SchemaConfiguredWarning(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<string, string>)definition;
@@ -205,7 +223,7 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Extensions.Internal
         public static void ForeignKeyFound(
             this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
             string? tableName,
-            long id,
+            string name,
             string? principalTableName,
             string? deleteAction)
         {
@@ -213,7 +231,7 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Extensions.Internal
 
             if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(diagnostics, tableName, id, principalTableName, deleteAction);
+                definition.Log(diagnostics, tableName, name, principalTableName, deleteAction);
             }
 
             // No DiagnosticsSource events because these are purely design-time messages

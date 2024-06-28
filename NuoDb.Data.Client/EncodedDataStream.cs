@@ -803,7 +803,9 @@ namespace NuoDb.Data.Client
                 return;
             }
 
-            TimeSpan delta = val.ToUniversalTime() - baseDate;
+            var dateValue = val.Kind == DateTimeKind.Local ? val.ToUniversalTime() : val;
+            
+            TimeSpan delta = dateValue - baseDate;
             long nanos = delta.Ticks * NANOSECONDS_PER_TICK;
             int scale = NANOSECONDS_SCALE;
 
@@ -1584,8 +1586,8 @@ namespace NuoDb.Data.Client
 
                 return;
             }
-
-            TimeSpan span = date.ToUniversalTime() - baseDate;
+            var dateValue = date.Kind == DateTimeKind.Local ? date.ToUniversalTime() : date;
+            TimeSpan span = dateValue - baseDate;
             long value = (long)(span.TotalMilliseconds);
             int count = byteCount(value);
             write(edsMilliSecLen0 + count);
@@ -1604,8 +1606,8 @@ namespace NuoDb.Data.Client
 
                 return;
             }
-
-            TimeSpan span = (protocolVersion >= Protocol.PROTOCOL_VERSION10 ? date.ToUniversalTime() : date) - baseDate;
+            var dateValue = date.Kind == DateTimeKind.Local ? date.ToUniversalTime() : date;
+            TimeSpan span = (protocolVersion >= Protocol.PROTOCOL_VERSION10 ? dateValue : date) - baseDate;
             // always send seconds. ms in date is useless
             long value = (long)span.TotalMilliseconds / 1000;
 
