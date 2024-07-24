@@ -32,6 +32,7 @@ SOFTWARE. */
 // ReSharper disable InconsistentNaming
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace JetBrains.Annotations;
 
@@ -230,6 +231,7 @@ internal sealed class InvokerParameterNameAttribute : Attribute
 /// public bool TryParse(string s, out Person result)
 /// </code></item>
 /// </list></examples>
+[ExcludeFromCodeCoverage]
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
 internal sealed class ContractAnnotationAttribute : Attribute
 {

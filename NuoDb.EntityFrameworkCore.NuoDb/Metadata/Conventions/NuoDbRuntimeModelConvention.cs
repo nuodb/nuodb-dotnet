@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using NuoDb.EntityFrameworkCore.NuoDb.Metadata.Internal;
 
@@ -15,6 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see>, and
     /// </remarks>
+    [ExcludeFromCodeCoverage]
     public class NuoDbRuntimeModelConvention : RelationalRuntimeModelConvention
     {
         /// <summary>
