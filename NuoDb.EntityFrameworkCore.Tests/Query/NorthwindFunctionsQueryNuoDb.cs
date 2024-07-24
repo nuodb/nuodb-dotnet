@@ -82,6 +82,11 @@ namespace NuoDb.EntityFrameworkCore.Tests.Query
         public override Task Where_mathf_truncate(bool async)
             => AssertTranslationFailed(() => base.Where_mathf_truncate(async));
 
+        public override Task Datetime_subtraction_TotalDays(bool async)
+        {
+            return AssertTranslationFailed(() => base.Datetime_subtraction_TotalDays(async));
+        }
+
         [ConditionalFact]
         public async Task DateWhereCriteria()
         {

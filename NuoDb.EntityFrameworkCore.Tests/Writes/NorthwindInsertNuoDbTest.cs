@@ -2,10 +2,13 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using NuoDb.Data.Client;
 using NuoDb.EntityFrameworkCore.Tests.Query;
 
 namespace NuoDb.EntityFrameworkCore.Tests.Writes
@@ -72,6 +75,38 @@ namespace NuoDb.EntityFrameworkCore.Tests.Writes
 
                 var fetchedUpdatedProduct = ctx.Products.FirstOrDefault(x => x.ProductID == id);
                 Assert.Equal(25,fetchedUpdatedProduct!.UnitsInStock);
+            }
+        }
+
+        [ConditionalFact]
+        public async Task Transaction_Finalized_On_Connection_Close()
+        {
+            string connectionString;
+            using (var ctx = _fixture.CreateContext())
+            {
+                connectionString = ctx.Database.GetConnectionString();
+               
+            }
+
+            using (var conn = new NuoDbConnection(connectionString))
+            {
+                conn.Open();
+                var transaction = conn.BeginTransaction();
+                try
+                {
+                    var command = conn.CreateCommand();
+                    command.CommandText = "BLAH"; //intentionally bad query
+                    command.ExecuteNonQuery();
+                    //ctx.Database.ExecuteSqlRaw("SELECT *");
+                    transaction.Commit();
+                }
+                catch (Exception ex)
+                {
+
+                }
+                conn.Close();
+                conn.Open();
+                var tx2 = conn.BeginTransaction();
             }
         }
     }

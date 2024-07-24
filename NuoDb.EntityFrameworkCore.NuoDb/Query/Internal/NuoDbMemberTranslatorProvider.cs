@@ -30,7 +30,7 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
             AddTranslators(
                 new IMemberTranslator[]
                 {
-                    new NuoDbDateTimeMemberTranslator(sqlExpressionFactory),
+                    new NuoDbDateTimeMemberTranslator(sqlExpressionFactory, typeMappingSource),
                     new NuoDbStringLengthTranslator(sqlExpressionFactory),
                     new NuoDbDateOnlyMemberTranslator(sqlExpressionFactory),
                     new NuoDbTimeSpanMemberTranslator(sqlExpressionFactory, (NuoDbTypeMappingSource)typeMappingSource)

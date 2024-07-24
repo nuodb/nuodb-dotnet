@@ -218,8 +218,12 @@ namespace NuoDb.Data.Client
                 row["BaseCatalogName"] = dataStream.getString();
                 row["BaseSchemaName"] = dataStream.getString();
                 row["BaseTableName"] = dataStream.getString();
-                row["BaseColumnName"] = dataStream.getString();
-                row["ColumnName"] = dataStream.getString();
+
+                var baseColumn = dataStream.getString();
+                row["BaseColumnName"] = IsSqlLiteral(baseColumn)? null: baseColumn;
+
+                var columnName = dataStream.getString();
+                row["ColumnName"] = IsSqlLiteral(columnName) ? null : columnName;
                 string collationSequence = dataStream.getString();
                 row["DataTypeName"] = dataStream.getString();
                 row["ProviderType"] = NuoDbConnectionInternal.mapJavaSqlToDbType(dataStream.getInt());
@@ -285,6 +289,16 @@ namespace NuoDb.Data.Client
         {
             get { return closed; }
         }
+
+        protected bool IsSqlLiteral(string name)
+        {
+            if (name == null || name.Length == 0)
+                return true;
+
+            return "'0123456789".IndexOf(name[0]) >= 0;
+        }
+
+
 
         public override bool NextResult()
         {

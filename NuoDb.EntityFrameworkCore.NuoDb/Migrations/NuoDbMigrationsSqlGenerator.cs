@@ -96,14 +96,27 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             {
                 switch (operation)
                 {
-                    case AddPrimaryKeyOperation _:
-                    case AddUniqueConstraintOperation _:
-                    case AddCheckConstraintOperation _:
-                    case AlterTableOperation _:
-                    case DropCheckConstraintOperation _:
-                    case DropForeignKeyOperation _:
-                    case DropPrimaryKeyOperation _:
-                    case AddForeignKeyOperation _:
+                   
+                    case AddForeignKeyOperation foreignKeyOperation:
+                    {
+                        var table = operations
+                            .OfType<CreateTableOperation>()
+                            .FirstOrDefault(o => o.Name == foreignKeyOperation.Table);
+
+                        if (table != null)
+                        {
+                            table.ForeignKeys.Add(foreignKeyOperation);
+                        }
+                        else
+                        {
+                            //var rebuild = rebuilds.GetOrAddNew((foreignKeyOperation.Table, foreignKeyOperation.Schema));
+                            //rebuild.OperationsToReplace.Add(foreignKeyOperation);
+
+                            operations.Add(foreignKeyOperation);
+                        }
+
+                        break;
+                    }
                     case AlterColumnOperation _:
                     case DropUniqueConstraintOperation _:
                         // {
@@ -630,20 +643,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             // Lifts a primary key definition into the typename.
             // This handles the quirks of creating integer primary keys using autoincrement, not default rowid behavior.
-            // if (operation.PrimaryKey?.Columns.Length == 1)
-            // {
-            //     var columnOp = operation.Columns.FirstOrDefault(o => o.Name == operation.PrimaryKey.Columns[0]);
-            //     if (columnOp != null)
-            //     {
-            //         columnOp.AddAnnotation(NuoDbAnnotationNames.InlinePrimaryKey, true);
-            //         if (!string.IsNullOrEmpty(operation.PrimaryKey.Name))
-            //         {
-            //             columnOp.AddAnnotation(NuoDbAnnotationNames.InlinePrimaryKeyName, operation.PrimaryKey.Name);
-            //         }
-            //
-            //         operation.PrimaryKey = null;
-            //     }
-            // }
+            if (operation.PrimaryKey?.Columns.Length == 1)
+            {
+                var columnOp = operation.Columns.FirstOrDefault(o => o.Name == operation.PrimaryKey.Columns[0]);
+                if (columnOp != null && string.IsNullOrEmpty(operation.PrimaryKey.Name))
+                {
+                    columnOp.AddAnnotation(NuoDbAnnotationNames.InlinePrimaryKey, true);
+                    // if (!string.IsNullOrEmpty(operation.PrimaryKey.Name))
+                    // {
+                    //     columnOp.AddAnnotation(NuoDbAnnotationNames.InlinePrimaryKeyName, operation.PrimaryKey.Name);
+                    // }
+            
+                    operation.PrimaryKey = null;
+                }
+            }
 
             builder
                 .Append("CREATE TABLE IF NOT EXISTS ")
@@ -771,7 +784,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                 builder.Append(" PRIMARY KEY");
                 var autoincrement = operation[NuoDbAnnotationNames.Autoincrement] as bool?
-                    // NB: Migrations scaffolded with version 1.0.0 don't have the prefix. See #6461
                     ?? operation[NuoDbAnnotationNames.LegacyAutoincrement] as bool?;
                 if (autoincrement == true)
                 {

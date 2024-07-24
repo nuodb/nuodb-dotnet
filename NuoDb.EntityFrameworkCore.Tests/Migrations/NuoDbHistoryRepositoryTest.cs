@@ -21,15 +21,8 @@ namespace NuoDb.EntityFrameworkCore.Tests.Migrations
         {
             var sql = CreateHistoryRepository().GetCreateScript();
 
-            Assert.Equal(
-                "CREATE TABLE IF NOT EXISTS \"__EFMigrationsHistory\" (" 
-                +EOL
-                + "    \"MigrationId\" NATIONAL CHAR VARYING(150) NOT NULL PRIMARY KEY,"
-                + EOL
-                + "    \"ProductVersion\" NATIONAL CHAR VARYING(32) NOT NULL"
-                + EOL
-                + ");"
-                + EOL,
+            Assert.Equal("CREATE TABLE IF NOT EXISTS \"__EFMigrationsHistory\" (\r\n    \"MigrationId\" varchar(150) NOT NULL,\r\n    \"ProductVersion\" varchar(32) NOT NULL,\r\n    CONSTRAINT \"PK___EFMigrationsHistory\" PRIMARY KEY (\"MigrationId\")\r\n);\r\n"
+                ,
                 sql);
         }
 

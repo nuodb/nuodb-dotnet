@@ -142,6 +142,7 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Storage.Internal
                     //{ typeof(DateTimeOffset), _datetimeoffset },
                     { typeof(short), _short },
                     { typeof(decimal), _decimal182 },
+                    //{ typeof(TimeSpan), new TimeSpanTypeMapping(TextTypeName) }
                     //{ typeof(TimeSpan), _time }
                 };
 
@@ -176,6 +177,7 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Storage.Internal
                     { "integer", _int },
                     { "money", _money },
                     { "string", _textAnsiString },
+                    { "now()", _datetime},
                     // { "national char varying", _variableLengthUnicodeString },
                     // { "national char varying(max)", _variableLengthMaxUnicodeString },
                     // { "national character varying", _variableLengthUnicodeString },

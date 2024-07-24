@@ -56,7 +56,7 @@ namespace NuoDb.EntityFrameworkCore.Tests.TestUtilities
                 connection.Open();
                 opened = true;
             }
-
+            
             var nonSystemSchemas = new List<string>();
             var command = connection.CreateCommand();
             command.CommandText = "select schema from SYSTEM.SCHEMAS where schema != 'SYSTEM'";
