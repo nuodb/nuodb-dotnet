@@ -215,10 +215,14 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Scaffolding.Internal
             Check.NotNull(connection, nameof(connection));
             Check.NotNull(options, nameof(options));
             var connStrBuilder = new NuoDbConnectionStringBuilder(connection.ConnectionString);
+            var connSchema = connStrBuilder.Schema;
 
             var databaseModel = new DatabaseModel();
             var schemaList = options.Schemas.ToList();
-            
+            if (schemaList.Count < 1 && !string.IsNullOrEmpty(connSchema))
+            {
+                schemaList.Add(connSchema);
+            }
             
             var schemaFilter = GenerateSchemaFilter(schemaList);
             var tableList = options.Tables.ToList();

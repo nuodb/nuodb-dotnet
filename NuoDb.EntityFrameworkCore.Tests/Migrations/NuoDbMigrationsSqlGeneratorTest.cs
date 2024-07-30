@@ -16,6 +16,7 @@ namespace NuoDb.EntityFrameworkCore.Tests.Migrations
 
         }
 
+
         [ConditionalFact]
         public virtual void It_lifts_foreign_key_additions()
         {

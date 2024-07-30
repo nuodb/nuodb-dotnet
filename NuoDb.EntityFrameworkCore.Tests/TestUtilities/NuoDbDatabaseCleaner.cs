@@ -56,37 +56,25 @@ namespace NuoDb.EntityFrameworkCore.Tests.TestUtilities
                 connection.Open();
                 opened = true;
             }
-            
-            var nonSystemSchemas = new List<string>();
+           
             var command = connection.CreateCommand();
-            command.CommandText = "select schema from SYSTEM.SCHEMAS where schema != 'SYSTEM'";
             var transaction = connection.BeginTransaction();
-            using (var reader = command.ExecuteReader())
-            {
-                while (reader.Read())
-                {
-                    nonSystemSchemas.Add(reader.GetString("schema"));
-                }
-                reader.Close();
-            }
 
-            for (int i = 0; i < nonSystemSchemas.Count; i++)
+            try
             {
-                var schemaToDrop = nonSystemSchemas[i];
                 var dropcmd = connection.CreateCommand();
-                dropcmd.CommandText = $"drop schema \""+schemaToDrop+"\" cascade;";
+                dropcmd.CommandText = $"drop schema \"{schema}\" cascade;";
                 dropcmd.ExecuteNonQuery();
+
+                command.CommandText = $"create schema \"{schema}\";";
+                command.ExecuteNonQuery();
+                transaction.Commit();
             }
-
-            command.CommandText = $"create schema \"{schema}\";";
-            command.ExecuteNonQuery();
-            transaction.Commit();
-
-            if (opened)
+            catch (Exception ex)
             {
-                connection.Close();
+                transaction.Rollback();
+                throw;
             }
-            //base.Clean(facade);
         }
 
         protected override bool AcceptForeignKey(DatabaseForeignKey foreignKey)

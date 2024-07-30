@@ -1,7 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Scaffolding;
+using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using NuoDb.EntityFrameworkCore.NuoDb.Scaffolding.Internal;
@@ -14,10 +18,12 @@ namespace NuoDb.EntityFrameworkCore.Tests.Migrations
     public class MigrationsNuoDbTest: MigrationsTestBase<MigrationsNuoDbTest.MigrationsNuoDbFixture>
     {
         protected static string EOL => Environment.NewLine;
+        private readonly string _storeName;
 
         public MigrationsNuoDbTest(MigrationsNuoDbFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
+            _storeName = fixture.TestStore.Name;
             Fixture.TestSqlLoggerFactory.Clear();
             // Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
@@ -271,6 +277,7 @@ namespace NuoDb.EntityFrameworkCore.Tests.Migrations
             public override TestHelpers TestHelpers
                 => NuoDbTestHelpers.Instance;
 
+
             protected override IServiceCollection AddServices(IServiceCollection serviceCollection)
                 => base.AddServices(serviceCollection)
                     .AddScoped<IDatabaseModelFactory, NuoDbDatabaseModelFactory>();
@@ -281,6 +288,67 @@ namespace NuoDb.EntityFrameworkCore.Tests.Migrations
             //nothing really to see here
             //return base.Create_sequence_all_settings();
             return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Overriden to ensure necessary schemas are provided to DatabaseModelFactory
+        /// </summary>
+        /// <param name="sourceModel"></param>
+        /// <param name="targetModel"></param>
+        /// <param name="operations"></param>
+        /// <param name="asserter"></param>
+        /// <returns></returns>
+        protected override async Task Test(
+            IModel sourceModel,
+            IModel targetModel,
+            IReadOnlyList<MigrationOperation> operations,
+            Action<DatabaseModel> asserter)
+        {
+            var context = CreateContext();
+            var serviceProvider = ((IInfrastructure<IServiceProvider>)context).Instance;
+            var migrationsSqlGenerator = serviceProvider.GetRequiredService<IMigrationsSqlGenerator>();
+            var modelDiffer = serviceProvider.GetRequiredService<IMigrationsModelDiffer>();
+            var migrationsCommandExecutor = serviceProvider.GetRequiredService<IMigrationCommandExecutor>();
+            var connection = serviceProvider.GetRequiredService<IRelationalConnection>();
+            var databaseModelFactory = serviceProvider.GetRequiredService<IDatabaseModelFactory>();
+
+            try
+            {
+                // Apply migrations to get to the source state, and do a scaffolding snapshot for later comparison.
+                // Suspending event recording, we're not interested in the SQL of this part
+                using (Fixture.TestSqlLoggerFactory.SuspendRecordingEvents())
+                {
+                    await migrationsCommandExecutor.ExecuteNonQueryAsync(
+                        migrationsSqlGenerator.Generate(modelDiffer.GetDifferences(null, sourceModel.GetRelationalModel()), sourceModel),
+                        connection);
+                }
+
+                // Apply migrations to get from source to target, then reverse-engineer and execute the
+                // test-provided assertions on the resulting database model
+                await migrationsCommandExecutor.ExecuteNonQueryAsync(
+                    migrationsSqlGenerator.Generate(operations, targetModel), connection);
+
+
+                //Front load schemas to be used with modelfactory for verification
+                List<string> schemas = operations.Where(x => x is TableOperation)
+                    .Select(x => (x as TableOperation).Schema)
+                    .Where(x => !string.IsNullOrEmpty(x))
+                    .ToList();
+
+                var scaffoldedModel = databaseModelFactory.Create(
+                    context.Database.GetDbConnection(),
+                    new DatabaseModelFactoryOptions(schemas: schemas
+                            .ToList()
+                            .Append(_storeName)
+                            .ToList()));
+
+                asserter?.Invoke(scaffoldedModel);
+            }
+            finally
+            {
+                using var _ = Fixture.TestSqlLoggerFactory.SuspendRecordingEvents();
+                Fixture.TestStore.Clean(context);
+            }
         }
 
         protected override string NonDefaultCollation { get; }
