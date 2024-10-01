@@ -7,6 +7,7 @@ using System.Threading;
 
 namespace Microsoft.EntityFrameworkCore.Internal;
 
+[ExcludeFromCodeCoverage]
 internal static class NonCapturingLazyInitializer
 {
     public static TValue EnsureInitialized<TParam, TValue>(

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Linq;
 using System.Reflection;
@@ -12,6 +13,7 @@ using System.Text;
 namespace System;
 
 [DebuggerStepThrough]
+[ExcludeFromCodeCoverage]
 internal static class SharedTypeExtensions
 {
     private static readonly Dictionary<Type, string> _builtInTypeNames = new()

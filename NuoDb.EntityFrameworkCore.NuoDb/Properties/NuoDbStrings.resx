@@ -120,6 +120,9 @@
   <data name="AggregateOperationNotSupported" xml:space="preserve">
     <value>NuoDb cannot apply aggregate operator '{aggregateOperator}' on expressions of type '{type}'. Convert the values to a supported type, or use LINQ to Objects to aggregate the results on the client side.</value>
   </data>
+  <data name="AlterIdentityColumn" xml:space="preserve">
+    <value>To change the IDENTITY property of a column, the column needs to be dropped and recreated.</value>
+  </data>
   <data name="ApplyNotSupported" xml:space="preserve">
     <value>Translating this query requires the SQL APPLY operation, which is not supported on NuoDb.</value>
   </data>
@@ -157,6 +160,9 @@
   <data name="LogFoundPrimaryKey" xml:space="preserve">
     <value>Found primary key on table '{tableName}' with name {primaryKeyName}.</value>
     <comment>Debug NuoDbEventId.PrimaryKeyFound string? string?</comment>
+  </data>
+  <data name="LogFoundSequence" xml:space="preserve">
+    <value>Found sequence with '{name}'</value>
   </data>
   <data name="LogFoundTable" xml:space="preserve">
     <value>Found table with name: '{name}'.</value>

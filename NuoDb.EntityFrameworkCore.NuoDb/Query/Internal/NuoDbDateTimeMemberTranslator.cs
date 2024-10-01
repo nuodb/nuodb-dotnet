@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
@@ -34,16 +35,17 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
             };
 
         private readonly NuoDbSqlExpressionFactory _sqlExpressionFactory;
-
+        private readonly IRelationalTypeMappingSource _typeMappingSource;
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public NuoDbDateTimeMemberTranslator(ISqlExpressionFactory sqlExpressionFactory)
+        public NuoDbDateTimeMemberTranslator(ISqlExpressionFactory sqlExpressionFactory, IRelationalTypeMappingSource typeMappingSource)
         {
             _sqlExpressionFactory = (NuoDbSqlExpressionFactory)sqlExpressionFactory;
+            _typeMappingSource = typeMappingSource;
         }
 
         /// <summary>
@@ -58,6 +60,7 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
             Type returnType,
             IDiagnosticsLogger<DbLoggerCategory.Query> logger)
         {
+            //Check.NotNull(instance, nameof(instance));
             Check.NotNull(member, nameof(member));
             Check.NotNull(returnType, nameof(returnType));
             Check.NotNull(logger, nameof(logger));
@@ -66,35 +69,116 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
             {
                 var memberName = member.Name;
 
+                if (memberName == nameof(DateTime.DayOfWeek))
+                {
+                    Check.NotNull(instance, nameof(instance));
+                    return _sqlExpressionFactory.ComplexFunctionArgument(
+                            new SqlExpression[]
+                            {
+                                _sqlExpressionFactory.NullableFunction(
+                                "DAYOFWEEK",
+                                new SqlExpression[]
+                                {
+                                    instance
+                                },
+                                instance.Type,
+                                instance.TypeMapping,
+                                true,
+                                new[] {true, false}),
+                                _sqlExpressionFactory.Fragment(" - 1") //apply an offset to account for nuodb's day of week being 1 based index
+                            }," ", typeof(string));
+                }
+
+                if (memberName == nameof(DateTime.Today))
+                {
+                    return _sqlExpressionFactory.Fragment("CURRENT_DATE");
+                }
+
+                if (memberName == nameof(DateTime.Date))
+                {
+                    Check.NotNull(instance, nameof(instance));
+                    return _sqlExpressionFactory.Function(
+                        "CAST",
+                        new SqlExpression[]
+                        {
+                            new NuoDbComplexFunctionArgumentExpression(
+                                new SqlExpression[]
+                                {
+                                    instance,
+                                    _sqlExpressionFactory.Fragment("AS DATE")
+                                },
+                                " ",
+                                typeof(string),
+                                instance.TypeMapping
+                            )
+                        },
+                        returnType
+                    );
+                }
+
+                if (memberName == nameof(DateTime.Now))
+                {
+                    return _sqlExpressionFactory.Function("now", Array.Empty<SqlExpression>(), typeof(DateTime), _typeMappingSource.FindMapping(typeof(DateTime)));
+                }
+
+                if (memberName == nameof(DateTime.UtcNow))
+                {
+                    return _sqlExpressionFactory.Function("now", Array.Empty<SqlExpression>(), typeof(DateTime),_typeMappingSource.FindMapping(typeof(DateTime)));
+                }
+
                 if (_datePartMapping.TryGetValue(memberName, out var datePart))
                 {
+                    Check.NotNull(instance, nameof(instance));
                     return _sqlExpressionFactory.Convert(
                         NuoDbExpression.DateToStr(
                             _sqlExpressionFactory,
                             typeof(string),
                             datePart,
-                            instance!),
+                            instance),
                         returnType);
                 }
 
-                if (memberName == nameof(DateTime.Ticks))
+                if (memberName == nameof(DateTime.TimeOfDay))
                 {
-                    return _sqlExpressionFactory.Convert(
-                        _sqlExpressionFactory.Multiply(
-                            _sqlExpressionFactory.Subtract(
-                                _sqlExpressionFactory.Function(
-                                    "julianday",
-                                    new[] { instance! },
-                                    nullable: true,
-                                    argumentsPropagateNullability: new[] { true },
-                                    typeof(double)),
-                                _sqlExpressionFactory.Constant(1721425.5)), // NB: Result of julianday('0001-01-01 00:00:00')
-                            _sqlExpressionFactory.Constant(TimeSpan.TicksPerDay)),
-                        typeof(long));
+                    Check.NotNull(instance, nameof(instance));
+                    return _sqlExpressionFactory.Function(
+                        "CAST",
+                        new SqlExpression[]
+                        {
+                            new NuoDbComplexFunctionArgumentExpression(
+                                new SqlExpression[]
+                                {
+                                    instance,
+                                    _sqlExpressionFactory.Fragment("AS TIME")
+                                },
+                                " ",
+                                typeof(string),
+                                instance.TypeMapping
+                            )
+                        },
+                        returnType
+                    );
                 }
+
+                // if (memberName == nameof(DateTime.Ticks))
+                // {
+                //     return _sqlExpressionFactory.Convert(
+                //         _sqlExpressionFactory.Multiply(
+                //             _sqlExpressionFactory.Subtract(
+                //                 _sqlExpressionFactory.Function(
+                //                     "julianday",
+                //                     new[] { instance! },
+                //                     nullable: true,
+                //                     argumentsPropagateNullability: new[] { true },
+                //                     typeof(double)),
+                //                 _sqlExpressionFactory.Constant(1721425.5)), // NB: Result of julianday('0001-01-01 00:00:00')
+                //             _sqlExpressionFactory.Constant(TimeSpan.TicksPerDay)),
+                //         typeof(long));
+                // }
 
                 if (memberName == nameof(DateTime.Millisecond))
                 {
+                    Check.NotNull(instance, nameof(instance));
                     return _sqlExpressionFactory.Modulo(
                         _sqlExpressionFactory.Multiply(
                             _sqlExpressionFactory.Convert(
@@ -107,84 +191,6 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
                             _sqlExpressionFactory.Constant(1000)),
                         _sqlExpressionFactory.Constant(1000));
                 }
-
-                var format = "yyyy-MM-dd HH:mm:ss.SSS";
-                SqlExpression timestring;
-                var modifiers = new List<SqlExpression>();
-
-                switch (memberName)
-                {
-                    case nameof(DateTime.Now):
-                        return _sqlExpressionFactory.Function("now", Array.Empty<SqlExpression>(),typeof(DateTime));
-                    case nameof(DateTime.UtcNow):
-                        return _sqlExpressionFactory.Function("now", Array.Empty<SqlExpression>(),typeof(DateTime));
-
-                    case nameof(DateTime.Date):
-                        format = "yyyy-MM-dd";
-                        timestring = instance!;
-                        return _sqlExpressionFactory.ComplexFunctionArgument(
-                            new SqlExpression[]
-                            {
-                                NuoDbExpression.DateToStr(
-                                    _sqlExpressionFactory,
-                                    returnType,
-                                    format,
-                                    timestring,
-                                    modifiers),
-                                _sqlExpressionFactory.Fragment("||' 00:00:00'"),
-                            },
-                            " ",
-                            typeof(string));
-                       
-
-                    case nameof(DateTime.Today):
-                        timestring = _sqlExpressionFactory.Constant("now");
-                        modifiers.Add(_sqlExpressionFactory.Constant("localtime"));
-                        modifiers.Add(_sqlExpressionFactory.Constant("start of day"));
-                        break;
-
-                    case nameof(DateTime.TimeOfDay):
-                        format = "HH:mm:ss.SSS";
-                        timestring = instance!;
-                        break;
-
-                    default:
-                        return null;
-                }
-
-                Check.DebugAssert(timestring != null, "timestring is null");
-
-                return
-                    NuoDbExpression.DateToStr(
-                        _sqlExpressionFactory,
-                        returnType,
-                        format,
-                        timestring,
-                        modifiers);
-                    // _sqlExpressionFactory.Function(
-                    // "rtrim",
-                    // new SqlExpression[]
-                    // {
-                    //     _sqlExpressionFactory.Function(
-                    //         "rtrim",
-                    //         new SqlExpression[]
-                    //         {
-                    //             NuoDbExpression.DateToStr(
-                    //                 _sqlExpressionFactory,
-                    //                 returnType,
-                    //                 format,
-                    //                 timestring,
-                    //                 modifiers),
-                    //             _sqlExpressionFactory.Constant("0")
-                    //         },
-                    //         nullable: true,
-                    //         argumentsPropagateNullability: new[] { true, false },
-                    //         returnType),
-                    //     _sqlExpressionFactory.Constant(".")
-                    // },
-                    // nullable: true,
-                    // argumentsPropagateNullability: new[] { true, false },
-                    // returnType);
             }
 
             return null;

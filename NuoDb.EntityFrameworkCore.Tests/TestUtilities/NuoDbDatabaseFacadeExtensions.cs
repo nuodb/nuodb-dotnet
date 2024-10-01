@@ -1,17 +1,18 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
-namespace Microsoft.EntityFrameworkCore.TestUtilities
+namespace NuoDb.EntityFrameworkCore.Tests.TestUtilities
 {
-    public static class SqlServerDatabaseFacadeExtensions
+    public static class NuoDbDatabaseFacadeExtensions
     {
         public static void EnsureClean(this DatabaseFacade databaseFacade)
             => databaseFacade.CreateExecutionStrategy()
                 .Execute(databaseFacade, database =>
                 {
-                    //new SqlServerDatabaseCleaner().Clean(database);
+                    new NuoDbDatabaseCleaner().Clean(database);
                 });
     }
 }

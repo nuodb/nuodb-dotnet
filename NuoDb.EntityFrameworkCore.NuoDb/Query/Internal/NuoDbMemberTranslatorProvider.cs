@@ -2,6 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Storage;
+using NuoDb.EntityFrameworkCore.NuoDb.Storage.Internal;
 
 namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
 {
@@ -19,7 +21,8 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public NuoDbMemberTranslatorProvider(RelationalMemberTranslatorProviderDependencies dependencies)
+        public NuoDbMemberTranslatorProvider(RelationalMemberTranslatorProviderDependencies dependencies,
+            IRelationalTypeMappingSource typeMappingSource)
             : base(dependencies)
         {
             var sqlExpressionFactory = dependencies.SqlExpressionFactory;
@@ -27,9 +30,10 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
             AddTranslators(
                 new IMemberTranslator[]
                 {
-                    new NuoDbDateTimeMemberTranslator(sqlExpressionFactory),
+                    new NuoDbDateTimeMemberTranslator(sqlExpressionFactory, typeMappingSource),
                     new NuoDbStringLengthTranslator(sqlExpressionFactory),
-                    new NuoDbDateOnlyMemberTranslator(sqlExpressionFactory)
+                    new NuoDbDateOnlyMemberTranslator(sqlExpressionFactory),
+                    new NuoDbTimeSpanMemberTranslator(sqlExpressionFactory, (NuoDbTypeMappingSource)typeMappingSource)
                 });
         }
     }

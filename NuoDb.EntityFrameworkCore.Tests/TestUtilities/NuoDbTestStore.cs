@@ -303,6 +303,7 @@ namespace NuoDb.EntityFrameworkCore.Tests.TestUtilities
             }
 
             connection.Open();
+
             try
             {
                 using var transaction = useTransaction ? connection.BeginTransaction() : null;

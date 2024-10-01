@@ -4,8 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Storage;
+using NuoDb.Data.Client;
 
 namespace NuoDb.EntityFrameworkCore.NuoDb.Storage.Internal
 {
@@ -17,29 +19,80 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Storage.Internal
     /// </summary>
     public class NuoDbStringTypeMapping : StringTypeMapping
     {
+        private const int UnicodeMax = 4000;
+        private const int AnsiMax = 8000;
+
+        private readonly DbType? _dbType;
+        private readonly int _maxSpecificSize;
+        private readonly int _maxSize;
+
         /// <summary>
-        ///     Initializes a new instance of the <see cref="NuoDbStringTypeMapping" /> class.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        /// <param name="storeType">The name of the database type.</param>
-        /// <param name="dbType">The <see cref="DbType" /> to be used.</param>
-        /// <param name="unicode">A value indicating whether the type should handle Unicode data or not.</param>
-        /// <param name="size">The size of data the property is configured to store, or null if no size is configured.</param>
         public NuoDbStringTypeMapping(
-            string storeType,
-            DbType? dbType = null,
+            string? storeType = null,
             bool unicode = false,
-            int? size = null)
-            : base(storeType, dbType, unicode, size)
+            int? size = null,
+            bool fixedLength = false,
+            DbType? dbType = null,
+            StoreTypePostfix? storeTypePostfix = null)
+            : this(
+                new RelationalTypeMappingParameters(
+                    new CoreTypeMappingParameters(typeof(string)),
+                    storeType ?? GetStoreName(unicode, fixedLength),
+                    storeTypePostfix ?? StoreTypePostfix.Size,
+                    GetDbType(unicode, fixedLength),
+                    unicode,
+                    size,
+                    fixedLength),
+                dbType)
         {
         }
 
+        private static string GetStoreName(bool unicode, bool fixedLength)
+            => unicode
+                ? fixedLength ? "char" : "varchar"
+                : fixedLength
+                    ? "char"
+                    : "varchar";
+
+        private static DbType? GetDbType(bool unicode, bool fixedLength)
+            => unicode
+                ? (fixedLength
+                    ? System.Data.DbType.StringFixedLength
+                    : System.Data.DbType.String)
+                : (fixedLength
+                    ? System.Data.DbType.AnsiStringFixedLength
+                    : System.Data.DbType.AnsiString);
+
         /// <summary>
-        ///     Initializes a new instance of the <see cref="NuoDbStringTypeMapping" /> class.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        /// <param name="parameters">Parameter object for <see cref="RelationalTypeMapping" />.</param>
-        protected NuoDbStringTypeMapping(RelationalTypeMappingParameters parameters)
+        protected NuoDbStringTypeMapping(RelationalTypeMappingParameters parameters, DbType? dbType)
             : base(parameters)
         {
+            if (parameters.Unicode)
+            {
+                _maxSpecificSize = parameters.Size.HasValue && parameters.Size <= UnicodeMax
+                    ? parameters.Size.Value
+                    : UnicodeMax;
+                _maxSize = UnicodeMax;
+            }
+            else
+            {
+                _maxSpecificSize = parameters.Size.HasValue && parameters.Size <= AnsiMax
+                    ? parameters.Size.Value
+                    : AnsiMax;
+                _maxSize = AnsiMax;
+            }
+
+            _dbType = dbType;
         }
 
         /// <summary>
@@ -48,7 +101,63 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Storage.Internal
         /// <param name="parameters">The parameters for this mapping.</param>
         /// <returns>The newly created mapping.</returns>
         protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
-            => new NuoDbStringTypeMapping(parameters);
+            => new NuoDbStringTypeMapping(parameters, _dbType);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        protected override void ConfigureParameter(DbParameter parameter)
+        {
+            var value = parameter.Value;
+            var length = (value as string)?.Length;
+
+            if (_dbType.HasValue
+                && parameter is NuoDbParameter sqlParameter) // To avoid crashing wrapping providers
+            {
+                sqlParameter.DbType = _dbType.Value;
+            }
+
+            if ((value == null
+                 || value == DBNull.Value)
+                || (IsFixedLength
+                    && length == _maxSpecificSize
+                    && Size.HasValue))
+            {
+                // A fixed-length parameter where the value matches the length can remain a fixed-length parameter
+                // because SQLClient will not do any padding or truncating.
+                parameter.Size = _maxSpecificSize;
+            }
+            else
+            {
+                if (IsFixedLength)
+                {
+                    // Force the parameter type to be not fixed length to avoid SQLClient truncation and padding.
+                    parameter.DbType = IsUnicode ? System.Data.DbType.String : System.Data.DbType.AnsiString;
+                }
+
+                // For strings and byte arrays, set the max length to the size facet if specified, or
+                // 8000 bytes if no size facet specified, if the data will fit so as to avoid query cache
+                // fragmentation by setting lots of different Size values otherwise set to the max bounded length
+                // if the value will fit, otherwise set to -1 (unbounded) to avoid SQL client size inference.
+                if (length != null
+                    && length <= _maxSpecificSize)
+                {
+                    parameter.Size = _maxSpecificSize;
+                }
+                else if (length != null
+                         && length <= _maxSize)
+                {
+                    parameter.Size = _maxSize;
+                }
+                else
+                {
+                    parameter.Size = -1;
+                }
+            }
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -58,8 +167,7 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Storage.Internal
         /// </summary>
         protected override string GenerateNonNullSqlLiteral(object value)
         {
-            var stringValue = (string)Convert.ChangeType(value, typeof(string));
-            //var stringValue = (string)value;
+            var stringValue = (string)value;
             var builder = new StringBuilder();
 
             var start = 0;

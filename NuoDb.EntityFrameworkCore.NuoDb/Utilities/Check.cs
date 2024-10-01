@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 namespace Microsoft.EntityFrameworkCore.Utilities;
 
 [DebuggerStepThrough]
+[ExcludeFromCodeCoverage]
 internal static class Check
 {
     [ContractAnnotation("value:null => halt")]

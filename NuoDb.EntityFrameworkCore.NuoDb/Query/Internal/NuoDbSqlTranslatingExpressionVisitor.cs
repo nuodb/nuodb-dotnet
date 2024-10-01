@@ -100,46 +100,15 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
         /// </summary>
         protected override Expression VisitUnary(UnaryExpression unaryExpression)
         {
-            return base.VisitUnary(unaryExpression);
+            //return base.VisitUnary(unaryExpression);
             Check.NotNull(unaryExpression, nameof(unaryExpression));
 
-            if (unaryExpression.NodeType == ExpressionType.ArrayLength
-                && unaryExpression.Operand.Type == typeof(byte[]))
-            {
-                return Visit(unaryExpression.Operand) is SqlExpression sqlExpression
-                    ? Dependencies.SqlExpressionFactory.Function(
-                        "length",
-                        new[] { sqlExpression },
-                        nullable: true,
-                        argumentsPropagateNullability: new[] { true },
-                        typeof(int))
-                    : QueryCompilationContext.NotTranslatedExpression;
-            }
+           
 
             var visitedExpression = base.VisitUnary(unaryExpression);
             if (visitedExpression == QueryCompilationContext.NotTranslatedExpression)
             {
                 return QueryCompilationContext.NotTranslatedExpression;
-            }
-
-            if (visitedExpression is SqlUnaryExpression sqlUnary
-                && sqlUnary.OperatorType == ExpressionType.Negate)
-            {
-                var operandType = GetProviderType(sqlUnary.Operand);
-                if (operandType == typeof(decimal))
-                {
-                    return Dependencies.SqlExpressionFactory.Function(
-                        name: "ef_negate",
-                        new[] { sqlUnary.Operand },
-                        nullable: true,
-                        new[] { true },
-                        visitedExpression.Type);
-                }
-
-                if (operandType == typeof(TimeSpan))
-                {
-                    return QueryCompilationContext.NotTranslatedExpression;
-                }
             }
 
             return visitedExpression;
