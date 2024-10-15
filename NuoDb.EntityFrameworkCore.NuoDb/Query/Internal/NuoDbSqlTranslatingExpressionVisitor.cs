@@ -21,6 +21,23 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
     /// </summary>
     public class NuoDbSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExpressionVisitor
     {
+        private static readonly List<string> DateTimeDataTypes
+            =new List<string>{
+            
+                "time",
+                "date",
+                "datetime",
+                "datetimeoffset"
+            };
+        private static readonly List<Type> DateTimeClrTypes
+            = new List<Type>{
+            
+                typeof(TimeOnly),
+                typeof(DateOnly),
+                typeof(TimeSpan),
+                typeof(DateTime),
+                typeof(DateTimeOffset)
+            };
         private static readonly IReadOnlyDictionary<ExpressionType, IReadOnlyCollection<Type>> _restrictedBinaryExpressions
             = new Dictionary<ExpressionType, IReadOnlyCollection<Type>>
             {
@@ -130,7 +147,7 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
                 return QueryCompilationContext.NotTranslatedExpression;
             }
 
-            if (visitedExpression is SqlBinaryExpression sqlBinary)
+            if (visitedExpression is SqlBinaryExpression sqlBinary )
             {
                 if (sqlBinary.OperatorType == ExpressionType.Modulo
                     && (_functionModuloTypes.Contains(GetProviderType(sqlBinary.Left))
@@ -142,6 +159,26 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
                         sqlBinary.Right,
                         //new[] { sqlBinary.Left, sqlBinary.Right },
                         visitedExpression.TypeMapping);//, Dependencies.SqlExpressionFactory.Constant(0));
+                }
+
+                var inferredProviderType = GetProviderTypeName(sqlBinary.Left) ?? GetProviderTypeName(sqlBinary.Right);
+                if (inferredProviderType != null)
+                {
+                    if (DateTimeDataTypes.Contains(inferredProviderType))
+                    {
+                        return QueryCompilationContext.NotTranslatedExpression;
+                    }
+                }
+                else
+                {
+                    var leftType = sqlBinary.Left.Type;
+                    var rightType = sqlBinary.Right.Type;
+
+                    if (DateTimeClrTypes.Contains(leftType)
+                        || DateTimeClrTypes.Contains(rightType))
+                    {
+                        return QueryCompilationContext.NotTranslatedExpression;
+                    }
                 }
 
                 if (_restrictedBinaryExpressions.TryGetValue(sqlBinary.OperatorType, out var restrictedTypes)
@@ -269,6 +306,9 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
                 : (expression.TypeMapping?.Converter?.ProviderClrType
                     ?? expression.TypeMapping?.ClrType
                     ?? expression.Type);
+
+        private static string? GetProviderTypeName(SqlExpression expression)
+            => expression.TypeMapping?.StoreType;
 
         private static bool AreOperandsDecimals(SqlBinaryExpression sqlExpression)
             => GetProviderType(sqlExpression.Left) == typeof(decimal)

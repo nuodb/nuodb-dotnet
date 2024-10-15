@@ -392,7 +392,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Test_GenerateSqlLiteral_helper(
                 new DateTimeOffsetTypeMapping("DateTimeOffset"),
                 new DateTimeOffset(2015, 3, 12, 13, 36, 37, 371, new TimeSpan(-7, 0, 0)),
-                "TIMESTAMP '2015-03-12 13:36:37.3710000-07:00'");
+                "'2015-03-12 13:36:37.3710000-07:00'");
         }
 
         [ConditionalFact]
@@ -401,7 +401,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Test_GenerateSqlLiteral_helper(
                 new DateTimeTypeMapping("DateTime"),
                 new DateTime(2015, 3, 12, 13, 36, 37, 371, DateTimeKind.Utc),
-                "TIMESTAMP '2015-03-12 13:36:37.3710000'");
+                "'2015-03-12 13:36:37.3710000'");
         }
 
         [ConditionalFact]

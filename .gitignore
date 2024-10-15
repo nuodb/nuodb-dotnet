@@ -10,3 +10,4 @@ WebApplicationSample/WebApplicationSample.csproj.user
 
 *.user
 /*.nupkg
+.vs

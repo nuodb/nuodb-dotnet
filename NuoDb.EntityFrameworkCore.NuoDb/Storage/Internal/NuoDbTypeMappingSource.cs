@@ -38,6 +38,7 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Storage.Internal
         private readonly IntTypeMapping _int
             = new("integer");
 
+
         private readonly NuoDbByteArrayTypeMapping _blob = new NuoDbByteArrayTypeMapping("BLOB");
 
         private readonly BoolTypeMapping _bool
@@ -73,8 +74,14 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Storage.Internal
         private readonly NuoDbByteArrayTypeMapping _fixedLengthBinary
             = new(fixedLength: true);
 
-        private readonly DateTimeTypeMapping _datetime
-            = new("TIMESTAMP WITHOUT TIMEZONE", DbType.DateTime);
+        private readonly NuoDbDateTimeTypeMapping _datetime
+            = new("TIMESTAMP WITHOUT TIME ZONE", DbType.DateTime);
+
+        private readonly NuoDbTimeOnlyTypeMapping _timeOnly
+            = new("TIME", DbType.Time);
+
+        private readonly NuoDbDateTimeOffsetTypeMapping _dateTimeOffset
+            = new("TIMESTAMP", DbType.DateTimeOffset);
 
         private readonly ByteTypeMapping _byte
             = new ByteTypeMapping("binary(1)");
@@ -91,6 +98,8 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Storage.Internal
         private readonly GuidTypeMapping _uniqueidentifier
             = new NuoDbGuidTypeMapping("varchar(40)");
 
+ 
+
         private readonly DecimalTypeMapping _decimal
             = new NuoDbDecimalTypeMapping("decimal");
 
@@ -105,6 +114,9 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Storage.Internal
 
         private readonly NuoDbDateOnlyTypeMapping _date
             = new("date", DbType.Date);
+
+        private readonly NuoDbTimeOnlyTypeMapping _time
+            = new("time", DbType.Time);
 
         // private readonly TimeSpanTypeMapping _time
         //     = new SqlServerTimeSpanTypeMapping("time");
@@ -134,8 +146,12 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Storage.Internal
                 {
                     { typeof(int), _int },
                     { typeof(long), _long },
-                    
+                    //{ typeof(TimeSpan), _timeSpan },
                     { typeof(Guid), _uniqueidentifier },
+                    { typeof(DateOnly), _date},
+                    { typeof(DateTime), _datetime},
+                    { typeof(TimeOnly), _timeOnly},
+                    { typeof(DateTimeOffset), _dateTimeOffset},
                     { typeof(bool), _bool },
                     { typeof(byte), _byte },
                     { typeof(double), _double },
@@ -168,9 +184,10 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Storage.Internal
                     { "character varying(max)", _variableLengthMaxAnsiString },
                     { "character", _fixedLengthAnsiString },
                     { "date", _date },
+                    { "time", _timeOnly},
                     { "datetime", _datetime },
-                    { "TIMESTAMP WITHOUT TIMEZONE", _datetime },
-                    //{ "datetimeoffset", _datetimeoffset },
+                    { "TIMESTAMP", _dateTimeOffset },
+                    { "TIMESTAMP WITHOUT TIME ZONE", _datetime },
                     { "decimal", _decimal },
                     { "double", _double },
                     { "float", _double },
@@ -178,23 +195,13 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Storage.Internal
                     { "money", _money },
                     { "string", _textAnsiString },
                     { "now()", _datetime},
-                    // { "national char varying", _variableLengthUnicodeString },
-                    // { "national char varying(max)", _variableLengthMaxUnicodeString },
-                    // { "national character varying", _variableLengthUnicodeString },
-                    // { "national character varying(max)", _variableLengthMaxUnicodeString },
-                    // { "national character", _fixedLengthUnicodeString },
                     { "nchar", _fixedLengthUnicodeString },
-                    // { "ntext", _textUnicodeString },
                     { "numeric", _decimal },
                     { "nvarchar", _variableLengthUnicodeString },
-                    //{ "nvarchar", _variableLengthMaxUnicodeString },
-                    // { "rowversion", _rowversion },
                     { "smalldatetime", _datetime },
                     { "smallint", _short },
                     { "smallmoney", _money },
-                    // { "sql_variant", _sqlVariant },
                     { "text", _textAnsiString },
-                    // { "timestamp", _rowversion },
                     { "binary(1)", _byte },
                     { "varbinary", _variableLengthBinary },
                     { "varbinary(max)", _variableLengthMaxBinary },
@@ -316,9 +323,7 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Storage.Internal
         {
             "decimal",
             "numeric",
-            //"datetimeoffset",
             "double",
-            //"float"
         };
 
         /// <summary>

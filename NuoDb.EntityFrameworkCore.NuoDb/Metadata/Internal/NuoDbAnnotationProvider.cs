@@ -79,12 +79,6 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Metadata.Internal
             {
                 yield return new Annotation(NuoDbAnnotationNames.Autoincrement, true);
             }
-
-            var srid = property.GetSrid();
-            if (srid != null)
-            {
-                yield return new Annotation(NuoDbAnnotationNames.Srid, srid);
-            }
         }
 
         private static bool HasConverter(IProperty property)

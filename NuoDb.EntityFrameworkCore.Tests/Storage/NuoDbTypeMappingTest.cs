@@ -32,7 +32,7 @@ namespace NuoDb.EntityFrameworkCore.Tests.Storage
         [InlineData("SMALLINT", typeof(short))]
         [InlineData("VARCHAR(255)", typeof(string))]
         [InlineData("nchar(55)", typeof(string))]
-        [InlineData("TIMESTAMP WITHOUT TIMEZONE", typeof(DateTime))]
+        [InlineData("TIMESTAMP WITHOUT TIME ZONE", typeof(DateTime))]
         [InlineData("decimal(10,4)", typeof(decimal))]
         [InlineData("boolean", typeof(bool))]
         public void It_maps_strings_to_not_null_types(string typeName, Type type)

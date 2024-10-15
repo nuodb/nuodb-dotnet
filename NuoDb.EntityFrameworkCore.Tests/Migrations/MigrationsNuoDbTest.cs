@@ -330,8 +330,8 @@ namespace NuoDb.EntityFrameworkCore.Tests.Migrations
 
 
                 //Front load schemas to be used with modelfactory for verification
-                List<string> schemas = operations.Where(x => x is TableOperation)
-                    .Select(x => (x as TableOperation).Schema)
+                List<string> schemas = operations.OfType<TableOperation>()
+                    .Select(x => x.Schema)
                     .Where(x => !string.IsNullOrEmpty(x))
                     .ToList();
 

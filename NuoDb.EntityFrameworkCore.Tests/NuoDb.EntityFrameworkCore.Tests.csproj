@@ -40,6 +40,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="ExtensionTests\" />
     <Folder Include="Infrastructure\" />
   </ItemGroup>
 

@@ -1,10 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
 using NuoDb.EntityFrameworkCore.Tests.TestUtilities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -24,6 +18,45 @@ namespace NuoDb.EntityFrameworkCore.Tests.Migrations
             Assert.Equal("CREATE TABLE IF NOT EXISTS \"__EFMigrationsHistory\" (\r\n    \"MigrationId\" varchar(150) NOT NULL,\r\n    \"ProductVersion\" varchar(32) NOT NULL,\r\n    CONSTRAINT \"PK___EFMigrationsHistory\" PRIMARY KEY (\"MigrationId\")\r\n);\r\n"
                 ,
                 sql);
+        }
+
+        [ConditionalFact]
+        public void GetExists_works()
+        {
+            var exists = CreateHistoryRepository().Exists();
+            Assert.False(exists);
+        }
+
+        [ConditionalFact]
+        public void GetEndIfScript_works()
+        {
+            Assert.Throws<NotSupportedException>(()=>CreateHistoryRepository().GetEndIfScript());
+            
+        }
+
+        [ConditionalFact]
+        public void GetCreateIfNotExistsScript_works()
+        {
+            var sql = @"CREATE TABLE IF NOT EXISTS IF NOT EXISTS ""__EFMigrationsHistory"" (
+    ""MigrationId"" varchar(150) NOT NULL,
+    ""ProductVersion"" varchar(32) NOT NULL,
+    CONSTRAINT ""PK___EFMigrationsHistory"" PRIMARY KEY (""MigrationId"")
+);
+";
+            var script = CreateHistoryRepository().GetCreateIfNotExistsScript();
+            Assert.Equal(sql, script);
+        }
+
+        [ConditionalFact]
+        public async Task GetBeginIfNotExistsScript_works()
+        {
+            Assert.Throws<NotSupportedException>(()=>CreateHistoryRepository().GetBeginIfNotExistsScript("Migration1"));
+        }
+
+        [ConditionalFact]
+        public async Task GetBeginIfExistsScript_works()
+        {
+            Assert.Throws<NotSupportedException>(()=>CreateHistoryRepository().GetBeginIfExistsScript("Migration1"));
         }
 
         private static IHistoryRepository CreateHistoryRepository(string schema = null)

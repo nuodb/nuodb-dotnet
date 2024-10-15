@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using NuoDb.EntityFrameworkCore.NuoDb.Metadata.Internal;
@@ -14,6 +15,7 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Design.Internal
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
 #pragma warning disable EF1001 // Internal EF Core API usage.
+    [ExcludeFromCodeCoverage]
     public class NuoDbCSharpRuntimeAnnotationCodeGenerator : RelationalCSharpRuntimeAnnotationCodeGenerator
     {
         /// <summary>
@@ -22,6 +24,7 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        
         public NuoDbCSharpRuntimeAnnotationCodeGenerator(
             CSharpRuntimeAnnotationCodeGeneratorDependencies dependencies,
             RelationalCSharpRuntimeAnnotationCodeGeneratorDependencies relationalDependencies)
@@ -29,16 +32,5 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Design.Internal
         {
         }
 
-        /// <inheritdoc />
-        public override void Generate(IProperty property, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
-        {
-            var annotations = parameters.Annotations;
-            if (!parameters.IsRuntime)
-            {
-                annotations.Remove(NuoDbAnnotationNames.Srid);
-            }
-
-            base.Generate(property, parameters);
-        }
     }
 }

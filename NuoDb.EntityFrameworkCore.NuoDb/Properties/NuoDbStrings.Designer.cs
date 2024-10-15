@@ -452,31 +452,6 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Internal
         }
 
         /// <summary>
-        ///     A connection of an unexpected type ({type}) is being used. The SQL functions prefixed with 'ef_' could not be created automatically. Manually define them if you encounter errors while querying.
-        /// </summary>
-        public static EventDefinition<string> LogUnexpectedConnectionType(IDiagnosticsLogger logger)
-        {
-            var definition = ((Diagnostics.Internal.NuoDbLoggingDefinitions)logger.Definitions).LogUnexpectedConnectionType;
-            if (definition == null)
-            {
-                definition = NonCapturingLazyInitializer.EnsureInitialized(
-                    ref ((Diagnostics.Internal.NuoDbLoggingDefinitions)logger.Definitions).LogUnexpectedConnectionType,
-                    logger,
-                    static logger => new EventDefinition<string>(
-                        logger.Options,
-                        NuoDbEventId.UnexpectedConnectionTypeWarning,
-                        LogLevel.Warning,
-                        "NuoDbEventId.UnexpectedConnectionTypeWarning",
-                        level => LoggerMessage.Define<string>(
-                            level,
-                            NuoDbEventId.UnexpectedConnectionTypeWarning,
-                            _resourceManager.GetString("LogUnexpectedConnectionType")!)));
-            }
-
-            return (EventDefinition<string>)definition;
-        }
-
-        /// <summary>
         ///     NuoDb doesn't support schemas. The specified schema selection arguments will be ignored.
         /// </summary>
         public static EventDefinition LogUsingSchemaSelectionsWarning(IDiagnosticsLogger logger)

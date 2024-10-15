@@ -66,19 +66,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         private static EventId MakeInfraId(Id id)
             => new((int)id, _infraPrefix + id);
 
-        /// <summary>
-        ///     <para>
-        ///         A connection of an unexpected type is being used.
-        ///     </para>
-        ///     <para>
-        ///         This event is in the <see cref="DbLoggerCategory.Infrastructure" /> category.
-        ///     </para>
-        ///     <para>
-        ///         This event uses the <see cref="UnexpectedConnectionTypeEventData" />
-        ///         payload when used with a <see cref="DiagnosticSource" />.
-        ///     </para>
-        /// </summary>
-        public static readonly EventId UnexpectedConnectionTypeWarning = MakeInfraId(Id.UnexpectedConnectionTypeWarning);
 
         private static readonly string _migrationsPrefix = DbLoggerCategory.Migrations.Name + ".";
 
