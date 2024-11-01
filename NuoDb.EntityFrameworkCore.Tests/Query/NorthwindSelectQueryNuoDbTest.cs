@@ -131,6 +131,16 @@ namespace NuoDb.EntityFrameworkCore.Tests.Query
         {
             return AssertTranslationFailed(() => base.Member_binding_after_ctor_arguments_fails_with_client_eval(async));
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public Task Take_limits_returned_records(bool async)
+        {
+             return AssertQuery(
+                async,
+                ss => ss.Set<Order>().Take(3),entryCount:3
+                );
+        }
     }
 
 }
