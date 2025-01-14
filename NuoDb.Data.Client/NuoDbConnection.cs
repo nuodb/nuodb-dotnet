@@ -153,7 +153,9 @@ namespace NuoDb.Data.Client
         {
             if (_disposed)
                 return;
-
+#if DEBUG
+            System.Diagnostics.Trace.WriteLine("NuoDbConnection::Dispose()");
+#endif
             if (disposing)
             {
                 CloseImpl();

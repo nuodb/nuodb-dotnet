@@ -37,7 +37,7 @@ namespace NuoDb.EntityFrameworkCore.Tests.Migrations
         [ConditionalFact]
         public void GetCreateIfNotExistsScript_works()
         {
-            var sql = @"CREATE TABLE IF NOT EXISTS IF NOT EXISTS ""__EFMigrationsHistory"" (
+            var sql = @"CREATE TABLE IF NOT EXISTS ""__EFMigrationsHistory"" (
     ""MigrationId"" varchar(150) NOT NULL,
     ""ProductVersion"" varchar(32) NOT NULL,
     CONSTRAINT ""PK___EFMigrationsHistory"" PRIMARY KEY (""MigrationId"")

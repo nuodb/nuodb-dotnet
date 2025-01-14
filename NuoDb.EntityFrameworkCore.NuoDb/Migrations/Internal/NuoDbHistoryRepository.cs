@@ -75,9 +75,7 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Migrations.Internal
         /// </summary>
         public override string GetCreateIfNotExistsScript()
         {
-            var script = GetCreateScript();
-
-            return script.Insert(script.IndexOf("CREATE TABLE", StringComparison.Ordinal) + 12, " IF NOT EXISTS");
+            return GetCreateScript();
         }
 
         /// <summary>
