@@ -29,6 +29,7 @@
 ****************************************************************************/
 
 using System;
+using System.Collections.Concurrent;
 #if NET_40
 using System.Collections.Concurrent;
 #endif
@@ -86,7 +87,7 @@ namespace NuoDb.Data.Client
             TimeSpan _lifeTime, _maxLifeTime;
             Queue<Item> _available;
             List<NuoDbConnectionInternal> _busy;
-            Semaphore _maxConnections;
+            SemaphoreSlim _maxConnections;
 
             public ConnectionPool(string connectionString)
             {
@@ -99,13 +100,13 @@ namespace NuoDb.Data.Client
                 _available = new Queue<Item>();
                 _busy = new List<NuoDbConnectionInternal>();
                 int maxConn = connBuilder.MaxConnectionsOrDefault;
-                _maxConnections = new Semaphore(maxConn, maxConn);
+                _maxConnections = new SemaphoreSlim(maxConn, maxConn);
             }
 
             public NuoDbConnectionInternal GetConnection()
             {
                 CheckDisposed();
-                _maxConnections.WaitOne();
+                _maxConnections.Wait();
                 lock (_syncRoot)
                 {
                     var connection = _available.Any()
@@ -205,7 +206,7 @@ namespace NuoDb.Data.Client
                     ClearConnectionsImpl();
                     _available = null;
                     _busy = null;
-                    _maxConnections.Close();
+                    _maxConnections.Dispose();
 #if NET_40
                     _maxConnections.Dispose();
 #endif
@@ -227,22 +228,13 @@ namespace NuoDb.Data.Client
         }
 
         int _disposed;
-#if NET_40
         ConcurrentDictionary<string, ConnectionPool> _pools;
-#else
-        object _syncRoot = new object();
-        Dictionary<string, ConnectionPool> _pools;
-#endif
         Timer _cleanupTimer;
 
         ConnectionPoolManager()
         {
             _disposed = 0;
-#if NET_40
             _pools = new ConcurrentDictionary<string, ConnectionPool>();
-#else
-            _pools = new Dictionary<string, ConnectionPool>();
-#endif
             _cleanupTimer = new Timer(CleanupCallback, null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1));
         }
 
@@ -250,37 +242,29 @@ namespace NuoDb.Data.Client
         {
             CheckDisposed();
 
-#if NET_40
             return _pools.GetOrAdd(connectionString, PrepareNewPool).GetConnection();
-#else
-            return GetPoolOrCreateNew(connectionString).GetConnection();
-#endif
         }
 
         public void Release(NuoDbConnectionInternal connection)
         {
-#if NET_40
             _pools.GetOrAdd(connection.ConnectionString, PrepareNewPool).ReleaseConnection(connection);
-#else
-            GetPoolOrCreateNew(connection.ConnectionString).ReleaseConnection(connection);
-#endif
         }
 
-#if !NET_40
-        ConnectionPool GetPoolOrCreateNew(string connectionString)
-        {
-            var pool = default(ConnectionPool);
-            lock (_syncRoot)
-            {
-                if (!_pools.TryGetValue(connectionString, out pool))
-                {
-                    pool = PrepareNewPool(connectionString);
-                    _pools.Add(connectionString, pool);
-                }
-            }
-            return pool;
-        }
-#endif
+// #if !NET_40
+//         ConnectionPool GetPoolOrCreateNew(string connectionString)
+//         {
+//             var pool = default(ConnectionPool);
+//             lock (_syncRoot)
+//             {
+//                 if (!_pools.TryGetValue(connectionString, out pool))
+//                 {
+//                     pool = PrepareNewPool(connectionString);
+//                     _pools.Add(connectionString, pool);
+//                 }
+//             }
+//             return pool;
+//         }
+// #endif
 
         public int GetPooledConnectionCount(string connectionString)
         {
@@ -307,15 +291,7 @@ namespace NuoDb.Data.Client
         {
             CheckDisposed();
 
-#if NET_40
             _pools.Values.AsParallel().ForAll(p => p.Clear());
-#else
-            lock (_syncRoot)
-            {
-                foreach(var x in _pools.Values)
-                    x.Clear();
-            }
-#endif
         }
 
         ConnectionPool PrepareNewPool(string connectionString)
@@ -342,15 +318,7 @@ namespace NuoDb.Data.Client
         {
             CheckDisposed(); 
 
-#if NET_40
             _pools.Values.AsParallel().ForAll(p => p.CleanupPool());
-#else
-            lock (_syncRoot)
-            {
-                foreach(var x in _pools.Values)
-                    x.CleanupPool();
-            }
-#endif
         }
 
         #region IDisposable Members

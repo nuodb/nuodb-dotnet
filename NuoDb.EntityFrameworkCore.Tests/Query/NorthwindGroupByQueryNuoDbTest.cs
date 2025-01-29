@@ -1,6 +1,7 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Numerics;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -17,7 +18,7 @@ namespace NuoDb.EntityFrameworkCore.Tests.Query
             : base(fixture)
         {
             Fixture.TestSqlLoggerFactory.Clear();
-            //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+            Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
         public override async Task AsEnumerable_in_subquery_for_GroupBy(bool async)
@@ -82,6 +83,32 @@ namespace NuoDb.EntityFrameworkCore.Tests.Query
         {
             await Assert.ThrowsAsync<InvalidOperationException>(()=> base.Select_uncorrelated_collection_with_groupby_works(async));
         }
+
+        public override Task Complex_query_with_groupBy_in_subquery4(bool async)
+             =>  Assert.ThrowsAsync<InvalidOperationException>(()=> base.Complex_query_with_groupBy_in_subquery4(async));
+
+        [ConditionalTheory(Skip="NuoDB bug, returns unknown function type: 39")]
+        [MemberData(nameof(IsAsyncData))]
+        public override Task GroupBy_conditional_properties(bool async)
+  
+        {
+            return base.GroupBy_conditional_properties(async);
+        }
+
+        [ConditionalTheory(Skip="NuoDB does not support aggregate functions in where clause")]
+        [MemberData(nameof(IsAsyncData))]
+        public override Task GroupBy_with_aggregate_containing_complex_where(bool async)
+        {
+            return base.GroupBy_with_aggregate_containing_complex_where(async);
+        }
+
+        [ConditionalTheory(Skip="NuoDB does not support apply")]
+        [MemberData(nameof(IsAsyncData))]
+        public override Task Select_correlated_collection_after_GroupBy_aggregate_when_identifier_changes_to_complex(bool async)
+        {
+            return base.Select_correlated_collection_after_GroupBy_aggregate_when_identifier_changes_to_complex(async);
+        }
+
 
         public override  Task GroupBy_aggregate_from_multiple_query_in_same_projection_2(bool async)
         {

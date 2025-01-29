@@ -5,7 +5,7 @@
     <PackageId>NuoDb.EntityFrameworkCore.NuoDb</PackageId>
     <RootNamespace>NuoDb.EntityFrameworkCore.NuoDb</RootNamespace>
     <Description>NuoDb database provider for Entity Framework Core. This package does not include a copy of the native NuoDb library.</Description>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <MinClientVersion>3.6</MinClientVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PackageTags>$(PackageTags);NuoDb</PackageTags>
@@ -17,11 +17,11 @@
 
 
   <ItemGroup>
-	  <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.29" />
-	  <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.29" />
-	  <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" Version="6.0.29" />
-	  <PackageReference Include="Microsoft.EntityFrameworkCore.Specification.Tests" Version="6.0.29" />
-	  <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="6.0.0" />
+	  <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.11" />
+	  <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.11" />
+	  <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" Version="8.0.11" />
+	  <PackageReference Include="Microsoft.EntityFrameworkCore.Specification.Tests" Version="8.0.11" />
+	  <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="8.0.2" />
   </ItemGroup>
 
 

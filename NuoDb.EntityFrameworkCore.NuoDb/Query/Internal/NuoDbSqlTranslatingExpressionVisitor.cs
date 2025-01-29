@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Utilities;
 using NuoDb.EntityFrameworkCore.NuoDb.Internal;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
 {
@@ -50,25 +51,25 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
                 [ExpressionType.Divide] = new HashSet<Type> { typeof(TimeSpan), typeof(ulong) },
                 [ExpressionType.GreaterThan] = new HashSet<Type>
                 {
-                    typeof(DateTimeOffset),
+                    //typeof(DateTimeOffset),
                     typeof(TimeSpan),
                     typeof(ulong)
                 },
                 [ExpressionType.GreaterThanOrEqual] = new HashSet<Type>
                 {
-                    typeof(DateTimeOffset),
+                    //typeof(DateTimeOffset),
                     typeof(TimeSpan),
                     typeof(ulong)
                 },
                 [ExpressionType.LessThan] = new HashSet<Type>
                 {
-                    typeof(DateTimeOffset),
+                    //typeof(DateTimeOffset),
                     typeof(TimeSpan),
                     typeof(ulong)
                 },
                 [ExpressionType.LessThanOrEqual] = new HashSet<Type>
                 {
-                    typeof(DateTimeOffset),
+                    //typeof(DateTimeOffset),
                     typeof(TimeSpan),
                     typeof(ulong)
                 },
@@ -130,7 +131,7 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
 
             return visitedExpression;
         }
-
+        
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -149,6 +150,7 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
 
             if (visitedExpression is SqlBinaryExpression sqlBinary )
             {
+                
                 if (sqlBinary.OperatorType == ExpressionType.Modulo
                     && (_functionModuloTypes.Contains(GetProviderType(sqlBinary.Left))
                         || _functionModuloTypes.Contains(GetProviderType(sqlBinary.Right))))
@@ -161,26 +163,39 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
                         visitedExpression.TypeMapping);//, Dependencies.SqlExpressionFactory.Constant(0));
                 }
 
-                var inferredProviderType = GetProviderTypeName(sqlBinary.Left) ?? GetProviderTypeName(sqlBinary.Right);
-                if (inferredProviderType != null)
-                {
-                    if (DateTimeDataTypes.Contains(inferredProviderType))
-                    {
-                        return QueryCompilationContext.NotTranslatedExpression;
-                    }
-                }
-                else
-                {
-                    var leftType = sqlBinary.Left.Type;
-                    var rightType = sqlBinary.Right.Type;
+                // var inferredProviderType = GetProviderTypeName(sqlBinary.Left) ?? GetProviderTypeName(sqlBinary.Right);
+                // if (inferredProviderType != null)
+                // {
+                //     if (DateTimeDataTypes.Contains(inferredProviderType))
+                //     {
+                //         return QueryCompilationContext.NotTranslatedExpression;
+                //     }
+                // }
+                // else
+                // {
+                //     var leftType = sqlBinary.Left.Type;
+                //     var rightType = sqlBinary.Right.Type;
+                //
+                //     if (DateTimeClrTypes.Contains(leftType)
+                //         || DateTimeClrTypes.Contains(rightType))
+                //     {
+                //         return QueryCompilationContext.NotTranslatedExpression;
+                //     }
+                // }
 
-                    if (DateTimeClrTypes.Contains(leftType)
-                        || DateTimeClrTypes.Contains(rightType))
-                    {
-                        return QueryCompilationContext.NotTranslatedExpression;
-                    }
+                //don't try to handle bitwise and of boolean predicates
+                if (sqlBinary.OperatorType == ExpressionType.And && sqlBinary.Left.Type == typeof(bool) && sqlBinary.Right.Type == typeof(bool))
+                {
+                    return QueryCompilationContext.NotTranslatedExpression;
                 }
 
+                //don't try to handle bitwise OR of boolean predicates
+                if (sqlBinary.OperatorType == ExpressionType.Or && sqlBinary.Left.Type == typeof(bool) && sqlBinary.Right.Type == typeof(bool))
+                {
+                    return QueryCompilationContext.NotTranslatedExpression;
+                }
+
+                
                 if (_restrictedBinaryExpressions.TryGetValue(sqlBinary.OperatorType, out var restrictedTypes)
                      && (restrictedTypes.Contains(GetProviderType(sqlBinary.Left))
                          || restrictedTypes.Contains(GetProviderType(sqlBinary.Right))))
@@ -191,6 +206,7 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
 
             return visitedExpression;
         }
+
 
         /// <summary>
         ///     Translates Average over an expression to an equivalent SQL representation.
@@ -213,7 +229,7 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
                         _sqlExpressionFactory.Convert(sqlExpression, typeof(double)));
             }
 
-            return inputType == typeof(float) || inputType == typeof(double)
+            return inputType == typeof(float) || inputType == typeof(double) || inputType == typeof(decimal)
                 ? _sqlExpressionFactory.Convert(
                     _sqlExpressionFactory.Function(
                         "AVG",
@@ -260,6 +276,7 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
 
             return visitedExpression;
         }
+        
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -284,21 +301,28 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
             return visitedExpression;
         }
 
+        // protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+        // {
+        //     return base.VisitMethodCall(methodCallExpression);
+        // }
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override SqlExpression? TranslateSum(SqlExpression sqlExpression)
-        {
-            Check.NotNull(sqlExpression, nameof(sqlExpression));
+        // public override SqlExpression? TranslateSum(SqlExpression sqlExpression)
+        // {
+        //     Check.NotNull(sqlExpression, nameof(sqlExpression));
+        //
+        //     var visitedExpression = base.TranslateSum(sqlExpression);
+        //     var argumentType = GetProviderType(visitedExpression);
+        //
+        //     return visitedExpression;
+        // }
 
-            var visitedExpression = base.TranslateSum(sqlExpression);
-            var argumentType = GetProviderType(visitedExpression);
-
-            return visitedExpression;
-        }
+        
 
         private static Type? GetProviderType(SqlExpression? expression)
             => expression == null
@@ -307,11 +331,11 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
                     ?? expression.TypeMapping?.ClrType
                     ?? expression.Type);
 
-        private static string? GetProviderTypeName(SqlExpression expression)
-            => expression.TypeMapping?.StoreType;
+        // private static string? GetProviderTypeName(SqlExpression expression)
+        //     => expression.TypeMapping?.StoreType;
 
-        private static bool AreOperandsDecimals(SqlBinaryExpression sqlExpression)
-            => GetProviderType(sqlExpression.Left) == typeof(decimal)
-                && GetProviderType(sqlExpression.Right) == typeof(decimal);
+        // private static bool AreOperandsDecimals(SqlBinaryExpression sqlExpression)
+        //     => GetProviderType(sqlExpression.Left) == typeof(decimal)
+        //         && GetProviderType(sqlExpression.Right) == typeof(decimal);
     }
 }

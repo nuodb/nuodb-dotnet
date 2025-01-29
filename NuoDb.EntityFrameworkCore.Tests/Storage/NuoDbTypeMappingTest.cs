@@ -82,7 +82,7 @@ namespace NuoDb.EntityFrameworkCore.Tests.Storage
         }
 
         [ConditionalFact]
-        public override void TimeOnly_literal_generated_correctly_with_milliseconds()
+        public void TimeOnly_literal_generated_correctly_with_milliseconds()
         {
             Test_GenerateSqlLiteral_helper(
                 GetMapping(typeof(TimeOnly)),
@@ -118,5 +118,12 @@ namespace NuoDb.EntityFrameworkCore.Tests.Storage
             = new DbContextOptionsBuilder()
                 .UseInternalServiceProvider(new ServiceCollection().AddEntityFrameworkNuoDb().BuildServiceProvider(validateScopes: true))
                 .UseNuoDb("dummy string").Options;
+
+        // [ConditionalFact]
+        // public void NuoDbByteArrayTypeMappingTest()
+        // {
+        //     var mapping = new NuoDbByteArrayTypeMapping(size: 100);
+        //     ((ByteArrayTypeMapping)mapping).ConfigureParameter(new NuoDbParameter());
+        // }
     }
 }

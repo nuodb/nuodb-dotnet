@@ -45,7 +45,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
         }
 
-  
+        protected override void ForeignKeyAction(ReferentialAction referentialAction, MigrationCommandListBuilder builder)
+        {
+            base.ForeignKeyAction(referentialAction, builder);
+        }
+
         /// <summary>
         ///     Generates commands from a list of operations.
         /// </summary>
@@ -96,6 +100,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             operations.Add(foreignKeyOperation);
                         }
 
+                        break;
+                    }
+                    case DropForeignKeyOperation dropForeignKeyOperation:
+                    {
+                        var table = operations
+                            .OfType<AlterTableOperation>()
+                            .FirstOrDefault(o => o.Name == dropForeignKeyOperation.Table);
+
+                        operations.Add(dropForeignKeyOperation);
                         break;
                     }
                     case AlterColumnOperation _:
@@ -186,7 +199,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(builder, nameof(builder));
 
             builder
-                .Append("DROP INDEX ")
+                .Append(" DROP INDEX ")
                 .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name));
 
             if (terminate)
@@ -488,7 +501,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             MigrationCommandListBuilder builder,
             bool terminate = true)
         {
-            base.Generate(operation, model, builder, terminate: false);
+            base.Generate(operation, model, builder, terminate: true);
         }
             
         protected override void Generate(InsertDataOperation operation, IModel model, MigrationCommandListBuilder builder, bool terminate = true)
@@ -658,8 +671,33 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 (oldDefaultValue, oldDefaultValueSql) = (null, null);
             }
 
+            var defaultSet = "";
+            var updateRecordsForDefaultValue = "";
+            if (!Equals(operation.DefaultValue, oldDefaultValue) || operation.DefaultValueSql != oldDefaultValueSql)
+            {
+                defaultSet = GetDefaultValueString(operation.DefaultValue, operation.DefaultValueSql, operation.ColumnType);
+                updateRecordsForDefaultValue =
+                    $"UPDATE {Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema)} SET \"{operation.Name}\" = {defaultSet} WHERE \"{operation.Name}\" IS NULL";
+
+
+                //defaultSet = $"DEFAULT {DefaultValue(operation.DefaultValue, operation.DefaultValueSql, operation.ColumnType, builder)}"
+                // builder
+                //     .Append("ALTER TABLE ")
+                //     .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
+                //     .Append(" ALTER ")
+                //     .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name))
+                //     .Append(" SET ");
+                // DefaultValue(operation.DefaultValue, operation.DefaultValueSql, operation.ColumnType, builder);
+                // builder
+                //     .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+            }
             if (alterStatementNeeded)
             {
+                if (!string.IsNullOrWhiteSpace(updateRecordsForDefaultValue))
+                {
+                    builder.Append(updateRecordsForDefaultValue)
+                        .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+                }
                 builder
                     .Append("ALTER TABLE ")
                     .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
@@ -696,21 +734,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     model,
                     builder);
 
+                if (!string.IsNullOrWhiteSpace(defaultSet))
+                {
+                    builder.Append( " DEFAULT ")
+                        .Append(defaultSet);
+                }
+
                 builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
             }
 
-            if (!Equals(operation.DefaultValue, oldDefaultValue) || operation.DefaultValueSql != oldDefaultValueSql)
-            {
-                builder
-                    .Append("ALTER TABLE ")
-                    .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
-                    .Append(" ALTER ")
-                    .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name))
-                    .Append(" SET ");
-                DefaultValue(operation.DefaultValue, operation.DefaultValueSql, operation.ColumnType, builder);
-                builder
-                    .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
-            }
+            
 
 
 
@@ -720,6 +753,28 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             }
 
             builder.EndCommand(suppressTransaction: false);
+        }
+        private string GetDefaultValueString(object defaultValue, string defaultValueSql, string columnType)
+        {
+
+            if (defaultValueSql != null)
+            {
+                return $"{defaultValueSql}";
+            }
+            else if (defaultValue != null)
+            {
+                var typeMapping = columnType != null
+                    ? Dependencies.TypeMappingSource.FindMapping(defaultValue.GetType(), columnType)
+                    : null;
+                if (typeMapping == null)
+                {
+                    typeMapping = Dependencies.TypeMappingSource.GetMappingForValue(defaultValue);
+                }
+
+                return $"{typeMapping.GenerateSqlLiteral(defaultValue)}";
+            }
+
+            return "";
         }
 
         protected override void Generate(AlterTableOperation operation, IModel model, MigrationCommandListBuilder builder)
@@ -925,7 +980,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .Append("ALTER SEQUENCE ")
                 .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name, operation.Schema))
                 .Append(" START WITH ")
-                .Append(IntegerConstant(operation.StartValue))
+                .Append(IntegerConstant(operation.StartValue ?? 1L))
                 .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
 
             EndStatement(builder);

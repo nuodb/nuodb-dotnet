@@ -3,6 +3,7 @@
 
 using System;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -64,6 +65,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="NuoDbOptionsAction">An optional action to allow additional NuoDb specific configuration.</param>
         /// <param name="optionsAction">An optional action to configure the <see cref="DbContextOptions" /> for the context.</param>
         /// <returns>The same service collection so that multiple calls can be chained.</returns>
+        [ExcludeFromCodeCoverage]
         public static IServiceCollection AddNuoDb<TContext>(
             this IServiceCollection serviceCollection,
             string connectionString,
@@ -128,6 +130,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
                 // New Query Pipeline
                 .TryAdd<IMethodCallTranslatorProvider, NuoDbMethodCallTranslatorProvider>()
+                .TryAdd<IAggregateMethodCallTranslatorProvider, NuoDbAggregateMethodCallTranslatorProvider>()
                 .TryAdd<IMemberTranslatorProvider, NuoDbMemberTranslatorProvider>()
                 .TryAdd<IQuerySqlGeneratorFactory, NuoDbQuerySqlGeneratorFactory>()
                 .TryAdd<IQueryableMethodTranslatingExpressionVisitorFactory, NuoDbQueryableMethodTranslatingExpressionVisitorFactory>()

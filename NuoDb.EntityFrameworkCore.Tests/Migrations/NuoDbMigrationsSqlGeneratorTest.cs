@@ -378,6 +378,15 @@ namespace NuoDb.EntityFrameworkCore.Tests.Migrations
             base.SqlOperation();
         }
 
+        
+        [ConditionalTheory]
+        [InlineData(3L)]
+        [InlineData(null)]
+        public override void Sequence_restart_operation(long? startsAt)
+        {
+            base.Sequence_restart_operation(startsAt);
+        }
+
         protected override string GetGeometryCollectionStoreType()
         {
             throw new InvalidOperationException("NuoDb does not currently support spatial types!");

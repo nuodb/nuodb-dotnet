@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query;
@@ -13,8 +11,25 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
 {
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public class NuoDbDateTimeOffsetMemberTranslator: IMemberTranslator
     {
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [ExcludeFromCodeCoverage]
+        public NuoDbDateTimeOffsetMemberTranslator()
+        {
+
+        }
         private readonly NuoDbSqlExpressionFactory _sqlExpressionFactory;
         private readonly IRelationalTypeMappingSource _typeMappingSource;
 
@@ -31,6 +46,12 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
                 { nameof(DateTimeOffset.DayOfWeek), "e" }
             };
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public NuoDbDateTimeOffsetMemberTranslator(ISqlExpressionFactory sqlExpressionFactory,
             IRelationalTypeMappingSource typeMappingSource)
         {
@@ -38,6 +59,12 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
             _typeMappingSource = typeMappingSource;
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public SqlExpression Translate(SqlExpression instance, MemberInfo member, Type returnType, IDiagnosticsLogger<DbLoggerCategory.Query> logger)
         {
             Check.NotNull(member, nameof(member));
@@ -87,18 +114,20 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
                                 instance.TypeMapping
                             )
                         },
+                        true,
+                        new []{true,false},
                         returnType
                     );
                 }
 
                 if (memberName == nameof(DateTimeOffset.Now))
                 {
-                    return _sqlExpressionFactory.Function("now", Array.Empty<SqlExpression>(), typeof(DateTimeOffset), _typeMappingSource.FindMapping(typeof(DateTimeOffset)));
+                    return _sqlExpressionFactory.Function("now", Array.Empty<SqlExpression>(), true, new []{true,false},typeof(DateTimeOffset), _typeMappingSource.FindMapping(typeof(DateTimeOffset)));
                 }
 
                 if (memberName == nameof(DateTimeOffset.UtcNow))
                 {
-                    return _sqlExpressionFactory.Function("now", Array.Empty<SqlExpression>(), typeof(DateTimeOffset),_typeMappingSource.FindMapping(typeof(DateTimeOffset)));
+                    return _sqlExpressionFactory.Function("now", Array.Empty<SqlExpression>(), true, new []{true,false},typeof(DateTimeOffset),_typeMappingSource.FindMapping(typeof(DateTimeOffset)));
                 }
 
                 if (_datePartMapping.TryGetValue(memberName, out var datePart))
@@ -131,6 +160,8 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
                                 instance.TypeMapping
                             )
                         },
+                        true,
+                        new []{true,false},
                         returnType
                     );
                 }

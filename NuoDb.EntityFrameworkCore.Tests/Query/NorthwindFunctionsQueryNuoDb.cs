@@ -81,6 +81,34 @@ namespace NuoDb.EntityFrameworkCore.Tests.Query
 
         public override Task Where_mathf_truncate(bool async)
             => AssertTranslationFailed(() => base.Where_mathf_truncate(async));
+        public override Task Indexof_with_constant_starting_position(bool async)
+            => AssertTranslationFailed(() => base.Indexof_with_constant_starting_position(async));
+        public override Task Indexof_with_parameter_starting_position(bool async)
+            => AssertTranslationFailed(() => base.Indexof_with_parameter_starting_position(async));
+
+        public override Task Sum_over_truncate_works_correctly_in_projection(bool async)
+            => AssertTranslationFailed(() => base.Sum_over_truncate_works_correctly_in_projection(async));
+
+        public override Task Sum_over_truncate_works_correctly_in_projection_2(bool async)
+            => AssertTranslationFailed(() => base.Sum_over_truncate_works_correctly_in_projection_2(async));
+
+        public override Task Where_DateOnly_FromDateTime(bool async)
+            => AssertTranslationFailed(() => base.Where_DateOnly_FromDateTime(async));
+
+        public override Task Where_math_degrees(bool async)
+            => AssertTranslationFailed(() => base.Where_math_degrees(async));
+
+        public override Task Where_mathf_degrees(bool async)
+            => AssertTranslationFailed(() => base.Where_mathf_degrees(async));
+
+        public override Task Where_mathf_radians(bool async)
+            => AssertTranslationFailed(() => base.Where_mathf_radians(async));
+
+        public override Task Where_math_radians(bool async)
+            => AssertTranslationFailed(() => base.Where_math_radians(async));
+
+
+
 
         public override Task Datetime_subtraction_TotalDays(bool async)
         {

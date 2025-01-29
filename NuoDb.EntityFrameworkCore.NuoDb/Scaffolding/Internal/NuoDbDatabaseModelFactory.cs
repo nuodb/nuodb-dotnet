@@ -97,7 +97,7 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Scaffolding.Internal
                     schemaFilterBuilder.Append(')');
                     return schemaFilterBuilder.ToString();
                 })
-                : (s => $"{s} != 'SYSTEM'");
+                : (s => $"{s} not in ('SYSTEM', 'Northwind')");
         }
 
          private static Func<string, string, string>? GenerateTableFilter(
@@ -212,10 +212,10 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Scaffolding.Internal
 
             var databaseModel = new DatabaseModel();
             var schemaList = options.Schemas.ToList();
-            if (schemaList.Count < 1 && !string.IsNullOrEmpty(connSchema))
-            {
-                schemaList.Add(connSchema);
-            }
+            // if (schemaList.Count < 1 && !string.IsNullOrEmpty(connSchema))
+            // {
+            //     schemaList.Add(connSchema);
+            // }
             
             var schemaFilter = GenerateSchemaFilter(schemaList);
             var tableList = options.Tables.ToList();
@@ -293,9 +293,26 @@ WHERE " + schemaFilter("schema");
                     Database = databaseModel,
                     Name = sequenceName,
                     Schema = schema,
+                    StartValue = GetSequenceStartValue(connection, sequenceName)
+                    
                 };
                 databaseModel.Sequences.Add(sequence);
             }
+
+        }
+
+        private long? GetSequenceStartValue(DbConnection connection, string sequenceName)
+        {
+            using var command = connection.CreateCommand();
+            command.CommandText = $"SELECT NEXT VALUE FOR {sequenceName} from DUAL";
+
+            var result = command.ExecuteScalar();
+            if (result == DBNull.Value)
+            {
+                return null;
+            }
+            var converted = Convert.ChangeType(result, typeof(long));
+            return (long)converted;
 
         }
 

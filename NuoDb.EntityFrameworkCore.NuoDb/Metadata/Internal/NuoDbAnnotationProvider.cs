@@ -69,9 +69,8 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Metadata.Internal
             // Model validation ensures that these facets are the same on all mapped properties
             var property = column.PropertyMappings.First().Property;
             // Only return auto increment for integer single column primary key
-            var primaryKey = property.DeclaringEntityType.FindPrimaryKey();
-            if (primaryKey != null
-                && primaryKey.Properties.Count == 1
+            var primaryKey = property.DeclaringType.ContainingEntityType.FindPrimaryKey();
+            if (primaryKey is { Properties.Count: 1 }
                 && primaryKey.Properties[0] == property
                 && property.ValueGenerated == ValueGenerated.OnAdd
                 && property.ClrType.UnwrapNullableType().IsInteger()

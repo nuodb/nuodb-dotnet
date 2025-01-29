@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO.Compression;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -118,8 +119,6 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Storage.Internal
         private readonly NuoDbTimeOnlyTypeMapping _time
             = new("time", DbType.Time);
 
-        // private readonly TimeSpanTypeMapping _time
-        //     = new SqlServerTimeSpanTypeMapping("time");
 
         private readonly NuoDbStringTypeMapping _xml
             = new("xml", unicode: true, storeTypePostfix: StoreTypePostfix.None);
@@ -146,7 +145,6 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Storage.Internal
                 {
                     { typeof(int), _int },
                     { typeof(long), _long },
-                    //{ typeof(TimeSpan), _timeSpan },
                     { typeof(Guid), _uniqueidentifier },
                     { typeof(DateOnly), _date},
                     { typeof(DateTime), _datetime},
@@ -158,8 +156,6 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Storage.Internal
                     //{ typeof(DateTimeOffset), _datetimeoffset },
                     { typeof(short), _short },
                     { typeof(decimal), _decimal182 },
-                    //{ typeof(TimeSpan), new TimeSpanTypeMapping(TextTypeName) }
-                    //{ typeof(TimeSpan), _time }
                 };
 
             _clrNoFacetTypeMappings
@@ -278,6 +274,11 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Storage.Internal
                         size = isFixedLength ? maxSize : null;
                     }
 
+                    if (size == -1)
+                    {
+                        size = null;
+                    }
+
                     if (size == null
                         && storeTypeName == null)
                     {
@@ -334,12 +335,12 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Storage.Internal
         /// </summary>
         protected override string? ParseStoreTypeName(
             string? storeTypeName,
-            out bool? unicode,
-            out int? size,
-            out int? precision,
-            out int? scale)
+            ref bool? unicode,
+            ref int? size,
+            ref int? precision,
+            ref int? scale)
         {
-            var parsedName = base.ParseStoreTypeName(storeTypeName, out unicode, out size, out precision, out scale);
+            var parsedName = base.ParseStoreTypeName(storeTypeName, ref unicode, ref size, ref precision, ref scale);
 
             if (size.HasValue
                 && storeTypeName != null

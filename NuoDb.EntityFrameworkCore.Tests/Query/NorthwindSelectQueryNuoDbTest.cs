@@ -138,9 +138,62 @@ namespace NuoDb.EntityFrameworkCore.Tests.Query
         {
              return AssertQuery(
                 async,
-                ss => ss.Set<Order>().Take(3),entryCount:3
+                ss => ss.Set<Order>().Take(3)
                 );
         }
+
+        [ConditionalTheory(Skip="NuoDB does not support apply")]
+        [MemberData(nameof(IsAsyncData))]
+        public override Task Correlated_collection_after_distinct_with_complex_projection_not_containing_original_identifier(bool async)
+        {
+            return base.Correlated_collection_after_distinct_with_complex_projection_not_containing_original_identifier(async);
+        }
+
+        [ConditionalTheory(Skip="NuoDB does not support apply")]
+        [MemberData(nameof(IsAsyncData))]
+        public override Task Correlated_collection_after_groupby_with_complex_projection_not_containing_original_identifier(bool async)
+        {
+            return base.Correlated_collection_after_groupby_with_complex_projection_not_containing_original_identifier(async);
+        }
+
+        [ConditionalTheory(Skip="NuoDB does not cross joins")]
+        [MemberData(nameof(IsAsyncData))]
+        public override Task Projection_when_arithmetic_mixed_subqueries(bool async)
+        {
+            return base.Projection_when_arithmetic_mixed_subqueries(async);
+        }
+
+        [ConditionalTheory(Skip="NuoDB does not support apply")]
+        [MemberData(nameof(IsAsyncData))]
+        public override Task Reverse_in_projection_subquery(bool async)
+        {
+            return base.Reverse_in_projection_subquery(async);
+        }
+
+        [ConditionalTheory(Skip="NuoDB does not support apply")]
+        [MemberData(nameof(IsAsyncData))]
+        public override Task Reverse_in_projection_subquery_single_result(bool async)
+        {
+            return base.Reverse_in_projection_subquery_single_result(async);
+        }
+
+        [ConditionalTheory(Skip="NuoDB does not support apply")]
+        [MemberData(nameof(IsAsyncData))]
+        public override Task Reverse_in_SelectMany_with_Take(bool async)
+        {
+            return base.Reverse_in_SelectMany_with_Take(async);
+        }
+
+        [ConditionalTheory(Skip = "NuoDB does not support apply")]
+        [MemberData(nameof(IsAsyncData))]
+        public override Task
+            SelectMany_with_collection_being_correlated_subquery_which_references_non_mapped_properties_from_inner_and_outer_entity(
+                bool async)
+            => AssertTranslationFailed(() =>
+                base
+                    .SelectMany_with_collection_being_correlated_subquery_which_references_non_mapped_properties_from_inner_and_outer_entity(
+                        async));
+
     }
 
 }

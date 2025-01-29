@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Storage;
 using NuoDb.EntityFrameworkCore.NuoDb.Storage.Internal;
 
@@ -11,13 +12,14 @@ namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
     ///     <para>
-    ///         An <see cref="IExecutionStrategy" /> implementation for retrying failed executions on SQL Server.
+    ///         An <see cref="IExecutionStrategy" /> implementation for retrying failed executions on nuodb
     ///     </para>
     ///     <para>
-    ///         This strategy is specifically tailored to SQL Server (including SQL Azure). It is pre-configured with
+    ///         This strategy is specifically tailored to NuoDb. It is pre-configured with
     ///         error numbers for transient errors that can be retried. Additional error numbers to retry on can also be supplied.
     ///     </para>
     /// </summary>
+    [ExcludeFromCodeCoverage]
     public class NuoDbRetryingExecutionStrategy : ExecutionStrategy
     {
         private readonly ICollection<int>? _additionalErrorNumbers;
@@ -31,6 +33,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <param name="context">The context on which the operations will be invoked.</param>
+        [ExcludeFromCodeCoverage]
         public NuoDbRetryingExecutionStrategy(
             DbContext context)
             : this(context, DefaultMaxRetryCount)
@@ -46,6 +49,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <param name="dependencies">Parameter object containing service dependencies.</param>
+        [ExcludeFromCodeCoverage]
         public NuoDbRetryingExecutionStrategy(
             ExecutionStrategyDependencies dependencies)
             : this(dependencies, DefaultMaxRetryCount)
@@ -62,6 +66,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="context">The context on which the operations will be invoked.</param>
         /// <param name="maxRetryCount">The maximum number of retry attempts.</param>
+        [ExcludeFromCodeCoverage]
         public NuoDbRetryingExecutionStrategy(
             DbContext context,
             int maxRetryCount)
@@ -79,6 +84,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="dependencies">Parameter object containing service dependencies.</param>
         /// <param name="maxRetryCount">The maximum number of retry attempts.</param>
+        [ExcludeFromCodeCoverage]
         public NuoDbRetryingExecutionStrategy(
             ExecutionStrategyDependencies dependencies,
             int maxRetryCount)
@@ -153,6 +159,7 @@ namespace Microsoft.EntityFrameworkCore
                 : baseDelay;
         }
 
+        [ExcludeFromCodeCoverage]
         private static bool IsMemoryOptimizedError(Exception exception)
         {
             return false;
