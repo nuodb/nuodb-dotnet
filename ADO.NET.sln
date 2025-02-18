@@ -1,5 +1,19 @@
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33603.86
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Installers", "Installers", "{E46B6737-B30A-48B2-8596-704E7B4B7E91}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{5D8A89DF-9798-42C6-B906-25CC10006FCF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NuGet", "NuGet", "{C36EFE7B-812A-4CAD-9835-B3992163972A}"
+	ProjectSection(SolutionItems) = preProject
+		EntityFramework.NuoDb.nuspec = EntityFramework.NuoDb.nuspec
+		install.ps1 = install.ps1
+		NuoDb.Data.Client.nuspec = NuoDb.Data.Client.nuspec
+		NuoDb.Web.Security.nuspec = NuoDb.Web.Security.nuspec
+	EndProjectSection
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsFormsSample", "WindowsFormsSample\WindowsFormsSample.csproj", "{939FB16E-8217-493A-8CB4-A82D94A7F4EC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuoDBVSPackage", "NuoDBVSPackage\NuoDBVSPackage.csproj", "{84554CD4-9013-4D7F-8969-29C332AF607A}"
@@ -16,13 +30,9 @@ Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "DriverInstaller", "DriverIn
 		{96F008F5-3984-4074-B3BD-D60C7FDC7DA7} = {96F008F5-3984-4074-B3BD-D60C7FDC7DA7}
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Installers", "Installers", "{E46B6737-B30A-48B2-8596-704E7B4B7E91}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApplicationSample", "WebApplicationSample\WebApplicationSample.csproj", "{FDE45A07-57F4-4096-B262-97EFAD500BCC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleSample", "ConsoleSample\ConsoleSample.csproj", "{51CF36CD-7035-4CF9-A7E7-97C1BA85BB9B}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{5D8A89DF-9798-42C6-B906-25CC10006FCF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NUnitTestProject", "NUnitTestProject\NUnitTestProject.csproj", "{B4BDA7ED-BF93-42F9-BD28-D8F5725C44F3}"
 EndProject
@@ -31,14 +41,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NUnitEFCodeFirstTestProject", "NUnitEFCodeFirstTestProject\NUnitEFCodeFirstTestProject.csproj", "{52F5C65F-9A64-416B-A888-AC04264E7D7C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.NuoDb", "EntityFramework.NuoDb\EntityFramework.NuoDb.csproj", "{96F008F5-3984-4074-B3BD-D60C7FDC7DA7}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NuGet", "NuGet", "{C36EFE7B-812A-4CAD-9835-B3992163972A}"
-	ProjectSection(SolutionItems) = preProject
-		EntityFramework.NuoDb.nuspec = EntityFramework.NuoDb.nuspec
-		install.ps1 = install.ps1
-		NuoDb.Data.Client.nuspec = NuoDb.Data.Client.nuspec
-		NuoDb.Web.Security.nuspec = NuoDb.Web.Security.nuspec
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EF6ConsoleSample", "EF6ConsoleSample\EF6ConsoleSample.csproj", "{13D1AF66-5CE1-416C-A073-010C8EEC99A0}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -205,11 +207,14 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{C36EFE7B-812A-4CAD-9835-B3992163972A} = {E46B6737-B30A-48B2-8596-704E7B4B7E91}
+		{939FB16E-8217-493A-8CB4-A82D94A7F4EC} = {5D8A89DF-9798-42C6-B906-25CC10006FCF}
+		{B96E5BA9-21F7-4F3D-865B-C7010E9087DE} = {E46B6737-B30A-48B2-8596-704E7B4B7E91}
 		{FDE45A07-57F4-4096-B262-97EFAD500BCC} = {5D8A89DF-9798-42C6-B906-25CC10006FCF}
 		{51CF36CD-7035-4CF9-A7E7-97C1BA85BB9B} = {5D8A89DF-9798-42C6-B906-25CC10006FCF}
-		{939FB16E-8217-493A-8CB4-A82D94A7F4EC} = {5D8A89DF-9798-42C6-B906-25CC10006FCF}
 		{13D1AF66-5CE1-416C-A073-010C8EEC99A0} = {5D8A89DF-9798-42C6-B906-25CC10006FCF}
-		{B96E5BA9-21F7-4F3D-865B-C7010E9087DE} = {E46B6737-B30A-48B2-8596-704E7B4B7E91}
-		{C36EFE7B-812A-4CAD-9835-B3992163972A} = {E46B6737-B30A-48B2-8596-704E7B4B7E91}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {803F288E-2CED-454A-B0AD-044B847B6B0F}
 	EndGlobalSection
 EndGlobal

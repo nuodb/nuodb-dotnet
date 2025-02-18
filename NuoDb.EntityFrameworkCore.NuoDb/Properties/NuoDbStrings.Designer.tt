@@ -1,0 +1,5 @@
+<#
+    Session["ResourceFile"] = "NuoDbStrings.resx";
+    Session["LoggingDefinitionsClass"] = "Diagnostics.Internal.NuoDbLoggingDefinitions";
+#>
+<#@ include file=".\Resources.tt" #>

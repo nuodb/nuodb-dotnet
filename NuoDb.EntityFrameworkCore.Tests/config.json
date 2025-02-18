@@ -1,0 +1,7 @@
+{
+    "Test": {
+      "NuoDb": {
+        "DefaultConnection": "Server=localhost;Database=demo;User=dba;Password=dba;Schema=USER"
+      }
+    }
+}

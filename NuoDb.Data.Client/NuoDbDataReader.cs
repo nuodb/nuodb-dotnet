@@ -76,7 +76,8 @@ namespace NuoDb.Data.Client
             this.values = new Value[numberColumns];
             this.closed = false;
             this.currentRow = 0;
-            // this.afterLast = false;
+
+            // this.afterLast = false;    // this is the default. The value is set later in this method from the pendingRows stream
             this.declaredColumnTypes = null;
             this.declaredColumnTypeNames = null;
 
@@ -218,8 +219,12 @@ namespace NuoDb.Data.Client
                 row["BaseCatalogName"] = dataStream.getString();
                 row["BaseSchemaName"] = dataStream.getString();
                 row["BaseTableName"] = dataStream.getString();
-                row["BaseColumnName"] = dataStream.getString();
-                row["ColumnName"] = dataStream.getString();
+
+                var baseColumn = dataStream.getString();
+                row["BaseColumnName"] = IsSqlLiteral(baseColumn) ? null: baseColumn;
+
+                var columnName = dataStream.getString();
+                row["ColumnName"] = IsSqlLiteral(columnName) ? null : columnName;
                 string collationSequence = dataStream.getString();
                 row["DataTypeName"] = dataStream.getString();
                 row["ProviderType"] = NuoDbConnectionInternal.mapJavaSqlToDbType(dataStream.getInt());
@@ -285,6 +290,17 @@ namespace NuoDb.Data.Client
         {
             get { return closed; }
         }
+
+        protected bool IsSqlLiteral(string name)
+        {
+            if (name == null || name.Length == 0)
+                return true;
+
+            // literals begin with a single quote (string) or a digit (number)
+            return "'0123456789".IndexOf(name[0]) >= 0;
+        }
+
+
 
         public override bool NextResult()
         {
@@ -460,7 +476,7 @@ namespace NuoDb.Data.Client
 
         public override char GetChar(int i)
         {
-            throw new NotImplementedException();
+            return getValue(i).String.FirstOrDefault();
         }
 
         public override long GetChars(int i, long fieldoffset, char[] buffer, int bufferoffset, int length)
@@ -492,7 +508,7 @@ namespace NuoDb.Data.Client
                 foreach (DataRow row in rows)
                 {
                     int ordinal = (int)row["ColumnOrdinal"];
-                    declaredColumnTypeNames[ordinal] = (string)row["DataType"];
+                    declaredColumnTypeNames[ordinal] = (string)row["DataTypeName"];
                 }
             }
             return declaredColumnTypeNames[i];
@@ -655,7 +671,7 @@ namespace NuoDb.Data.Client
 
         public override System.Collections.IEnumerator GetEnumerator()
         {
-            throw new NotImplementedException();
+            return new DbEnumerator(this, false);
         }
 
         public override bool HasRows

@@ -1,0 +1,79 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>NuoDb.EntityFrameworkCore.NuoDb</AssemblyName>
+    <PackageId>NuoDb.EntityFrameworkCore.NuoDb</PackageId>
+    <RootNamespace>NuoDb.EntityFrameworkCore.NuoDb</RootNamespace>
+    <Description>NuoDB database provider for Entity Framework Core. This package does not include a copy of the native NuoDB library.</Description>
+    <TargetFramework>net6.0</TargetFramework>
+    <MinClientVersion>3.6</MinClientVersion>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <PackageTags>$(PackageTags);NuoDB;SQL;ACID;distributed;high-availability;scalable;cloud</PackageTags>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Title>NuoDB EFCore implementation</Title>
+    <Version>3.0.0</Version>
+    <Company>NuoDB, a Dassault Systemes company</Company>
+    <Copyright>Copyright (C) NuoDB 2012-2024</Copyright>
+    <PackageProjectUrl>http://nuodb.com</PackageProjectUrl>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/nuodb/nuodb-dotnet</RepositoryUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Shared\*.cs" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+	  <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.29" />
+	  <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.29" />
+	  <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" Version="6.0.29" />
+	  <PackageReference Include="Microsoft.EntityFrameworkCore.Specification.Tests" Version="6.0.29" />
+	  <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="6.0.0" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <ProjectReference Include="..\NuoDb.Data.Client\NuoDb.Data.ClientCore.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Properties\NuoDbStrings.Designer.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>NuoDbStrings.Designer.cs</LastGenOutput>
+    </None>
+    <None Update="Properties\Resources.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Resources.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\NuoDbStrings.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>NuoDbStrings.Designer.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Properties\Resources.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.tt</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\NuoDbStrings.resx">
+      <CustomToolNamespace>NuoDb.EntityFrameworkCore.NuoDb.Internal</CustomToolNamespace>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Query\ExpressionVisitors\Internal\" />
+    <Folder Include="Storage\ValueConversion\" />
+  </ItemGroup>
+
+</Project>

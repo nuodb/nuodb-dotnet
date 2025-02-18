@@ -1,0 +1,11 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\EntityFramework.NuoDb",
+    "\\EntityFramework.NuoDb\\Properties",
+    "\\NuoDb.Data.Client.4.8",
+    "\\NuoDb.Data.Client\\EntityFramework"
+  ],
+  "SelectedNode": "\\NuoDb.Data.Client.4.8\\NuoDb.Data.Client_4.8.sln",
+  "PreviewInSolutionExplorer": false
+}

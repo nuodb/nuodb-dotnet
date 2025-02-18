@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net5.0</TargetFrameworks>
+    <TargetFrameworks>net6.0</TargetFrameworks>
     <RootNamespace>ConsoleSample</RootNamespace>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <DebugType>pdbonly</DebugType>
@@ -13,11 +13,7 @@
     <WarningLevel>4</WarningLevel>
     <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
-  
   <ItemGroup>
-    <Reference Include="NuoDb.Data.Client">
-      <HintPath>..\NuoDb.Data.Client\bin\Release\net5.0\NuoDb.Data.ClientCore.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
@@ -29,5 +25,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  
+  <ItemGroup>
+    <ProjectReference Include="..\NuoDb.Data.Client\NuoDb.Data.ClientCore.csproj" />
+  </ItemGroup>
 </Project>

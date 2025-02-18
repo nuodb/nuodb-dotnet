@@ -1,0 +1,367 @@
+﻿<!DOCTYPE html>
+<!-- saved from url=(0014)about:internet -->
+ <html xmlns:msxsl="urn:schemas-microsoft-com:xslt"><head><meta content="en-us" http-equiv="Content-Language" /><meta content="text/html; charset=utf-16" http-equiv="Content-Type" /><title _locID="ConversionReport0">
+          Migration Report
+        </title><style> 
+                    /* Body style, for the entire document */
+                    body
+                    {
+                        background: #F3F3F4;
+                        color: #1E1E1F;
+                        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+                        padding: 0;
+                        margin: 0;
+                    }
+
+                    /* Header1 style, used for the main title */
+                    h1
+                    {
+                        padding: 10px 0px 10px 10px;
+                        font-size: 21pt;
+                        background-color: #E2E2E2;
+                        border-bottom: 1px #C1C1C2 solid; 
+                        color: #201F20;
+                        margin: 0;
+                        font-weight: normal;
+                    }
+
+                    /* Header2 style, used for "Overview" and other sections */
+                    h2
+                    {
+                        font-size: 18pt;
+                        font-weight: normal;
+                        padding: 15px 0 5px 0;
+                        margin: 0;
+                    }
+
+                    /* Header3 style, used for sub-sections, such as project name */
+                    h3
+                    {
+                        font-weight: normal;
+                        font-size: 15pt;
+                        margin: 0;
+                        padding: 15px 0 5px 0;
+                        background-color: transparent;
+                    }
+
+                    /* Color all hyperlinks one color */
+                    a
+                    {
+                        color: #1382CE;
+                    }
+
+                    /* Table styles */ 
+                    table
+                    {
+                        border-spacing: 0 0;
+                        border-collapse: collapse;
+                        font-size: 10pt;
+                    }
+
+                    table th
+                    {
+                        background: #E7E7E8;
+                        text-align: left;
+                        text-decoration: none;
+                        font-weight: normal;
+                        padding: 3px 6px 3px 6px;
+                    }
+
+                    table td
+                    {
+                        vertical-align: top;
+                        padding: 3px 6px 5px 5px;
+                        margin: 0px;
+                        border: 1px solid #E7E7E8;
+                        background: #F7F7F8;
+                    }
+
+                    /* Local link is a style for hyperlinks that link to file:/// content, there are lots so color them as 'normal' text until the user mouse overs */
+                    .localLink
+                    {
+                        color: #1E1E1F;
+                        background: #EEEEED;
+                        text-decoration: none;
+                    }
+
+                    .localLink:hover
+                    {
+                        color: #1382CE;
+                        background: #FFFF99;
+                        text-decoration: none;
+                    }
+
+                    /* Center text, used in the over views cells that contain message level counts */ 
+                    .textCentered
+                    {
+                        text-align: center;
+                    }
+
+                    /* The message cells in message tables should take up all avaliable space */
+                    .messageCell
+                    {
+                        width: 100%;
+                    }
+
+                    /* Padding around the content after the h1 */ 
+                    #content 
+                    {
+	                    padding: 0px 12px 12px 12px; 
+                    }
+
+                    /* The overview table expands to width, with a max width of 97% */ 
+                    #overview table
+                    {
+                        width: auto;
+                        max-width: 75%; 
+                    }
+
+                    /* The messages tables are always 97% width */
+                    #messages table
+                    {
+                        width: 97%;
+                    }
+
+                    /* All Icons */
+                    .IconSuccessEncoded, .IconInfoEncoded, .IconWarningEncoded, .IconErrorEncoded
+                    {
+                        min-width:18px;
+                        min-height:18px; 
+                        background-repeat:no-repeat;
+                        background-position:center;
+                    }
+
+                    /* Success icon encoded */
+                    .IconSuccessEncoded
+                    {
+                        /* Note: Do not delete the comment below. It is used to verify the correctness of the encoded image resource below before the product is released */
+                        /* [---XsltValidateInternal-Base64EncodedImage:IconSuccess#Begin#background-image: url(data:image/png;base64,#Separator#);#End#] */
+                        background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAA7EAAAOxAGVKw4bAAABcElEQVR4Xq2TsUsCURzHv15g8ZJcBWlyiYYgCIWcb9DFRRwMW5TA2c0/QEFwFkxxUQdxVlBwCYWOi6IhWgQhBLHJUCkhLr/BW8S7gvrAg+N+v8/v+x68Z8MGy+XSCyABQAXgBgHGALoASkIIDWSLeLBetdHryMjd5IxQPWT4rn1c/P7+xxp72Cs9m5SZ0Bq2vPnbPFafK2zDvmNHypdC0BPkLlQhxJsCAhQoZwdZU5mwxh720qGo8MzTxTTKZDPCx2HoVzp6lz0Q9tKhyx0kGs8Ny+TkWRKk8lCROwEduhyg9l/6lunOPSfmH3NUH6uQ0KHLAe7JYvJjevm+DAMGJHToKtigE+vwvIidxLamb8IBY9e+C5LiXREkfho3TSd06HJA13/oh6T51MTsfQbHrsMynQ5dDihFjiK8JJAU9AKIWTp76dCVN7HWHrajmUEGvyF9nkbAE6gLIS7kTUyuf2gscLoJrElZo/Mvj+nPz/kLTmfnEwP3tB0AAAAASUVORK5CYII=);
+                    }
+
+                    /* Information icon encoded */
+                    .IconInfoEncoded
+                    {
+                        /* Note: Do not delete the comment below. It is used to verify the correctness of the encoded image resource below before the product is released */
+                        /* [---XsltValidateInternal-Base64EncodedImage:IconInformation#Begin#background-image: url(data:image/png;base64,#Separator#);#End#] */
+                        background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABHElEQVR4Xs2TsUoDQRRF7wwoziokjZUKadInhdhukR9YP8DMX1hYW+QvdsXa/QHBbcXC7W0CamWTQnclFutceIQJwwaWNLlwm5k5d94M76mmaeCrrmsLYOocY12FcxZFUeozCqKqqgYA8uevv1H6VuPxcwlfk5N92KHBxfFeCSAxxswlYAW/Xr989x/mv9gkhtyMDhcAxgzRsp7flj8B/HF1RsMXq+NZMkopaHe7lbKxQUEIGbKsYNoGn969060hZBkQex/W8oRQwsQaW2o3Ago2SVcJUzAgY3N0lTCZZm+zPS8HB51gMmS1DEYyOz9acKO1D8JWTlafKIMxdhvlfdyT94Vv5h7P8Ky7nQzACmhvKq3zk3PjW9asz9D/1oigecsioooAAAAASUVORK5CYII=);
+                    }
+
+                    /* Warning icon encoded */
+                    .IconWarningEncoded
+                    {
+                        /* Note: Do not delete the comment below. It is used to verify the correctness of the encoded image resource below before the product is released */
+                        /* [---XsltValidateInternal-Base64EncodedImage:IconWarning#Begin#background-image: url(data:image/png;base64,#Separator#);#End#] */
+                        background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAAx0lEQVR4XpWSMQ7CMAxFf4xAyBMLCxMrO8dhaBcuwdCJS3RJBw7SA/QGTCxdWJgiQYWKXJWKIXHIlyw5lqr34tQgEOdcBsCOx5yZK3hCCKdYXneQkh4pEfqzLfu+wVDSyyzFoJjfz9NB+pAF+eizx2Vruts0k15mPgvS6GYvpVtQhB61IB/dk6AF6fS4Ben0uIX5odtFe8Q/eW1KvFeH4e8khT6+gm5B+t3juyDt7n0jpe+CANTd+oTUjN/U3yVaABnSUjFz/gFq44JaVSCXeQAAAABJRU5ErkJggg==);
+                    }
+
+                    /* Error icon encoded */
+                    .IconErrorEncoded
+                    {
+                        /* Note: Do not delete the comment below. It is used to verify the correctness of the encoded image resource below before the product is released */
+                        /* [---XsltValidateInternal-Base64EncodedImage:IconError#Begin#background-image: url(data:image/png;base64,#Separator#);#End#] */
+                        background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABQElEQVR4XqWTvUoEQRCE6wYPZUA80AfwAQz23uCMjA7MDRQEIzPBVEyNTQUFIw00vcQTTMzuAh/AxEQQT8HF/3G/oGGnEUGuoNnd6qoZuqltyKEsyzVJq5I6rnUp6SjGeGhESikzzlc1eL7opfuVbrqbU1Zw9NCgtQMaZpY0eNnaaL2fHusvTK5vKu7sjSS1Y4y3QUA6K3e3Mau5UFDyMP7tYF9o8cAHZv68vipoIJg971PZIZ5HiwdvYGGvFVFHmGmZ2MxwmQYPXubPl9Up0tfoMQGetXd6mRbvhBw+boZ6WF7Mbv1+GsHRk0fQmPAH1GfmZirbCfDJ61tw3Px8/8pZsPAG4jlVhcPgZ7adwNWBB68lkRQWFiTgFlbnLY3DGGM7izIJIyT/jjIvEJw6fdJTc6krDzh6aMwMP9bvDH4ADSsa9uSWVJkAAAAASUVORK5CYII=);
+                    }
+                 </style><script type="text/javascript" language="javascript"> 
+          
+            // Startup 
+            // Hook up the the loaded event for the document/window, to linkify the document content
+            var startupFunction = function() { linkifyElement("messages"); };
+            
+            if(window.attachEvent)
+            {
+              window.attachEvent('onload', startupFunction);
+            }
+            else if (window.addEventListener) 
+            {
+              window.addEventListener('load', startupFunction, false);
+            }
+            else 
+            {
+              document.addEventListener('load', startupFunction, false);
+            } 
+            
+            // Toggles the visibility of table rows with the specified name 
+            function toggleTableRowsByName(name)
+            {
+               var allRows = document.getElementsByTagName('tr');
+               for (i=0; i < allRows.length; i++)
+               {
+                  var currentName = allRows[i].getAttribute('name');
+                  if(!!currentName && currentName.indexOf(name) == 0)
+                  {
+                      var isVisible = allRows[i].style.display == ''; 
+                      isVisible ? allRows[i].style.display = 'none' : allRows[i].style.display = '';
+                  }
+               }
+            }
+            
+            function scrollToFirstVisibleRow(name) 
+            {
+               var allRows = document.getElementsByTagName('tr');
+               for (i=0; i < allRows.length; i++)
+               {
+                  var currentName = allRows[i].getAttribute('name');
+                  var isVisible = allRows[i].style.display == ''; 
+                  if(!!currentName && currentName.indexOf(name) == 0 && isVisible)
+                  {
+                     allRows[i].scrollIntoView(true); 
+                     return true; 
+                  }
+               }
+               
+               return false;
+            }
+            
+            // Linkifies the specified text content, replaces candidate links with html links 
+            function linkify(text)
+            {
+                 if(!text || 0 === text.length)
+                 {
+                     return text; 
+                 }
+
+                 // Find http, https and ftp links and replace them with hyper links 
+                 var urlLink = /(http|https|ftp)\:\/\/[a-zA-Z0-9\-\.]+(:[a-zA-Z0-9]*)?\/?([a-zA-Z0-9\-\._\?\,\/\\\+&%\$#\=~;\{\}])*/gi;
+                 
+                 return text.replace(urlLink, '<a href="$&">$&</a>') ;
+            }
+            
+            // Linkifies the specified element by ID
+            function linkifyElement(id)
+            {
+                var element = document.getElementById(id);
+                if(!!element)
+                {
+                  element.innerHTML = linkify(element.innerHTML); 
+                }
+            }
+            
+            function ToggleMessageVisibility(projectName)
+            {
+              if(!projectName || 0 === projectName.length)
+              {
+                return; 
+              }
+              
+              toggleTableRowsByName("MessageRowClass" + projectName);
+              toggleTableRowsByName('MessageRowHeaderShow' + projectName);
+              toggleTableRowsByName('MessageRowHeaderHide' + projectName); 
+            }
+            
+            function ScrollToFirstVisibleMessage(projectName)
+            {
+              if(!projectName || 0 === projectName.length)
+              {
+                return; 
+              }
+              
+              // First try the 'Show messages' row
+              if(!scrollToFirstVisibleRow('MessageRowHeaderShow' + projectName))
+              {
+                // Failed to find a visible row for 'Show messages', try an actual message row 
+                scrollToFirstVisibleRow('MessageRowClass' + projectName); 
+              }
+            }
+           </script></head><body><h1 _locID="ConversionReport">
+          Migration Report - ADO.NET</h1><div id="content"><h2 _locID="OverviewTitle">Overview</h2><div id="overview"><table><tr><th></th><th _locID="ProjectTableHeader">Project</th><th _locID="PathTableHeader">Path</th><th _locID="ErrorsTableHeader">Errors</th><th _locID="WarningsTableHeader">Warnings</th><th _locID="MessagesTableHeader">Messages</th></tr><tr><td class="IconErrorEncoded" /><td><strong><a href="#DriverInstaller">DriverInstaller</a></strong></td><td>DriverInstaller\DriverInstaller.wixproj</td><td class="textCentered"><a href="#DriverInstallerError">1</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconWarningEncoded" /><td><strong><a href="#NuoDBVSPackage">NuoDBVSPackage</a></strong></td><td>NuoDBVSPackage\NuoDBVSPackage.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#NuoDBVSPackageWarning">2</a></td><td class="textCentered"><a href="#" onclick="ScrollToFirstVisibleMessage('NuoDBVSPackage'); return false;">41</a></td></tr><tr><td class="IconWarningEncoded" /><td><strong><a href="#WebApplicationSample">WebApplicationSample</a></strong></td><td>WebApplicationSample\WebApplicationSample.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#WebApplicationSampleWarning">2</a></td><td class="textCentered"><a href="#" onclick="ScrollToFirstVisibleMessage('WebApplicationSample'); return false;">36</a></td></tr><tr><td class="IconWarningEncoded" /><td><strong><a href="#Solution"><span _locID="OverviewSolutionSpan">Solution</span></a></strong></td><td>ADO.NET.sln</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#SolutionWarning">1</a></td><td class="textCentered"><a href="#" onclick="ScrollToFirstVisibleMessage('Solution'); return false;">2</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#Installers">Installers</a></strong></td><td>Installers</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#NuGet">NuGet</a></strong></td><td>NuGet</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#Samples">Samples</a></strong></td><td>Samples</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr></table></div><h2 _locID="SolutionAndProjectsTitle">Solution and projects</h2><div id="messages"><a name="DriverInstaller" /><h3>DriverInstaller</h3><table><tr id="DriverInstallerHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr name="ErrorRowClassDriverInstaller"><td class="IconErrorEncoded"><a name="DriverInstallerError" /></td><td class="messageCell"><strong>DriverInstaller\DriverInstaller.wixproj:
+        </strong><span>The application which this project type is based on was not found. Please try this link for further information: 930c7802-8a8c-48f9-8165-68863bccd9dd</span></td></tr></table><a name="NuoDBVSPackage" /><h3>NuoDBVSPackage</h3><table><tr id="NuoDBVSPackageHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr name="WarningRowClassNuoDBVSPackage"><td class="IconWarningEncoded"><a name="NuoDBVSPackageWarning" /></td><td class="messageCell"><strong>NuoDBVSPackage\NuoDBVSPackage.csproj:
+        </strong><span>Visual Studio needs to make non-functional changes to this project in order to enable the project to open in released versions of Visual Studio newer than Visual Studio 2010 SP1 without impacting project behavior.</span></td></tr><tr name="WarningRowClassNuoDBVSPackage"><td class="IconWarningEncoded"><a name="NuoDBVSPackageWarning" /></td><td class="messageCell"><strong>NuoDBVSPackage\NuoDBVSPackage.csproj:
+        </strong><span>Visual Studio has made non-functional changes to this project in order to enable the project to open in released versions of Visual Studio newer than Visual Studio 2010 SP1 without impacting project behavior.</span></td></tr><tr name="MessageRowHeaderShowNuoDBVSPackage"><td class="IconInfoEncoded" /><td class="messageCell"><a _locID="ShowAdditionalMessages" href="#" name="NuoDBVSPackageMessage" onclick="ToggleMessageVisibility('NuoDBVSPackage'); return false;">
+          Show 41 additional messages
+        </a></td></tr><tr name="MessageRowClassNuoDBVSPackage" style="display: none"><td class="IconInfoEncoded"><a name="NuoDBVSPackageMessage" /></td><td class="messageCell"><strong>NuoDBVSPackage\NuoDBVSPackage.csproj:
+        </strong><span>Project file successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\NuoDBVSPackage\NuoDBVSPackage.csproj</span></td></tr><tr name="MessageRowClassNuoDBVSPackage" style="display: none"><td class="IconInfoEncoded"><a name="NuoDBVSPackageMessage" /></td><td class="messageCell"><strong>NuoDBVSPackage\NuoDBVSPackage.csproj.user:
+        </strong><span>Project user file successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\NuoDBVSPackage\NuoDBVSPackage.csproj.user</span></td></tr><tr name="MessageRowClassNuoDBVSPackage" style="display: none"><td class="IconInfoEncoded"><a name="NuoDBVSPackageMessage" /></td><td class="messageCell"><strong>NuoDBVSPackage\Editors\CodeWindow.cs:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\NuoDBVSPackage\Editors\CodeWindow.cs</span></td></tr><tr name="MessageRowClassNuoDBVSPackage" style="display: none"><td class="IconInfoEncoded"><a name="NuoDBVSPackageMessage" /></td><td class="messageCell"><strong>NuoDBVSPackage\Editors\CodeWindow.Designer.cs:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\NuoDBVSPackage\Editors\CodeWindow.Designer.cs</span></td></tr><tr name="MessageRowClassNuoDBVSPackage" style="display: none"><td class="IconInfoEncoded"><a name="NuoDBVSPackageMessage" /></td><td class="messageCell"><strong>NuoDBVSPackage\Editors\NewConnectionDialog.cs:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\NuoDBVSPackage\Editors\NewConnectionDialog.cs</span></td></tr><tr name="MessageRowClassNuoDBVSPackage" style="display: none"><td class="IconInfoEncoded"><a name="NuoDBVSPackageMessage" /></td><td class="messageCell"><strong>NuoDBVSPackage\Editors\NewConnectionDialog.Designer.cs:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\NuoDBVSPackage\Editors\NewConnectionDialog.Designer.cs</span></td></tr><tr name="MessageRowClassNuoDBVSPackage" style="display: none"><td class="IconInfoEncoded"><a name="NuoDBVSPackageMessage" /></td><td class="messageCell"><strong>NuoDBVSPackage\Editors\SQLEditor.Designer.cs:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\NuoDBVSPackage\Editors\SQLEditor.Designer.cs</span></td></tr><tr name="MessageRowClassNuoDBVSPackage" style="display: none"><td class="IconInfoEncoded"><a name="NuoDBVSPackageMessage" /></td><td class="messageCell"><strong>NuoDBVSPackage\Editors\SQLEditorFactory.cs:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\NuoDBVSPackage\Editors\SQLEditorFactory.cs</span></td></tr><tr name="MessageRowClassNuoDBVSPackage" style="display: none"><td class="IconInfoEncoded"><a name="NuoDBVSPackageMessage" /></td><td class="messageCell"><strong>NuoDBVSPackage\Editors\Win32.cs:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\NuoDBVSPackage\Editors\Win32.cs</span></td></tr><tr name="MessageRowClassNuoDBVSPackage" style="display: none"><td class="IconInfoEncoded"><a name="NuoDBVSPackageMessage" /></td><td class="messageCell"><strong>NuoDBVSPackage\Guids.cs:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\NuoDBVSPackage\Guids.cs</span></td></tr><tr name="MessageRowClassNuoDBVSPackage" style="display: none"><td class="IconInfoEncoded"><a name="NuoDBVSPackageMessage" /></td><td class="messageCell"><strong>NuoDBVSPackage\NuoDbDataConnectionProperties.cs:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\NuoDBVSPackage\NuoDbDataConnectionProperties.cs</span></td></tr><tr name="MessageRowClassNuoDBVSPackage" style="display: none"><td class="IconInfoEncoded"><a name="NuoDBVSPackageMessage" /></td><td class="messageCell"><strong>NuoDBVSPackage\NuoDbDataConnectionSupport.cs:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\NuoDBVSPackage\NuoDbDataConnectionSupport.cs</span></td></tr><tr name="MessageRowClassNuoDBVSPackage" style="display: none"><td class="IconInfoEncoded"><a name="NuoDBVSPackageMessage" /></td><td class="messageCell"><strong>NuoDBVSPackage\NuoDbDataConnectionUIControl.cs:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\NuoDBVSPackage\NuoDbDataConnectionUIControl.cs</span></td></tr><tr name="MessageRowClassNuoDBVSPackage" style="display: none"><td class="IconInfoEncoded"><a name="NuoDBVSPackageMessage" /></td><td class="messageCell"><strong>NuoDBVSPackage\NuoDbDataObjectIdentifierResolver.cs:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\NuoDBVSPackage\NuoDbDataObjectIdentifierResolver.cs</span></td></tr><tr name="MessageRowClassNuoDBVSPackage" style="display: none"><td class="IconInfoEncoded"><a name="NuoDBVSPackageMessage" /></td><td class="messageCell"><strong>NuoDBVSPackage\NuoDbDataObjectSupport.cs:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\NuoDBVSPackage\NuoDbDataObjectSupport.cs</span></td></tr><tr name="MessageRowClassNuoDBVSPackage" style="display: none"><td class="IconInfoEncoded"><a name="NuoDBVSPackageMessage" /></td><td class="messageCell"><strong>NuoDBVSPackage\NuoDbDataProviderObjectFactory.cs:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\NuoDBVSPackage\NuoDbDataProviderObjectFactory.cs</span></td></tr><tr name="MessageRowClassNuoDBVSPackage" style="display: none"><td class="IconInfoEncoded"><a name="NuoDBVSPackageMessage" /></td><td class="messageCell"><strong>NuoDBVSPackage\NuoDbDataSourceInformation.cs:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\NuoDBVSPackage\NuoDbDataSourceInformation.cs</span></td></tr><tr name="MessageRowClassNuoDBVSPackage" style="display: none"><td class="IconInfoEncoded"><a name="NuoDBVSPackageMessage" /></td><td class="messageCell"><strong>NuoDBVSPackage\NuoDbDataViewSupport.cs:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\NuoDBVSPackage\NuoDbDataViewSupport.cs</span></td></tr><tr name="MessageRowClassNuoDBVSPackage" style="display: none"><td class="IconInfoEncoded"><a name="NuoDBVSPackageMessage" /></td><td class="messageCell"><strong>NuoDBVSPackage\NuoDbObjectConceptMapper.cs:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\NuoDBVSPackage\NuoDbObjectConceptMapper.cs</span></td></tr><tr name="MessageRowClassNuoDBVSPackage" style="display: none"><td class="IconInfoEncoded"><a name="NuoDBVSPackageMessage" /></td><td class="messageCell"><strong>NuoDBVSPackage\NuoDbObjectIdentifierConverter.cs:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\NuoDBVSPackage\NuoDbObjectIdentifierConverter.cs</span></td></tr><tr name="MessageRowClassNuoDBVSPackage" style="display: none"><td class="IconInfoEncoded"><a name="NuoDBVSPackageMessage" /></td><td class="messageCell"><strong>NuoDBVSPackage\PkgCmdID.cs:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\NuoDBVSPackage\PkgCmdID.cs</span></td></tr><tr name="MessageRowClassNuoDBVSPackage" style="display: none"><td class="IconInfoEncoded"><a name="NuoDBVSPackageMessage" /></td><td class="messageCell"><strong>NuoDBVSPackage\ProvideDataSourceAttribute.cs:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\NuoDBVSPackage\ProvideDataSourceAttribute.cs</span></td></tr><tr name="MessageRowClassNuoDBVSPackage" style="display: none"><td class="IconInfoEncoded"><a name="NuoDBVSPackageMessage" /></td><td class="messageCell"><strong>NuoDBVSPackage\Resources.Designer.cs:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\NuoDBVSPackage\Resources.Designer.cs</span></td></tr><tr name="MessageRowClassNuoDBVSPackage" style="display: none"><td class="IconInfoEncoded"><a name="NuoDBVSPackageMessage" /></td><td class="messageCell"><strong>NuoDBVSPackage\GlobalSuppressions.cs:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\NuoDBVSPackage\GlobalSuppressions.cs</span></td></tr><tr name="MessageRowClassNuoDBVSPackage" style="display: none"><td class="IconInfoEncoded"><a name="NuoDBVSPackageMessage" /></td><td class="messageCell"><strong>NuoDBVSPackage\NuoDbVSPackagePackage.cs:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\NuoDBVSPackage\NuoDbVSPackagePackage.cs</span></td></tr><tr name="MessageRowClassNuoDBVSPackage" style="display: none"><td class="IconInfoEncoded"><a name="NuoDBVSPackageMessage" /></td><td class="messageCell"><strong>NuoDBVSPackage\Properties\AssemblyInfo.cs:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\NuoDBVSPackage\Properties\AssemblyInfo.cs</span></td></tr><tr name="MessageRowClassNuoDBVSPackage" style="display: none"><td class="IconInfoEncoded"><a name="NuoDBVSPackageMessage" /></td><td class="messageCell"><strong>NuoDBVSPackage\Editors\SQLEditor.cs:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\NuoDBVSPackage\Editors\SQLEditor.cs</span></td></tr><tr name="MessageRowClassNuoDBVSPackage" style="display: none"><td class="IconInfoEncoded"><a name="NuoDBVSPackageMessage" /></td><td class="messageCell"><strong>NuoDBVSPackage\source.extension.vsixmanifest:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\NuoDBVSPackage\source.extension.vsixmanifest</span></td></tr><tr name="MessageRowClassNuoDBVSPackage" style="display: none"><td class="IconInfoEncoded"><a name="NuoDBVSPackageMessage" /></td><td class="messageCell"><strong>NuoDBVSPackage\Key.snk:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\NuoDBVSPackage\Key.snk</span></td></tr><tr name="MessageRowClassNuoDBVSPackage" style="display: none"><td class="IconInfoEncoded"><a name="NuoDBVSPackageMessage" /></td><td class="messageCell"><strong>NuoDBVSPackage\Templates\New Query.nuosql:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\NuoDBVSPackage\Templates\New Query.nuosql</span></td></tr><tr name="MessageRowClassNuoDBVSPackage" style="display: none"><td class="IconInfoEncoded"><a name="NuoDBVSPackageMessage" /></td><td class="messageCell"><strong>NuoDBVSPackage\Templates\NuoDBVSPackage.vsdir:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\NuoDBVSPackage\Templates\NuoDBVSPackage.vsdir</span></td></tr><tr name="MessageRowClassNuoDBVSPackage" style="display: none"><td class="IconInfoEncoded"><a name="NuoDBVSPackageMessage" /></td><td class="messageCell"><strong>NuoDBVSPackage\Resources\Package.ico:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\NuoDBVSPackage\Resources\Package.ico</span></td></tr><tr name="MessageRowClassNuoDBVSPackage" style="display: none"><td class="IconInfoEncoded"><a name="NuoDBVSPackageMessage" /></td><td class="messageCell"><strong>NuoDBVSPackage\Editors\NewConnectionDialog.resx:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\NuoDBVSPackage\Editors\NewConnectionDialog.resx</span></td></tr><tr name="MessageRowClassNuoDBVSPackage" style="display: none"><td class="IconInfoEncoded"><a name="NuoDBVSPackageMessage" /></td><td class="messageCell"><strong>NuoDBVSPackage\Editors\SQLEditor.resx:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\NuoDBVSPackage\Editors\SQLEditor.resx</span></td></tr><tr name="MessageRowClassNuoDBVSPackage" style="display: none"><td class="IconInfoEncoded"><a name="NuoDBVSPackageMessage" /></td><td class="messageCell"><strong>NuoDBVSPackage\NuoDbDataConnectionUIControl.resx:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\NuoDBVSPackage\NuoDbDataConnectionUIControl.resx</span></td></tr><tr name="MessageRowClassNuoDBVSPackage" style="display: none"><td class="IconInfoEncoded"><a name="NuoDBVSPackageMessage" /></td><td class="messageCell"><strong>NuoDBVSPackage\Resources.resx:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\NuoDBVSPackage\Resources.resx</span></td></tr><tr name="MessageRowClassNuoDBVSPackage" style="display: none"><td class="IconInfoEncoded"><a name="NuoDBVSPackageMessage" /></td><td class="messageCell"><strong>NuoDBVSPackage\VSPackage.resx:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\NuoDBVSPackage\VSPackage.resx</span></td></tr><tr name="MessageRowClassNuoDBVSPackage" style="display: none"><td class="IconInfoEncoded"><a name="NuoDBVSPackageMessage" /></td><td class="messageCell"><strong>NuoDBVSPackage\NuoDbDataViewSupport.xml:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\NuoDBVSPackage\NuoDbDataViewSupport.xml</span></td></tr><tr name="MessageRowClassNuoDBVSPackage" style="display: none"><td class="IconInfoEncoded"><a name="NuoDBVSPackageMessage" /></td><td class="messageCell"><strong>NuoDBVSPackage\NuoDbDataObjectSupport.xml:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\NuoDBVSPackage\NuoDbDataObjectSupport.xml</span></td></tr><tr name="MessageRowClassNuoDBVSPackage" style="display: none"><td class="IconInfoEncoded"><a name="NuoDBVSPackageMessage" /></td><td class="messageCell"><strong>NuoDBVSPackage\NuoDBVSPackage.csproj:
+        </strong><span>Project migrated successfully</span></td></tr><tr name="MessageRowClassNuoDBVSPackage" style="display: none"><td class="IconInfoEncoded"><a name="NuoDBVSPackageMessage" /></td><td class="messageCell"><strong>NuoDBVSPackage\NuoDBVSPackage.csproj:
+        </strong><span>Scan complete: Migration not required for project files.</span></td></tr><tr style="display: none" name="MessageRowHeaderHideNuoDBVSPackage"><td class="IconInfoEncoded" /><td class="messageCell"><a _locID="HideAdditionalMessages" href="#" name="NuoDBVSPackageMessage" onclick="ToggleMessageVisibility('NuoDBVSPackage'); return false;">
+          Hide 41 additional messages
+        </a></td></tr></table><a name="WebApplicationSample" /><h3>WebApplicationSample</h3><table><tr id="WebApplicationSampleHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr name="WarningRowClassWebApplicationSample"><td class="IconWarningEncoded"><a name="WebApplicationSampleWarning" /></td><td class="messageCell"><strong>WebApplicationSample\WebApplicationSample.csproj:
+        </strong><span>Visual Studio needs to make non-functional changes to this project in order to enable the project to open in released versions of Visual Studio newer than Visual Studio 2010 SP1 without impacting project behavior.</span></td></tr><tr name="WarningRowClassWebApplicationSample"><td class="IconWarningEncoded"><a name="WebApplicationSampleWarning" /></td><td class="messageCell"><strong>WebApplicationSample\WebApplicationSample.csproj:
+        </strong><span>Visual Studio has made non-functional changes to this project in order to enable the project to open in released versions of Visual Studio newer than Visual Studio 2010 SP1 without impacting project behavior.</span></td></tr><tr name="MessageRowHeaderShowWebApplicationSample"><td class="IconInfoEncoded" /><td class="messageCell"><a _locID="ShowAdditionalMessages" href="#" name="WebApplicationSampleMessage" onclick="ToggleMessageVisibility('WebApplicationSample'); return false;">
+          Show 36 additional messages
+        </a></td></tr><tr name="MessageRowClassWebApplicationSample" style="display: none"><td class="IconInfoEncoded"><a name="WebApplicationSampleMessage" /></td><td class="messageCell"><strong>WebApplicationSample\WebApplicationSample.csproj:
+        </strong><span>Project file successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\WebApplicationSample\WebApplicationSample.csproj</span></td></tr><tr name="MessageRowClassWebApplicationSample" style="display: none"><td class="IconInfoEncoded"><a name="WebApplicationSampleMessage" /></td><td class="messageCell"><strong>WebApplicationSample\About.aspx.cs:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\WebApplicationSample\About.aspx.cs</span></td></tr><tr name="MessageRowClassWebApplicationSample" style="display: none"><td class="IconInfoEncoded"><a name="WebApplicationSampleMessage" /></td><td class="messageCell"><strong>WebApplicationSample\About.aspx.designer.cs:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\WebApplicationSample\About.aspx.designer.cs</span></td></tr><tr name="MessageRowClassWebApplicationSample" style="display: none"><td class="IconInfoEncoded"><a name="WebApplicationSampleMessage" /></td><td class="messageCell"><strong>WebApplicationSample\Account\ChangePassword.aspx.cs:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\WebApplicationSample\Account\ChangePassword.aspx.cs</span></td></tr><tr name="MessageRowClassWebApplicationSample" style="display: none"><td class="IconInfoEncoded"><a name="WebApplicationSampleMessage" /></td><td class="messageCell"><strong>WebApplicationSample\Account\ChangePassword.aspx.designer.cs:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\WebApplicationSample\Account\ChangePassword.aspx.designer.cs</span></td></tr><tr name="MessageRowClassWebApplicationSample" style="display: none"><td class="IconInfoEncoded"><a name="WebApplicationSampleMessage" /></td><td class="messageCell"><strong>WebApplicationSample\Account\ChangePasswordSuccess.aspx.cs:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\WebApplicationSample\Account\ChangePasswordSuccess.aspx.cs</span></td></tr><tr name="MessageRowClassWebApplicationSample" style="display: none"><td class="IconInfoEncoded"><a name="WebApplicationSampleMessage" /></td><td class="messageCell"><strong>WebApplicationSample\Account\ChangePasswordSuccess.aspx.designer.cs:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\WebApplicationSample\Account\ChangePasswordSuccess.aspx.designer.cs</span></td></tr><tr name="MessageRowClassWebApplicationSample" style="display: none"><td class="IconInfoEncoded"><a name="WebApplicationSampleMessage" /></td><td class="messageCell"><strong>WebApplicationSample\Account\Login.aspx.cs:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\WebApplicationSample\Account\Login.aspx.cs</span></td></tr><tr name="MessageRowClassWebApplicationSample" style="display: none"><td class="IconInfoEncoded"><a name="WebApplicationSampleMessage" /></td><td class="messageCell"><strong>WebApplicationSample\Account\Login.aspx.designer.cs:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\WebApplicationSample\Account\Login.aspx.designer.cs</span></td></tr><tr name="MessageRowClassWebApplicationSample" style="display: none"><td class="IconInfoEncoded"><a name="WebApplicationSampleMessage" /></td><td class="messageCell"><strong>WebApplicationSample\Account\Register.aspx.cs:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\WebApplicationSample\Account\Register.aspx.cs</span></td></tr><tr name="MessageRowClassWebApplicationSample" style="display: none"><td class="IconInfoEncoded"><a name="WebApplicationSampleMessage" /></td><td class="messageCell"><strong>WebApplicationSample\Account\Register.aspx.designer.cs:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\WebApplicationSample\Account\Register.aspx.designer.cs</span></td></tr><tr name="MessageRowClassWebApplicationSample" style="display: none"><td class="IconInfoEncoded"><a name="WebApplicationSampleMessage" /></td><td class="messageCell"><strong>WebApplicationSample\Default.aspx.cs:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\WebApplicationSample\Default.aspx.cs</span></td></tr><tr name="MessageRowClassWebApplicationSample" style="display: none"><td class="IconInfoEncoded"><a name="WebApplicationSampleMessage" /></td><td class="messageCell"><strong>WebApplicationSample\Default.aspx.designer.cs:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\WebApplicationSample\Default.aspx.designer.cs</span></td></tr><tr name="MessageRowClassWebApplicationSample" style="display: none"><td class="IconInfoEncoded"><a name="WebApplicationSampleMessage" /></td><td class="messageCell"><strong>WebApplicationSample\Global.asax.cs:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\WebApplicationSample\Global.asax.cs</span></td></tr><tr name="MessageRowClassWebApplicationSample" style="display: none"><td class="IconInfoEncoded"><a name="WebApplicationSampleMessage" /></td><td class="messageCell"><strong>WebApplicationSample\HockeyModel.Designer.cs:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\WebApplicationSample\HockeyModel.Designer.cs</span></td></tr><tr name="MessageRowClassWebApplicationSample" style="display: none"><td class="IconInfoEncoded"><a name="WebApplicationSampleMessage" /></td><td class="messageCell"><strong>WebApplicationSample\Properties\AssemblyInfo.cs:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\WebApplicationSample\Properties\AssemblyInfo.cs</span></td></tr><tr name="MessageRowClassWebApplicationSample" style="display: none"><td class="IconInfoEncoded"><a name="WebApplicationSampleMessage" /></td><td class="messageCell"><strong>WebApplicationSample\Site.Master.cs:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\WebApplicationSample\Site.Master.cs</span></td></tr><tr name="MessageRowClassWebApplicationSample" style="display: none"><td class="IconInfoEncoded"><a name="WebApplicationSampleMessage" /></td><td class="messageCell"><strong>WebApplicationSample\Site.Master.designer.cs:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\WebApplicationSample\Site.Master.designer.cs</span></td></tr><tr name="MessageRowClassWebApplicationSample" style="display: none"><td class="IconInfoEncoded"><a name="WebApplicationSampleMessage" /></td><td class="messageCell"><strong>WebApplicationSample\About.aspx:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\WebApplicationSample\About.aspx</span></td></tr><tr name="MessageRowClassWebApplicationSample" style="display: none"><td class="IconInfoEncoded"><a name="WebApplicationSampleMessage" /></td><td class="messageCell"><strong>WebApplicationSample\Account\ChangePassword.aspx:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\WebApplicationSample\Account\ChangePassword.aspx</span></td></tr><tr name="MessageRowClassWebApplicationSample" style="display: none"><td class="IconInfoEncoded"><a name="WebApplicationSampleMessage" /></td><td class="messageCell"><strong>WebApplicationSample\Account\ChangePasswordSuccess.aspx:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\WebApplicationSample\Account\ChangePasswordSuccess.aspx</span></td></tr><tr name="MessageRowClassWebApplicationSample" style="display: none"><td class="IconInfoEncoded"><a name="WebApplicationSampleMessage" /></td><td class="messageCell"><strong>WebApplicationSample\Account\Login.aspx:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\WebApplicationSample\Account\Login.aspx</span></td></tr><tr name="MessageRowClassWebApplicationSample" style="display: none"><td class="IconInfoEncoded"><a name="WebApplicationSampleMessage" /></td><td class="messageCell"><strong>WebApplicationSample\Account\Register.aspx:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\WebApplicationSample\Account\Register.aspx</span></td></tr><tr name="MessageRowClassWebApplicationSample" style="display: none"><td class="IconInfoEncoded"><a name="WebApplicationSampleMessage" /></td><td class="messageCell"><strong>WebApplicationSample\Styles\Site.css:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\WebApplicationSample\Styles\Site.css</span></td></tr><tr name="MessageRowClassWebApplicationSample" style="display: none"><td class="IconInfoEncoded"><a name="WebApplicationSampleMessage" /></td><td class="messageCell"><strong>WebApplicationSample\Default.aspx:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\WebApplicationSample\Default.aspx</span></td></tr><tr name="MessageRowClassWebApplicationSample" style="display: none"><td class="IconInfoEncoded"><a name="WebApplicationSampleMessage" /></td><td class="messageCell"><strong>WebApplicationSample\Global.asax:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\WebApplicationSample\Global.asax</span></td></tr><tr name="MessageRowClassWebApplicationSample" style="display: none"><td class="IconInfoEncoded"><a name="WebApplicationSampleMessage" /></td><td class="messageCell"><strong>WebApplicationSample\Scripts\jquery-1.4.1-vsdoc.js:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\WebApplicationSample\Scripts\jquery-1.4.1-vsdoc.js</span></td></tr><tr name="MessageRowClassWebApplicationSample" style="display: none"><td class="IconInfoEncoded"><a name="WebApplicationSampleMessage" /></td><td class="messageCell"><strong>WebApplicationSample\Scripts\jquery-1.4.1.js:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\WebApplicationSample\Scripts\jquery-1.4.1.js</span></td></tr><tr name="MessageRowClassWebApplicationSample" style="display: none"><td class="IconInfoEncoded"><a name="WebApplicationSampleMessage" /></td><td class="messageCell"><strong>WebApplicationSample\Scripts\jquery-1.4.1.min.js:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\WebApplicationSample\Scripts\jquery-1.4.1.min.js</span></td></tr><tr name="MessageRowClassWebApplicationSample" style="display: none"><td class="IconInfoEncoded"><a name="WebApplicationSampleMessage" /></td><td class="messageCell"><strong>WebApplicationSample\Web.config:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\WebApplicationSample\Web.config</span></td></tr><tr name="MessageRowClassWebApplicationSample" style="display: none"><td class="IconInfoEncoded"><a name="WebApplicationSampleMessage" /></td><td class="messageCell"><strong>WebApplicationSample\Web.Debug.config:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\WebApplicationSample\Web.Debug.config</span></td></tr><tr name="MessageRowClassWebApplicationSample" style="display: none"><td class="IconInfoEncoded"><a name="WebApplicationSampleMessage" /></td><td class="messageCell"><strong>WebApplicationSample\Web.Release.config:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\WebApplicationSample\Web.Release.config</span></td></tr><tr name="MessageRowClassWebApplicationSample" style="display: none"><td class="IconInfoEncoded"><a name="WebApplicationSampleMessage" /></td><td class="messageCell"><strong>WebApplicationSample\Account\Web.config:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\WebApplicationSample\Account\Web.config</span></td></tr><tr name="MessageRowClassWebApplicationSample" style="display: none"><td class="IconInfoEncoded"><a name="WebApplicationSampleMessage" /></td><td class="messageCell"><strong>WebApplicationSample\Site.Master:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\WebApplicationSample\Site.Master</span></td></tr><tr name="MessageRowClassWebApplicationSample" style="display: none"><td class="IconInfoEncoded"><a name="WebApplicationSampleMessage" /></td><td class="messageCell"><strong>WebApplicationSample\WebApplicationSample.csproj:
+        </strong><span>Project migrated successfully</span></td></tr><tr name="MessageRowClassWebApplicationSample" style="display: none"><td class="IconInfoEncoded"><a name="WebApplicationSampleMessage" /></td><td class="messageCell"><strong>WebApplicationSample\WebApplicationSample.csproj:
+        </strong><span>Scan complete: Migration not required for project files.</span></td></tr><tr style="display: none" name="MessageRowHeaderHideWebApplicationSample"><td class="IconInfoEncoded" /><td class="messageCell"><a _locID="HideAdditionalMessages" href="#" name="WebApplicationSampleMessage" onclick="ToggleMessageVisibility('WebApplicationSample'); return false;">
+          Hide 36 additional messages
+        </a></td></tr></table><a name="Solution" /><h3 _locID="ProjectDisplayNameHeader">Solution</h3><table><tr id="SolutionHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr name="WarningRowClassSolution"><td class="IconWarningEncoded"><a name="SolutionWarning" /></td><td class="messageCell"><strong>ADO.NET.sln:
+        </strong><span>Visual Studio needs to make non-functional changes to this project in order to enable the project to open in released versions of Visual Studio newer than Visual Studio 2010 SP1 without impacting project behavior.</span></td></tr><tr name="MessageRowHeaderShowSolution"><td class="IconInfoEncoded" /><td class="messageCell"><a _locID="ShowAdditionalMessages" href="#" name="SolutionMessage" onclick="ToggleMessageVisibility('Solution'); return false;">
+          Show 2 additional messages
+        </a></td></tr><tr name="MessageRowClassSolution" style="display: none"><td class="IconInfoEncoded"><a name="SolutionMessage" /></td><td class="messageCell"><strong>ADO.NET.sln:
+        </strong><span>File successfully backed up as C:\Users\nts3\source\repos\nuodb-dotnet\Backup\ADO.NET.sln</span></td></tr><tr name="MessageRowClassSolution" style="display: none"><td class="IconInfoEncoded"><a name="SolutionMessage" /></td><td class="messageCell"><strong>ADO.NET.sln:
+        </strong><span>Solution migrated successfully</span></td></tr><tr style="display: none" name="MessageRowHeaderHideSolution"><td class="IconInfoEncoded" /><td class="messageCell"><a _locID="HideAdditionalMessages" href="#" name="SolutionMessage" onclick="ToggleMessageVisibility('Solution'); return false;">
+          Hide 2 additional messages
+        </a></td></tr></table><a name="Installers" /><h3>Installers</h3><table><tr id="InstallersHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">Installers logged no messages.
+                  </td></tr></table><a name="NuGet" /><h3>NuGet</h3><table><tr id="NuGetHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">NuGet logged no messages.
+                  </td></tr></table><a name="Samples" /><h3>Samples</h3><table><tr id="SamplesHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">Samples logged no messages.
+                  </td></tr></table></div></div></body></html>
