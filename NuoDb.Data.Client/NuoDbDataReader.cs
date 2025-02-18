@@ -76,7 +76,8 @@ namespace NuoDb.Data.Client
             this.values = new Value[numberColumns];
             this.closed = false;
             this.currentRow = 0;
-            //this.afterLast = null;
+
+            // this.afterLast = false;    // this is the default. The value is set later in this method from the pendingRows stream
             this.declaredColumnTypes = null;
             this.declaredColumnTypeNames = null;
 
@@ -325,15 +326,17 @@ namespace NuoDb.Data.Client
 
         public override bool Read()
         {
-            //afterLast can only be false if pendingRows was non-null in InitResultSet().
-            if (afterLast)
+            // Currently, afterLast can only be false if pendingRows was non-null in InitResultSet();
+            // - but InitResultSet could be changed in the future.
+            if (afterLast || pendingRows == null)
                 return false;
 
             //int maxRows = statement == null ? 0 : statement.MaxRows;
-            int maxRows = 0;
+            int maxRows = 0;        // this local maxRows HIDES this.maxRows
 
             for (; ; )
             {
+                // NOTE: this is a LOCAL maxRows which is hiding this.maxRows.
                 if (maxRows > 0 && currentRow >= maxRows)
                 {
                     afterLast = true;
@@ -345,6 +348,7 @@ namespace NuoDb.Data.Client
                 {
                     // InitResultSet() performs the pendingRows.getInt() for currentRow == 0
                     int result = currentRow > 0 ? pendingRows.getInt() : -1;
+
                     if (result == 0)
                     {
                         afterLast = true;
