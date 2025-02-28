@@ -1,0 +1,88 @@
+#!/usr/bin/env bash
+
+: ${IMG_NAME:="nuodb/nuodb:latest"}
+
+if [ -z "${NUODB_LIMITED_LICENSE_CONTENT}" ] && [ -z "${NUODB_LIMITED_LICENSE}" ]; then
+	echo "Need a license setting"
+	exit -1
+fi
+
+COMMAND="docker exec ad1 nuocmd check database --db-name demo --check-running"
+if $COMMAND 2>/dev/null; then
+    echo "Environment already created."
+    docker exec ad1 nuocmd show domain
+    exit 0
+fi
+
+echo "Creating local network.... "
+docker network create nuodb-net
+echo "Done!"
+echo
+echo "Creating AP... "
+docker run -d --name ad1 --rm \
+    --hostname ad1 \
+    --net nuodb-net \
+    -p 8888:8888 \
+    -p 48004:48004 \
+    -p 48005:48005 \
+    -e "NUODB_DOMAIN_ENTRYPOINT=ad1" \
+    "${IMG_NAME}" nuoadmin
+echo "Done!"
+echo
+echo -n "Wating for AP to start... "
+docker exec ad1 nuocmd check servers --check-leader --check-connected --timeout 30
+echo "Connected!"
+
+# Apply limited license
+echo "Applying license.. "
+if [ -n "${NUODB_LIMITED_LICENSE_CONTENT}" ]; then
+    echo "using LICENSE CONTENT"
+    docker exec -e "NUODB_LIMITED_LICENSE_CONTENT=${NUODB_LIMITED_LICENSE_CONTENT}" ad1 /bin/bash -c 'echo "${NUODB_LIMITED_LICENSE_CONTENT}" | base64 -d > ~/nuodb.lic && /opt/nuodb/bin/nuocmd set license --license-file ~/nuodb.lic && rm ~/nuodb.lic'
+elif [ -n "${NUODB_LIMITED_LICENSE}" ]; then
+    echo "using LICENSE"
+    docker cp ${NUODB_LIMITED_LICENSE} ad1:/tmp/nuodb.lic
+    docker exec ad1 /opt/nuodb/bin/nuocmd set license --license-file /tmp/nuodb.lic
+else
+    echo "No License applied"
+fi
+echo "Done!"
+echo
+#changed to properly create and mount volumes
+echo "Creating volumes for SM... "
+echo -e "- "; docker volume create vol1
+echo -e "- "; docker volume create vol2
+echo "Done!"
+echo
+echo "Starting SM1... "
+docker run -d --name sm1 --hostname sm1 --rm \
+    --volume vol1:/var/opt/nuodb/backup \
+    --volume vol2:/var/opt/nuodb/archive \
+    --net nuodb-net "${IMG_NAME}" nuodocker \
+    --api-server ad1:8888 start sm \
+    --db-name demo --server-id ad1 \
+    --dba-user dba --dba-password dba \
+    --labels "zone east node localhost" \
+    --archive-dir /var/opt/nuodb/archive
+echo "Done!"
+echo
+echo "Starting TEs... "
+docker run -d --name te1 --hostname te1 --rm \
+    --net nuodb-net "${IMG_NAME}" nuodocker \
+    --api-server ad1:8888 start te \
+    --db-name demo --server-id ad1
+
+docker run -d --name te2 --hostname te2 --rm \
+    --net nuodb-net "${IMG_NAME}" nuodocker \
+    --api-server ad1:8888 start te \
+    --db-name demo --server-id ad1
+echo "Done!"
+echo
+echo -n "Waiting for database to start..."
+COMMAND="docker exec ad1 nuocmd check database --db-name demo --check-running"
+while ! $COMMAND 2>/dev/null; do
+    echo -n "."
+    sleep 2
+done
+echo " Running!"
+echo
+docker exec ad1 nuocmd show domain

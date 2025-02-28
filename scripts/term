@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+: ${IMG_NAME:="nuodb/nuodb:latest"}
+
+docker run -it --name term --rm \
+    --net nuodb-net ${IMG_NAME} bash
