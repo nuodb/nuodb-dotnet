@@ -5,15 +5,15 @@
     <PackageId>NuoDb.EntityFrameworkCore.NuoDb</PackageId>
     <RootNamespace>NuoDb.EntityFrameworkCore.NuoDb</RootNamespace>
     <Description>NuoDB database provider for Entity Framework Core. This package does not include a copy of the native NuoDB library.</Description>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <MinClientVersion>3.6</MinClientVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PackageTags>$(PackageTags);NuoDB;SQL;ACID;distributed;high-availability;scalable;cloud</PackageTags>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Title>NuoDB EFCore implementation</Title>
-    <Version>3.0.0</Version>
-    <Company>NuoDB, a Dassault Systemes company</Company>
-    <Copyright>Copyright (C) NuoDB 2012-2024</Copyright>
+    <Version>4.0.0</Version>
+    <Company>Dassault Systèmes SE</Company>
+    <Copyright>Copyright (C) Dassault Systèmes SE 2012-2025</Copyright>
     <PackageProjectUrl>http://nuodb.com</PackageProjectUrl>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/nuodb/nuodb-dotnet</RepositoryUrl>
