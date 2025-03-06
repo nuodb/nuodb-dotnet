@@ -1,0 +1,95 @@
+version: 2.1
+
+orbs:
+  windows: circleci/windows@5.0
+
+jobs:
+  build-test-linux:
+    machine:
+      image: ubuntu-2004:2024.11.1
+    resource_class: medium
+    environment:
+      IMG_NAME: "nuodb/nuodb:6.0.2-9"
+    steps:
+      - checkout
+      - run:
+          name: Add dotnet repo
+          command: |
+            wget https://packages.microsoft.com/config/debian/12/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+            sudo dpkg -i packages-microsoft-prod.deb
+            rm packages-microsoft-prod.deb
+      - run:
+          name: Install make
+          command: sudo apt update && sudo apt install -y dotnet-sdk-6.0 dotnet-sdk-8.0
+      - run:
+          name: Install JetBrains dotCover CLI and Logger package
+          command: |
+            dotnet tool install --global JetBrains.dotCover.GlobalTool
+            dotnet add NuoDb.EntityFrameworkCore.Tests/NuoDb.EntityFrameworkCore.Tests.csproj package JunitXml.TestLogger
+      - run:
+          name: Restore packages
+          command: dotnet restore NuoDb.EntityFrameworkCore.NuoDb/NuoDb.EntityFrameworkCore.NuoDb.csproj
+      - run:
+          name: Build solution
+          command: dotnet build --configuration Debug --no-restore NuoDb.EntityFrameworkCore.NuoDb/NuoDb.EntityFrameworkCore.NuoDb.csproj
+      - run:
+          name: Restore test packages
+          command: dotnet restore NuoDb.EntityFrameworkCore.Tests/NuoDb.EntityFrameworkCore.Tests.csproj
+      - run:
+          name: Build test solution
+          command: dotnet build --configuration Debug --no-restore NuoDb.EntityFrameworkCore.Tests/NuoDb.EntityFrameworkCore.Tests.csproj
+      - run:
+          name: Start NuoDB test database
+          command: ls -las && env && make up
+      - run:
+          name: Run tests
+          command: |
+            sudo timedatectl set-timezone America/New_York
+            export PATH="$PATH:$HOME/.dotnet/tools"
+            dotnet dotcover test \
+              --dcOutput=test-results/dotNetCoverage.html \
+              --dcReportType=HTML \
+              --dcfilters="-:module=Humanizer;-:module=NuoDb.EntityFrameworkCore.Tests;-:type=JetBrains.*;-:type=System.*;-:type=Microsoft.*" \
+              NuoDb.EntityFrameworkCore.Tests/NuoDb.EntityFrameworkCore.Tests.csproj \
+              --logger="junit;LogFilePath=./TestResults/test-results.xml"
+      - run:
+          name: Make sure we clean the test environment
+          command: make dn
+      - store_artifacts:
+          path: test-results
+          destination: coverage-report
+      - store_test_results:
+          path: NuoDb.EntityFrameworkCore.Tests/TestResults
+
+  build-test-windows:
+    executor:
+      name: windows/default
+    steps:
+      - checkout
+      - run:
+          name: Install .NET 8 SDK
+          command: |
+            $ProgressPreference = 'SilentlyContinue'
+            Invoke-WebRequest -Uri "https://dot.net/v1/dotnet-install.ps1" -OutFile "dotnet-install.ps1"
+            ./dotnet-install.ps1 -Channel 8.0 -Quality GA
+      - run:
+          name: Restore packages
+          command: dotnet restore NuoDb.EntityFrameworkCore.NuoDb/NuoDb.EntityFrameworkCore.NuoDb.csproj
+      - run:
+          name: Build solution
+          command: dotnet build --configuration Release --no-restore NuoDb.EntityFrameworkCore.NuoDb/NuoDb.EntityFrameworkCore.NuoDb.csproj
+      - run:
+          name: Restore test packages
+          command: dotnet restore NuoDb.EntityFrameworkCore.Tests/NuoDb.EntityFrameworkCore.Tests.csproj
+      - run:
+          name: Build test solution
+          command: dotnet build --configuration Release --no-restore NuoDb.EntityFrameworkCore.Tests/NuoDb.EntityFrameworkCore.Tests.csproj
+
+workflows:
+  # Workflow for commits - only build and test
+  build-and-test:
+    jobs:
+      - build-test-linux:
+          context:
+            - common-config
+      - build-test-windows
