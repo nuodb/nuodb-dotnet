@@ -3,8 +3,6 @@ nuodb-dotnet
 
 This is the official NuoDB .NET driver. It is no longer actively supported by NuoDB. The driver will be updated and tested periodically.
 
-[![Build Status](https://travis-ci.org/nuodb/nuodb-dotnet.png)](https://travis-ci.org/nuodb/nuodb-dotnet)
-
 Windows Support
 ---------------
 
@@ -15,8 +13,8 @@ Linux Support (Mono)
 -------------------
 
 Linux is supported via Mono but presently must be built by end-users.
-To build the driver simply perform the operations listed in the Travis
-file (.travis.yml) in the order listed.
+To build the driver simply perform the operations listed in the CircleCI
+file (.circleci/config.yml) in the order listed.
 
 License
 -------------------
