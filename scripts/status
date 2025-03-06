@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+: ${IMG_NAME:="nuodb/nuodb:latest"}
+
+docker run -it --net nuodb-net ${IMG_NAME} \
+    nuocmd --api-server ad1:8888 show domain
+
