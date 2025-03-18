@@ -1,7 +1,7 @@
 nuodb-dotnet
 ============
 
-[![CircleCI](https://dl.circleci.com/insights-snapshot/gh/nuodb/nuodb-dotnet/master/build-and-test/badge.svg?window=30d)](https://app.circleci.com/insights/github/nuodb/nuodb-dotnet/workflows/build-and-test/overview?branch=master&reporting-window=last-30-days&insights-snapshot=true)
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/nuodb/nuodb-dotnet/tree/master.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/nuodb/nuodb-dotnet/tree/master)
 
 This is the official NuoDB .NET driver. It is no longer actively supported by NuoDB. The driver will be updated and tested periodically.
 
