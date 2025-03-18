@@ -17,7 +17,14 @@
     <PackageProjectUrl>http://nuodb.com</PackageProjectUrl>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/nuodb/nuodb-dotnet</RepositoryUrl>
+    <PackageReadmeFile>..\README.md</PackageReadmeFile>
+    <PackageLicenseFile>..\LICENSE.txt</PackageLicenseFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\README.md" Pack="true" PackagePath="\" />
+    <None Include="..\LICENSE.txt" Pack="true" PackagePath="\" />
+  </ItemGroup>
 
   <ItemGroup>
     <Compile Include="..\Shared\*.cs" />
