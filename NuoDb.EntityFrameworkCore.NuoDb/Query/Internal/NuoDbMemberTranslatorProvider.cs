@@ -33,7 +33,8 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
                     new NuoDbDateTimeMemberTranslator(sqlExpressionFactory, typeMappingSource),
                     new NuoDbStringLengthTranslator(sqlExpressionFactory),
                     new NuoDbDateOnlyMemberTranslator(sqlExpressionFactory),
-                    new NuoDbTimeSpanMemberTranslator(sqlExpressionFactory, (NuoDbTypeMappingSource)typeMappingSource)
+                    new NuoDbTimeSpanMemberTranslator(sqlExpressionFactory, (NuoDbTypeMappingSource)typeMappingSource),
+                    new NuoDbDateTimeOffsetMemberTranslator(sqlExpressionFactory, typeMappingSource)
                 });
         }
     }

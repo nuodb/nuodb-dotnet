@@ -1,18 +1,20 @@
 ﻿using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage;
 using System;
-using System.Collections.Generic;
 using System.Data.Common;
 using System.Data;
-using System.Drawing;
 using System.Globalization;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using NuoDb.Data.Client;
 
 namespace NuoDb.EntityFrameworkCore.NuoDb.Storage.Internal
 {
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public class NuoDbByteArrayTypeMapping: ByteArrayTypeMapping
     {
         private const int MaxSize = 8000;
@@ -57,7 +59,7 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Storage.Internal
         }
 
         private static int CalculateSize(int? size)
-            => size.HasValue && size < MaxSize ? size.Value : MaxSize;
+            => size is < MaxSize ? size.Value : MaxSize;
 
         /// <summary>
         ///     Creates a copy of this mapping.

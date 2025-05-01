@@ -33,7 +33,6 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Storage.Internal
     {
         private readonly IRawSqlCommandBuilder _rawSqlCommandBuilder;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Infrastructure> _logger;
-        private readonly bool _loadSpatialite;
         private readonly int? _commandTimeout;
 
         /// <summary>
@@ -56,7 +55,6 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Storage.Internal
             var optionsExtension = dependencies.ContextOptions.Extensions.OfType<NuoDbOptionsExtension>().FirstOrDefault();
             if (optionsExtension != null)
             {
-                _loadSpatialite = optionsExtension.LoadSpatialite;
 
                 var relationalOptions = RelationalOptionsExtension.Extract(dependencies.ContextOptions);
                 _commandTimeout = relationalOptions.CommandTimeout;
@@ -105,79 +103,8 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Storage.Internal
         private void InitializeDbConnection(DbConnection connection)
         {
 
-            if (connection is NuoDbConnection NuoDbConnection)
-            {
-                // if (_commandTimeout.HasValue)
-                // {
-                //     NuoDbConnection.DefaultTimeout = _commandTimeout.Value;
-                // }
-                //
-                // NuoDbConnection.CreateFunction<string, string, bool?>(
-                //     "regexp",
-                //     (pattern, input) =>
-                //         {
-                //             if (input == null
-                //                 || pattern == null)
-                //             {
-                //                 return null;
-                //             }
-                //
-                //             return Regex.IsMatch(input, pattern);
-                //         },
-                //     isDeterministic: true);
-                //
-                // NuoDbConnection.CreateFunction<object, object, object?>(
-                //     "ef_mod",
-                //     (dividend, divisor) =>
-                //         {
-                //             if (dividend == null
-                //                 || divisor == null)
-                //             {
-                //                 return null;
-                //             }
-                //
-                //             if (dividend is string s)
-                //             {
-                //                 return decimal.Parse(s, CultureInfo.InvariantCulture)
-                //                     % Convert.ToDecimal(divisor, CultureInfo.InvariantCulture);
-                //             }
-                //
-                //             return Convert.ToDouble(dividend, CultureInfo.InvariantCulture)
-                //                 % Convert.ToDouble(divisor, CultureInfo.InvariantCulture);
-                //         },
-                //     isDeterministic: true);
-                //
-                // NuoDbConnection.CreateFunction(
-                //     name: "ef_add",
-                //     (decimal? left, decimal? right) => left + right,
-                //     isDeterministic: true);
-                //
-                // NuoDbConnection.CreateFunction(
-                //     name: "ef_divide",
-                //     (decimal? dividend, decimal? divisor) => dividend / divisor,
-                //     isDeterministic: true);
-                //
-                // NuoDbConnection.CreateFunction(
-                //     name: "ef_compare",
-                //     (decimal? left, decimal? right) => left.HasValue && right.HasValue
-                //         ? decimal.Compare(left.Value, right.Value)
-                //         : default(int?),
-                //     isDeterministic: true);
-                //
-                // NuoDbConnection.CreateFunction(
-                //     name: "ef_multiply",
-                //     (decimal? left, decimal? right) => left * right,
-                //     isDeterministic: true);
-                //
-                // NuoDbConnection.CreateFunction(
-                //     name: "ef_negate",
-                //     (decimal? m) => -m,
-                //     isDeterministic: true);
-            }
-            else
-            {
-                _logger.UnexpectedConnectionTypeWarning(connection.GetType());
-            }
+           // Initialize any specific functions... for now nothing
+           
         }
     }
 }

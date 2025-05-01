@@ -47,6 +47,13 @@ namespace NuoDb.Data.Client
         NuoDbConnectionInternal _internalConnection;
         bool _pooled;
 
+        public bool HasTransaction => _internalConnection.transaction != null;
+
+        public void AbortPendingTransactions()
+        {
+            _internalConnection.transaction.Rollback();
+        }
+
         public NuoDbConnection()
         {
             _disposed = false;
@@ -153,7 +160,9 @@ namespace NuoDb.Data.Client
         {
             if (_disposed)
                 return;
-
+#if DEBUG
+            System.Diagnostics.Trace.WriteLine("NuoDbConnection::Dispose()");
+#endif
             if (disposing)
             {
                 CloseImpl();

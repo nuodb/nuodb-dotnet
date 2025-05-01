@@ -32,7 +32,7 @@ namespace NuoDb.EntityFrameworkCore.Tests.Storage
         [InlineData("SMALLINT", typeof(short))]
         [InlineData("VARCHAR(255)", typeof(string))]
         [InlineData("nchar(55)", typeof(string))]
-        [InlineData("TIMESTAMP WITHOUT TIMEZONE", typeof(DateTime))]
+        [InlineData("TIMESTAMP WITHOUT TIME ZONE", typeof(DateTime))]
         [InlineData("decimal(10,4)", typeof(decimal))]
         [InlineData("boolean", typeof(bool))]
         public void It_maps_strings_to_not_null_types(string typeName, Type type)
@@ -82,7 +82,7 @@ namespace NuoDb.EntityFrameworkCore.Tests.Storage
         }
 
         [ConditionalFact]
-        public override void TimeOnly_literal_generated_correctly_with_milliseconds()
+        public void TimeOnly_literal_generated_correctly_with_milliseconds()
         {
             Test_GenerateSqlLiteral_helper(
                 GetMapping(typeof(TimeOnly)),
@@ -118,5 +118,12 @@ namespace NuoDb.EntityFrameworkCore.Tests.Storage
             = new DbContextOptionsBuilder()
                 .UseInternalServiceProvider(new ServiceCollection().AddEntityFrameworkNuoDb().BuildServiceProvider(validateScopes: true))
                 .UseNuoDb("dummy string").Options;
+
+        // [ConditionalFact]
+        // public void NuoDbByteArrayTypeMappingTest()
+        // {
+        //     var mapping = new NuoDbByteArrayTypeMapping(size: 100);
+        //     ((ByteArrayTypeMapping)mapping).ConfigureParameter(new NuoDbParameter());
+        // }
     }
 }

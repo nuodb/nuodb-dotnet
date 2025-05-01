@@ -209,6 +209,9 @@
   <data name="SequencesNotSupported" xml:space="preserve">
     <value>NuoDb does not support sequences. See http://go.microsoft.com/fwlink/?LinkId=723262 for more information.</value>
   </data>
+  <data name="SetOperationsNotAllowedAfterClientEvaluation" xml:space="preserve">
+    <value>Unable to translate set operation after client projection has been applied. Consider moving the set operation before the last 'Select' call.</value>
+  </data>
   <data name="SubqueriesInOrderByNotSupported" xml:space="preserve">
     <value>NuoDb does not support subqueries in order by</value>
   </data>

@@ -76,5 +76,43 @@ namespace NuoDb.EntityFrameworkCore.Tests.Query
         {
             await Assert.ThrowsAsync<InvalidOperationException>(()=> base.Take_in_collection_projection_with_FirstOrDefault_on_top_level(async));
         }
+
+        [ConditionalTheory(Skip="NuoDB does not support apply")]
+        [MemberData(nameof(IsAsyncData))]
+        public override Task GroupJoin_as_final_operator(bool async)
+        {
+            return base.GroupJoin_as_final_operator(async);
+        }
+
+        [ConditionalTheory(Skip="NuoDB does not support apply")]
+        [MemberData(nameof(IsAsyncData))]
+        public override Task GroupJoin_SelectMany_subquery_with_filter_orderby(bool async)
+        {
+            return base.GroupJoin_SelectMany_subquery_with_filter_orderby(async);
+        }
+
+        [ConditionalTheory(Skip="NuoDB does not support apply")]
+        [MemberData(nameof(IsAsyncData))]
+        public override Task GroupJoin_SelectMany_subquery_with_filter_orderby_and_DefaultIfEmpty(bool async)
+        {
+            return base.GroupJoin_SelectMany_subquery_with_filter_orderby_and_DefaultIfEmpty(async);
+        }
+
+        [ConditionalTheory(Skip="NuoDB does not support apply")]
+        [MemberData(nameof(IsAsyncData))]
+        public override Task Unflattened_GroupJoin_composed(bool async)
+        {
+            return base.Unflattened_GroupJoin_composed(async);
+        }
+
+        [ConditionalTheory(Skip="NuoDB does not support apply")]
+        [MemberData(nameof(IsAsyncData))]
+        public override Task Unflattened_GroupJoin_composed_2(bool async)
+        {
+            return base.Unflattened_GroupJoin_composed_2(async);
+        }
+
+        public override Task Join_local_collection_int_closure_is_cached_correctly(bool async)
+            => AssertTranslationFailed(() => base.Join_local_collection_int_closure_is_cached_correctly(async));
     }
 }

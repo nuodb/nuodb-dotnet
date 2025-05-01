@@ -3,6 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using NuoDb.EntityFrameworkCore.NuoDb.Internal;
 using Xunit.Abstractions;
 
 namespace NuoDb.EntityFrameworkCore.Tests.Query
@@ -65,8 +66,13 @@ namespace NuoDb.EntityFrameworkCore.Tests.Query
 
         public override async Task Union_Select_scalar(bool async)
         {
-            await Assert.ThrowsAsync<InvalidOperationException>(()=>base.Union_Select_scalar(async)) ;
+            //await Assert.ThrowsAsync<InvalidOperationException>(()=>base.Union_Select_scalar(async)) ;
+            await base.Union_Select_scalar(async);
         }
 
+        public override async Task Client_eval_Union_FirstOrDefault(bool async) => Assert.Equal(
+            NuoDbStrings.SetOperationsNotAllowedAfterClientEvaluation,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Client_eval_Union_FirstOrDefault(async))).Message);
     }
 }

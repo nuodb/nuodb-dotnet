@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -27,9 +28,6 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Storage.Internal
     /// </summary>
     public class NuoDbDatabaseCreator : RelationalDatabaseCreator
     {
-        // ReSharper disable once InconsistentNaming
-        private const int NuoDb_CANTOPEN = 14;
-
         private readonly INuoDbRelationalConnection _connection;
         private readonly IRawSqlCommandBuilder _rawSqlCommandBuilder;
 
@@ -47,28 +45,6 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Storage.Internal
         {
             _connection = connection;
             _rawSqlCommandBuilder = rawSqlCommandBuilder;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public override void Create()
-        {
-            // Dependencies.Connection.Open();
-            //
-            // _rawSqlCommandBuilder.Build("PRAGMA journal_mode = 'wal';")
-            //     .ExecuteNonQuery(
-            //         new RelationalCommandParameterObject(
-            //             Dependencies.Connection,
-            //             null,
-            //             null,
-            //             null,
-            //             Dependencies.CommandLogger, CommandSource.Migrations));
-            //
-            // Dependencies.Connection.Close();
         }
 
         /// <summary>
@@ -99,6 +75,16 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Storage.Internal
             return true;
         }
 
+        [ExcludeFromCodeCoverage]
+        public override void Create()
+        {
+        }
+
+        [ExcludeFromCodeCoverage]
+        public override void Delete()
+        {
+        }
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -120,39 +106,6 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Storage.Internal
                         Dependencies.CommandLogger, CommandSource.Migrations))!;
             
             return count != 0;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public override void Delete()
-        {
-            // string? path = null;
-            //
-            // Dependencies.Connection.Open();
-            // try
-            // {
-            //     path = Dependencies.Connection.DbConnection.DataSource;
-            // }
-            // catch
-            // {
-            //     // any exceptions here can be ignored
-            // }
-            // finally
-            // {
-            //     Dependencies.Connection.Close();
-            // }
-            //
-            // if (!string.IsNullOrEmpty(path))
-            // {
-            //     NuoDbConnection.ClearPool(new NuoDbConnection(Dependencies.Connection.ConnectionString));
-            //     // See issues #25797 and #26016
-            //     // NuoDbConnection.ClearAllPools();
-            //     File.Delete(path);
-            // }
         }
     }
 }

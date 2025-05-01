@@ -50,11 +50,11 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Migrations.Internal
                 var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
 
                 return
-                    $"SELECT COUNT(*) FROM \"SYSTEM.TABLES\" WHERE \"TABLENAME\" = "
+                    $"SELECT COUNT(*) FROM \"SYSTEM\".\"TABLES\" WHERE \"TABLENAME\" = "
                     + stringTypeMapping.GenerateSqlLiteral(TableName)
-                    + "AND \"SCHEMA\"= "
+                    + " AND \"SCHEMA\"= "
                     + stringTypeMapping.GenerateSqlLiteral(TableSchema)
-                    + "AND \"TYPE\" = \"TABLE\"";
+                    + " AND \"TYPE\" = 'TABLE'";
             }
         }
 
@@ -75,9 +75,7 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Migrations.Internal
         /// </summary>
         public override string GetCreateIfNotExistsScript()
         {
-            var script = GetCreateScript();
-
-            return script.Insert(script.IndexOf("CREATE TABLE", StringComparison.Ordinal) + 12, " IF NOT EXISTS");
+            return GetCreateScript();
         }
 
         /// <summary>

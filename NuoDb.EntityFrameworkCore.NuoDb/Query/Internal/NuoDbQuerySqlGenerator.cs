@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,6 @@ using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
-using NuoDb.EntityFrameworkCore.NuoDb.Internal;
 
 namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
 {
@@ -22,7 +22,8 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
     /// </summary>
     public class NuoDbQuerySqlGenerator : QuerySqlGenerator
     {
-        private readonly IRelationalCommandBuilder _relationalCommandBuilder;
+        private readonly ISqlGenerationHelper _sqlGenerationHelper;
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -32,7 +33,7 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
         public NuoDbQuerySqlGenerator(QuerySqlGeneratorDependencies dependencies)
             : base(dependencies)
         {
-           // _relationalCommandBuilder = dependencies.
+            _sqlGenerationHelper = dependencies.SqlGenerationHelper;
         }
 
         /// <summary>
@@ -80,7 +81,7 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
             return nuoDbComplexFunctionArgumentExpression;
         }
 
-         
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -94,7 +95,7 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
             if (selectExpression.Limit != null
                 || selectExpression.Offset != null)
             {
-                
+
                 Sql.AppendLine();
                 if (selectExpression.Limit != null)
                 {
@@ -110,7 +111,13 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
             }
         }
 
-       protected override Expression VisitOrdering(OrderingExpression orderingExpression)
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        protected override Expression VisitOrdering(OrderingExpression orderingExpression)
         {
             Check.NotNull(orderingExpression, nameof(orderingExpression));
 
@@ -132,13 +139,121 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
             return orderingExpression;
         }
 
-        private SqlUnaryExpression VisitConvert(SqlUnaryExpression sqlUnaryExpression)
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        protected override Expression VisitSelect(SelectExpression selectExpression)
         {
-        
-            Visit(sqlUnaryExpression.Operand);
-        
-            return sqlUnaryExpression;
+            Check.NotNull(selectExpression, nameof(selectExpression));
+
+            if (IsNonComposedSetOperation(selectExpression))
+            {
+                // Naked set operation
+                GenerateSetOperation((SetOperationBase)selectExpression.Tables[0]);
+
+                return selectExpression;
+            }
+
+            IDisposable? subQueryIndent = null;
+
+            if (selectExpression.Alias != null)
+            {
+                Sql.AppendLine("(");
+                subQueryIndent = Sql.Indent();
+            }
+
+            Sql.Append("SELECT ");
+
+            if (selectExpression.Limit is SqlParameterExpression || selectExpression.Offset is SqlParameterExpression)
+            {
+                Sql.Append("/*+ REOPTIMIZE ALWAYS */ ");
+            }
+
+            if (selectExpression.IsDistinct)
+            {
+                Sql.Append("DISTINCT ");
+            }
+
+            GenerateTop(selectExpression);
+
+            if (selectExpression.Projection.Any())
+            {
+                GenerateList(selectExpression.Projection, e => Visit(e));
+            }
+            else
+            {
+                Sql.Append("1");
+            }
+
+            if (selectExpression.Tables.Any())
+            {
+                Sql.AppendLine().Append("FROM ");
+
+                GenerateList(selectExpression.Tables, e => Visit(e), sql => sql.AppendLine());
+            }
+            else
+            {
+                GeneratePseudoFromClause();
+            }
+
+            if (selectExpression.Predicate != null)
+            {
+                Sql.AppendLine().Append("WHERE ");
+
+                Visit(selectExpression.Predicate);
+            }
+
+            if (selectExpression.GroupBy.Count > 0)
+            {
+                Sql.AppendLine().Append("GROUP BY ");
+
+                GenerateList(selectExpression.GroupBy, e => Visit(e));
+            }
+
+            if (selectExpression.Having != null)
+            {
+                Sql.AppendLine().Append("HAVING ");
+
+                Visit(selectExpression.Having);
+            }
+
+            GenerateOrderings(selectExpression);
+            GenerateLimitOffset(selectExpression);
+
+            if (selectExpression.Alias != null)
+            {
+                subQueryIndent!.Dispose();
+
+                Sql.AppendLine()
+                    .Append(")")
+                    .Append(AliasSeparator)
+                    .Append(_sqlGenerationHelper.DelimitIdentifier(selectExpression.Alias));
+            }
+
+            return selectExpression;
         }
+
+        private void GenerateList<T>(
+            IReadOnlyList<T> items,
+            Action<T> generationAction,
+            Action<IRelationalCommandBuilder>? joinAction = null)
+        {
+            joinAction ??= (isb => isb.Append(", "));
+
+            for (var i = 0; i < items.Count; i++)
+            {
+                if (i > 0)
+                {
+                    joinAction(Sql);
+                }
+
+                generationAction(items[i]);
+            }
+        }
+
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -166,6 +281,12 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
             Sql.Append(" FROM DUAL");
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected override void GenerateOrderings(SelectExpression selectExpression)
         {
             Check.NotNull(selectExpression, nameof(selectExpression));
@@ -180,7 +301,30 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
             }
         }
 
+        private bool IsNonComposedSetOperation(SelectExpression selectExpression)
+            => selectExpression.Offset == null
+               && selectExpression.Limit == null
+               && !selectExpression.IsDistinct
+               && selectExpression.Predicate == null
+               && selectExpression.Having == null
+               && selectExpression.Orderings.Count == 0
+               && selectExpression.GroupBy.Count == 0
+               && selectExpression.Tables.Count == 1
+               && selectExpression.Tables[0] is SetOperationBase setOperation
+               && selectExpression.Projection.Count == setOperation.Source1.Projection.Count
+               && selectExpression.Projection.Select(
+                       (pe, index) => pe.Expression is ColumnExpression column
+                                      && string.Equals(column.TableAlias, setOperation.Alias, StringComparison.OrdinalIgnoreCase)
+                                      && string.Equals(
+                                          column.Name, setOperation.Source1.Projection[index].Alias, StringComparison.OrdinalIgnoreCase))
+                   .All(e => e);
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected override Expression VisitRowNumber(RowNumberExpression rowNumberExpression)
         {
             Check.NotNull(rowNumberExpression, nameof(rowNumberExpression));
@@ -199,7 +343,7 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
             return base.VisitRowNumber(rowNumberExpression);
         }
 
-       
+
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

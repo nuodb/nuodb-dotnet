@@ -80,6 +80,8 @@ namespace NuoDb.Data.Client
             }
         }
 
+        public override double Double => (double)value;
+
         public override decimal BigDecimal
         {
             get

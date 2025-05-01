@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using NuoDb.EntityFrameworkCore.Tests.TestModels.Northwind;
 using NuoDb.EntityFrameworkCore.Tests.TestUtilities;
 
 namespace NuoDb.EntityFrameworkCore.Tests.Query
@@ -19,7 +20,7 @@ namespace NuoDb.EntityFrameworkCore.Tests.Query
                 .Property(c => c.CustomerID)
                 .HasColumnType("nchar(5)");
 
-          
+            modelBuilder.Entity<OrderDetail>().ToTable("OrderDetails");
                 
 
             modelBuilder.Entity<Employee>(
@@ -36,9 +37,9 @@ namespace NuoDb.EntityFrameworkCore.Tests.Query
                     //b.Property(o => o.OrderDate).HasColumnType("timestamp without timezone");
                 });
 
-            // modelBuilder.Entity<OrderDetail>()
-            //     .Property(od => od.UnitPrice)
-            //     .HasColumnType("money");
+            modelBuilder.Entity<OrderDetail>()
+                .Property(od => od.UnitPrice)
+                .HasColumnType("money");
 
             modelBuilder.Entity<Product>(
                 b =>
@@ -50,5 +51,8 @@ namespace NuoDb.EntityFrameworkCore.Tests.Query
                 .Property(p => p.UnitPrice)
                 .HasColumnType("decimal");
         }
+
+        protected override Type ContextType
+            => typeof(NorthwindNuoDbContext);
     }
 }

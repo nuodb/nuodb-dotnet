@@ -19,16 +19,16 @@ namespace NuoDb.EntityFrameworkCore.Tests.Query
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-        public override void Applied_to_multiple_body_clauses()
+        public override async Task Applied_to_multiple_body_clauses(bool async)
         {
             // Causes Cross Join which is not supported in nuodb
-            Assert.Throws<InvalidOperationException>(() => base.Applied_to_multiple_body_clauses());
+            await Assert.ThrowsAsync<InvalidOperationException>(() => base.Applied_to_multiple_body_clauses(async));
         }
 
-        public override void SelectMany_simple()
+        public override async Task SelectMany_simple(bool async)
         {
             // Causes Cross Join which is not supported in nuodb
-            Assert.Throws<InvalidOperationException>(() => base.SelectMany_simple());
+           await Assert.ThrowsAsync<InvalidOperationException>(() =>  base.SelectMany_simple(async));
         }
     }
 }
