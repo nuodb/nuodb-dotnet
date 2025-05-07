@@ -56,6 +56,22 @@ SELECT GETUPDATECOUNT() FROM DUAL;
 
         }
 
+        public override void AppendInsertOperation_appends_insert_and_select_rowcount_if_no_store_generated_columns_exist_or_conditions_exist()
+        {
+            var stringBuilder = new StringBuilder();
+            var command = CreateInsertCommand(false, false);
+
+            CreateSqlGenerator().AppendInsertOperation(stringBuilder, command, 0);
+
+
+            AssertBaseline(
+                """
+                INSERT INTO "dbo"."Ducks" ("Id", "Name", "Quacks", "ConcurrencyToken")
+                VALUES (@p0, @p1, @p2, @p3);
+                SELECT GETUPDATECOUNT() FROM DUAL;
+                """, stringBuilder.ToString());
+        }
+
         public override void AppendInsertOperation_insert_if_store_generated_columns_exist()
         {
             base.AppendInsertOperation_insert_if_store_generated_columns_exist();
@@ -82,7 +98,9 @@ SELECT GETUPDATECOUNT() FROM DUAL;
                 """
                 INSERT INTO "dbo"."Ducks" ("Name", "Quacks", "ConcurrencyToken")
                 VALUES (@p0, @p1, @p2);
-                SELECT SCOPE_IDENTITY() as Id FROM DUAL;
+                SELECT "Id"
+                FROM "dbo"."Ducks"
+                WHERE GETUPDATECOUNT() = 1 AND "Id" = SCOPE_IDENTITY();
                 """, sql);
         }
 
@@ -106,7 +124,9 @@ SELECT GETUPDATECOUNT() FROM DUAL;
                 """
                 INSERT INTO "dbo"."Ducks"
                 DEFAULT VALUES;
-                SELECT SCOPE_IDENTITY() as Id FROM DUAL;
+                SELECT "Id"
+                FROM "dbo"."Ducks"
+                WHERE GETUPDATECOUNT() = 1 AND "Id" = SCOPE_IDENTITY();
                 """, sql);
         }
 

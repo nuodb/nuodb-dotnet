@@ -80,31 +80,31 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Update.Internal
             return ResultSetMapping.LastInResultSet | ResultSetMapping.ResultSetWithRowsAffectedOnly;
         }
 
-        protected override ResultSetMapping AppendInsertAndSelectOperation(StringBuilder commandStringBuilder,
-            IReadOnlyModificationCommand command, int commandPosition, out bool requiresTransaction)
-        {
-            var name = command.TableName;
-            var schema = command.Schema;
-            var operations = command.ColumnModifications;
-
-            var writeOperations = operations.Where(o => o.IsWrite).ToList();
-            var readOperations = operations.Where(o => o.IsRead).ToList();
-
-            AppendInsertCommand(commandStringBuilder, name, schema, writeOperations, readOperations: Array.Empty<IColumnModification>());
-
-            if (readOperations.Count > 0)
-            {
-                var keyOperations = operations.Where(o => o.IsKey).ToList();
-
-                requiresTransaction = true;
-
-                return AppendSelectAffectedCommand(commandStringBuilder, name, schema, readOperations, keyOperations, commandPosition);
-            }
-
-            requiresTransaction = false;
-
-            return ResultSetMapping.NoResults;
-        }
+        // protected override ResultSetMapping AppendInsertAndSelectOperation(StringBuilder commandStringBuilder,
+        //     IReadOnlyModificationCommand command, int commandPosition, out bool requiresTransaction)
+        // {
+        //     var name = command.TableName;
+        //     var schema = command.Schema;
+        //     var operations = command.ColumnModifications;
+        //
+        //     var writeOperations = operations.Where(o => o.IsWrite).ToList();
+        //     var readOperations = operations.Where(o => o.IsRead).ToList();
+        //
+        //     AppendInsertCommand(commandStringBuilder, name, schema, writeOperations, readOperations: Array.Empty<IColumnModification>());
+        //
+        //     if (readOperations.Count > 0)
+        //     {
+        //         var keyOperations = operations.Where(o => o.IsKey).ToList();
+        //
+        //         requiresTransaction = true;
+        //
+        //         return AppendSelectAffectedCommand(commandStringBuilder, name, schema, readOperations, keyOperations, commandPosition);
+        //     }
+        //
+        //     requiresTransaction = false;
+        //
+        //     return ResultSetMapping.LastInResultSet | ResultSetMapping.ResultSetWithRowsAffectedOnly;;
+        // }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -115,9 +115,8 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Update.Internal
         public override ResultSetMapping AppendInsertOperation(StringBuilder commandStringBuilder,
             IReadOnlyModificationCommand command,
             int commandPosition, out bool requiresTransaction)
-            => command.IsIdentitySelectOnly()
-                ? AppendInsertSelectingInsertedId(commandStringBuilder, command, commandPosition, out requiresTransaction) 
-                :AppendInsertAndSelectOperation(commandStringBuilder, command, commandPosition,out requiresTransaction);
+            => //command.IsIdentitySelectOnly() ? AppendInsertSelectingInsertedId(commandStringBuilder, command, commandPosition, out requiresTransaction) :
+                AppendInsertAndSelectOperation(commandStringBuilder, command, commandPosition,out requiresTransaction);
 
 
 
@@ -140,7 +139,7 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Update.Internal
             commandStringBuilder
                 .AppendLine($"SELECT SCOPE_IDENTITY() as {readKeyOperation.ColumnName} FROM DUAL{SqlGenerationHelper.StatementTerminator}");
             requiresTransaction = false;
-            return ResultSetMapping.LastInResultSet;
+            return ResultSetMapping.LastInResultSet | ResultSetMapping.HasResultRow;
         }
 
 
@@ -176,7 +175,6 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Update.Internal
         /// </summary>
         protected override void AppendRowsAffectedWhereCondition(StringBuilder commandStringBuilder, int expectedRowsAffected)
         {
-            Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
         
             commandStringBuilder.Append("GETUPDATECOUNT() = ").Append(expectedRowsAffected);
