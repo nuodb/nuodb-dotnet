@@ -8,8 +8,23 @@
     <TargetFramework>net8.0</TargetFramework>
     <MinClientVersion>3.6</MinClientVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <PackageTags>$(PackageTags);NuoDb</PackageTags>
+    <PackageTags>$(PackageTags);NuoDB;SQL;ACID;distributed;high-availability;scalable;cloud</PackageTags>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Title>NuoDB EFCore implementation</Title>
+    <Version>4.0.1</Version>
+    <Company>NuoDB, a Dassault Systemes company</Company>
+    <Copyright>Copyright (C) NuoDB 2012-2024</Copyright>
+    <PackageProjectUrl>http://nuodb.com</PackageProjectUrl>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/nuodb/nuodb-dotnet</RepositoryUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+    <None Include="LICENSE.txt" Pack="true" PackagePath="\" />
+  </ItemGroup>
 
   <ItemGroup>
     <Compile Include="..\Shared\*.cs" />
