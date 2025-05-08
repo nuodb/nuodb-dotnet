@@ -46,10 +46,10 @@ jobs:
           command: |
             sudo timedatectl set-timezone America/New_York
             export PATH="$PATH:$HOME/.dotnet/tools"
-            dotnet dotcover test \
-              --dcOutput=test-results/dotNetCoverage.html \
-              --dcReportType=HTML \
-              --dcfilters="-:module=Humanizer;-:module=NuoDb.EntityFrameworkCore.Tests;-:type=JetBrains.*;-:type=System.*;-:type=Microsoft.*" \
+            dotCover dotnet \
+              --Output="test-results/dotNetCoverage.html" \
+              --ReportType="HTML" \
+              --Filters="-:module=Humanizer;-:module=NuoDb.EntityFrameworkCore.Tests;-:type=JetBrains.*;-:type=System.*;-:type=Microsoft.*" -- test \
               NuoDb.EntityFrameworkCore.Tests/NuoDb.EntityFrameworkCore.Tests.csproj \
               --logger="junit;LogFilePath=./TestResults/test-results.xml"
       - run:
