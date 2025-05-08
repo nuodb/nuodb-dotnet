@@ -98,6 +98,13 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
                         throw new InvalidOperationException(NuoDbStrings.CrossJoinNotSupported);
                     }
 
+                    if (selectExpression.Predicate is SqlParameterExpression &&
+                        selectExpression.Predicate.Type == typeof(bool))
+                    {
+                        throw new InvalidOperationException(
+                            "NuoDb does not support boolean predicates as parameter values");
+                    }
+
                 }
                 return base.VisitExtension(extensionExpression);
             }

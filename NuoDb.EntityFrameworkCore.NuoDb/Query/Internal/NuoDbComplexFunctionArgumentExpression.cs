@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Query;
@@ -72,6 +73,7 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
         /// <returns>
         ///     A hash code for this object.
         /// </returns>
+        [ExcludeFromCodeCoverage]
         public override int GetHashCode()
         {
             var hashCode = new HashCode();

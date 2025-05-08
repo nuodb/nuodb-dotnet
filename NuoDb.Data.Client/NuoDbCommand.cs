@@ -34,6 +34,7 @@ using System;
 using System.Data;
 using System.Text;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace NuoDb.Data.Client
 {
@@ -482,9 +483,9 @@ namespace NuoDb.Data.Client
 
         protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior)
         {
-            string trimmedSql = CommandText.TrimStart(null);
+            string trimmedSql = CommandText.Trim();
             if (CommandType == CommandType.Text &&
-                !trimmedSql.StartsWith("SELECT ", StringComparison.InvariantCultureIgnoreCase) &&
+                !(trimmedSql.Trim().StartsWith("SELECT ", StringComparison.InvariantCultureIgnoreCase)|| trimmedSql.Trim().Split(';',StringSplitOptions.RemoveEmptyEntries).Last().Trim().StartsWith("SELECT ", StringComparison.InvariantCultureIgnoreCase)) &&
                 !trimmedSql.StartsWith("CALL ", StringComparison.InvariantCultureIgnoreCase) &&
                 !trimmedSql.StartsWith("EXECUTE ", StringComparison.InvariantCultureIgnoreCase))
             {

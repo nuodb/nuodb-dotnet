@@ -3,19 +3,14 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
-using System.Text;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
-using Microsoft.Extensions.DependencyInjection;
-using NuoDb.EntityFrameworkCore.NuoDb.Extensions;
-using NuoDb.EntityFrameworkCore.NuoDb.Extensions.Internal;
 using NuoDb.EntityFrameworkCore.NuoDb.Internal;
 using NuoDb.EntityFrameworkCore.NuoDb.Metadata.Internal;
 
@@ -38,7 +33,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     public class NuoDbMigrationsSqlGenerator : MigrationsSqlGenerator
     {
         private IReadOnlyList<MigrationOperation> _operations = null!;
-        private int _variableCounter;
         /// <summary>
         ///     Creates a new <see cref="NuoDbMigrationsSqlGenerator" /> instance.
         /// </summary>
@@ -51,7 +45,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
         }
 
-  
+        protected override void ForeignKeyAction(ReferentialAction referentialAction, MigrationCommandListBuilder builder)
+        {
+            base.ForeignKeyAction(referentialAction, builder);
+        }
+
         /// <summary>
         ///     Generates commands from a list of operations.
         /// </summary>
@@ -75,23 +73,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             }
         }
 
-        // private bool IsSpatialiteColumn(AddColumnOperation operation, IModel? model)
-        //     => NuoDbTypeMappingSource.IsSpatialiteType(
-        //         operation.ColumnType
-        //         ?? GetColumnType(
-        //             operation.Schema,
-        //             operation.Table,
-        //             operation.Name,
-        //             operation,
-        //             model)!);
-
         // TODO: Implement switch 
         private IReadOnlyList<MigrationOperation> RewriteOperations(
             IReadOnlyList<MigrationOperation> migrationOperations,
             IModel? model)
         {
             var operations = new List<MigrationOperation>();
-            //var rebuilds = new Dictionary<(string Table, string? Schema), RebuildContext>();
             foreach (var operation in migrationOperations)
             {
                 switch (operation)
@@ -109,127 +96,29 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         }
                         else
                         {
-                            //var rebuild = rebuilds.GetOrAddNew((foreignKeyOperation.Table, foreignKeyOperation.Schema));
-                            //rebuild.OperationsToReplace.Add(foreignKeyOperation);
 
                             operations.Add(foreignKeyOperation);
                         }
 
                         break;
                     }
+                    case DropForeignKeyOperation dropForeignKeyOperation:
+                    {
+                        var table = operations
+                            .OfType<AlterTableOperation>()
+                            .FirstOrDefault(o => o.Name == dropForeignKeyOperation.Table);
+
+                        operations.Add(dropForeignKeyOperation);
+                        break;
+                    }
                     case AlterColumnOperation _:
                     case DropUniqueConstraintOperation _:
-                        // {
-                        //     var tableOperation = (ITableMigrationOperation)operation;
-                        //     var rebuild = rebuilds.GetOrAddNew((tableOperation.Table, tableOperation.Schema));
-                        //     rebuild.OperationsToReplace.Add(operation);
-                        //
-                        //     operations.Add(operation);
-                        //
-                        //     break;
-                        // }
-
                     case DropColumnOperation dropColumnOperation:
-                        // {
-                        //     var rebuild = rebuilds.GetOrAddNew((dropColumnOperation.Table, dropColumnOperation.Schema));
-                        //     rebuild.OperationsToReplace.Add(dropColumnOperation);
-                        //     rebuild.DropColumnsDeferred.Add(dropColumnOperation.Name);
-                        //
-                        //     operations.Add(dropColumnOperation);
-                        //
-                        //     break;
-                        // }
-
-                    
                     case CreateIndexOperation createIndexOperation:
-                        // {
-                        //     if (rebuilds.TryGetValue((createIndexOperation.Table, createIndexOperation.Schema), out var rebuild)
-                        //         && (rebuild.AddColumnsDeferred.Keys.Intersect(createIndexOperation.Columns).Any()
-                        //             || rebuild.RenameColumnsDeferred.Keys.Intersect(createIndexOperation.Columns).Any()))
-                        //     {
-                        //         rebuild.OperationsToReplace.Add(createIndexOperation);
-                        //         rebuild.CreateIndexesDeferred.Add(createIndexOperation.Name);
-                        //     }
-                        //
-                        //     operations.Add(createIndexOperation);
-                        //
-                        //     break;
-                        // }
-
                     case RenameIndexOperation renameIndexOperation:
-                        // {
-                        //     var index = renameIndexOperation.Table != null
-                        //         ? model?.GetRelationalModel().FindTable(renameIndexOperation.Table, renameIndexOperation.Schema)
-                        //             ?.Indexes.FirstOrDefault(i => i.Name == renameIndexOperation.NewName)
-                        //         : null;
-                        //     if (index != null)
-                        //     {
-                        //         operations.Add(
-                        //             new DropIndexOperation
-                        //             {
-                        //                 Table = renameIndexOperation.Table,
-                        //                 Schema = renameIndexOperation.Schema,
-                        //                 Name = renameIndexOperation.Name
-                        //             });
-                        //
-                        //         operations.Add(CreateIndexOperation.CreateFrom(index));
-                        //     }
-                        //     else
-                        //     {
-                        //         operations.Add(renameIndexOperation);
-                        //     }
-                        //
-                        //     break;
-                        // }
-
                     case AddColumnOperation addColumnOperation:
-                        // {
-                        //     if (rebuilds.TryGetValue((addColumnOperation.Table, addColumnOperation.Schema), out var rebuild)
-                        //         && rebuild.DropColumnsDeferred.Contains(addColumnOperation.Name))
-                        //     {
-                        //         rebuild.OperationsToReplace.Add(addColumnOperation);
-                        //         rebuild.AddColumnsDeferred.Add(addColumnOperation.Name, addColumnOperation);
-                        //     }
-                        //     else if (addColumnOperation.Comment != null)
-                        //     {
-                        //         rebuilds.GetOrAddNew((addColumnOperation.Table, addColumnOperation.Schema));
-                        //     }
-                        //
-                        //     operations.Add(addColumnOperation);
-                        //
-                        //     break;
-                        // }
-
                     case RenameColumnOperation renameColumnOperation:
-                        // {
-                        //     if (rebuilds.TryGetValue((renameColumnOperation.Table, renameColumnOperation.Schema), out var rebuild))
-                        //     {
-                        //         if (rebuild.DropColumnsDeferred.Contains(renameColumnOperation.NewName))
-                        //         {
-                        //             rebuild.OperationsToReplace.Add(renameColumnOperation);
-                        //             rebuild.DropColumnsDeferred.Add(renameColumnOperation.Name);
-                        //             rebuild.RenameColumnsDeferred.Add(renameColumnOperation.NewName, renameColumnOperation);
-                        //         }
-                        //     }
-                        //
-                        //     operations.Add(renameColumnOperation);
-                        //
-                        //     break;
-                        // }
-
                     case RenameTableOperation renameTableOperation:
-                        // {
-                        //     if (rebuilds.Remove((renameTableOperation.Name, renameTableOperation.Schema), out var rebuild))
-                        //     {
-                        //         rebuilds.Add(
-                        //             (renameTableOperation.NewName ?? renameTableOperation.Name, renameTableOperation.NewSchema), rebuild);
-                        //     }
-                        //
-                        //     operations.Add(renameTableOperation);
-                        //
-                        //     break;
-                        // }
-
                     case AlterSequenceOperation _:
                     case CreateSequenceOperation _:
                     case CreateTableOperation _:
@@ -249,17 +138,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     case DeleteDataOperation _:
                     case InsertDataOperation _:
                     case UpdateDataOperation _:
-                        // {
-                        //     var tableOperation = (ITableMigrationOperation)operation;
-                        //     if (rebuilds.TryGetValue((tableOperation.Table, tableOperation.Schema), out var rebuild))
-                        //     {
-                        //         rebuild.OperationsToWarnFor.Add(operation);
-                        //     }
-                        //
-                        //     operations.Add(operation);
-                        //
-                        //     break;
-                        // }
 
                     default:
                         {
@@ -275,209 +153,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 }
             }
 
-            // var skippedRebuilds = new List<(string Table, string? Schema)>();
-            // var indexesToRebuild = new List<ITableIndex>();
-            // foreach (var rebuild in rebuilds)
-            // {
-            //     var table = model?.GetRelationalModel().FindTable(rebuild.Key.Table, rebuild.Key.Schema);
-            //     if (table == null)
-            //     {
-            //         skippedRebuilds.Add(rebuild.Key);
-            //
-            //         continue;
-            //     }
-            //
-            //     foreach (var operationToWarnFor in rebuild.Value.OperationsToWarnFor)
-            //     {
-            //         // TODO: Consider warning once per table--list all operation types we're warning for
-            //         // TODO: Consider listing which operations required a rebuild
-            //         Dependencies.MigrationsLogger.TableRebuildPendingWarning(operationToWarnFor.GetType(), table.Name);
-            //     }
-            //
-            //     foreach (var operationToReplace in rebuild.Value.OperationsToReplace)
-            //     {
-            //         operations.Remove(operationToReplace);
-            //     }
-            //
-            //     var createTableOperation = new CreateTableOperation
-            //     {
-            //         Name = "ef_temp_" + table.Name,
-            //         Schema = table.Schema,
-            //         Comment = table.Comment
-            //     };
-            //
-            //     var primaryKey = table.PrimaryKey;
-            //     if (primaryKey != null)
-            //     {
-            //         createTableOperation.PrimaryKey = AddPrimaryKeyOperation.CreateFrom(primaryKey);
-            //     }
-            //
-            //     foreach (var column in table.Columns.Where(c => c.Order.HasValue).OrderBy(c => c.Order!.Value)
-            //         .Concat(table.Columns.Where(c => !c.Order.HasValue)))
-            //     {
-            //         if (!column.TryGetDefaultValue(out var defaultValue))
-            //         {
-            //             defaultValue = null;
-            //         }
-            //
-            //         var addColumnOperation = new AddColumnOperation
-            //         {
-            //             Name = column.Name,
-            //             ColumnType = column.StoreType,
-            //             IsNullable = column.IsNullable,
-            //             DefaultValue = rebuild.Value.AddColumnsDeferred.TryGetValue(column.Name, out var originalOperation)
-            //                 && !originalOperation.IsNullable
-            //                     ? originalOperation.DefaultValue
-            //                     : defaultValue,
-            //             DefaultValueSql = column.DefaultValueSql,
-            //             ComputedColumnSql = column.ComputedColumnSql,
-            //             IsStored = column.IsStored,
-            //             Comment = column.Comment,
-            //             Collation = column.Collation
-            //         };
-            //         addColumnOperation.AddAnnotations(column.GetAnnotations());
-            //         createTableOperation.Columns.Add(addColumnOperation);
-            //     }
-            //
-            //     foreach (var foreignKey in table.ForeignKeyConstraints)
-            //     {
-            //         createTableOperation.ForeignKeys.Add(AddForeignKeyOperation.CreateFrom(foreignKey));
-            //     }
-            //
-            //     foreach (var uniqueConstraint in table.UniqueConstraints.Where(c => !c.GetIsPrimaryKey()))
-            //     {
-            //         createTableOperation.UniqueConstraints.Add(AddUniqueConstraintOperation.CreateFrom(uniqueConstraint));
-            //     }
-            //
-            //     foreach (var checkConstraint in table.CheckConstraints)
-            //     {
-            //         createTableOperation.CheckConstraints.Add(AddCheckConstraintOperation.CreateFrom(checkConstraint));
-            //     }
-            //
-            //     createTableOperation.AddAnnotations(table.GetAnnotations());
-            //     operations.Add(createTableOperation);
-            //
-            //     foreach (var index in table.Indexes)
-            //     {
-            //         if (index.IsUnique && rebuild.Value.CreateIndexesDeferred.Contains(index.Name))
-            //         {
-            //             var createIndexOperation = CreateIndexOperation.CreateFrom(index);
-            //             createIndexOperation.Table = createTableOperation.Name;
-            //             operations.Add(createIndexOperation);
-            //         }
-            //         else
-            //         {
-            //             indexesToRebuild.Add(index);
-            //         }
-            //     }
-            //
-            //     var intoBuilder = new StringBuilder();
-            //     var selectBuilder = new StringBuilder();
-            //     var first = true;
-            //     foreach (var column in table.Columns)
-            //     {
-            //         if (column.ComputedColumnSql != null
-            //             || rebuild.Value.AddColumnsDeferred.ContainsKey(column.Name))
-            //         {
-            //             continue;
-            //         }
-            //
-            //         if (first)
-            //         {
-            //             first = false;
-            //         }
-            //         else
-            //         {
-            //             intoBuilder.Append(", ");
-            //             selectBuilder.Append(", ");
-            //         }
-            //
-            //         intoBuilder.Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(column.Name));
-            //
-            //         var defaultValue = rebuild.Value.AlterColumnsDeferred.TryGetValue(column.Name, out var alterColumnOperation)
-            //             && !alterColumnOperation.IsNullable
-            //             && alterColumnOperation.OldColumn.IsNullable
-            //                 ? alterColumnOperation.DefaultValue
-            //                 : null;
-            //         if (defaultValue != null)
-            //         {
-            //             selectBuilder.Append("IFNULL(");
-            //         }
-            //
-            //         selectBuilder.Append(
-            //             Dependencies.SqlGenerationHelper.DelimitIdentifier(
-            //                 rebuild.Value.RenameColumnsDeferred.TryGetValue(column.Name, out var renameColumnOperation)
-            //                     ? renameColumnOperation.Name
-            //                     : column.Name));
-            //
-            //         if (defaultValue != null)
-            //         {
-            //             var defaultValueTypeMapping = (column.StoreType == null
-            //                     ? null
-            //                     : Dependencies.TypeMappingSource.FindMapping(defaultValue.GetType(), column.StoreType))
-            //                 ?? Dependencies.TypeMappingSource.GetMappingForValue(defaultValue);
-            //
-            //             selectBuilder
-            //                 .Append(", ")
-            //                 .Append(defaultValueTypeMapping.GenerateSqlLiteral(defaultValue))
-            //                 .Append(')');
-            //         }
-            //     }
-            //
-            //     operations.Add(
-            //         new SqlOperation
-            //         {
-            //             Sql = new StringBuilder()
-            //                 .Append("INSERT INTO ")
-            //                 .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(createTableOperation.Name))
-            //                 .Append(" (")
-            //                 .Append(intoBuilder)
-            //                 .AppendLine(")")
-            //                 .Append("SELECT ")
-            //                 .Append(selectBuilder)
-            //                 .AppendLine()
-            //                 .Append("FROM ")
-            //                 .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(table.Name))
-            //                 .Append(Dependencies.SqlGenerationHelper.StatementTerminator)
-            //                 .ToString()
-            //         });
-            // }
-            //
-            // foreach (var skippedRebuild in skippedRebuilds)
-            // {
-            //     rebuilds.Remove(skippedRebuild);
-            // }
 
-            // if (rebuilds.Any())
-            // {
-            //     operations.Add(
-            //         new SqlOperation { Sql = "PRAGMA foreign_keys = 0;", SuppressTransaction = true });
-            // }
-            //
-            // foreach (var rebuild in rebuilds)
-            // {
-            //     operations.Add(
-            //         new DropTableOperation { Name = rebuild.Key.Table, Schema = rebuild.Key.Schema });
-            //     operations.Add(
-            //         new RenameTableOperation
-            //         {
-            //             Name = "ef_temp_" + rebuild.Key.Table,
-            //             Schema = rebuild.Key.Schema,
-            //             NewName = rebuild.Key.Table,
-            //             NewSchema = rebuild.Key.Schema
-            //         });
-            // }
-            //
-            // if (rebuilds.Any())
-            // {
-            //     operations.Add(
-            //         new SqlOperation { Sql = "PRAGMA foreign_keys = 1;", SuppressTransaction = true });
-            // }
-            //
-            // foreach (var index in indexesToRebuild)
-            // {
-            //     operations.Add(CreateIndexOperation.CreateFrom(index));
-            // }
+            // in the future, may need to support rebuilds, and the rebuilds should happen here
+            
 
             return operations;
         }
@@ -504,19 +182,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         /// <summary>
-        ///     Builds commands for the given <see cref="AddColumnOperation" /> by making calls on the given
-        ///     <see cref="MigrationCommandListBuilder" />.
-        /// </summary>
-        /// <param name="operation">The operation.</param>
-        /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
-        /// <param name="builder">The command builder to use to build the commands.</param>
-        /// <param name="terminate">Indicates whether or not to terminate the command after generating SQL for the operation.</param>
-        protected override void Generate(AddColumnOperation operation, IModel? model, MigrationCommandListBuilder builder, bool terminate)
-        {
-            base.Generate(operation, model, builder, terminate);
-        }
-
-        /// <summary>
         ///     Builds commands for the given <see cref="DropIndexOperation" />
         ///     by making calls on the given <see cref="MigrationCommandListBuilder" />.
         /// </summary>
@@ -534,7 +199,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(builder, nameof(builder));
 
             builder
-                .Append("DROP INDEX ")
+                .Append(" DROP INDEX ")
                 .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name));
 
             if (terminate)
@@ -646,15 +311,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             if (operation.PrimaryKey?.Columns.Length == 1)
             {
                 var columnOp = operation.Columns.FirstOrDefault(o => o.Name == operation.PrimaryKey.Columns[0]);
-                if (columnOp != null && string.IsNullOrEmpty(operation.PrimaryKey.Name))
+                if (columnOp != null)
+                //if (columnOp != null  && string.IsNullOrEmpty(operation.PrimaryKey.Name))
                 {
-                    columnOp.AddAnnotation(NuoDbAnnotationNames.InlinePrimaryKey, true);
-                    // if (!string.IsNullOrEmpty(operation.PrimaryKey.Name))
-                    // {
-                    //     columnOp.AddAnnotation(NuoDbAnnotationNames.InlinePrimaryKeyName, operation.PrimaryKey.Name);
-                    // }
+                    //columnOp.AddAnnotation(NuoDbAnnotationNames.InlinePrimaryKey, true);
+                    //columnOp.AddAnnotation(NuoDbAnnotationNames.Autoincrement, true);
+                    if (!string.IsNullOrEmpty(operation.PrimaryKey.Name))
+                    {
+                        columnOp.AddAnnotation(NuoDbAnnotationNames.InlinePrimaryKeyName, operation.PrimaryKey.Name);
+                    }
             
-                    operation.PrimaryKey = null;
+                    //operation.PrimaryKey = null;
                 }
             }
 
@@ -780,18 +447,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             {
                 var inlinePkName = operation[
                     NuoDbAnnotationNames.InlinePrimaryKeyName] as string;
-
-
                 builder.Append(" PRIMARY KEY");
-                var autoincrement = operation[NuoDbAnnotationNames.Autoincrement] as bool?
-                    ?? operation[NuoDbAnnotationNames.LegacyAutoincrement] as bool?;
-                if (autoincrement == true)
-                {
-                    builder.Append(" GENERATED BY DEFAULT");
-                    builder.Append(" AS IDENTITY");
-                }
+            }
 
-
+            var autoincrement = operation[NuoDbAnnotationNames.Autoincrement] as bool?
+                                ?? operation[NuoDbAnnotationNames.LegacyAutoincrement] as bool?;
+            if (autoincrement == true)
+            {
+                builder.Append(" GENERATED BY DEFAULT");
+                builder.Append(" AS IDENTITY");
             }
         }
 
@@ -823,36 +487,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             }
         }
 
-
-       
-
-        // /// <summary>
-        // ///     Throws <see cref="NotSupportedException" /> since this operation requires table rebuilds, which
-        // ///     are not yet supported.
-        // /// </summary>
-        // /// <param name="operation">The operation.</param>
-        // /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
-        // /// <param name="builder">The command builder to use to build the commands.</param>
-        // protected override void Generate(AddCheckConstraintOperation operation, IModel? model, MigrationCommandListBuilder builder)
-        //     => throw new NotSupportedException(
-        //         NuoDbStrings.InvalidMigrationOperation(operation.GetType().ShortDisplayName()));
-
-        // /// <summary>
-        // ///     Throws <see cref="NotSupportedException" /> since this operation requires table rebuilds, which
-        // ///     are not yet supported.
-        // /// </summary>
-        // /// <param name="operation">The operation.</param>
-        // /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
-        // /// <param name="builder">The command builder to use to build the commands.</param>
-        // /// <param name="terminate">Indicates whether or not to terminate the command after generating SQL for the operation.</param>
-        // protected override void Generate(
-        //     DropColumnOperation operation,
-        //     IModel? model,
-        //     MigrationCommandListBuilder builder,
-        //     bool terminate = true)
-        //     => throw new NotSupportedException(
-        //         NuoDbStrings.InvalidMigrationOperation(operation.GetType().ShortDisplayName()));
-
         /// <summary>
         ///     Throws <see cref="NotSupportedException" /> since this operation requires table rebuilds, which
         ///     are not yet supported.
@@ -867,50 +501,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             MigrationCommandListBuilder builder,
             bool terminate = true)
         {
-            base.Generate(operation, model, builder, terminate: false);
+            base.Generate(operation, model, builder, terminate: true);
         }
             
-
-        /// <summary>
-        ///     Throws <see cref="NotSupportedException" /> since this operation requires table rebuilds, which
-        ///     are not yet supported.
-        /// </summary>
-        /// <param name="operation">The operation.</param>
-        /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
-        /// <param name="builder">The command builder to use to build the commands.</param>
-        /// <param name="terminate">Indicates whether or not to terminate the command after generating SQL for the operation.</param>
-        // protected override void Generate(
-        //     DropPrimaryKeyOperation operation,
-        //     IModel? model,
-        //     MigrationCommandListBuilder builder,
-        //     bool terminate = true)
-        //     => throw new NotSupportedException(
-        //         NuoDbStrings.InvalidMigrationOperation(operation.GetType().ShortDisplayName()));
-
-        /// <summary>
-        ///     Throws <see cref="NotSupportedException" /> since this operation requires table rebuilds, which
-        ///     are not yet supported.
-        /// </summary>
-        /// <param name="operation">The operation.</param>
-        /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
-        /// <param name="builder">The command builder to use to build the commands.</param>
-        protected override void Generate(DropUniqueConstraintOperation operation, IModel? model, MigrationCommandListBuilder builder)
-        {
-            base.Generate(operation, model, builder);
-        }
-
-        // /// <summary>
-        // ///     Throws <see cref="NotSupportedException" /> since this operation requires table rebuilds, which
-        // ///     are not yet supported.
-        // /// </summary>
-        // /// <param name="operation">The operation.</param>
-        // /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
-        // /// <param name="builder">The command builder to use to build the commands.</param>
-        // protected override void Generate(DropCheckConstraintOperation operation, IModel? model, MigrationCommandListBuilder builder)
-        //     => throw new NotSupportedException(
-        //         NuoDbStrings.InvalidMigrationOperation(operation.GetType().ShortDisplayName()));
-
-
         protected override void Generate(InsertDataOperation operation, IModel model, MigrationCommandListBuilder builder, bool terminate = true)
         {
             base.Generate(operation, model, builder, terminate);
@@ -1078,8 +671,33 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 (oldDefaultValue, oldDefaultValueSql) = (null, null);
             }
 
+            var defaultSet = "";
+            var updateRecordsForDefaultValue = "";
+            if (!Equals(operation.DefaultValue, oldDefaultValue) || operation.DefaultValueSql != oldDefaultValueSql)
+            {
+                defaultSet = GetDefaultValueString(operation.DefaultValue, operation.DefaultValueSql, operation.ColumnType);
+                updateRecordsForDefaultValue =
+                    $"UPDATE {Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema)} SET \"{operation.Name}\" = {defaultSet} WHERE \"{operation.Name}\" IS NULL";
+
+
+                //defaultSet = $"DEFAULT {DefaultValue(operation.DefaultValue, operation.DefaultValueSql, operation.ColumnType, builder)}"
+                // builder
+                //     .Append("ALTER TABLE ")
+                //     .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
+                //     .Append(" ALTER ")
+                //     .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name))
+                //     .Append(" SET ");
+                // DefaultValue(operation.DefaultValue, operation.DefaultValueSql, operation.ColumnType, builder);
+                // builder
+                //     .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+            }
             if (alterStatementNeeded)
             {
+                if (!string.IsNullOrWhiteSpace(updateRecordsForDefaultValue))
+                {
+                    builder.Append(updateRecordsForDefaultValue)
+                        .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+                }
                 builder
                     .Append("ALTER TABLE ")
                     .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
@@ -1116,21 +734,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     model,
                     builder);
 
+                if (!string.IsNullOrWhiteSpace(defaultSet))
+                {
+                    builder.Append( " DEFAULT ")
+                        .Append(defaultSet);
+                }
+
                 builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
             }
 
-            if (!Equals(operation.DefaultValue, oldDefaultValue) || operation.DefaultValueSql != oldDefaultValueSql)
-            {
-                builder
-                    .Append("ALTER TABLE ")
-                    .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
-                    .Append(" ALTER ")
-                    .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name))
-                    .Append(" SET ");
-                DefaultValue(operation.DefaultValue, operation.DefaultValueSql, operation.ColumnType, builder);
-                builder
-                    .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
-            }
+            
 
 
 
@@ -1140,6 +753,28 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             }
 
             builder.EndCommand(suppressTransaction: false);
+        }
+        private string GetDefaultValueString(object defaultValue, string defaultValueSql, string columnType)
+        {
+
+            if (defaultValueSql != null)
+            {
+                return $"{defaultValueSql}";
+            }
+            else if (defaultValue != null)
+            {
+                var typeMapping = columnType != null
+                    ? Dependencies.TypeMappingSource.FindMapping(defaultValue.GetType(), columnType)
+                    : null;
+                if (typeMapping == null)
+                {
+                    typeMapping = Dependencies.TypeMappingSource.GetMappingForValue(defaultValue);
+                }
+
+                return $"{typeMapping.GenerateSqlLiteral(defaultValue)}";
+            }
+
+            return "";
         }
 
         protected override void Generate(AlterTableOperation operation, IModel model, MigrationCommandListBuilder builder)
@@ -1198,57 +833,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
         private static bool IsIdentity(ColumnOperation operation)
             => operation[NuoDbAnnotationNames.Identity] != null;
-         /// <summary>
-        ///     Generates a SQL fragment to drop default constraints for a column.
-        /// </summary>
-        /// <param name="schema">The schema that contains the table.</param>
-        /// <param name="tableName">The table that contains the column.</param>
-        /// <param name="columnName">The column.</param>
-        /// <param name="builder">The command builder to use to add the SQL fragment.</param>
-        protected virtual void DropDefaultConstraint(
-            string? schema,
-            string tableName,
-            string columnName,
-            MigrationCommandListBuilder builder)
-        {
-            Check.NotEmpty(tableName, nameof(tableName));
-            Check.NotEmpty(columnName, nameof(columnName));
-            Check.NotNull(builder, nameof(builder));
-
-            var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
-
-            var variable = "@var" + _variableCounter++;
-
-            builder
-                .Append("DECLARE ")
-                .Append(variable)
-                .AppendLine(" sysname;")
-                .Append("SELECT ")
-                .Append(variable)
-                .AppendLine(" = [d].[name]")
-                .AppendLine("FROM [sys].[default_constraints] [d]")
-                .AppendLine(
-                    "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]")
-                .Append("WHERE ([d].[parent_object_id] = OBJECT_ID(")
-                .Append(
-                    stringTypeMapping.GenerateSqlLiteral(
-                        Dependencies.SqlGenerationHelper.DelimitIdentifier(tableName, schema)))
-                .Append(") AND [c].[name] = ")
-                .Append(stringTypeMapping.GenerateSqlLiteral(columnName))
-                .AppendLine(");")
-                .Append("IF ")
-                .Append(variable)
-                .Append(" IS NOT NULL EXEC(")
-                .Append(
-                    stringTypeMapping.GenerateSqlLiteral(
-                        "ALTER TABLE " + Dependencies.SqlGenerationHelper.DelimitIdentifier(tableName, schema) + " DROP CONSTRAINT ["))
-                .Append(" + ")
-                .Append(variable)
-                .Append(" + ']")
-                .Append(Dependencies.SqlGenerationHelper.StatementTerminator)
-                .Append("')")
-                .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
-        }
+      
 
         /// <summary>
         ///     Generates SQL to drop the given indexes.
@@ -1395,7 +980,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .Append("ALTER SEQUENCE ")
                 .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name, operation.Schema))
                 .Append(" START WITH ")
-                .Append(IntegerConstant(operation.StartValue))
+                .Append(IntegerConstant(operation.StartValue ?? 1L))
                 .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
 
             EndStatement(builder);

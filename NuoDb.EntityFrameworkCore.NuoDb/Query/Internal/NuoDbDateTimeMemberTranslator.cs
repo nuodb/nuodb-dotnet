@@ -112,18 +112,20 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
                                 instance.TypeMapping
                             )
                         },
+                        true,
+                        new[] {true, false},
                         returnType
                     );
                 }
 
                 if (memberName == nameof(DateTime.Now))
                 {
-                    return _sqlExpressionFactory.Function("now", Array.Empty<SqlExpression>(), typeof(DateTime), _typeMappingSource.FindMapping(typeof(DateTime)));
+                    return _sqlExpressionFactory.Function("now", Array.Empty<SqlExpression>(),true,new []{true,false}, typeof(DateTime), _typeMappingSource.FindMapping(typeof(DateTime)));
                 }
 
                 if (memberName == nameof(DateTime.UtcNow))
                 {
-                    return _sqlExpressionFactory.Function("now", Array.Empty<SqlExpression>(), typeof(DateTime),_typeMappingSource.FindMapping(typeof(DateTime)));
+                    return _sqlExpressionFactory.Function("now", Array.Empty<SqlExpression>(),true, new []{true,false},typeof(DateTime),_typeMappingSource.FindMapping(typeof(DateTime)));
                 }
 
                 if (_datePartMapping.TryGetValue(memberName, out var datePart))
@@ -152,10 +154,12 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
                                     _sqlExpressionFactory.Fragment("AS TIME")
                                 },
                                 " ",
-                                typeof(string),
+                                typeof(TimeSpan),
                                 instance.TypeMapping
                             )
                         },
+                        true,
+                        new[]{true,false},
                         returnType
                     );
                 }
@@ -175,6 +179,10 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Query.Internal
                 //             _sqlExpressionFactory.Constant(TimeSpan.TicksPerDay)),
                 //         typeof(long));
                 // }
+                if (memberName == nameof(DateTime.Subtract))
+                {
+
+                }
 
                 if (memberName == nameof(DateTime.Millisecond))
                 {

@@ -1,13 +1,16 @@
 #!/usr/bin/env bash
 
 : ${IMG_NAME:="nuodb/nuodb:latest"}
+: ${DATABASE_NAME:="demo"}
+: ${DATABASE_USER:="dba"}
+: ${DATABASE_PASSWORD:="dba"}
 
 if [ -z "${NUODB_LIMITED_LICENSE_CONTENT}" ] && [ -z "${NUODB_LIMITED_LICENSE}" ]; then
 	echo "Need a license setting"
 	exit -1
 fi
 
-COMMAND="docker exec ad1 nuocmd check database --db-name demo --check-running"
+COMMAND="docker exec ad1 nuocmd check database --db-name ${DATABASE_NAME} --check-running"
 if $COMMAND 2>/dev/null; then
     echo "Environment already created."
     docker exec ad1 nuocmd show domain
@@ -59,8 +62,8 @@ docker run -d --name sm1 --hostname sm1 --rm \
     --volume vol2:/var/opt/nuodb/archive \
     --net nuodb-net "${IMG_NAME}" nuodocker \
     --api-server ad1:8888 start sm \
-    --db-name demo --server-id ad1 \
-    --dba-user dba --dba-password dba \
+    --db-name "${DATABASE_NAME}" --server-id ad1 \
+    --dba-user "${DATABASE_USER}" --dba-password "${DATABASE_PASSWORD}" \
     --labels "zone east node localhost" \
     --archive-dir /var/opt/nuodb/archive
 echo "Done!"
@@ -69,16 +72,16 @@ echo "Starting TEs... "
 docker run -d --name te1 --hostname te1 --rm \
     --net nuodb-net "${IMG_NAME}" nuodocker \
     --api-server ad1:8888 start te \
-    --db-name demo --server-id ad1
+    --db-name "${DATABASE_NAME}" --server-id ad1
 
 docker run -d --name te2 --hostname te2 --rm \
     --net nuodb-net "${IMG_NAME}" nuodocker \
     --api-server ad1:8888 start te \
-    --db-name demo --server-id ad1
+    --db-name "${DATABASE_NAME}" --server-id ad1
 echo "Done!"
 echo
 echo -n "Waiting for database to start..."
-COMMAND="docker exec ad1 nuocmd check database --db-name demo --check-running"
+COMMAND="docker exec ad1 nuocmd check database --db-name ${DATABASE_NAME} --check-running"
 while ! $COMMAND 2>/dev/null; do
     echo -n "."
     sleep 2

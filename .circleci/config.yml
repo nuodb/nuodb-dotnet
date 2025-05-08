@@ -24,7 +24,7 @@ jobs:
       - run:
           name: Install JetBrains dotCover CLI and Logger package
           command: |
-            dotnet tool install --global JetBrains.dotCover.GlobalTool
+            dotnet tool install --global JetBrains.dotCover.CommandLineTools
             dotnet add NuoDb.EntityFrameworkCore.Tests/NuoDb.EntityFrameworkCore.Tests.csproj package JunitXml.TestLogger
       - run:
           name: Restore packages

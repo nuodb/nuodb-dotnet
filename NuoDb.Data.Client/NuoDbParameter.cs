@@ -34,127 +34,66 @@ namespace NuoDb.Data.Client
 {
     public class NuoDbParameter : DbParameter, ICloneable
     {
-        private string name = "";
-        private object value;
-        private ParameterDirection direction = ParameterDirection.Input;
-        private DbType dbType;
-        private int size;
-        private string sourceColumn;
-        private bool sourceColumnNullMapping;
-        private bool isNullable;
-        private DataRowVersion sourceVersion = DataRowVersion.Default;
-
-        public override DbType DbType
+        private int? _size;
+        private object? _value;
+        public NuoDbParameter()
         {
-            get
-            {
-                return dbType;
-            }
-            set
-            {
-                dbType = value;
-            }
+
         }
 
-        public override ParameterDirection Direction
-        {
-            get
-            {
-                return direction;
-            }
-            set
-            {
-                direction = value;
-            }
-        }
+        public override DbType DbType { get; set; }
 
-        public override bool IsNullable
-        {
-            get
-            {
-                return isNullable;
-            }
-            set
-            {
-                isNullable = value;
-            }
-        }
+        public override ParameterDirection Direction { get; set; } = ParameterDirection.Input;
+        
 
-        public override string ParameterName
-        {
-            get
-            {
-                return name;
-            }
-            set
-            {
-                name = value;
-            }
-        }
-
+        public override bool IsNullable { get; set; }
+      
+        public override string ParameterName { get; set; }
+        
         public override void ResetDbType()
         {
-            dbType = DbType.Object;
+            DbType = DbType.Object;
         }
 
+        /// <summary>
+        ///     Gets or sets the maximum size, in bytes, of the parameter.
+        /// </summary>
+        /// <value>The maximum size, in bytes, of the parameter.</value>
         public override int Size
         {
             get
-            {
-                return size;
-            }
+                => _size
+                   ?? (_value is string stringValue
+                       ? stringValue.Length
+                       : _value is byte[] byteArray
+                           ? byteArray.Length
+                           : 0);
+
             set
             {
-                size = value;
+                if (value < -1)
+                {
+                    // NB: Message is provided by the framework
+                    throw new ArgumentOutOfRangeException(nameof(value), value, message: null);
+                }
+
+                _size = value;
             }
         }
 
-        public override string SourceColumn
-        {
-            get
-            {
-                return sourceColumn;
-            }
-            set
-            {
-                sourceColumn = value;
-            }
-        }
+        public override string SourceColumn { get; set; }
+        public override bool SourceColumnNullMapping { get; set; }
 
-        public override bool SourceColumnNullMapping
-        {
-            get
-            {
-                return sourceColumnNullMapping;
-            }
-            set
-            {
-                sourceColumnNullMapping = value;
-            }
-        }
+        public override DataRowVersion SourceVersion { get; set; } = DataRowVersion.Default;
 
-        public override DataRowVersion SourceVersion
+        /// <summary>
+        ///     Gets or sets the value of the parameter.
+        /// </summary>
+        /// <value>The value of the parameter.</value>
+        public override object? Value
         {
-            get
-            {
-                return sourceVersion;
-            }
-            set
-            {
-                sourceVersion = value;
-            }
-        }
-
-        public override object Value
-        {
-            get
-            {
-                return this.value;
-            }
-            set
-            {
-                this.value = value;
-            }
+            get => _value;
+            set { _value = value; }
         }
 
         #region ICloneable Members

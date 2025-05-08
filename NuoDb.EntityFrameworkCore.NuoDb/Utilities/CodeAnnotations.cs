@@ -49,6 +49,7 @@ namespace JetBrains.Annotations;
 ///   ShowError("Failed: {0}"); // Warning: Non-existing argument in format string
 /// }
 /// </code></example>
+[ExcludeFromCodeCoverage]
 [AttributeUsage(
     AttributeTargets.Constructor | AttributeTargets.Method | AttributeTargets.Property | AttributeTargets.Delegate)]
 internal sealed class StringFormatMethodAttribute : Attribute
@@ -91,6 +92,7 @@ internal sealed class StringFormatMethodAttribute : Attribute
 ///   }
 /// }
 /// </code></example>
+[ExcludeFromCodeCoverage]
 [AttributeUsage(
     AttributeTargets.Parameter | AttributeTargets.Property | AttributeTargets.Field,
     AllowMultiple = true)]
@@ -116,6 +118,7 @@ internal sealed class ValueProviderAttribute : Attribute
 ///   }
 /// }
 /// </code></example>
+[ExcludeFromCodeCoverage]
 [AttributeUsage(
     AttributeTargets.Parameter
     | AttributeTargets.Field
@@ -161,6 +164,7 @@ internal sealed class ValueRangeAttribute : Attribute
 ///   }
 /// }
 /// </code></example>
+[ExcludeFromCodeCoverage]
 [AttributeUsage(
     AttributeTargets.Parameter
     | AttributeTargets.Field
@@ -182,6 +186,7 @@ internal sealed class NonNegativeValueAttribute : Attribute
 ///     throw new ArgumentNullException("par"); // Warning: Cannot resolve symbol
 /// }
 /// </code></example>
+[ExcludeFromCodeCoverage]
 [AttributeUsage(AttributeTargets.Parameter)]
 internal sealed class InvokerParameterNameAttribute : Attribute
 {
@@ -260,6 +265,7 @@ internal sealed class ContractAnnotationAttribute : Attribute
 ///   string str = "my string"; // Warning: Localizable string
 /// }
 /// </code></example>
+[ExcludeFromCodeCoverage]
 [AttributeUsage(AttributeTargets.All)]
 internal sealed class LocalizationRequiredAttribute : Attribute
 {
@@ -296,6 +302,7 @@ internal sealed class LocalizationRequiredAttribute : Attribute
 ///   }
 /// }
 /// </code></example>
+[ExcludeFromCodeCoverage]
 [AttributeUsage(AttributeTargets.Interface | AttributeTargets.Class | AttributeTargets.Struct)]
 internal sealed class CannotApplyEqualityOperatorAttribute : Attribute
 {
@@ -313,6 +320,7 @@ internal sealed class CannotApplyEqualityOperatorAttribute : Attribute
 /// class MyComponent : IComponent { }
 /// </code></example>
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
+[ExcludeFromCodeCoverage]
 [BaseTypeRequired(typeof(Attribute))]
 internal sealed class BaseTypeRequiredAttribute : Attribute
 {
@@ -329,6 +337,7 @@ internal sealed class BaseTypeRequiredAttribute : Attribute
 /// so this symbol will not be reported as unused (as well as by other usage inspections).
 /// </summary>
 [AttributeUsage(AttributeTargets.All)]
+[ExcludeFromCodeCoverage]
 internal sealed class UsedImplicitlyAttribute : Attribute
 {
     public UsedImplicitlyAttribute()
@@ -364,6 +373,7 @@ internal sealed class UsedImplicitlyAttribute : Attribute
 /// is used implicitly.
 /// </summary>
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.GenericParameter | AttributeTargets.Parameter)]
+[ExcludeFromCodeCoverage]
 internal sealed class MeansImplicitUseAttribute : Attribute
 {
     public MeansImplicitUseAttribute()
@@ -454,6 +464,7 @@ internal enum ImplicitUseTargetFlags
 /// }
 /// </code></example>
 [AttributeUsage(AttributeTargets.Parameter)]
+[ExcludeFromCodeCoverage]
 internal sealed class NoEnumerationAttribute : Attribute
 {
 }
@@ -462,6 +473,7 @@ internal sealed class NoEnumerationAttribute : Attribute
 /// Indicates that the marked parameter is a regular expression pattern.
 /// </summary>
 [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Field | AttributeTargets.Property)]
+[ExcludeFromCodeCoverage]
 internal sealed class RegexPatternAttribute : Attribute
 {
 }

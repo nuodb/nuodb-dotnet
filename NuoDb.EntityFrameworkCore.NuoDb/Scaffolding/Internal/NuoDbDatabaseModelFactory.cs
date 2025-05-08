@@ -97,7 +97,7 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Scaffolding.Internal
                     schemaFilterBuilder.Append(')');
                     return schemaFilterBuilder.ToString();
                 })
-                : (s => $"{s} != 'SYSTEM'");
+                : (s => $"{s} not in ('SYSTEM', 'Northwind')");
         }
 
          private static Func<string, string, string>? GenerateTableFilter(
@@ -113,7 +113,6 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Scaffolding.Internal
                             if (schemaFilter != null)
                             {
                                 tableFilterBuilder
-                                    .Append('(')
                                     .Append(schemaFilter(s));
                                 openBracket = true;
                             }
@@ -124,7 +123,7 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Scaffolding.Internal
                                 {
                                     tableFilterBuilder
                                         .AppendLine()
-                                        .Append("OR ");
+                                        .Append("AND ");
                                 }
                                 else
                                 {
@@ -135,10 +134,11 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Scaffolding.Internal
                                 var tablesWithoutSchema = tables.Where(e => string.IsNullOrEmpty(e.Schema)).ToList();
                                 if (tablesWithoutSchema.Count > 0)
                                 {
+                                    tableFilterBuilder.Append("(");
                                     tableFilterBuilder.Append(t);
                                     tableFilterBuilder.Append(" IN (");
                                     tableFilterBuilder.AppendJoin(", ", tablesWithoutSchema.Select(e => EscapeLiteral(e.Table)));
-                                    tableFilterBuilder.Append(')');
+                                    tableFilterBuilder.Append(")");
                                 }
 
                                 var tablesWithSchema = tables.Where(e => !string.IsNullOrEmpty(e.Schema)).ToList();
@@ -150,20 +150,13 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Scaffolding.Internal
                                     }
 
                                     tableFilterBuilder.Append(t);
-                                    tableFilterBuilder.Append(" IN (");
+                                    tableFilterBuilder.Append(" in ( ");
                                     tableFilterBuilder.AppendJoin(", ", tablesWithSchema.Select(e => EscapeLiteral(e.Table)));
-                                    tableFilterBuilder.Append(") AND (");
-                                    tableFilterBuilder.Append(s);
-                                    tableFilterBuilder.Append(" + N'.' + ");
-                                    tableFilterBuilder.Append(t);
-                                    tableFilterBuilder.Append(") IN (");
-                                    tableFilterBuilder.AppendJoin(
-                                        ", ", tablesWithSchema.Select(e => EscapeLiteral($"{e.Schema}.{e.Table}")));
-                                    tableFilterBuilder.Append(')');
+                                    tableFilterBuilder.Append(") ");
                                 }
                             }
 
-                            if (openBracket)
+                            if (openBracket && tables.Count > 0)
                             {
                                 tableFilterBuilder.Append(')');
                             }
@@ -199,7 +192,7 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Scaffolding.Internal
         {
             Check.NotNull(connectionString, nameof(connectionString));
             Check.NotNull(options, nameof(options));
-
+        
             using var connection = new NuoDbConnection(connectionString);
             return Create(connection, options);
         }
@@ -219,10 +212,10 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Scaffolding.Internal
 
             var databaseModel = new DatabaseModel();
             var schemaList = options.Schemas.ToList();
-            if (schemaList.Count < 1 && !string.IsNullOrEmpty(connSchema))
-            {
-                schemaList.Add(connSchema);
-            }
+            // if (schemaList.Count < 1 && !string.IsNullOrEmpty(connSchema))
+            // {
+            //     schemaList.Add(connSchema);
+            // }
             
             var schemaFilter = GenerateSchemaFilter(schemaList);
             var tableList = options.Tables.ToList();
@@ -300,9 +293,26 @@ WHERE " + schemaFilter("schema");
                     Database = databaseModel,
                     Name = sequenceName,
                     Schema = schema,
+                    StartValue = GetSequenceStartValue(connection, sequenceName)
+                    
                 };
                 databaseModel.Sequences.Add(sequence);
             }
+
+        }
+
+        private long? GetSequenceStartValue(DbConnection connection, string sequenceName)
+        {
+            using var command = connection.CreateCommand();
+            command.CommandText = $"SELECT NEXT VALUE FOR {sequenceName} from DUAL";
+
+            var result = command.ExecuteScalar();
+            if (result == DBNull.Value)
+            {
+                return null;
+            }
+            var converted = Convert.ChangeType(result, typeof(long));
+            return (long)converted;
 
         }
 
@@ -319,8 +329,7 @@ WHERE " + schemaFilter("schema");
 
         private void GetTables(DbConnection connection, DatabaseModel databaseModel, Func<string, string, string>? tableFilter)
         {
-            // var tablesToSelect = new HashSet<string>(tables.ToList(), StringComparer.OrdinalIgnoreCase);
-            // var selectedTables = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+           
 
             var tables = new List<DatabaseTable>();
 
@@ -333,18 +342,11 @@ WHERE " + schemaFilter("schema");
                 var filter = "";
                 if (tableFilter != null)
                 {
-                    filter = tableFilter("\"t\".\"SCHEMA\"", "\"t\".\"SCHEMA\"");
+                    filter = tableFilter("\"t\".\"SCHEMA\"", "\"t\".\"TABLENAME\"");
                     commandText.Append($"and {filter}");
                 }
 
-                // if (tablesToSelect.Any())
-                // {
-                //     commandText.Append($" and \"t\".\"TABLENAME\" in ({string.Join(",", tablesToSelect)})");
-                // }
-                // else
-                // {
-                //     commandText.Append(" and \"t\".\"TABLENAME\" != '").Append(HistoryRepository.DefaultTableName).Append("'");
-                // }
+              
                     
                 command.CommandText = commandText.ToString();
 
@@ -353,10 +355,7 @@ WHERE " + schemaFilter("schema");
                 {
                     var schema = reader.GetValueOrDefault<string>("SCHEMA");
                     var name = reader.GetValueOrDefault<string>("TABLENAME");
-                    // if (!AllowsTable(tablesToSelect, selectedTables, name))
-                    // {
-                    //     continue;
-                    // }
+                    
 
                     _logger.TableFound(name);
 
@@ -367,10 +366,7 @@ WHERE " + schemaFilter("schema");
                     table.Schema = schema;
 
                     
-                    // GetPrimaryKey(connection, table, schema);
-                    // GetUniqueConstraints(connection, table, schema);
-                    // GetIndexes(connection, table, schema);
-
+                   
                     tables.Add(table);
                 }
                 GetColumns(connection, tables, filter);
@@ -384,23 +380,12 @@ WHERE " + schemaFilter("schema");
             }
         }
 
-        private static bool AllowsTable(HashSet<string> tables, HashSet<string> selectedTables, string name)
-        {
-            if (tables.Count == 0)
-            {
-                return true;
-            }
-
-            if (tables.Contains(name))
-            {
-                selectedTables.Add(name);
-                return true;
-            }
-
-            return false;
-        }
-
-        // TODO: Implement
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         private void GetColumns(
             DbConnection connection,
             IReadOnlyList<DatabaseTable> tables,
@@ -534,185 +519,6 @@ WHERE " + schemaFilter("schema");
             return dataTypeName;
         }
 
-        private string? FilterClrDefaults(string dataType, bool notNull, string defaultValue)
-        {
-            if (string.Equals(defaultValue, "null", StringComparison.OrdinalIgnoreCase))
-            {
-                return null;
-            }
-
-            if (notNull
-                && defaultValue == "0"
-                && _typeMappingSource.FindMapping(dataType)?.ClrType.IsNumeric() == true)
-            {
-                return null;
-            }
-
-            return defaultValue;
-        }
-
-        // private void GetPrimaryKeys(DbConnection connection, IReadOnlyList<DatabaseTable> tables, string tableFilter)
-        // {
-        //     using var command = connection.CreateCommand();
-        //     var sql = @" SELECT 
-        //   schema || '.' || tablename || '.' || indexname AS Id,
-        //   schema || '.' || tablename AS ParentId,
-        //   indexId,
-        //   indexname AS Name,
-        //   false AS IsDeferrable,
-        //   false AS IsInitiallyDeferred,
-        //   case indextype
-        //     when 0 then 'PRIMARY KEY'
-        //     when 1 then 'UNIQUE'
-        //   end AS ConstraintType
-        // FROM SYSTEM.INDEXES
-        // WHERE
-        //   schema != 'SYSTEM' AND (indextype = 0) 
-        //   and ";
-        //     sql += tableFilter;
-        //
-        //     
-        //     using var reader = command.ExecuteReader();
-        //     if (reader.Read())
-        //     {
-        //         var name = reader.GetValueOrDefault<string>("NAME");
-        //         _logger.PrimaryKeyFound(name, table.Name);
-        //         var primaryKey = new DatabasePrimaryKey
-        //         {
-        //             Table = table,
-        //             Name = name
-        //         };
-        //
-        //         using var command2 = connection.CreateCommand();
-        //         command2.CommandText =
-        //             "select field from system.indexfields where indexname = @indexname and schema = @schema order by position";
-        //         var indexParam = command2.CreateParameter();
-        //         indexParam.ParameterName = "@indexname";
-        //         indexParam.Value = name;
-        //         command2.Parameters.Add(indexParam);
-        //
-        //         command2.Parameters.Add(schemaParam);
-        //
-        //         using var colreader = command2.ExecuteReader();
-        //         while (colreader.Read())
-        //         {
-        //             var columnName = colreader.GetValueOrDefault<string>("field");
-        //             var column = table.Columns.FirstOrDefault(c => c.Name == columnName)
-        //                          ?? table.Columns.FirstOrDefault(c => c.Name!.Equals(columnName, StringComparison.OrdinalIgnoreCase));
-        //             Check.DebugAssert(column != null, "column is null.");
-        //             primaryKey.Columns.Add(column);
-        //         }
-        //
-        //
-        //
-        //         table.PrimaryKey = primaryKey;
-        //     }
-        // }
-
-        private static void GetRowidPrimaryKey(
-            DbConnection connection,
-            DatabaseTable table)
-        {
-            using var command = connection.CreateCommand();
-            command.CommandText = new StringBuilder()
-                .AppendLine("SELECT \"name\"")
-                .AppendLine("FROM pragma_table_info(@table)")
-                .AppendLine("WHERE \"pk\" = 1;")
-                .ToString();
-
-            var parameter = command.CreateParameter();
-            parameter.ParameterName = "@table";
-            parameter.Value = table.Name;
-            command.Parameters.Add(parameter);
-
-            using var reader = command.ExecuteReader();
-            if (!reader.Read())
-            {
-                return;
-            }
-
-            var columnName = reader.GetString(0);
-            var column = table.Columns.FirstOrDefault(c => c.Name == columnName)
-                ?? table.Columns.FirstOrDefault(c => c.Name!.Equals(columnName, StringComparison.OrdinalIgnoreCase));
-            Check.DebugAssert(column != null, "column is null.");
-
-            Check.DebugAssert(!reader.Read(), "Unexpected composite primary key.");
-
-            table.PrimaryKey = new DatabasePrimaryKey
-            {
-                Table = table,
-                Name = string.Empty,
-                Columns = { column }
-            };
-        }
-
-        private void GetUniqueConstraints(DbConnection connection, DatabaseTable table, string schema)
-        {
-            using var command = connection.CreateCommand();
-            command.CommandText =
-                @" SELECT 
-          schema || '.' || tablename || '.' || indexname AS Id,
-          schema || '.' || tablename AS ParentId,
-          indexId,
-          indexname AS Name,
-          false AS IsDeferrable,
-          false AS IsInitiallyDeferred,
-          case indextype
-            when 0 then 'PRIMARY KEY'
-            when 1 then 'UNIQUE'
-          end AS ConstraintType
-        FROM SYSTEM.INDEXES
-        WHERE
-          schema != 'SYSTEM' AND (indextype = 4) 
-          and tablename = @table
-          and schema = @schema";
-
-            var parameter = command.CreateParameter();
-            parameter.ParameterName = "@table";
-            parameter.Value = table.Name;
-            command.Parameters.Add(parameter);
-
-            var schemaParam = new NuoDbParameter();
-            schemaParam.ParameterName = "@schema";
-            schemaParam.Value= schema;
-            schemaParam.DbType = DbType.String;
-            command.Parameters.Add(schemaParam);
-
-            using var reader = command.ExecuteReader();
-            while (reader.Read())
-            {
-                var name = reader.GetValueOrDefault<string>("NAME");
-                _logger.UniqueConstraintFound(name, table.Name);
-                var constraint = new DatabaseUniqueConstraint()
-                {
-                    Table = table,
-                    Name = name
-                };
-
-                using var command2 = connection.CreateCommand();
-                command2.CommandText =
-                    "select field from system.indexfields where indexname = @indexname order by position";
-                var indexParam = command2.CreateParameter();
-                indexParam.ParameterName = "@indexname";
-                indexParam.Value = name;
-                command2.Parameters.Add(indexParam);
-
-                using var colreader = command2.ExecuteReader();
-                while (colreader.Read())
-                {
-                    var columnName = colreader.GetValueOrDefault<string>("field");
-                    var column = table.Columns.FirstOrDefault(c => c.Name == columnName)
-                                 ?? table.Columns.FirstOrDefault(c =>
-                                     c.Name!.Equals(columnName, StringComparison.OrdinalIgnoreCase));
-                    Check.DebugAssert(column != null, "column is null.");
-                    constraint.Columns.Add(column);
-                }
-
-
-
-                table.UniqueConstraints.Add(constraint);
-            }
-        }
 
         private void GetIndexes(DbConnection connection, IReadOnlyList<DatabaseTable> tables, string tableFilter)
         {
@@ -894,40 +700,7 @@ WHERE " + schemaFilter("schema");
                     return true;
                 }
             }
-            // while (reader.Read())
-            // {
-            //     var name = reader.GetValueOrDefault<string>("NAME");
-            //     var isUnique = reader.GetValueOrDefault<string>("CONSTRAINTTYPE") == "UNIQUE";
-            //     _logger.IndexFound(name, table.Name, isUnique);
-            //     var index = new DatabaseIndex()
-            //     {
-            //         Table = table,
-            //         Name = name,
-            //         IsUnique = isUnique
-            //     };
-            //
-            //     using var command2 = connection.CreateCommand();
-            //     command2.CommandText =
-            //         "select field from system.indexfields where indexname = @indexname and schema=@schema order by position";
-            //     var indexParam = command2.CreateParameter();
-            //     indexParam.ParameterName = "@indexname";
-            //     indexParam.Value = name;
-            //     command2.Parameters.Add(indexParam);
-            //     command2.Parameters.Add(schemaParam);
-            //
-            //     using var colreader = command2.ExecuteReader();
-            //     while (colreader.Read())
-            //     {
-            //         var columnName = colreader.GetValueOrDefault<string>("field");
-            //         var column = table.Columns.FirstOrDefault(c => c.Name == columnName)
-            //                      ?? table.Columns.FirstOrDefault(c =>
-            //                          c.Name!.Equals(columnName, StringComparison.OrdinalIgnoreCase));
-            //         Check.DebugAssert(column != null, "column is null.");
-            //         index.Columns.Add(column);
-            //     }
-            //
-            //     table.Indexes.Add(index);
-            // }
+           
         }
         private static string DisplayName(string? schema, string name)
             => (!string.IsNullOrEmpty(schema) ? schema + "." : "") + name;
@@ -982,11 +755,7 @@ where ";
 
                     if (principalTableName == null)
                     {
-                        // _logger.ForeignKeyReferencesUnknownPrincipalTableWarning(
-                        //     fkName,
-                        //     DisplayName(table.Schema, table.Name));
-
-                        continue;
+                       continue;
                     }
 
                     _logger.ForeignKeyFound(
@@ -1004,12 +773,7 @@ where ";
 
                     if (principalTable == null)
                     {
-                        // _logger.ForeignKeyReferencesMissingPrincipalTableWarning(
-                        //     fkName,
-                        //     DisplayName(table.Schema, table.Name),
-                        //     DisplayName(principalTableSchema, principalTableName));
-
-                        continue;
+                       continue;
                     }
 
                     var foreignKey = new DatabaseForeignKey
@@ -1053,9 +817,7 @@ where ";
                     {
                         if (foreignKey.Columns.SequenceEqual(foreignKey.PrincipalColumns))
                         {
-                            // _logger.ReflexiveConstraintIgnored(
-                            //     foreignKey.Name!,
-                            //     DisplayName(table.Schema, table.Name!));
+                           
                         }
                         else
                         {
@@ -1065,11 +827,7 @@ where ";
                                         && k.PrincipalTable.Equals(foreignKey.PrincipalTable));
                             if (duplicated != null)
                             {
-                                // _logger.DuplicateForeignKeyConstraintIgnored(
-                                //     foreignKey.Name!,
-                                //     DisplayName(table.Schema, table.Name!),
-                                //     duplicated.Name!);
-                                continue;
+                               continue;
                             }
 
                             table.ForeignKeys.Add(foreignKey);
@@ -1080,6 +838,7 @@ where ";
             }
         }
 
+        [ExcludeFromCodeCoverage]
         private static ReferentialAction? ConvertToReferentialAction(int value)
         {
             switch (value)

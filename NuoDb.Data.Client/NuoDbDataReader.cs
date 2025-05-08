@@ -76,8 +76,7 @@ namespace NuoDb.Data.Client
             this.values = new Value[numberColumns];
             this.closed = false;
             this.currentRow = 0;
-
-            // this.afterLast = false;    // this is the default. The value is set later in this method from the pendingRows stream
+            //this.afterLast = false;
             this.declaredColumnTypes = null;
             this.declaredColumnTypeNames = null;
 
@@ -221,7 +220,7 @@ namespace NuoDb.Data.Client
                 row["BaseTableName"] = dataStream.getString();
 
                 var baseColumn = dataStream.getString();
-                row["BaseColumnName"] = IsSqlLiteral(baseColumn) ? null: baseColumn;
+                row["BaseColumnName"] = IsSqlLiteral(baseColumn)? null: baseColumn;
 
                 var columnName = dataStream.getString();
                 row["ColumnName"] = IsSqlLiteral(columnName) ? null : columnName;
@@ -296,7 +295,6 @@ namespace NuoDb.Data.Client
             if (name == null || name.Length == 0)
                 return true;
 
-            // literals begin with a single quote (string) or a digit (number)
             return "'0123456789".IndexOf(name[0]) >= 0;
         }
 
@@ -326,9 +324,8 @@ namespace NuoDb.Data.Client
 
         public override bool Read()
         {
-            // Currently, afterLast can only be false if pendingRows was non-null in InitResultSet();
-            // - but InitResultSet could be changed in the future.
-            if (afterLast || pendingRows == null)
+            //afterLast can only be false if pendingRows was non-null in InitResultSet().
+            if (afterLast)
                 return false;
 
             //int maxRows = statement == null ? 0 : statement.MaxRows;
@@ -348,7 +345,6 @@ namespace NuoDb.Data.Client
                 {
                     // InitResultSet() performs the pendingRows.getInt() for currentRow == 0
                     int result = currentRow > 0 ? pendingRows.getInt() : -1;
-
                     if (result == 0)
                     {
                         afterLast = true;
