@@ -48,12 +48,12 @@ namespace NuoDb.EntityFrameworkCore.NuoDb.Migrations.Internal
             get
             {
                 var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
-
+                var schemaName = stringTypeMapping.GenerateSqlLiteral(TableSchema);
+                var schemaCriteria = (string.IsNullOrWhiteSpace(schemaName) || schemaName == "NULL") ? "": $"\" AND \"SCHEMA\"= \"{schemaName}";
                 return
                     $"SELECT COUNT(*) FROM \"SYSTEM\".\"TABLES\" WHERE \"TABLENAME\" = "
                     + stringTypeMapping.GenerateSqlLiteral(TableName)
-                    + " AND \"SCHEMA\"= "
-                    + stringTypeMapping.GenerateSqlLiteral(TableSchema)
+                    + schemaCriteria
                     + " AND \"TYPE\" = 'TABLE'";
             }
         }
