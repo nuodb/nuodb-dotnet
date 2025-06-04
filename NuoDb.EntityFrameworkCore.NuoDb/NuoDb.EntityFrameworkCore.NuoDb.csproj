@@ -12,8 +12,8 @@
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Title>NuoDB EFCore implementation</Title>
     <Version>4.0.1</Version>
-    <Company>NuoDB, a Dassault Systemes company</Company>
-    <Copyright>Copyright (C) NuoDB 2012-2024</Copyright>
+    <Company>Dassault Systèmes SE</Company>
+    <Copyright>Copyright (c) 2025, Dassault Systèmes SE</Copyright>
     <PackageProjectUrl>http://nuodb.com</PackageProjectUrl>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/nuodb/nuodb-dotnet</RepositoryUrl>
