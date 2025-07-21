@@ -186,13 +186,13 @@ namespace NuoDb.Data.Client
                     }
                 }
         */
-        public override DateTime Date
+        public override DateOnly Date
         {
             get
             {
                 try
                 {
-                    return DateTime.Parse(value);
+                    return DateOnly.Parse(value);
                 }
                 catch (FormatException e)
                 {
@@ -201,7 +201,8 @@ namespace NuoDb.Data.Client
             }
         }
 
-        /*		public override Timestamp Timestamp
+        /*		// NTJ: This should now be DateTime instead of Timestamp
+                public override Timestamp Timestamp
                 {
                     get
                     {
@@ -217,6 +218,7 @@ namespace NuoDb.Data.Client
                     }
                 }
 
+                // NTJ this should now be TimeOnly instead of Time
                 public override Time Time
                 {
                     get

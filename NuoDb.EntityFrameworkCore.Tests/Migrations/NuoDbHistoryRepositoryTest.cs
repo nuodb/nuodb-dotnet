@@ -9,15 +9,13 @@ namespace NuoDb.EntityFrameworkCore.Tests.Migrations
     public class NuoDbHistoryRepositoryTest
     {
         private static string EOL => Environment.NewLine;
+        private static string SQL = $"CREATE TABLE IF NOT EXISTS \"__EFMigrationsHistory\" ({EOL}    \"MigrationId\" varchar(150) NOT NULL,{EOL}    \"ProductVersion\" varchar(32) NOT NULL,{EOL}    CONSTRAINT \"PK___EFMigrationsHistory\" PRIMARY KEY (\"MigrationId\"){EOL});{EOL}";
 
         [ConditionalFact]
         public void GetCreateScript_works()
         {
-            var sql = CreateHistoryRepository().GetCreateScript();
-
-            Assert.Equal("CREATE TABLE IF NOT EXISTS \"__EFMigrationsHistory\" (\r\n    \"MigrationId\" varchar(150) NOT NULL,\r\n    \"ProductVersion\" varchar(32) NOT NULL,\r\n    CONSTRAINT \"PK___EFMigrationsHistory\" PRIMARY KEY (\"MigrationId\")\r\n);\r\n"
-                ,
-                sql);
+            var script = CreateHistoryRepository().GetCreateScript();
+            Assert.Equal(SQL, script);
         }
 
         [ConditionalFact]
@@ -37,14 +35,8 @@ namespace NuoDb.EntityFrameworkCore.Tests.Migrations
         [ConditionalFact]
         public void GetCreateIfNotExistsScript_works()
         {
-            var sql = @"CREATE TABLE IF NOT EXISTS ""__EFMigrationsHistory"" (
-    ""MigrationId"" varchar(150) NOT NULL,
-    ""ProductVersion"" varchar(32) NOT NULL,
-    CONSTRAINT ""PK___EFMigrationsHistory"" PRIMARY KEY (""MigrationId"")
-);
-";
             var script = CreateHistoryRepository().GetCreateIfNotExistsScript();
-            Assert.Equal(sql, script);
+            Assert.Equal(SQL, script);
         }
 
         [ConditionalFact]

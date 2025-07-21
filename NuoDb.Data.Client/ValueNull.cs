@@ -38,7 +38,7 @@ namespace NuoDb.Data.Client
             dataStream.encodeNull();
         }
 
-        public override DateTime Date
+        public override DateOnly Date
         {
             get
             {
@@ -46,6 +46,22 @@ namespace NuoDb.Data.Client
             }
         }
 
+        public override TimeOnly Time
+        {
+            get
+            {
+                return nullTime;
+            }
+        }
+
+        public override DateTime TimeStamp
+        {
+            get
+            {
+                return nullTimeStamp;
+            }
+        }
+        
         public override string String
         {
             get

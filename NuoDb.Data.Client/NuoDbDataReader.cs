@@ -480,9 +480,14 @@ namespace NuoDb.Data.Client
             throw new NotImplementedException();
         }
 
-        public override DateTime GetDateTime(int i)
+        public DateOnly GetDate(int i)
         {
             return getValue(i).Date;
+        }
+
+        public override DateTime GetDateTime(int i)
+        {
+            return getValue(i).TimeStamp;
         }
 
         public override decimal GetDecimal(int i)

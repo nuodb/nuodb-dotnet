@@ -39,18 +39,18 @@ namespace NuoDb.Data.Client
     //
     class ValueTime : Value
     {
-        internal DateTime value;
+        internal TimeOnly value;
 
-        public ValueTime(DateTime val)
+        public ValueTime(TimeOnly val)
         {
             value = val;
         }
 
         public ValueTime(object val)
         {
-            if (val is DateTime)
+            if (val is TimeOnly)
             {
-                value = (DateTime)val;
+                value = (TimeOnly)val;
             }
             else
             {
@@ -66,7 +66,7 @@ namespace NuoDb.Data.Client
             }
         }
 
-        public override DateTime Date
+        public override TimeOnly Time
         {
             get
             {
@@ -78,7 +78,7 @@ namespace NuoDb.Data.Client
         {
             get
             {
-                return value.TimeOfDay;
+                return value;
             }
         }
 
