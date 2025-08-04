@@ -201,39 +201,37 @@ namespace NuoDb.Data.Client
             }
         }
 
-        /*		// NTJ: This should now be DateTime instead of Timestamp
-                public override Timestamp Timestamp
+        public override DateTime TimeStamp
+        {
+            get
+            {
+                try
                 {
-                    get
-                    {
-                        try
-                        {
-                            return new Timestamp(TimestampFormatter.parse(value).Time);
-                        }
-                        catch (ParseException e)
-                        {
-                            throw new NuoDbSqlException(MessageFormat.format("Unable to parse \"{0}\" into a Timestamp", value), e);
-                        }
-    
-                    }
+                    return DateTime.Parse(value);
+                }
+                catch (FormatException e)
+                {
+                    throw new NuoDbSqlException(String.Format("Unable to parse \"{0}\" into a Timestamp", value), e);
                 }
 
-                // NTJ this should now be TimeOnly instead of Time
-                public override Time Time
+            }
+        }
+
+        public override TimeOnly Time
+        {
+            get
+            {
+                try
                 {
-                    get
-                    {
-                        try
-                        {
-                            return new Time(TimeFormatter.parse(value).Time);
-                        }
-                        catch (ParseException e)
-                        {
-                            throw new NuoDbSqlException(MessageFormat.format("Unable to parse \"{0}\" into a Time", value), e);
-                        }
-                    }
+                    return TimeOnly.Parse(value);
                 }
-        */
+                catch (FormatException e)
+                {
+                    throw new NuoDbSqlException(String.Format("Unable to parse \"{0}\" into a Time", value), e);
+                }
+            }
+        }
+
         public override bool Boolean
         {
             get

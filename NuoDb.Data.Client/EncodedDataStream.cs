@@ -573,6 +573,10 @@ namespace NuoDb.Data.Client
             {
                 encodeDate(((DateOnly)value).ToDateTime(Value.nullTime));
             }
+            else if (value is TimeOnly)
+            {
+                encodeTime(((TimeOnly)value).ToTimeSpan());
+            }            
             else if (value is DateTime)
             {
                 if (((DateTime)value).TimeOfDay.TotalSeconds == 0)

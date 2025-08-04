@@ -74,6 +74,14 @@ namespace NuoDb.Data.Client
             }
         }
 
+        public override DateTime TimeStamp
+        {
+            get
+            {
+                return new DateTime(nullDate, value);
+            }
+        }
+
         public override object Object
         {
             get

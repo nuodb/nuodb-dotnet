@@ -480,11 +480,6 @@ namespace NuoDb.Data.Client
             throw new NotImplementedException();
         }
 
-        public DateOnly GetDate(int i)
-        {
-            return getValue(i).Date;
-        }
-
         public override DateTime GetDateTime(int i)
         {
             return getValue(i).TimeStamp;
