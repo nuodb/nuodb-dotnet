@@ -1528,50 +1528,50 @@ namespace NuoDb.Data.Client
                 case edsTypeScaledTime:
                     {
                         long inNanos = Value.reScale(integer64, scale, NANOSECONDS_SCALE);
-                        DateTime utcTime = new DateTime(baseDate.Ticks + inNanos / NANOSECONDS_PER_TICK, DateTimeKind.Utc);
-                        DateTime localTime = TimeZoneInfo.ConvertTimeFromUtc(utcTime, sqlContext.TimeZone);
-                        TimeOnly localTimeOnly = new TimeOnly(localTime.Hour, localTime.Minute, localTime.Second, localTime.Millisecond, localTime.Microsecond);
+                        DateTime utcDateTime = new DateTime(baseDate.Ticks + inNanos / NANOSECONDS_PER_TICK, DateTimeKind.Utc);
+                        DateTime localDateTime = TimeZoneInfo.ConvertTimeFromUtc(utcDateTime, sqlContext.TimeZone);
+                        TimeOnly localTimeOnly = new TimeOnly(localDateTime.Hour, localDateTime.Minute, localDateTime.Second, localDateTime.Millisecond, localDateTime.Microsecond);
                         return new ValueTime(localTimeOnly);
                     }
 
                 case edsTypeTime:
                     {
-                        DateTime utcTime = new DateTime(baseDate.Ticks + integer64 * TimeSpan.TicksPerMillisecond, DateTimeKind.Utc);
-                        DateTime localTime = TimeZoneInfo.ConvertTimeFromUtc(utcTime, sqlContext.TimeZone);
-                        TimeOnly localTimeOnly = new TimeOnly(localTime.Hour, localTime.Minute, localTime.Second, localTime.Millisecond);
+                        DateTime utcDateTime = new DateTime(baseDate.Ticks + integer64 * TimeSpan.TicksPerMillisecond, DateTimeKind.Utc);
+                        DateTime localDateTime = TimeZoneInfo.ConvertTimeFromUtc(utcDateTime, sqlContext.TimeZone);
+                        TimeOnly localTimeOnly = new TimeOnly(localDateTime.Hour, localDateTime.Minute, localDateTime.Second, localDateTime.Millisecond);
                         return new ValueTime(localTimeOnly);
                     }
 
                 case edsTypeScaledDate:
                     {
                         long inSeconds = Value.reScale(integer64, scale, SECONDS_SCALE);
-                        DateTime utcTime = new DateTime(baseDate.Ticks + inSeconds * TimeSpan.TicksPerSecond, DateTimeKind.Utc);
-                        DateTime localTime = TimeZoneInfo.ConvertTimeFromUtc(utcTime, sqlContext.TimeZone);
-                        DateOnly localDate = new DateOnly(localTime.Year, localTime.Month, localTime.Day);
+                        DateTime utcDateTime = new DateTime(baseDate.Ticks + inSeconds * TimeSpan.TicksPerSecond, DateTimeKind.Utc);
+                        DateTime localDateTime = TimeZoneInfo.ConvertTimeFromUtc(utcDateTime, sqlContext.TimeZone);
+                        DateOnly localDate = new DateOnly(localDateTime.Year, localDateTime.Month, localDateTime.Day);
                         return new ValueDate(localDate);
                     }
 
                 case edsTypeMilliseconds:
                     {
-                        DateTime utcTime = new DateTime(baseDate.Ticks + integer64 * TimeSpan.TicksPerMillisecond, DateTimeKind.Utc);
-                        DateTime localTime = TimeZoneInfo.ConvertTimeFromUtc(utcTime, sqlContext.TimeZone);
-                        DateOnly localDate = new DateOnly(localTime.Year, localTime.Month, localTime.Day);
+                        DateTime utcDateTime = new DateTime(baseDate.Ticks + integer64 * TimeSpan.TicksPerMillisecond, DateTimeKind.Utc);
+                        DateTime localDateTime = TimeZoneInfo.ConvertTimeFromUtc(utcDateTime, sqlContext.TimeZone);
+                        DateOnly localDate = new DateOnly(localDateTime.Year, localDateTime.Month, localDateTime.Day);
                         return new ValueDate(localDate);
                     }
 
                 case edsTypeScaledTimestamp:
                     {
                         long inNanos = Value.reScale(integer64, scale, NANOSECONDS_SCALE);
-                        DateTime utcTime = new DateTime(baseDate.Ticks + inNanos / NANOSECONDS_PER_TICK, DateTimeKind.Utc);
-                        DateTime localTime = TimeZoneInfo.ConvertTimeFromUtc(utcTime, sqlContext.TimeZone);
-                        return new ValueTimestamp(localTime);
+                        DateTime utcDateTime = new DateTime(baseDate.Ticks + inNanos / NANOSECONDS_PER_TICK, DateTimeKind.Utc);
+                        DateTime localDateTime = TimeZoneInfo.ConvertTimeFromUtc(utcDateTime, sqlContext.TimeZone);
+                        return new ValueTimestamp(localDateTime);
                     }
 
                 case edsTypeNanoseconds:
                     {
-                        DateTime utcTime = new DateTime(baseDate.Ticks + integer64 / NANOSECONDS_PER_TICK, DateTimeKind.Utc);
-                        DateTime localTime = TimeZoneInfo.ConvertTimeFromUtc(utcTime, sqlContext.TimeZone);
-                        return new ValueTimestamp(localTime);
+                        DateTime utcDateTime = new DateTime(baseDate.Ticks + integer64 / NANOSECONDS_PER_TICK, DateTimeKind.Utc);
+                        DateTime localDateTime = TimeZoneInfo.ConvertTimeFromUtc(utcDateTime, sqlContext.TimeZone);
+                        return new ValueTimestamp(localDateTime);
                     }
 
                 case edsTypeBigInt:
