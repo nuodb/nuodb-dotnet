@@ -78,7 +78,7 @@ namespace NuoDb.Data.Client
             }
         }
 
-        public override DateTime Date
+        public override DateTime TimeStamp
         {
             get
             {

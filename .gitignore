@@ -11,3 +11,4 @@ WebApplicationSample/WebApplicationSample.csproj.user
 *.user
 /*.nupkg
 .vs
+.vscode/settings.json

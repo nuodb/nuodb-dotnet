@@ -38,18 +38,18 @@ namespace NuoDb.Data.Client
     //
     class ValueDate : Value
     {
-        internal DateTime value;
+        internal DateOnly value;
 
-        public ValueDate(DateTime val)
+        public ValueDate(DateOnly val)
         {
             value = val;
         }
 
         public ValueDate(object val)
         {
-            if (val is DateTime)
+            if (val is DateOnly)
             {
-                value = (DateTime)val;
+                value = (DateOnly)val;
             }
             else
             {
@@ -73,7 +73,7 @@ namespace NuoDb.Data.Client
             }
         }
 
-        public override DateTime Date
+        public override DateOnly Date
         {
             get
             {
@@ -81,11 +81,20 @@ namespace NuoDb.Data.Client
             }
         }
 
+
+        public override DateTime TimeStamp
+        {
+            get
+            {
+                return value.ToDateTime(nullTime);
+            }
+        }
+
         public override object Object
         {
             get
             {
-                return Date;
+                return value;
             }
         }
 

@@ -1732,9 +1732,9 @@ namespace NuoDb.Data.Client
                 case DbType.Decimal: return "System.Decimal";
                 case DbType.Byte: return "System.Byte";
                 case DbType.String: return "System.String";
-                case DbType.Date: return "System.DateOnly";
-                case DbType.Time: return "System.TimeSpan";
-                case DbType.DateTime: return "System.DateTime";
+                case DbType.Date: return "System.DateOnly";              
+                case DbType.Time: return "System.TimeOnly";
+                case DbType.DateTime: return "System.DateTime";             
                 case DbType.Binary:
                 case DbType.Object: return "System.Object";
             }
@@ -1775,7 +1775,11 @@ namespace NuoDb.Data.Client
                 return "System.Single";
             if (p == "double")
                 return "System.Double";
-            if (p == "date" || p == "time" || p == "timestamp")
+            if (p == "date")
+                return "System.DateOnly";
+            if (p == "time")
+                return "System.TimeOnly";
+            if (p == "timestamp")
                 return "System.DateTime";
             if (p == "bigint")
                 return "System.Decimal";

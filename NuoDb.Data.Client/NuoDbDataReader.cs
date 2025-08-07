@@ -482,7 +482,7 @@ namespace NuoDb.Data.Client
 
         public override DateTime GetDateTime(int i)
         {
-            return getValue(i).Date;
+            return getValue(i).TimeStamp;
         }
 
         public override decimal GetDecimal(int i)

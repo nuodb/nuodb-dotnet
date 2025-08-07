@@ -112,7 +112,11 @@ namespace NuoDb.Data.Client
         protected static readonly string timeFormat = "HH:mm:ss.FFFFFFF";
         protected static readonly string timestampFormat = "yyyy-MM-dd HH:mm:ss.FFFFFFF";
 
-        protected static readonly DateTime nullDate = new DateTime(0);
+
+        public static readonly DateTime nullTimeStamp = new DateTime(0);
+        public static readonly DateOnly nullDate = DateOnly.FromDateTime(nullTimeStamp);
+        public static readonly TimeOnly nullTime = new TimeOnly(0);
+
 
         public virtual int Type
         {
@@ -240,21 +244,29 @@ namespace NuoDb.Data.Client
             }
         }
 
-        public virtual DateTime Date
+        public virtual DateOnly Date
         {
             get
             {
                 throwConversionNotImplemented("date");
-                return new DateTime();
+                return new DateOnly();
             }
         }
 
-        public virtual TimeSpan TimeSpan
+        public virtual TimeOnly Time
         {
             get
             {
-                throwConversionNotImplemented("TimeSpan");
-                return new TimeSpan();
+                throwConversionNotImplemented("time");
+                return new TimeOnly();
+            }
+        }
+
+        public virtual DateTime TimeStamp        {
+            get
+            {
+                throwConversionNotImplemented("timestamp");
+                return new DateTime();
             }
         }
 

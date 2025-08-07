@@ -569,6 +569,14 @@ namespace NuoDb.Data.Client
             {
                 encodeBytes((byte[])value);
             }
+            else if (value is DateOnly)
+            {
+                encodeDate(((DateOnly)value).ToDateTime(Value.nullTime));
+            }
+            else if (value is TimeOnly)
+            {
+                encodeTime(((TimeOnly)value).ToTimeSpan());
+            }            
             else if (value is DateTime)
             {
                 if (((DateTime)value).TimeOfDay.TotalSeconds == 0)
@@ -1520,46 +1528,50 @@ namespace NuoDb.Data.Client
                 case edsTypeScaledTime:
                     {
                         long inNanos = Value.reScale(integer64, scale, NANOSECONDS_SCALE);
-                        DateTime utcTime = new DateTime(baseDate.Ticks + inNanos / NANOSECONDS_PER_TICK, DateTimeKind.Utc);
-                        DateTime localTime = TimeZoneInfo.ConvertTimeFromUtc(utcTime, sqlContext.TimeZone);
-                        return new ValueTime(localTime);
+                        DateTime utcDateTime = new DateTime(baseDate.Ticks + inNanos / NANOSECONDS_PER_TICK, DateTimeKind.Utc);
+                        DateTime localDateTime = TimeZoneInfo.ConvertTimeFromUtc(utcDateTime, sqlContext.TimeZone);
+                        TimeOnly localTimeOnly = new TimeOnly(localDateTime.Hour, localDateTime.Minute, localDateTime.Second, localDateTime.Millisecond, localDateTime.Microsecond);
+                        return new ValueTime(localTimeOnly);
                     }
 
                 case edsTypeTime:
                     {
-                        DateTime utcTime = new DateTime(baseDate.Ticks + integer64 * TimeSpan.TicksPerMillisecond, DateTimeKind.Utc);
-                        DateTime localTime = TimeZoneInfo.ConvertTimeFromUtc(utcTime, sqlContext.TimeZone);
-                        return new ValueTime(localTime);
+                        DateTime utcDateTime = new DateTime(baseDate.Ticks + integer64 * TimeSpan.TicksPerMillisecond, DateTimeKind.Utc);
+                        DateTime localDateTime = TimeZoneInfo.ConvertTimeFromUtc(utcDateTime, sqlContext.TimeZone);
+                        TimeOnly localTimeOnly = new TimeOnly(localDateTime.Hour, localDateTime.Minute, localDateTime.Second, localDateTime.Millisecond);
+                        return new ValueTime(localTimeOnly);
                     }
 
                 case edsTypeScaledDate:
                     {
                         long inSeconds = Value.reScale(integer64, scale, SECONDS_SCALE);
-                        DateTime utcTime = new DateTime(baseDate.Ticks + inSeconds * TimeSpan.TicksPerSecond, DateTimeKind.Utc);
-                        DateTime localTime = TimeZoneInfo.ConvertTimeFromUtc(utcTime, sqlContext.TimeZone);
-                        return new ValueDate(localTime);
+                        DateTime utcDateTime = new DateTime(baseDate.Ticks + inSeconds * TimeSpan.TicksPerSecond, DateTimeKind.Utc);
+                        DateTime localDateTime = TimeZoneInfo.ConvertTimeFromUtc(utcDateTime, sqlContext.TimeZone);
+                        DateOnly localDate = new DateOnly(localDateTime.Year, localDateTime.Month, localDateTime.Day);
+                        return new ValueDate(localDate);
                     }
 
                 case edsTypeMilliseconds:
                     {
-                        DateTime utcTime = new DateTime(baseDate.Ticks + integer64 * TimeSpan.TicksPerMillisecond, DateTimeKind.Utc);
-                        DateTime localTime = TimeZoneInfo.ConvertTimeFromUtc(utcTime, sqlContext.TimeZone);
-                        return new ValueDate(localTime);
+                        DateTime utcDateTime = new DateTime(baseDate.Ticks + integer64 * TimeSpan.TicksPerMillisecond, DateTimeKind.Utc);
+                        DateTime localDateTime = TimeZoneInfo.ConvertTimeFromUtc(utcDateTime, sqlContext.TimeZone);
+                        DateOnly localDate = new DateOnly(localDateTime.Year, localDateTime.Month, localDateTime.Day);
+                        return new ValueDate(localDate);
                     }
 
                 case edsTypeScaledTimestamp:
                     {
                         long inNanos = Value.reScale(integer64, scale, NANOSECONDS_SCALE);
-                        DateTime utcTime = new DateTime(baseDate.Ticks + inNanos / NANOSECONDS_PER_TICK, DateTimeKind.Utc);
-                        DateTime localTime = TimeZoneInfo.ConvertTimeFromUtc(utcTime, sqlContext.TimeZone);
-                        return new ValueTimestamp(localTime);
+                        DateTime utcDateTime = new DateTime(baseDate.Ticks + inNanos / NANOSECONDS_PER_TICK, DateTimeKind.Utc);
+                        DateTime localDateTime = TimeZoneInfo.ConvertTimeFromUtc(utcDateTime, sqlContext.TimeZone);
+                        return new ValueTimestamp(localDateTime);
                     }
 
                 case edsTypeNanoseconds:
                     {
-                        DateTime utcTime = new DateTime(baseDate.Ticks + integer64 / NANOSECONDS_PER_TICK, DateTimeKind.Utc);
-                        DateTime localTime = TimeZoneInfo.ConvertTimeFromUtc(utcTime, sqlContext.TimeZone);
-                        return new ValueTimestamp(localTime);
+                        DateTime utcDateTime = new DateTime(baseDate.Ticks + integer64 / NANOSECONDS_PER_TICK, DateTimeKind.Utc);
+                        DateTime localDateTime = TimeZoneInfo.ConvertTimeFromUtc(utcDateTime, sqlContext.TimeZone);
+                        return new ValueTimestamp(localDateTime);
                     }
 
                 case edsTypeBigInt:
@@ -1576,6 +1588,18 @@ namespace NuoDb.Data.Client
             {
                 return offset >= totalLength;
             }
+        }
+
+        public virtual void encodeDate(DateOnly date)
+        {
+            if (date == null)
+            {
+                write(edsNull);
+
+                return;
+            }
+
+            encodeDate(date.ToDateTime(Value.nullTime));            
         }
 
         public virtual void encodeDate(DateTime date)
@@ -1596,6 +1620,18 @@ namespace NuoDb.Data.Client
             {
                 write((int)(value >> shift));
             }
+        }
+
+        public virtual void encodeScaledDate(DateOnly date)
+        {
+            if (date == null)
+            {
+                write(edsNull);
+
+                return;
+            }
+
+            encodeScaledDate(date.ToDateTime(Value.nullTime));
         }
 
         public virtual void encodeScaledDate(DateTime date)
@@ -1679,6 +1715,18 @@ namespace NuoDb.Data.Client
             write(byteArray);
         }
 
+        public virtual void encodeScaledTime(TimeOnly time)
+        {
+            if (time == null)
+            {
+                write(edsNull);
+
+                return;
+            }
+
+            encodeScaledTime(time.ToTimeSpan());    
+        }
+
         public virtual void encodeScaledTime(TimeSpan time)
         {
             if (time == null)
@@ -1689,6 +1737,18 @@ namespace NuoDb.Data.Client
             }
 
             encodeScaledTime(baseDate + time);
+        }
+
+        public virtual void encodeTime(TimeOnly time)
+        {
+            if (time == null)
+            {
+                write(edsNull);
+
+                return;
+            }
+
+            encodeTime(time.ToTimeSpan());    
         }
 
         public virtual void encodeTime(TimeSpan time)

@@ -186,7 +186,22 @@ namespace NuoDb.Data.Client
                     }
                 }
         */
-        public override DateTime Date
+        public override DateOnly Date
+        {
+            get
+            {
+                try
+                {
+                    return DateOnly.Parse(value);
+                }
+                catch (FormatException e)
+                {
+                    throw new NuoDbSqlException(String.Format("Unable to parse \"{0}\" into a Date", value), e);
+                }
+            }
+        }
+
+        public override DateTime TimeStamp
         {
             get
             {
@@ -196,42 +211,27 @@ namespace NuoDb.Data.Client
                 }
                 catch (FormatException e)
                 {
-                    throw new NuoDbSqlException(String.Format("Unable to parse \"{0}\" into a Date", value), e);
+                    throw new NuoDbSqlException(String.Format("Unable to parse \"{0}\" into a Timestamp", value), e);
+                }
+
+            }
+        }
+
+        public override TimeOnly Time
+        {
+            get
+            {
+                try
+                {
+                    return TimeOnly.Parse(value);
+                }
+                catch (FormatException e)
+                {
+                    throw new NuoDbSqlException(String.Format("Unable to parse \"{0}\" into a Time", value), e);
                 }
             }
         }
 
-        /*		public override Timestamp Timestamp
-                {
-                    get
-                    {
-                        try
-                        {
-                            return new Timestamp(TimestampFormatter.parse(value).Time);
-                        }
-                        catch (ParseException e)
-                        {
-                            throw new NuoDbSqlException(MessageFormat.format("Unable to parse \"{0}\" into a Timestamp", value), e);
-                        }
-    
-                    }
-                }
-
-                public override Time Time
-                {
-                    get
-                    {
-                        try
-                        {
-                            return new Time(TimeFormatter.parse(value).Time);
-                        }
-                        catch (ParseException e)
-                        {
-                            throw new NuoDbSqlException(MessageFormat.format("Unable to parse \"{0}\" into a Time", value), e);
-                        }
-                    }
-                }
-        */
         public override bool Boolean
         {
             get

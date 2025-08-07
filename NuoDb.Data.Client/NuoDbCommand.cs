@@ -815,7 +815,7 @@ namespace NuoDb.Data.Client
                         newParams.Add(parameters["@" + paramName]);
                     else if (parameters.Count > newParams.Count)
                     {
-                        if (parameters[newParams.Count].ParameterName.Length == 0)
+                        if (parameters[newParams.Count].ParameterName?.Length == 0)
                             parameters[newParams.Count].ParameterName = paramName;
                         newParams.Add(parameters[newParams.Count]);
                     }
@@ -863,7 +863,7 @@ namespace NuoDb.Data.Client
                         case 1: newParams[i].Direction = ParameterDirection.InputOutput; break;
                         case 2: newParams[i].Direction = ParameterDirection.Output; break;
                     }
-                    if (newParams[i].ParameterName.Length == 0)
+                    if (newParams[i].ParameterName?.Length == 0)
                         newParams[i].ParameterName = name;
                 }
                 parameters = newParams;
