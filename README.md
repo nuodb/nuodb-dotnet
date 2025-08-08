@@ -18,4 +18,4 @@ file (.circleci/config.yml) in the order listed.
 
 License
 -------------------
-[NuoDB License](https://github.com/nuodb/nuodb-dotnet/blob/master/LICENSE.txt)
+[BSD-3-Clause](https://github.com/nuodb/nuodb-dotnet/blob/master/LICENSE.txt)
