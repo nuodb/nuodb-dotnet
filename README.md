@@ -25,4 +25,4 @@ The CircleCI file contains the complete and tested build process for Linux envir
 
 License
 -------------------
-[NuoDB License](https://github.com/nuodb/nuodb-dotnet/blob/master/LICENSE.txt)
+[BSD-3-Clause](https://github.com/nuodb/nuodb-dotnet/blob/master/LICENSE.txt)
