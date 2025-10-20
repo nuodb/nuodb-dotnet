@@ -3,7 +3,7 @@ nuodb-dotnet
 
 [![CircleCI](https://dl.circleci.com/status-badge/img/gh/nuodb/nuodb-dotnet/tree/master.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/nuodb/nuodb-dotnet/tree/master)
 
-This repository contains the official NuoDB .NET driver which is updated periodically.
+This repository contains the official NuoDB .NET driver. The driver is updated and tested periodically.
 
 Windows Support
 ---------------
